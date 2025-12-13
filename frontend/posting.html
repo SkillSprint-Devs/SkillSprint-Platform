@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SkillSprint — Feed</title>
+
+  <!-- Fonts & Core Styles -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="./assets/css/variables.css" />
+  <link rel="stylesheet" href="./assets/css/posting.css" />
+
+
+  <!-- Icon Libraries -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+    rel="stylesheet"
+  />
+</head>
+
+
+<body>
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <div class="left">
+      <button id="btnBack" class="icon-btn" title="Back">
+        <span class="material-icons-outlined">arrow_back</span></button>
+      <span class="logo">SkillSprint</span>
+      <input id="searchInput" type="text" placeholder="Search people, skills..." class="search-input" />
+    </div>
+
+    <div class="nav-center-icons">
+      <a href="dashboard.html" title="Dashboard"><i class="fa-solid fa-table-columns"></i></a>
+      <a href="chat.html" title="Chat"><i class="fa-solid fa-comments"></i></a>
+      <a href="notifications.html" title="Notifications"><i class="fa-solid fa-bell"></i></a>
+    </div>
+
+    <div class="profile">
+      <div class="profile-info">
+        <span id="usernameTop">Guest</span>
+        <a href="profile.html" class="profile-link">Profile</a>
+      </div>
+      <img id="creatorAvatar" src="./assets/images/user-avatar.png" alt="User avatar" />
+    </div>
+  </nav>
+
+  <!-- MAIN GRID -->
+  <main class="posting-container">
+    <!-- LEFT SIDEBAR -->
+    <aside class="left-sidebar">
+      <div class="profile-card">
+        <img id="profileAvatar" src="./assets/images/user-avatar.png" alt="Profile picture" class="avatar" />
+        <h3 id="profileName">Your Name</h3>
+        <p id="profilePosition" class="position">Your role</p>
+
+        <div class="stats">
+          <div id="connectionsStat">
+            <strong id="connectionsCount">0</strong>
+            <span>Connections</span>
+          </div>
+          <div id="followingStat">
+            <strong id="followingCount">0</strong>
+            <span>Following</span>
+          </div>
+        </div>
+
+        <nav class="menu-links">
+          <a href="myposts.html">My Posts</a>
+          <a href="achievements.html">Achievements</a>
+          <a href="mentorship.html">Mentorship</a>
+          <a href="settings.html">Settings</a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- CONNECTIONS PANEL (slide-in) -->
+<div id="connectionsPanel">
+  <div id="connectionsPanelTitle">
+    <span id="connectionsPanelText">Followers</span>
+    <button id="closeConnectionsPanel" aria-label="Close">&times;</button>
+  </div>
+  <div id="connectionsPanelBody"></div>
+</div>
+
+
+    <!-- CENTER FEED -->
+    <section class="feed-section">
+      <h3 class="feed-heading">Share your thoughts</h3>
+
+      <!-- Create Post -->
+      <div class="create-post-card">
+        <div class="post-header-top">
+          <img id="creatorAvatarSmall" src="./assets/images/user-avatar.png" alt="avatar" class="user-avatar" />
+          <textarea id="postText" class="post-input" placeholder="Write something..."></textarea>
+        </div>
+
+        <div class="post-actions">
+          <div class="left-actions">
+            <input type="file" id="mediaInput" multiple accept="image/*,video/*" hidden />
+            <button id="attachBtn" class="icon-btn" title="Attach media">
+              <i class="fa-solid fa-paperclip"></i>
+            </button>
+          </div>
+          <div class="right-actions">
+            <button id="postSubmitBtn" class="post-btn">Post</button>
+          </div>
+        </div>
+
+        <div id="mediaPreview" class="media-preview"></div>
+      </div>
+
+      <!-- SORT FILTER BUTTON -->
+      <div class="post-sort"> 
+        <button id="sortPostsBtn" class="sort-btn">All Users</button>
+        <div class="sort-menu hidden" id="sortMenu">
+          <button class="sort-option" data-sort="following">Following</button>
+          <button class="sort-option" data-sort="all">All Users</button>
+        </div>
+      </div>
+
+      <!-- Posts Container -->
+      <div id="postsContainer"></div>
+    </section>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="right-sidebar">
+      <div class="sidebar-section suggestions-sec">
+        <h4>Suggestions</h4>
+        <div id="suggestionsList" class="sidebar-list">
+          <p class="placeholder">Loading suggestions…</p>
+        </div>
+      </div>
+
+      <div class="sidebar-section chat-sec">
+        <h4>Chats</h4>
+        <div id="chatList" class="sidebar-list">
+          <p class="placeholder">Follow users to start chat…</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- CHAT PANEL -->
+  <div id="chatPanel" class="chat-panel">
+    <div class="chat-panel-header">
+      <div class="chat-user-info">
+        <img id="chatUserImg" src="./assets/images/user-avatar.png" alt="User" />
+        <span id="chatUserName">User Name</span>
+      </div>
+      <button id="closeChatPanel" class="close-chat">×</button>
+    </div>
+    <div id="chatPanelBody" class="chat-panel-body">
+      <p class="chat-placeholder">This section is under development…</p>
+    </div>
+  </div>
+
+
+  <!-- Scripts -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/bottomNav.js"></script>
+  <script type="module" src="js/posting-sio.js"></script>
+  <script type="module" src="js/posting.js"></script>
+</body>
+</html>
+
+
+
+

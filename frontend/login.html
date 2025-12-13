@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | SkillSprint</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===== Variables ===== */
+    :root {
+      --base-bg: #F9F8D9;
+      --sidebar-bg: #1A1A1A;
+      --accent: #DCEF62;
+      --text-dark: #1A1A1A;
+      --text-light: #FFFFFF;
+      --muted: #bfbfbf;
+      --highlight: #8C52FF;
+    }
+
+    /* ===== General Layout ===== */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: var(--base-bg);
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+ 
+    .auth-card {
+      background: var(--text-light);
+      padding: 2.5rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 480px;
+    }
+
+    .auth-card h1 {
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-card h2 {
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.8rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: var(--text-light);
+      border: none;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .switch-text {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .switch-text a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1 class="logo">SkillSprint</h1>
+      <h2>Welcome Back!</h2>
+      <p class="subtitle">Good to see you again.</p>
+
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit" id="loginBtn" class="btn-primary">Login</button>
+      </form>
+
+      <p class="switch-text">
+        Don’t have an account? <a href="signup.html">Sign up</a>
+      </p>
+      <p class="switch-text">
+        <a href="forget-password.html">Forgot password?</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast script -->
+  <script src="js/toast.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginBtn = document.getElementById("loginBtn");
+
+      if (!loginBtn) {
+        console.error("Login button not found in DOM.");
+        return;
+      }
+
+      loginBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        if (!email || !password)
+          return showToast("Please fill both fields!", "error");
+
+        try {
+          const res = await fetch("http://localhost:5000/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            showToast(data.message || "Invalid login credentials.", "error");
+            return;
+          }
+
+          // Login successful
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          showToast("Login successful!", "success", 2000, () => {
+            window.location.href = "dashboard.html";
+          });
+        } catch (err) {
+          console.error("Login error:", err);
+          showToast("Server error. Please try again later.", "error");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

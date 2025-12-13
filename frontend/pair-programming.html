@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pair Programming — SkillSprint</title>
+
+  <!-- Your variables.css (already uploaded) -->
+  <link rel="stylesheet" href="assets/css/variables.css">
+
+  <!-- Page CSS -->
+  <link rel="stylesheet" href="assets/css/pair-programming.css">
+
+  <!-- CodeMirror 5 (simple, reliable) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css" />
+
+</head>
+
+<body>
+  <div class="pp-wrapper">
+    <!-- TOP NAV -->
+    <header class="top-nav">
+      <div class="left">
+        <div class="logo">SkillSprint</div>
+        <div class="project-name">/SkillSprint / PairProject</div>
+      </div>
+
+      <div class="right">
+        <button id="inviteBtn" class="btn accent">Invite +</button>
+        <div class="members" id="membersContainer"></div>
+        <button id="shareBtn" class="btn">Share</button>
+        <button id="helpBtn" class="btn">Help</button>
+      </div>
+      <button id="themeToggle" class="btn small">Dark Mode</button>
+
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs-bar" id="tabsBar">
+      <div class="tabs" id="tabs"></div>
+      <button id="newFileBtn" class="btn small">Add New</button>
+    </div>
+
+    <!-- MAIN BODY -->
+    <div class="body">
+      <!-- LEFT: Folder Area -->
+      <aside class="folder-area">
+        <div class="explorer-header">
+          <div>Explorer</div>
+          <div class="dots">⋯</div>
+        </div>
+        <div id="fileTree" class="file-tree"></div>
+      </aside>
+
+      <!-- CENTER: Code Area -->
+      <main class="code-area">
+        <div id="editorHeader" class="editor-header">
+          <div id="activeFilename">src/index.js</div>
+          <div class="editor-actions">
+            <button id="saveBtn" class="btn small">Save (Ctrl+S)</button>
+            <button id="runCodeBtn" class="btn small">Run</button>
+
+          </div>
+        </div>
+        <div id="editorContainer" class="editor-container"></div>
+
+        <!-- NEW OUTPUT PANEL -->
+  <aside id="outputPanel" class="output-panel">
+    <div id="codeOutput" style="
+      background:#222; 
+      color:#eee; 
+      font-family: monospace; 
+      padding: 12px; 
+      height: 100%; 
+      overflow-y: auto; 
+      white-space: pre-wrap;
+      ">
+    </div>
+  </aside>
+
+        <!-- <div id="codeOutput" 
+            style="background:#222; color:#eee; font-family: monospace; padding: 12px; height: 150px; overflow-y: auto; white-space: pre-wrap;">
+        </div> -->
+      </main>
+
+      <!-- RIGHT: Comments panel (slides) -->
+      <aside id="commentsPanel" class="comments-panel">
+        <div class="comments-header">
+          <div>Discussion</div>
+          <button id="closeComments" class="btn small">Close</button>
+        </div>
+        <div id="commentsList" class="comments-list"></div>
+
+        <div class="comments-input">
+          <input id="commentText" placeholder="Write a comment..." />
+          <button id="sendComment" class="btn accent">Send</button>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- Context Menu -->
+    <ul id="contextMenu" class="context-menu hidden">
+        <li data-action="new-file">New File</li>
+        <li data-action="new-folder">New Folder</li>
+        <li data-action="rename">Rename</li>
+        <li data-action="delete">Delete</li>
+    </ul>
+
+    <!-- Invite Modal -->
+    <div id="inviteModal" class="input-modal">
+      <div class="input-box invite-box" style="width: 400px; max-width: 90%;">
+        <h3>Invite to Collaborate</h3>
+        <input type="text" id="inviteSearch" placeholder="Search users by name..." style="margin-bottom: 10px;" />
+        
+        <div id="inviteUserList" class="user-list" style="max-height: 200px; overflow-y: auto; text-align: left; margin-bottom: 15px; border: 1px solid #eee; border-radius: 6px;">
+          <!-- Users will populate here -->
+        </div>
+
+        <div style="text-align: left; margin-bottom: 15px;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px;">Permission:</label>
+          <select id="invitePermission" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+            <option value="viewer">Request: View Only</option>
+            <option value="editor" selected>Request: Can Edit Files</option>
+            <!-- Mapping 'editor' to Run/Edit for simplicity in backend logic, but UI shows specific text -->
+            <option value="editor">Request: Can Run/Execute Code Check</option> 
+          </select>
+        </div>
+
+        <div class="input-actions">
+           <button id="sendInviteBtn" class="btn-ok">Send Invite</button>
+           <button class="btn-cancel btn-close-invite">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="input-modal">
+      <div class="input-box share-box" style="width: 400px; max-width: 90%;">
+        <h3>Share Public Link</h3>
+        
+        <div style="text-align: left; margin-bottom: 15px;">
+           <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px;">Link Permission:</label>
+           <select id="sharePermission" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+             <option value="viewer">View Only</option>
+             <option value="editor">Can Edit & Run Code</option>
+           </select>
+           <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Anyone with this link will have the selected permissions.</p>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="shareLinkInput" readonly value="https://..." style="background: #f9f9f9; color: #555;" />
+          <button id="copyShareLinkBtn" class="btn accent">Copy</button>
+        </div>
+
+        <div class="input-actions" style="margin-top: 15px;">
+           <button class="btn-cancel btn-close-share">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="input-modal">
+      <div class="input-box help-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h2 style="margin:0; font-size:1.4rem;">Pair Programming Guide</h2>
+          <button class="btn-close-help" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">&times;</button>
+        </div>
+        
+        <div class="help-content" style="text-align:left; max-height:60vh; overflow-y:auto; padding-right:10px;">
+          <p>Welcome to the <strong>SkillSprint Pair Programming</strong> environment!</p>
+          
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">🚀 1. How to Start</h3>
+          <ul style="padding-left:20px; margin:10px 0;">
+            <li><strong>Open a Workspace:</strong> Select a board from the Dashboard or Library.</li>
+            <li><strong>Invite Peers:</strong> Use the "Invite" or "Share" buttons top-right.</li>
+          </ul>
+
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">📝 2. Files & Naming</h3>
+          <p>You <strong>MUST</strong> use correct extensions for features to work:</p>
+          <ul style="padding-left:20px; margin:10px 0;">
+            <li><code>.js</code> - JavaScript (Runs with Node.js)</li>
+            <li><code>.py</code> - Python (Runs with Python 3)</li>
+            <li><code>.php</code> - PHP (Runs with PHP CLI)</li>
+            <li><code>.html</code> / <code>.css</code> - Syntax highlighting only</li>
+          </ul>
+
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">💻 3. Using the Editor</h3>
+          <ul style="padding-left:20px; margin:10px 0;">
+            <li><strong>Edit:</strong> Click a file to open. Tabs let you switch files.</li>
+            <li><strong>Save:</strong> Press <code>Ctrl+S</code> or click Save. <strong>Always save before running!</strong></li>
+          </ul>
+
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">▶️ 4. Running Code</h3>
+          <p>To execute JS, Python, or PHP:</p>
+          <ol style="padding-left:20px; margin:10px 0;">
+            <li>Select the file.</li>
+            <li>Ensure it is Saved.</li>
+            <li>Click <strong>Run</strong> in the toolbar.</li>
+            <li>Check the output panel at the bottom.</li>
+          </ol>
+          <p><em>(Max execution time: 5 seconds)</em></p>
+
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">⚠️ Limitations</h3>
+          <ul style="padding-left:20px; margin:10px 0;">
+             <li>No internet access for code execution.</li>
+             <li>No installing external packages.</li>
+             <li>Secure sandbox environment.</li>
+          </ul>
+        </div>
+
+        <div class="input-actions" style="margin-top:20px;">
+          <button class="btn-ok btn-close-help-action">Got it!</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Floating button to open comments -->
+     <button  id="toggleComments" class="fab">💬</button> 
+    
+  </div>
+
+  <!-- Page JS -->
+  <script src="js/pair-programming.js" type="module"></script>
+  <!-- <script src="js/pair-programming-sio.js" type="module"></script>
+  <script src="js/toast.js" type="module"></script> -->
+  
+</body>
+</html>

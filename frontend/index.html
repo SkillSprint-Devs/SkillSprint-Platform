@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillSprint | Loading</title>
+
+ 
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    
+    :root {
+      --base-bg: #F9F8D9;
+      --sidebar-bg: #1A1A1A;
+      --accent: #DCEF62;
+      --text-dark: #1A1A1A;
+      --text-light: #FFFFFF;
+      --muted: #bfbfbf;
+    }
+
+   
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--base-bg);
+      font-family: "Poppins", sans-serif;
+      color: var(--text-dark);
+      overflow: hidden;
+      margin: 0;
+    }
+
+    
+    .splash {
+      text-align: center;
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 1.2rem;
+      animation: pulse 1.6s infinite ease-in-out;
+    }
+
+    .loader {
+      width: 55px;
+      height: 55px;
+      border: 4px solid rgba(26, 26, 26, 0.2);
+      border-top: 4px solid var(--accent);
+      border-radius: 50%;
+      margin: 0 auto;
+      animation: spin 1s linear infinite;
+    }
+
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="splash">
+    <h1 class="title">SkillSprint</h1>
+    <div class="loader"></div>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = "getStarted.html";
+    }, 3000);
+  </script>
+</body>
+</html>

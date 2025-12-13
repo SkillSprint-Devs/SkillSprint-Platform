@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smartboard | SkillSprint</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/board.css">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="left-section">
+      <button id="btnBack" class="icon-btn" title="Back"><span class="material-icons-outlined">arrow_back</span></button>
+      <h3 id="boardTitle">SkillSprint • <span id="boardName">untitled</span>.smartboard</h3>
+      <div class="undo-redo">
+        <button id="undoBtn" class="icon-btn" title="Undo"><span class="material-icons-outlined">undo</span></button>
+        <button id="redoBtn" class="icon-btn" title="Redo"><span class="material-icons-outlined">redo</span></button>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <button id="saveBtn" class="accent-btn" title="Save Board (Ctrl+S)" style="background:var(--accent); color:#000; margin-right:8px;"><span class="material-icons-outlined">save</span> Save</button>
+      <button id="inviteBtn" class="icon-btn" title="Invite"><span class="material-icons-outlined">person_add</span></button>
+      <div id="activeUsers" class="avatars"></div>
+      <img id="currentUserAvatar" src="assets/images/user-avatar.png" alt="Me" class="avatar" title="You">
+      <button id="notifBtn" class="icon-btn" title="Notifications"><span class="material-icons-outlined">notifications</span></button>
+      <button id="recordBtn" class="icon-btn" title="Record (start/stop)"><span class="material-icons-outlined">fiber_manual_record</span></button>
+      <button id="shareBtn" class="accent-btn" title="Share"><span class="material-icons-outlined">share</span></button>
+    </div>
+  </header>
+
+<aside class="toolbox">
+  <button data-tool="pen" class="tool active" title="Pen">
+    <span class="material-icons-outlined">edit</span>
+  </button>
+  <button data-tool="eraser" class="tool" title="Eraser">
+    <span class="material-icons-outlined">auto_fix_high</span>
+  </button>
+  <button data-tool="highlighter" class="tool" title="Highlighter">
+    <span class="material-icons-outlined">highlight</span>
+  </button>
+  <button data-tool="rectangle" class="tool" title="Rectangle">
+    <span class="material-icons-outlined">crop_square</span>
+  </button>
+  <button data-tool="circle" class="tool" title="Circle">
+    <span class="material-icons-outlined">circle</span>
+  </button>
+  <button data-tool="text" class="tool" title="Text">
+    <span class="material-icons-outlined">text_fields</span>
+  </button>
+  
+    <div class="color-picker-wrapper">
+  <input id="colorPicker" type="color" value="#000000" title="Color">
+  <span class="color-display"></span>
+</div>
+
+
+  <button id="commentToggle" data-tool="comment" class="tool" title="Comments">
+    <span class="material-icons-outlined">chat_bubble_outline</span>
+  </button>
+  <button id="stickyBtn" data-tool="sticky" class="tool" title="Sticky Note">
+    <span class="material-icons-outlined">note_add</span>
+  </button>
+
+
+  <div class="stroke-control">
+    <input id="strokeRange" type="range" min="1" max="60" value="4" title="Stroke Size">
+  </div>
+</aside>
+
+
+  <main id="boardContainer">
+    <div id="canvasWrapper">
+      <canvas id="boardCanvas"></canvas>
+    </div>
+  </main>
+
+  <div id="commentsPanel" class="comments hidden">
+    <div class="comments-header">
+      <h4>Comments</h4>
+      <button id="closeComments"><span class="material-icons-outlined">close</span></button>
+    </div>
+    <div id="commentsList" class="comments-list"></div>
+    <textarea id="commentInput" placeholder="Add a comment..."></textarea>
+    <button id="sendComment" class="accent-btn">Send</button>
+  </div>
+
+  <!-- Invite Modal -->
+  <div id="inviteModal" class="modal-overlay">
+    <div class="modal">
+      <h3>Invite to Board</h3>
+      <input type="text" id="userSearchInput" class="full-width" placeholder="Search users by name or email...">
+      <div id="userList" class="user-list"></div>
+      
+      <label>Permission:</label>
+      <select id="inviteRole" class="full-width">
+        <option value="viewer">View Only</option>
+        <option value="editor">Can Edit</option>
+      </select>
+
+      <div class="modal-actions">
+        <button id="closeInviteBtn" class="accent-btn" style="background:#e0e0e0">Cancel</button>
+        <button id="sendInviteBtn" class="accent-btn" disabled>Send Invite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div id="shareModal" class="modal-overlay">
+    <div class="modal">
+      <h3>Share Public Link</h3>
+      <p style="font-size:14px; color:#666; margin:0;">Anyone with this link can access the board.</p>
+      
+      <div class="radio-group" style="display:flex; gap:16px; margin: 8px 0;">
+        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="viewer" checked> View Only</label>
+        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="editor"> Can Edit</label>
+      </div>
+
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="shareLinkInput" class="full-width" readonly onclick="this.select()" placeholder="No link generated yet">
+        <button id="copyShareLinkBtn" class="accent-btn">Copy</button>
+      </div>
+
+      <div class="modal-actions">
+        <button id="closeShareBtn" class="accent-btn" style="background:#e0e0e0">Close</button>
+        <button id="generateLinkBtn" class="accent-btn">Generate Link</button>
+      </div>
+    </div>
+  </div>
+
+  
+   <script> 
+window.BOARD_ID = (() => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id') || null;
+})();
+
+
+window.CURRENT_USER = (() => {
+  try {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
+})();
+</script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/board-sio.js"></script>
+
+</body>
+</html>
+
+
+

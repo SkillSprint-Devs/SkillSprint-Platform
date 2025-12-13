@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | SkillSprint</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== Variables ===== */
+    :root {
+      --base-bg: #F9F8D9;
+      --sidebar-bg: #1A1A1A;
+      --accent: #DCEF62;
+      --text-dark: #1A1A1A;
+      --text-light: #FFFFFF;
+      --muted: #bfbfbf;
+      --highlight: #8C52FF;
+    }
+
+    /* ===== General Styles ===== */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: var(--base-bg);
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .auth-card {
+      background: var(--text-light);
+      padding: 2.5rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: auto;
+      min-height: 520px;
+    }
+
+    .auth-card h1 {
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-card h2 {
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.8rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: var(--text-light);
+      border: none;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    #otpSection {
+      display: none;
+      width: 100%;
+      margin-bottom: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .switch-text {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .switch-text a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1 class="logo">SkillSprint</h1>
+      <h2>Create your account!</h2>
+      <p class="subtitle">Register Yourself — Enter a valid email!</p>
+
+      <form id="signupForm">
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+
+        <div id="otpSection">
+          <input type="text" id="otp" placeholder="Enter OTP" />
+        </div>
+
+        <button type="button" id="sendOtpBtn" class="btn-primary">Send OTP</button>
+        <button type="submit" id="verifyBtn" class="btn-primary" style="display:none;">Verify & Sign Up</button>
+      </form>
+
+      <p class="switch-text">
+        Already a member?
+        <a href="login.html">Login</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast Script -->
+  <script src="js/toast.js"></script>
+
+  <script>
+    const sendBtn = document.getElementById("sendOtpBtn");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const otpSection = document.getElementById("otpSection");
+
+    sendBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!name || !email || !password)
+        return showToast("Please fill all fields first!", "error");
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await res.json();
+        showToast(data.message, res.ok ? "success" : "error");
+
+        if (res.ok) {
+          otpSection.style.display = "block";
+          sendBtn.style.display = "none";
+          verifyBtn.style.display = "block";
+
+          localStorage.setItem(
+            "pendingSignup",
+            JSON.stringify({ name, email, password })
+          );
+        }
+      } catch (err) {
+        console.error("Send OTP error:", err);
+        showToast("Error sending OTP", "error");
+      }
+    });
+
+    verifyBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const otp = document.getElementById("otp").value.trim();
+      const stored = JSON.parse(localStorage.getItem("pendingSignup"));
+      if (!stored) return showToast("Signup info missing!", "error");
+      if (!otp) return showToast("Enter OTP first", "warning");
+
+      try {
+        const verifyRes = await fetch(
+          "http://127.0.0.1:5000/api/auth/verify-signup-otp",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: stored.name,
+              email: stored.email,
+              password: stored.password,
+              otp,
+            }),
+          }
+        );
+
+        const verifyData = await verifyRes.json();
+        showToast(verifyData.message, verifyRes.ok ? "success" : "error");
+
+        if (verifyRes.ok) {
+          localStorage.removeItem("pendingSignup");
+          showToast("Signup successful! Redirecting...", "success", 2000, () => {
+            window.location.href = "login.html";
+          });
+        }
+      } catch (err) {
+        console.error("Verification error:", err);
+        showToast("Something went wrong during signup verification.", "error");
+      }
+    });
+  </script>
+</body>
+</html>
+
+

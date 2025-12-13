@@ -1,0 +1,486 @@
+/* Use your variables.css colors */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: var(--base-bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+/* Container */
+.profile-container {
+  width: 100%;
+  max-width: 1100px;
+  background: var(--text-light);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(26, 26, 26, 0.1);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Header */
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--sidebar-bg);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+.icon-btn:hover {
+  color: var(--accent);
+}
+.profile-header h2 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: var(--sidebar-bg);
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+}
+
+/* Main content flex */
+.profile-content {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: nowrap;
+  min-height: 480px;
+}
+
+/* Left panel - profile summary */
+.profile-summary {
+  flex: 0 0 320px;
+  background: var(--text-light);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(26, 26, 26, 0.07);
+  text-align: center;
+  position: sticky;
+  top: 2rem;
+}
+.profile-summary img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  border: 4px solid var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+.profile-summary h2 {
+  margin-bottom: 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--sidebar-bg);
+}
+.profile-summary p {
+  margin: 0.3rem 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Right panel - details + edit form */
+.profile-details {
+  flex: 1;
+  background: var(--text-light);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(26, 26, 26, 0.07);
+  overflow-y: auto;
+  max-height: 700px;
+}
+
+/* Cards inside details */
+.profile-section {
+  margin-bottom: 2rem;
+}
+.profile-section h3 {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.3rem;
+  color: var(--sidebar-bg);
+}
+
+/* Skill tags */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.skill-tag {
+  background: var(--accent);
+  color: var(--sidebar-bg);
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  user-select: none;
+  box-shadow: 0 2px 5px rgba(220, 239, 98, 0.6);
+  transition: background-color 0.3s ease;
+}
+.skill-tag:hover {
+  background-color: #cde54e;
+  box-shadow: 0 3px 8px rgba(205, 229, 78, 0.8);
+}
+
+/* Project card styling */
+.project-card {
+  border: 1.5px solid var(--muted);
+  padding: 1.1rem 1.3rem;
+  border-radius: 14px;
+  margin-bottom: 1.2rem;
+  transition: box-shadow 0.3s ease;
+  cursor: default;
+  background-color: var(--base-bg);
+}
+.project-card:hover {
+  box-shadow: 0 8px 20px rgba(220, 239, 98, 0.35);
+  border-color: var(--accent);
+}
+.project-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--sidebar-bg);
+  font-weight: 700;
+}
+.project-card a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+.project-card a:hover {
+  text-decoration: underline;
+}
+
+/* Badge styling */
+.badge-list {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.badge {
+  padding: 9px 18px;
+  border-radius: 22px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  user-select: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.badge-bronze {
+  background: #b87333;
+  color: white;
+}
+.badge-silver {
+  background: #c0c0c0;
+  color: #333;
+}
+.badge-gold {
+  background: #ffd700;
+  color: #333;
+}
+
+/* Edit form styling */
+.edit-profile {
+  flex: 1;
+  background: #f4f8d9;
+  border-radius: 12px;
+  padding: 2rem 2.2rem;
+  box-shadow: 0 6px 25px rgba(220, 239, 98, 0.3);
+  overflow-y: auto;
+  max-height: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-size: 1rem;
+  color: var(--sidebar-bg);
+}
+.edit-profile h3 {
+  margin-top: 0;
+  font-weight: 800;
+  font-size: 1.7rem;
+  color: var(--accent);
+}
+
+.add-panel {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s ease;
+}
+.add-panel:not(.hidden) {
+  max-height: 600px; /* adjust height as needed */
+}
+
+
+.project-controls button,
+.education-controls button,
+.achievement-controls button {
+  color: var(--accent);
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+.project-controls button:hover,
+.education-controls button:hover,
+.achievement-controls button:hover {
+  opacity: 0.8;
+}
+
+/* ========================================
+   Cards & Panels
+======================================== */
+.project-card,
+.education-card,
+.achievement-item,
+.add-panel {
+  background-color: #fff; /* keep it clean and readable */
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.project-card:hover,
+.education-card:hover,
+.achievement-item:hover,
+.add-panel:hover {
+  transform: translateY(-2px);
+}
+
+/* ========================================
+   Forms
+======================================== */
+form input,
+form textarea,
+form select {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--muted);
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 5px var(--accent);
+  outline: none;
+}
+
+/* ========================================
+   Buttons
+======================================== */
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--text-dark);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #c4d948; /* slightly darker accent */
+}
+
+.btn-cancel-edit,
+.btn-cancel-education,
+.btn-cancel-achievement,
+.btn-add-cancel {
+  background-color: #eee;
+  color: var(--text-dark);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel-edit:hover,
+.btn-cancel-education:hover,
+.btn-cancel-achievement:hover,
+.btn-add-cancel:hover {
+  background-color: #ddd;
+}
+
+/* ========================================
+   Skill tags
+======================================== */
+.skill-tag {
+  display: inline-block;
+  background-color: var(--accent);
+  color: var(--text-dark);
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin: 2px 4px 2px 0;
+  font-size: 12px;
+}
+
+/* ========================================
+   Achievement badges
+======================================== */
+.badge-bronze {
+  background-color: #cd7f32;
+  color: #fff;
+}
+.badge-silver {
+  background-color: #c0c0c0;
+  color: #1a1a1a;
+}
+.badge-gold {
+  background-color: #ffd700;
+  color: #1a1a1a;
+}
+
+.achievement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.achievement-item small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+/* ========================================
+   Smooth hide/show
+======================================== */
+.hidden {
+  display: none;
+}
+
+/* ========================================
+   Grid layout for sections
+======================================== */
+#profileProjects,
+#profileEducation,
+#profileAchievements {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Optional: responsive 2-column layout on wider screens */
+@media screen and (min-width: 900px) {
+  #profileProjects,
+  #profileEducation,
+  #profileAchievements {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+
+/* Form group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+  color: var(--sidebar-bg);
+}
+.form-group input, 
+.form-group textarea, 
+.form-group select {
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1.8px solid var(--muted);
+  transition: border-color 0.3s ease;
+  font-family: "Poppins", sans-serif;
+  color: var(--sidebar-bg);
+  background: #fefefe;
+  outline-offset: 2px;
+}
+.form-group input:focus, 
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 8px var(--accent);
+}
+.form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* Buttons */
+.btn-primary, .btn-edit {
+  background: var(--accent);
+  color: var(--sidebar-bg);
+  border: none;
+  padding: 14px 36px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  border-radius: 40px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(220, 239, 98, 0.4);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+.btn-primary:hover, .btn-edit:hover {
+  background: #cde54e;
+  box-shadow: 0 7px 20px rgba(205, 229, 78, 0.7);
+}
+
+/* Add buttons */
+.add-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 0.4rem;
+  transition: color 0.3s ease;
+}
+.add-btn:hover {
+  color: #cde54e;
+  text-decoration: underline;
+}
+
+/* Responsive tweaks */
+@media (max-width: 920px) {
+  .profile-content {
+    flex-direction: column;
+  }
+  .profile-summary,
+  .profile-details,
+  .edit-profile {
+    max-height: none;
+    flex: none;
+  }
+  .edit-profile {
+    margin-top: 2rem;
+  }
+}
+
+/* Hide edit form initially */
+.hidden {
+  display: none !important;
+}
+
+.hidden { display:none; }
