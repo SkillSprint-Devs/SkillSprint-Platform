@@ -11,6 +11,9 @@
   <!-- Page CSS -->
   <link rel="stylesheet" href="assets/css/pair-programming.css">
 
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
   <!-- CodeMirror 5 (simple, reliable) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
@@ -52,7 +55,7 @@
       <aside class="folder-area">
         <div class="explorer-header">
           <div>Explorer</div>
-          <div class="dots">⋯</div>
+          <button class="dots" title="More options"><i class="fa-solid fa-ellipsis"></i></button>
         </div>
         <div id="fileTree" class="file-tree"></div>
       </aside>
@@ -69,19 +72,22 @@
         </div>
         <div id="editorContainer" class="editor-container"></div>
 
-        <!-- NEW OUTPUT PANEL -->
-  <aside id="outputPanel" class="output-panel">
-    <div id="codeOutput" style="
-      background:#222; 
-      color:#eee; 
-      font-family: monospace; 
-      padding: 12px; 
-      height: 100%; 
-      overflow-y: auto; 
-      white-space: pre-wrap;
-      ">
-    </div>
-  </aside>
+        <!-- TERMINAL PANEL -->
+        <div id="terminalPanel" class="terminal-panel">
+          <div class="terminal-header">
+            <span><i class="fa-solid fa-terminal"></i> Terminal</span>
+            <button id="terminalToggle" class="btn-icon" title="Expand/Collapse">
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+          <div id="terminalContent" class="terminal-content">
+            <div id="terminalOutput"></div>
+            <div class="terminal-input-line">
+              <span class="terminal-prompt">$</span>
+              <input type="text" id="terminalInput" class="terminal-input" placeholder="Type command or view output..." />
+            </div>
+          </div>
+        </div>
 
         <!-- <div id="codeOutput" 
             style="background:#222; color:#eee; font-family: monospace; padding: 12px; height: 150px; overflow-y: auto; white-space: pre-wrap;">
@@ -175,13 +181,13 @@
         <div class="help-content" style="text-align:left; max-height:60vh; overflow-y:auto; padding-right:10px;">
           <p>Welcome to the <strong>SkillSprint Pair Programming</strong> environment!</p>
           
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">🚀 1. How to Start</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-rocket" style="margin-right:8px;"></i>1. How to Start</h3>
           <ul style="padding-left:20px; margin:10px 0;">
             <li><strong>Open a Workspace:</strong> Select a board from the Dashboard or Library.</li>
             <li><strong>Invite Peers:</strong> Use the "Invite" or "Share" buttons top-right.</li>
           </ul>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">📝 2. Files & Naming</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-file-code" style="margin-right:8px;"></i>2. Files & Naming</h3>
           <p>You <strong>MUST</strong> use correct extensions for features to work:</p>
           <ul style="padding-left:20px; margin:10px 0;">
             <li><code>.js</code> - JavaScript (Runs with Node.js)</li>
@@ -190,13 +196,13 @@
             <li><code>.html</code> / <code>.css</code> - Syntax highlighting only</li>
           </ul>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">💻 3. Using the Editor</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-laptop-code" style="margin-right:8px;"></i>3. Using the Editor</h3>
           <ul style="padding-left:20px; margin:10px 0;">
             <li><strong>Edit:</strong> Click a file to open. Tabs let you switch files.</li>
             <li><strong>Save:</strong> Press <code>Ctrl+S</code> or click Save. <strong>Always save before running!</strong></li>
           </ul>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">▶️ 4. Running Code</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-play" style="margin-right:8px;"></i>4. Running Code</h3>
           <p>To execute JS, Python, or PHP:</p>
           <ol style="padding-left:20px; margin:10px 0;">
             <li>Select the file.</li>
@@ -206,7 +212,7 @@
           </ol>
           <p><em>(Max execution time: 5 seconds)</em></p>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;">⚠️ Limitations</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Limitations</h3>
           <ul style="padding-left:20px; margin:10px 0;">
              <li>No internet access for code execution.</li>
              <li>No installing external packages.</li>
@@ -222,7 +228,7 @@
 
 
     <!-- Floating button to open comments -->
-     <button  id="toggleComments" class="fab">💬</button> 
+     <button id="toggleComments" class="fab"><i class="fa-solid fa-comment"></i></button> 
     
   </div>
 
