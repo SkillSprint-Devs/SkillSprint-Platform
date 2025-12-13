@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile | SkillSprint</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/profile.css" />
+  <link rel="stylesheet" href="assets/css/toast.css" />
+
+</head>
+<body>
+
+<main class="profile-container">
+  <header class="profile-header">
+    <button id="backBtn" class="icon-btn" aria-label="Go back">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h2>My Profile</h2>
+    <button id="logoutBtn" class="icon-btn" aria-label="Log out">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+  </header>
+
+  <div class="profile-content">
+    <section class="profile-summary card">
+      <img id="profileImage" src="assets/images/user-avatar.png" alt="User Avatar" />
+      <div class="profile-info">
+        <h2 id="profileName">Loading...</h2>
+        <p id="profileEmail"></p>
+        <p><strong>Role:</strong> <span id="profileRole"></span></p>
+        <p><strong>Designation:</strong> <span id="profileDesignation">—</span></p>
+        <p><strong>Location:</strong> <span id="profileLocation">—</span></p>
+        <p><strong>Bio:</strong> <span id="profileBio">—</span></p>
+      </div>
+      <button id="editProfileBtn" class="btn-primary" aria-label="Edit Profile">
+        <i class="fa-solid fa-pen"></i> Edit Profile
+      </button>
+    </section>
+
+    <section class="edit-profile card hidden" id="editProfileSection">
+      <form id="editProfileForm" class="edit-form">
+        <h3>Edit Profile</h3>
+
+        <div class="form-group">
+          <label for="editName">Full Name</label>
+          <input type="text" id="editName" name="editName" />
+        </div>
+
+        <div class="form-group">
+          <label for="editProfileImage">Profile Image</label>
+          <input type="file" id="editProfileImage" name="profile_image" accept="image/*" />
+        </div>
+
+        <div class="form-group">
+          <label for="editRole">Role</label>
+          <select id="editRole" name="editRole">
+            <option value="student">Student</option>
+            <option value="mentor">Mentor</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="editDesignation">Designation</label>
+           <input type="text" id="editDesignation" name="designation" />
+        </div>
+
+        <div class="form-group">
+          <label for="editLocation">Location</label>
+          <input type="text" id="editLocation" name="editLocation" />
+        </div>
+
+        <div class="form-group">
+          <label for="editBio">Bio</label>
+          <textarea id="editBio" name="editBio"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="editSkills">Skills (comma separated)</label>
+          <input type="text" id="editSkills" name="editSkills" />
+        </div>
+
+        <div class="form-group">
+          <label for="editGithub">GitHub</label>
+          <input type="url" id="editGithub" name="editGithub" />
+        </div>
+
+        <div class="form-group">
+          <label for="editLinkedin">LinkedIn</label>
+          <input type="url" id="editLinkedin" name="editLinkedin" />
+        </div>
+
+        <div class="form-group">
+          <label for="editPortfolio">Portfolio</label>
+          <input type="url" id="editPortfolio" name="editPortfolio" />
+        </div>
+
+        <button type="submit" class="btn-primary">Save</button>
+      </form>
+    </section>
+
+    <section class="profile-details card">
+      <div class="profile-section card">
+        <h3><i class="fa-solid fa-diagram-project"></i> Projects</h3>
+        <div id="profileProjects" class="project-cards"></div>
+        <button class="add-btn" id="addProjectBtn" aria-label="Add Project">
+          <i class="fa-solid fa-plus"></i> Add Project
+        </button>
+      </div>
+
+      <div class="profile-section card">
+        <h3><i class="fa-solid fa-graduation-cap"></i> Education</h3>
+        <div id="profileEducation"></div>
+        <button class="add-btn" id="addEducationBtn" aria-label="Add Education">
+          <i class="fa-solid fa-plus"></i> Add Education
+        </button>
+      </div>
+
+      <div class="profile-section card">
+        <h3><i class="fa-solid fa-trophy"></i> Achievements</h3>
+        <div id="profileAchievements" class="badge-list"></div>
+        <button class="add-btn" id="addAchievementBtn" aria-label="Add Achievement">
+          <i class="fa-solid fa-plus"></i> Add Achievement
+        </button>
+      </div>
+
+      <div class="profile-section card">
+        <h3><i class="fa-solid fa-link"></i> Social Links</h3>
+        <ul>
+          <li><a id="githubLink" href="#" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a id="linkedinLink" href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          <li><a id="portfolioLink" href="#" target="_blank" rel="noopener noreferrer">Portfolio</a></li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="js/profile.js" defer></script>
+<script src="js/toast.js" defer></script>
+</body>
+</html>

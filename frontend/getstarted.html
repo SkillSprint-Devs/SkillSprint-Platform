@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillSprint | Welcome</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base-bg: #F9F8D9;
+    --sidebar-bg: #1A1A1A;
+    --accent: #DCEF62;
+    --highlight: #8C52FF;
+    --text-dark: #1A1A1A;
+    --text-light: #FFFFFF;
+    --muted: #bfbfbf;
+  }
+
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--base-bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-dark);
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    text-align: center;
+    max-width: 700px;
+    width: 100%;
+    padding: 3rem 2rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  h1 {
+    font-size: 3.5rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+
+  .tagline {
+    font-size: 1rem;
+    color: var(--highlight);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  p.description {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+
+  p.choose-role {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+  }
+
+  .cards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+
+  .card {
+    flex: 1 1 180px;
+    max-width: 220px;
+    padding: 2.5rem 2rem;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    text-align: center;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--muted);
+    transition: all 0.3s ease;
+  }
+
+  .card.user::before {
+    background: var(--accent);
+  }
+
+  .card.admin::before {
+    background: var(--highlight);
+  }
+
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .card.selected {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .card.user.selected {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(220, 239, 98, 0.1), rgba(220, 239, 98, 0.05));
+  }
+
+  .card.admin.selected {
+    border-color: var(--highlight);
+    background: linear-gradient(135deg, rgba(140, 82, 255, 0.1), rgba(140, 82, 255, 0.05));
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  button {
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 1rem;
+    cursor: pointer;
+    background: var(--sidebar-bg);
+    color: var(--text-light);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-family: 'Poppins', sans-serif;
+  }
+
+  button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: var(--highlight);
+  }
+
+  button:active {
+    transform: translateY(-1px);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    .container {
+      padding: 2rem 1.5rem;
+    }
+
+    .cards {
+      gap: 1.5rem;
+    }
+
+    .card {
+      flex: 1 1 140px;
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 2rem;
+    }
+
+    .tagline {
+      font-size: 0.85rem;
+    }
+
+    p.description {
+      font-size: 1rem;
+    }
+
+    .cards { 
+      flex-direction: column; 
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .card {
+      max-width: 100%;
+      width: 100%;
+    }
+
+    button { 
+      width: 100%;
+      padding: 1rem 2rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>SkillSprint</h1>
+    <div class="tagline">Learn • Track • Excel</div>
+    <p class="description">A modern platform for learners and admins to manage and track learning journeys efficiently.</p>
+    <p class="choose-role">Choose your role to get started</p>
+
+    <div class="cards">
+      <div class="card user" data-role="user">
+        <span class="card-icon">👤</span>
+        User
+      </div>
+      <div class="card admin" data-role="admin">
+        <span class="card-icon">⚡</span>
+        Admin
+      </div>
+    </div>
+
+    <button id="getStartedBtn">Get Started</button>
+  </div>
+
+  <script>
+    let selectedRole = null;
+    const cards = document.querySelectorAll('.card');
+    const btn = document.getElementById('getStartedBtn');
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        cards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedRole = card.dataset.role;
+      });
+    });
+
+    btn.addEventListener('click', () => {
+      if(!selectedRole){
+        alert("Please select a role first!");
+        return;
+      }
+      window.location.href = selectedRole === 'user' ? 'login.html' : 'admin-login.html';
+    });
+  </script>
+</body>
+</html>

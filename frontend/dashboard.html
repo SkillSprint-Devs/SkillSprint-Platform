@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard | SkillSprint</title>
+
+  <!-- Font Awesome (must load BEFORE your CSS so icons render) -->
+  <link rel="stylesheet"/>
+  <!-- Fonts -->
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Your CSS -->
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+
+    
+    <!-- SIDEBAR -->
+   <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div>
+        <div class="sidebar-header">
+          <div class="logo">SkillSprint</div>
+           <!-- initial state: expanded -> show arrow to collapse  -->
+          <button class="toggle-sidebar-btn" id="toggleSidebar" aria-label="Toggle sidebar">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        </div>
+
+        <nav class="menu" aria-label="Sidebar menu">
+          <a href="dashboard.html" class="active" title="Dashboard">
+            <i class="fa-solid fa-table-columns icon" aria-hidden="true"></i>
+            <span class="label">Dashboard</span>
+          </a>
+          <a href="task.html" title="Tasks">
+            <i class="fa-solid fa-list-check icon" aria-hidden="true"></i>
+            <span class="label">Tasks</span>
+          </a>
+           <a href="posting.html" title="Feed">
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+            <span class="label">Feed</span>
+          </a>
+          <a href="quiz.html" title="Quiz">
+            <i class="fa-solid fa-graduation-cap icon" aria-hidden="true"></i>
+            <span class="label">Quiz</span>
+          </a>
+          <a href="library.html" title="Library">
+            <i class="fa-solid fa-book icon" aria-hidden="true"></i>
+            <span class="label">Library</span>
+          </a>
+          <a href="achievements.html" title="Achivements">
+            <i class="fa-solid fa-trophy icon" aria-hidden="true"></i>
+            <span class="label">Achivements</span>
+          </a>
+          <a href="history.html" title="History">
+            <i class="fa-solid fa-history icon" aria-hidden="true"></i>
+            <span class="label">History</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="ai-guide" id="aiGuide" aria-hidden="false">
+        <p>Learn with your AI guide!</p>
+        <button type="button">Open Chat</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" role="main">
+      <!-- Top Nav -->
+      <header class="top-nav">
+        <div class="search-bar" role="search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="text" placeholder="Search projects, tasks..." aria-label="Search" />
+        </div>
+
+        <div class="profile" title="User profile">
+          <div class="profile-info">
+            <span id="usernameTop">Guest</span>
+            <a href="profile.html" class="profile-link">Profile</a>
+          </div>
+          <img src="assets/images/user-avatar.png" alt="User avatar" />
+        </div>
+      </header>
+
+      <!-- Main sections: left (content) + right sidebar -->
+      <div class="main-sections">
+        <!-- LEFT / CENTER -->
+        <section class="main-left">
+          <!-- Welcome + Notifications -->
+          <section class="welcome-and-notify">
+            <div class="welcome-card">
+              <div class="text">
+                <h2>Hi, <span id="username">Guest</span></h2>
+                <p>What are we doing today?</p>
+                <div class="actions">
+                  <button type="button">Check Calendar</button>
+                  <button type="button">Manage Tasks</button>
+                  <button type="button">Manage Wallet</button>
+                  <button type="button">Manage Projects</button>
+                </div>
+              </div>
+              <div class="img">
+                <img src="assets/images/coffee-penguin.png" alt="Coffee Penguin illustration" />
+              </div>
+            </div>
+
+            <aside class="notifications-panel" aria-label="Notifications">
+              <div class="notif-header">
+                <h3>Notifications</h3>
+                <i class="fa-solid fa-bell" aria-hidden="true"></i>
+              </div>
+
+              <div class="notif-list" id="notifList">
+                
+                <div class="notif-item">
+                  <div class="notif-icon"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></div>
+                  <div class="notif-content">
+                    <h4>Task Completed</h4>
+                    <p>Your UI Fix task is approved.</p>
+                    <span class="time">2h ago</span>
+                  </div>
+                </div>
+
+                <div class="notif-item">
+                  <div class="notif-icon"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></div>
+                  <div class="notif-content">
+                    <h4>New Message</h4>
+                    <p>Mentor Fatima replied in project chat.</p>
+                    <span class="time">4h ago</span>
+                  </div>
+                </div>
+
+                <div class="notif-item">
+                  <div class="notif-icon"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></div>
+                  <div class="notif-content">
+                    <h4>Reminder</h4>
+                    <p>Submit your weekly progress report.</p>
+                    <span class="time">Today</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </section>
+
+          <!-- Ongoing Tasks -->
+          <section class="ongoing-tasks" aria-label="Ongoing tasks">
+            <template id="taskCardTemplate">
+              <div class="task-card">
+                <div class="task-card-header">
+                  <div class="color-dot"></div>
+                  <h4 class="task-title"></h4>
+                </div>
+
+                <p class="task-description"></p>
+
+                <div class="task-subtasks">
+                  <span class="subtasks-count"></span>
+                </div>
+
+                <div class="task-footer">
+                  <div class="task-due-date"></div>
+                  <div class="task-progress-badge"></div>
+                </div>
+              </div>
+            </template>
+            <div id="taskList" class="task-list"></div>
+          </section>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="right-sidebar" aria-label="Dashboard sidebar">
+          <!-- Wallet Overview -->
+          <div class="wallet-overview">
+            <h3>Wallet</h3>
+            <div class="wallet-cards" style="display:grid; grid-template-columns:1fr; gap:10px;">
+              <div class="wallet-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fafafa; border-radius:10px;">
+                <div>
+                  <div style="font-size:0.85rem; color:#666;">Remaining</div>
+                  <div style="font-weight:600; font-size:1.05rem;">$1,250</div>
+                </div>
+                <i class="fa-solid fa-wallet" aria-hidden="true" style="font-size:1.2rem; color:var(--accent);"></i>
+              </div>
+
+              <div class="wallet-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; border-radius:10px; border:1px solid #f0f0f0;">
+                <div>
+                  <div style="font-size:0.85rem; color:#666;">Spent</div>
+                  <div style="font-weight:600; font-size:1.05rem;">$430</div>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" style="font-size:1.2rem; color:#ef5350;"></i>
+              </div>
+
+              <div class="wallet-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; border-radius:10px;">
+                <div>
+                  <div style="font-size:0.85rem; color:#666;">Earned</div>
+                  <div style="font-weight:600; font-size:1.05rem;">$680</div>
+                </div>
+                <i class="fa-solid fa-hand-holding-dollar" aria-hidden="true" style="font-size:1.2rem; color:#4caf50;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Calendar with colored dots -->
+          <div class="weekly-calendar" style="margin-top:14px;">
+            <h3>Weekly</h3>
+            <div class="calendar-week" style="display:flex; justify-content:space-between; gap:6px; margin-top:8px;">
+              
+              <div class="day" style="flex:1; text-align:center;">
+                <div class="day-label">Mon</div>
+                <div class="dots" style="display:flex; justify-content:center; gap:4px; margin-top:6px;">
+                  <span class="dot dot-high" title="2 high tasks" style="width:8px; height:8px; border-radius:50%; background:#ef5350; display:inline-block;"></span>
+                </div>
+              </div>
+
+              <div class="day" style="flex:1; text-align:center;">
+                <div class="day-label">Tue</div>
+                <div class="dots" style="display:flex; justify-content:center; gap:4px; margin-top:6px;">
+                  <span class="dot dot-medium" title="1 medium task" style="width:8px; height:8px; border-radius:50%; background:#ffb300; display:inline-block;"></span>
+                </div>
+              </div>
+
+              <div class="day" style="flex:1; text-align:center;">
+                <div class="day-label">Wed</div>
+                <div class="dots" style="display:flex; justify-content:center; gap:4px; margin-top:6px;">
+                  <span class="dot dot-low" title="3 low tasks" style="width:8px; height:8px; border-radius:50%; background:#4caf50; display:inline-block;"></span>
+                </div>
+              </div>
+
+              <div class="day" style="flex:1; text-align:center;">
+                <div class="day-label">Thu</div>
+                <div class="dots" style="display:flex; justify-content:center; gap:4px; margin-top:6px;">
+                  <span class="dot dot-medium" title="2 medium tasks" style="width:8px; height:8px; border-radius:50%; background:#ffb300; display:inline-block;"></span>
+                </div>
+              </div>
+
+              <div class="day" style="flex:1; text-align:center;">
+                <div class="day-label">Fri</div>
+                <div class="dots" style="display:flex; justify-content:center; gap:4px; margin-top:6px;">
+                  <span class="dot dot-high" title="1 high task" style="width:8px; height:8px; border-radius:50%; background:#ef5350; display:inline-block;"></span>
+                </div>
+              </div>
+
+              <div class="day" style="flex:1; text-align:center;">
+                <div class="day-label">Sat</div>
+                <div class="dots" style="display:flex; justify-content:center; gap:4px; margin-top:6px;">
+                  <!-- no tasks - empty -->
+                </div>
+              </div>
+
+              <div class="day" style="flex:1; text-align:center;">
+                <div class="day-label">Sun</div>
+                <div class="dots" style="display:flex; justify-content:center; gap:4px; margin-top:6px;">
+                  <span class="dot dot-low" title="1 low task" style="width:8px; height:8px; border-radius:50%; background:#4caf50; display:inline-block;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reminders -->
+          <div class="reminders" style="margin-top:14px;">
+            <h3>Reminders</h3>
+
+            <div class="reminder-list" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+              <div class="reminder-item" style="background:#fafafa; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:600; font-size:0.95rem;">Submit weekly report</div>
+                  <div style="font-size:0.82rem; color:#666;">Due: Oct 18 • 3:00 PM</div>
+                </div>
+                <i class="fa-solid fa-clock" style="color:var(--muted);"></i>
+              </div>
+
+              <div class="reminder-item" style="background:#fff; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:600; font-size:0.95rem;">Mentor meeting</div>
+                  <div style="font-size:0.82rem; color:#666;">Tomorrow • 11:00 AM</div>
+                </div>
+                <i class="fa-solid fa-clock" style="color:var(--muted);"></i>
+              </div>
+
+              <div class="reminder-item" style="background:#fff; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:600; font-size:0.95rem;">Demo deployment</div>
+                  <div style="font-size:0.82rem; color:#666;">Oct 22 • All day</div>
+                </div>
+                <i class="fa-solid fa-flag" style="color:#ef5350;"></i>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>    
+  </div>
+
+  
+
+  <!-- JS -->
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script  src="js/bottomNav.js"></script>
+
+<script src="js/toast.js"></script>
+</body>
+
+</html>

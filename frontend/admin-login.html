@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login | SkillSprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple1: #662fb7;
+    --purple2: #915ccb;
+    --dark-purple: #593491;
+    --light-bg: #ebebeb;
+    --text-light: #fff;
+    --accent: #DCEF62;
+  }
+
+  * { box-sizing: border-box; margin:0; padding:0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--purple1), var(--purple2));
+    color: var(--text-light);
+  }
+
+  .login-card {
+    background: var(--light-bg);
+    padding: 3rem 2.5rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    color: #333;
+  }
+
+  .login-card h1 {
+    margin-bottom: 0.5rem;
+    color: var(--dark-purple);
+  }
+
+  .login-card p {
+    margin-bottom: 2rem;
+    color: #555;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  button {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: var(--dark-purple);
+    color: var(--text-light);
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+  .footer {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .footer a {
+    color: var(--dark-purple);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+</style>
+</head>
+<body>
+  <div class="login-card">
+    <h1>Admin Login</h1>
+    <p>Welcome Admin, please login to continue.</p>
+
+    <form id="adminLoginForm">
+      <input type="email" placeholder="Email" required />
+      <input type="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="footer">
+      <a href="#">Forgot Password?</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('adminLoginForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      alert("Admin login functionality to be implemented");
+      // Replace alert with API call later
+    });
+  </script>
+</body>
+</html>
+

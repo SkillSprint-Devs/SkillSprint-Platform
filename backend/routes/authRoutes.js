@@ -1,0 +1,313 @@
+import express from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import multer from "multer";
+import path from "path";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import User from "../models/user.js";
+
+dotenv.config();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); 
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${file.fieldname}-${Date.now()}${ext}`);
+  },
+});
+
+function fileFilter(req, file, cb) {
+  if (file.mimetype.startsWith("image/")) cb(null, true);
+  else cb(new Error("Only image files are allowed!"), false);
+}
+
+const upload = multer({ storage, fileFilter });
+
+const router = express.Router();
+
+// Logger middleware
+router.use((req, res, next) => {
+  console.log(`authRoutes hit: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+
+const tempOtps = {};
+
+//  Send Signup OTP 
+router.post("/send-otp", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = Date.now() + 5 * 60 * 1000;
+
+    tempOtps[email] = { otp, otpExpires, verified: false };
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "SkillSprint Signup OTP",
+      text: `Your OTP for SkillSprint signup is: ${otp}. It expires in 5 minutes.`,
+    });
+
+    res.json({ message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Send OTP error:", error);
+    res.status(500).json({ message: "Server error sending OTP" });
+  }
+});
+
+// Verify Signup OTP and Create User 
+router.post("/verify-signup-otp", async (req, res) => {
+  try {
+    const { name, email, password, otp } = req.body;
+    if (!name || !email || !password || !otp)
+      return res.status(400).json({ message: "Missing required fields" });
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+    const record = tempOtps[email];
+    if (!record || record.otp !== otp)
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+
+    if (Date.now() > record.otpExpires) {
+      delete tempOtps[email];
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    tempOtps[email].verified = true;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      name,
+      email,
+      password_hash: hashedPassword,
+      role: "student",
+      credits_remaining: 100,
+      credits_earned: 0,
+      total_hours_spent: 0,
+      profile_image: "",
+    });
+
+    await newUser.save();
+    delete tempOtps[email];
+
+    res.status(201).json({ message: "Signup successful! Please login." });
+  } catch (error) {
+    console.error("Signup OTP verification error:", error);
+    res.status(500).json({ message: "Server error during signup" });
+  }
+});
+
+//  Login 
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ message: "Email and password required" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid email or password" });
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error during login" });
+  }
+});
+
+// Forgot Password OTP 
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = Date.now() + 5 * 60 * 1000;
+
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "SkillSprint Password Reset OTP",
+      text: `Your OTP for resetting password is: ${otp}. It expires in 5 minutes.`,
+    });
+
+    res.json({ message: "Password reset OTP sent successfully." });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({ message: "Server error during password reset" });
+  }
+});
+
+// Reset Password 
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword)
+      return res.status(400).json({ message: "Missing fields" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (user.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
+
+    if (Date.now() > user.otpExpires) return res.status(400).json({ message: "OTP expired" });
+
+    user.password_hash = await bcrypt.hash(newPassword, 10);
+    user.otp = null;
+    user.otpExpires = null;
+
+    await user.save();
+
+    res.json({ message: "Password reset successful! Please login with new password." });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ message: "Server error during password reset" });
+  }
+});
+
+// Update Profile 
+
+router.put("/update-profile", upload.single("profile_image"), async (req, res) => {
+  try {
+    
+    const {
+      name,
+      role,
+      location,
+      bio,
+      skills,
+      github,
+      linkedin,
+      portfolio,
+      designation,
+      projects,
+      education,
+      achievements,
+    } = req.body;
+
+    // Identify user from token 
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "Unauthorized" });
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (name) user.name = name;
+    if (req.file) user.profile_image = req.file.path.replace(/\\/g, "/");
+    if (role && ["student", "mentor"].includes(role)) user.role = role;
+    if (location !== undefined) user.location = location;
+    if (bio !== undefined) user.bio = bio;
+    if (designation !== undefined) user.designation = designation;
+    if (skills) {
+      if (typeof skills === "string") {
+        user.skills = skills.split(",").map(s => s.trim()).filter(Boolean);
+      } else if (Array.isArray(skills)) {
+        user.skills = skills;
+      }
+    }
+    if (github !== undefined) user.github = github;
+    if (linkedin !== undefined) user.linkedin = linkedin;
+    if (portfolio !== undefined) user.portfolio = portfolio;
+
+    // Parse JSON strings for projects, education, achievements
+    let projectsParsed = [], educationParsed = [], achievementsParsed = [];
+    try { projectsParsed = JSON.parse(projects); } catch {}
+    try { educationParsed = JSON.parse(education); } catch {}
+    try { achievementsParsed = JSON.parse(achievements); } catch {}
+
+    if (Array.isArray(projectsParsed)) user.projects = projectsParsed;
+    if (Array.isArray(educationParsed)) user.education = educationParsed;
+    if (Array.isArray(achievementsParsed)) user.achievements = achievementsParsed;
+
+    await user.save();
+
+    
+ const freshUser = await User.findById(user._id).select("-password_hash -otp -otpExpires").lean();
+
+if (freshUser.profile_image && !freshUser.profile_image.startsWith("http")) {
+  freshUser.profile_image = `${req.protocol}://${req.get("host")}/${freshUser.profile_image}`;
+}
+
+res.json({
+  message: "Profile updated successfully",
+  user: freshUser,
+});
+
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({ message: "Server error updating profile" });
+  }
+});
+
+
+// Get Current User 
+router.get("/me", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer "))
+      return res.status(401).json({ message: "Access denied. No token." });
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).select("-password_hash -otp -otpExpires").lean();
+
+if (user.profile_image && !user.profile_image.startsWith("http")) {
+  user.profile_image = `${req.protocol}://${req.get("host")}/${user.profile_image}`;
+}
+
+res.json(user);
+
+  } catch (error) {
+    console.error("Get current user error:", error);
+    res.status(401).json({ message: "Invalid or expired token" });
+  }
+});
+
+export default router;
+
+

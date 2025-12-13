@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify OTP | SkillSprint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/auth.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1 class="logo">SkillSprint</h1>
+      <h2>Verify your Email</h2>
+      <p class="subtitle">Enter the OTP sent to your email</p>
+
+      <form id="otpForm">
+        <input type="text" id="otp" placeholder="Enter OTP" required />
+        <button type="submit" class="btn-primary">Verify OTP</button>
+      </form>
+
+      <p class="switch-text">
+        Didn’t receive it? <a href="#" id="resend">Resend OTP</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("otpForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const otp = document.getElementById("otp").value;
+      const stored = JSON.parse(localStorage.getItem("pendingSignup"));
+      if (!stored) return alert("Signup info missing.");
+
+      const res = await fetch("http://127.0.0.1:5000/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: stored.email, otp }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        await fetch("http://127.0.0.1:5000/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(stored),
+        });
+        localStorage.removeItem("pendingSignup");
+        alert("Email verified! Signup successful.");
+        window.location.href = "login.html";
+      } else {
+        alert(data.message);
+      }
+    });
+  </script>
+</body>
+</html>

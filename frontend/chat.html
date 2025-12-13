@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSprint Chat</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/chat.css">
+    
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body>
+
+    <div class="chat-container">
+        <!-- SIDEBAR -->
+        <aside class="chat-sidebar" id="chatSidebar">
+            <div class="sidebar-header">
+                <!-- My Profile -->
+                <div class="my-profile">
+                    <img id="myAvatar" src="" alt="Me">
+                    <h6 id="myName">Loading...</h6>
+                </div>
+
+                <!-- Search -->
+                <div class="search-wrapper">
+                    <input type="text" id="userSearchInput" class="search-input" placeholder="Search users...">
+                    <div id="searchResults" class="search-results-area"></div>
+                </div>
+            </div>
+
+            <!-- Conversation List -->
+            <div id="conversationsList">
+                <div class="no-chat-placeholder" style="height:auto; margin-top:20px; font-size: 0.8rem;">
+                    Loading chats...
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CHAT AREA -->
+        <main class="chat-main" id="chatArea">
+            
+            <!-- Placeholder State -->
+            <div id="noChatSelected" class="no-chat-placeholder">
+                <div class="no-chat-icon"><i class="fa-regular fa-comments"></i></div>
+                <h4>Your Messages</h4>
+                <p>Select a chat to start messaging</p>
+            </div>
+
+            <!-- Active Chat View -->
+            <div id="activeChatView" style="display: none; height: 100%; flex-direction: column;">
+                
+                <!-- Header -->
+                <header class="chat-header">
+                    <div class="header-user">
+                        <img id="chatHeaderAvatar" src="" alt="User">
+                        <div>
+                            <h6 id="chatHeaderName">User</h6>
+                            <div id="userStatus" class="user-status"></div>
+                            <span id="typingIndicator" class="typing-indicator"></span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- History -->
+                <div class="chat-history" id="chatHistory"></div>
+
+                <!-- Input Area -->
+                <div class="chat-input-area">
+                    <form id="messageForm" class="chat-input-wrapper">
+                        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
+                        <button type="submit" class="btn-send" title="Send">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- CUSTOM EDIT MODAL -->
+    <div id="editModal" class="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Edit Message</h5>
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="editMessageContent"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-cancel" id="cancelEditBtn">Cancel</button>
+                <button class="btn-modal btn-save" onclick="submitEdit()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/chat.js"></script>
+    <script src="js/toast.js"></script>
+</body>
+</html>
