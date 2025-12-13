@@ -12,7 +12,7 @@
 - **Smart Notifications** - Real-time alerts for all platform activities
 - **User Profiles** - Customizable profiles with achievements and activity tracking
 
-##  Tech Stack
+## Tech Stack
 
 ### Backend
 - **Node.js** & **Express** - Server framework
@@ -82,7 +82,7 @@ docker-compose up
 - [Pair Programming Guide](pair_programming_guide.md)
 - [Pair Programming Audit](pair_programming_audit.md)
 
-##  Usage
+## Usage
 
 1. **Sign Up/Login** - Create an account or log in
 2. **Explore Dashboard** - Access all features from the central dashboard
