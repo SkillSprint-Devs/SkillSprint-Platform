@@ -2,7 +2,7 @@
 
 **SkillSprint** is a comprehensive collaborative learning platform that empowers developers to connect, learn, and grow together. Built with Node.js, Express, MongoDB, and Socket.IO, it features real-time chat, task management, interactive whiteboards, pair programming sessions, social posting, and intelligent notifications—all designed for seamless team collaboration.
 
-## 🚀 Key Features
+## Key Features
 
 - **Real-time Chat** - Instant messaging with live notifications
 - **Task Management** - Create, assign, and track tasks with calendar views and automated reminders
@@ -12,7 +12,7 @@
 - **Smart Notifications** - Real-time alerts for all platform activities
 - **User Profiles** - Customizable profiles with achievements and activity tracking
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Backend
 - **Node.js** & **Express** - Server framework
@@ -27,7 +27,7 @@
 - **Socket.IO Client** - Real-time updates
 - **Responsive Design** - Mobile-friendly interface
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - Node.js (v14 or higher)
@@ -69,7 +69,7 @@
    npx serve
    ```
 
-## 🐳 Docker Support
+## Docker Support
 
 Run the entire platform using Docker:
 
@@ -77,12 +77,12 @@ Run the entire platform using Docker:
 docker-compose up
 ```
 
-## 📚 Documentation
+## Documentation
 
 - [Pair Programming Guide](pair_programming_guide.md)
 - [Pair Programming Audit](pair_programming_audit.md)
 
-## 🎯 Usage
+##  Usage
 
 1. **Sign Up/Login** - Create an account or log in
 2. **Explore Dashboard** - Access all features from the central dashboard
@@ -90,7 +90,7 @@ docker-compose up
 4. **Collaborate** - Start pair programming sessions or whiteboard brainstorming
 5. **Manage Tasks** - Create and track your learning goals and deadlines
 
-## 🔔 Notification System
+## Notification System
 
 The platform features a comprehensive notification system that alerts users for:
 - New messages and chat activity
@@ -99,18 +99,14 @@ The platform features a comprehensive notification system that alerts users for:
 - Board and pair programming invitations
 - Permission changes and collaborator updates
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+## License
 
 This project is licensed under the ISC License.
 
-## 👥 Authors
+## Authors
 
 SkillSprint Development Team
-
----
-
-**Built with ❤️ for developers who love to learn and collaborate**
