@@ -135,7 +135,7 @@ export function renderFileTree() {
 
     const folderRow = document.createElement("div");
     folderRow.className = "folder";
-    folderRow.textContent = "" + folder.name;
+    folderRow.textContent = folder.name;
     folderRow.setAttribute("data-folder-id", folder._id);
 
     const childContainer = document.createElement("div");
@@ -147,7 +147,7 @@ export function renderFileTree() {
 
       const fileRow = document.createElement("div");
       fileRow.className = "file";
-      fileRow.textContent = "" + file.name;
+      fileRow.textContent = file.name;
       fileRow.setAttribute("data-folder-id", folder._id);
       fileRow.setAttribute("data-file-id", file._id);
 
@@ -367,7 +367,7 @@ export function renderTabs() {
     tab.textContent = file.name;
 
     const close = document.createElement("span");
-    close.textContent = "✕";
+    close.innerHTML = '<i class="fa-solid fa-xmark"></i>';
     close.className = "close";
     close.addEventListener("click", e => {
       e.stopPropagation();
@@ -474,8 +474,8 @@ export async function runCode() {
   const file = getCurrentFile();
   const code = state.editor.getValue();
 
-  const outputEl = document.getElementById("codeOutput");
-  outputEl.textContent = "Running...";
+  const outputEl = document.getElementById("terminalOutput");
+  outputEl.textContent = "Running...\n";
 
   try {
     const result = await apiCall(`/${boardId}/folder/${folderId}/file/${fileId}/run`, "POST", {
@@ -561,7 +561,7 @@ function renderInlineMarkers() {
       if (typeof comment.line === "number") {
         const marker = document.createElement("div");
         marker.className = "comment-marker";
-        marker.innerHTML = "💬";
+        marker.innerHTML = '<i class="fa-solid fa-comment"></i>';
         marker.title = `${comment.authorName}: ${comment.text}`;
 
         // Allow clicking marker to open comments panel
@@ -602,12 +602,22 @@ async function handleAddInlineComment(lineIdx) {
 
 export function toggleComments(force) {
   const panel = document.getElementById("commentsPanel");
+  const fabButton = document.getElementById("toggleComments");
+  
   if (typeof force === "boolean") {
     state.commentsOpen = force;
   } else {
     state.commentsOpen = !state.commentsOpen;
   }
+  
   panel.classList.toggle("open", state.commentsOpen);
+  
+  // Hide FAB button when panel is open, show when closed
+  if (state.commentsOpen) {
+    fabButton.classList.add("hidden");
+  } else {
+    fabButton.classList.remove("hidden");
+  }
 }
 
 export async function sendComment() {
@@ -880,6 +890,52 @@ window.addEventListener("keydown", e => {
     saveActive();
   }
 });
+
+// Terminal functionality
+const terminalToggle = document.getElementById("terminalToggle");
+const terminalPanel = document.getElementById("terminalPanel");
+const terminalInput = document.getElementById("terminalInput");
+const terminalOutput = document.getElementById("terminalOutput");
+
+if (terminalToggle) {
+  terminalToggle.addEventListener("click", () => {
+    terminalPanel.classList.toggle("collapsed");
+    const icon = terminalToggle.querySelector("i");
+    if (terminalPanel.classList.contains("collapsed")) {
+      icon.className = "fa-solid fa-chevron-up";
+    } else {
+      icon.className = "fa-solid fa-chevron-down";
+    }
+  });
+}
+
+if (terminalInput) {
+  terminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const command = terminalInput.value.trim();
+      if (command) {
+        // Display the command in output
+        const commandLine = document.createElement("div");
+        commandLine.style.color = "#4ec9b0";
+        commandLine.textContent = `$ ${command}`;
+        terminalOutput.appendChild(commandLine);
+        
+        // Display a message (for now, just echo - can be extended later)
+        const responseLine = document.createElement("div");
+        responseLine.style.color = "#d4d4d4";
+        responseLine.style.marginBottom = "8px";
+        responseLine.textContent = `Command received: ${command}\nNote: Terminal is currently display-only. Use the Run button to execute code.`;
+        terminalOutput.appendChild(responseLine);
+        
+        // Clear input
+        terminalInput.value = "";
+        
+        // Scroll to bottom
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+      }
+    }
+  });
+}
 
 // Initialization
 document.addEventListener("DOMContentLoaded", async () => {
