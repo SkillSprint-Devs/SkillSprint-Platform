@@ -3,72 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz | SkillSprint</title>
+  <title>Quiz & Certificates | SkillSprint</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="assets/css/variables.css" />
-  <link rel="stylesheet" href="assets/css/dashboard.css" />
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous"
-  />
+  <link rel="stylesheet" href="assets/css/quiz.css" />
 </head>
-
 <body>
-  <div class="placeholder-page">
-    <div class="content">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <h1>Quiz Screen</h1>
-      <p>This section is under development.</p>
-      <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="quiz-container">
+    <main class="quiz-main">
+      <!-- Header -->
+      <header class="quiz-header">
+        <h1><i class="fa-solid fa-graduation-cap"></i> Quiz & Certificates</h1>
+        <a href="dashboard.html" class="back-link">
+          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </header>
+
+      <!-- COURSE SELECTION VIEW -->
+      <section class="courses-view" id="coursesView">
+        <div class="courses-grid" id="coursesGrid">
+          <!-- Filled by JS -->
+        </div>
+      </section>
+
+      <!-- QUIZ VIEW -->
+      <section class="quiz-view" id="quizView">
+        <div class="quiz-info-bar">
+          <div class="quiz-info-left">
+            <span class="quiz-course-badge" id="quizCourseBadge">JavaScript</span>
+            <span class="quiz-level-badge basic" id="quizLevelBadge">Basic</span>
+          </div>
+          <div class="quiz-timer" id="quizTimer">
+            <i class="fa-solid fa-clock"></i>
+            <span id="timerDisplay">15:00</span>
+          </div>
+        </div>
+
+        <div class="question-card" id="questionCard">
+          <div class="question-header">
+            <span class="question-number" id="questionNumber">Question 1 of 15</span>
+            <span class="question-topic" id="questionTopic">Variables</span>
+          </div>
+          <p class="question-text" id="questionText">What is the output of the following code?</p>
+          <pre class="code-snippet" id="codeSnippet" style="display: none;"></pre>
+          <div class="options-list" id="optionsList">
+            <!-- Options filled by JS -->
+          </div>
+        </div>
+
+        <div class="quiz-navigation">
+          <button class="nav-btn prev" id="prevBtn" disabled>
+            <i class="fa-solid fa-chevron-left"></i> Previous
+          </button>
+          <div class="question-dots" id="questionDots">
+            <!-- Dots filled by JS -->
+          </div>
+          <button class="nav-btn next" id="nextBtn">
+            Next <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <button class="nav-btn submit" id="submitBtn" style="display: none;">
+            <i class="fa-solid fa-paper-plane"></i> Submit Quiz
+          </button>
+        </div>
+      </section>
+
+      <!-- RESULTS VIEW -->
+      <section class="results-view" id="resultsView">
+        <div class="results-card">
+          <div class="results-icon passed" id="resultsIcon">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <h2 class="results-title" id="resultsTitle">Congratulations!</h2>
+          <p id="resultsMessage">You've passed the Basic level!</p>
+          
+          <div class="results-score" id="resultsScore">85%</div>
+          
+          <div class="results-stats">
+            <div class="stat-item">
+              <div class="stat-value correct" id="correctCount">12</div>
+              <div class="stat-label">Correct</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value wrong" id="wrongCount">3</div>
+              <div class="stat-label">Wrong</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="unansweredCount">0</div>
+              <div class="stat-label">Unanswered</div>
+            </div>
+          </div>
+
+          <div class="topic-performance" id="topicPerformance">
+            <h3><i class="fa-solid fa-chart-bar"></i> Topic Breakdown</h3>
+            <div id="topicList">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+
+          <div class="results-actions">
+            <button class="result-btn secondary" id="retryBtn">
+              <i class="fa-solid fa-redo"></i> Try Again
+            </button>
+            <button class="result-btn primary" id="nextLevelBtn" style="display: none;">
+              <i class="fa-solid fa-arrow-right"></i> Next Level
+            </button>
+            <button class="result-btn primary" id="backToCoursesBtn">
+              <i class="fa-solid fa-th-large"></i> All Courses
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Certificate Modal -->
+  <div class="certificate-modal" id="certificateModal">
+    <div class="certificate-content">
+      <div class="certificate-badge">
+        <i class="fa-solid fa-award"></i>
+      </div>
+      <h2 class="certificate-title">Certificate Earned!</h2>
+      <div class="certificate-course" id="certCourseName">JavaScript</div>
+      <p>You've successfully completed all three levels.</p>
+      <div class="verification-code" id="certVerificationCode">
+        XXXX-XXXX-XXXX-XXXX
+      </div>
+      <button class="copy-btn" id="copyCertBtn">
+        <i class="fa-solid fa-copy"></i> Copy Verification Link
+      </button>
+      <button class="result-btn primary" style="margin-top: 1.5rem;" id="closeCertBtn">
+        Continue
+      </button>
     </div>
   </div>
+
+  <script src="js/toast.js"></script>
+  <script src="js/quiz.js"></script>
 </body>
 </html>
-
-<style>
-  body {
-    background-color: #F9F8D9;
-    font-family: "Poppins", sans-serif;
-    color: #1A1A1A;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  .placeholder-page .content {
-    text-align: center;
-  }
-  .placeholder-page i {
-    font-size: 3rem;
-    color: #DCEF7E;
-    margin-bottom: 1rem;
-  }
-  .placeholder-page h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .placeholder-page p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 1.5rem;
-  }
-  .back-btn {
-    display: inline-block;
-    background-color: #1A1A1A;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: 0.3s;
-  }
-  .back-btn:hover {
-    background-color: #333;
-  }
-</style>
