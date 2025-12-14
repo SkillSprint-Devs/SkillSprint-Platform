@@ -24,6 +24,8 @@ import pairProgrammingSocket from "./socket/pair-programming-sio.js";
 import pairProgrammingRoutes from './routes/pair-programmingRoutes.js';
 import chatRoutes from "./routes/chatRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import quizRoutes from "./routes/quizRoutes.js";
+import certificateRoutes from "./routes/certificateRoutes.js";
 import { initTaskScheduler } from "./utils/taskScheduler.js";
 
 const app = express();
@@ -264,6 +266,8 @@ app.use('/api/pair-programming', pairProgrammingRoutes);
 app.use("/api/chat", chatRoutes);
 console.log("Registering /api/notifications route...");
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/quiz", quizRoutes);
+app.use("/api/certificates", certificateRoutes);
 
 // central error handler for express routes 
 app.use((err, req, res, next) => {
