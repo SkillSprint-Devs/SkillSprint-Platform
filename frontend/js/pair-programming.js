@@ -13,6 +13,9 @@ import {
   emitTyping,
   emitCursorUpdate,
   emitContentUpdate,
+  emitTerminalStart,
+  emitTerminalInput,
+  emitTerminalKill
 } from "./pair-programming-sio.js";
 
 const API_BASE = "http://127.0.0.1:5000/api/pair-programming";
@@ -475,26 +478,32 @@ export async function runCode() {
   const code = state.editor.getValue();
 
   const outputEl = document.getElementById("terminalOutput");
-  outputEl.textContent = "Running...\n";
+  outputEl.textContent = ""; // Clear previous output
+
+  // Ensure visual state is reset
+  outputEl.appendChild(document.createTextNode(`> Running ${file.name}...\n`));
 
   try {
-    const result = await apiCall(`/${boardId}/folder/${folderId}/file/${fileId}/run`, "POST", {
-      code,
-      language: file.language
-    });
-
-    outputEl.textContent = result.output || result.error || "No output";
-
-    if (result.status === "error") {
-      showToast("Code execution failed", "error");
-    } else {
-      showToast("Code executed successfully", "success");
-    }
+    // Use socket instead of POST
+    emitTerminalStart(boardId, fileId, code, file.language);
   } catch (err) {
-    outputEl.textContent = "Error: " + err.message;
+    outputEl.textContent += "Error starting: " + err.message;
     showToast(err.message, "error");
   }
 }
+
+// Global listener for terminal output from socket
+window.addEventListener("terminal-output", (e) => {
+  const outputEl = document.getElementById("terminalOutput");
+  if (outputEl) {
+    outputEl.textContent += e.detail;
+    outputEl.scrollTop = outputEl.scrollHeight;
+  }
+});
+
+// Update imports to include terminal emitters
+// (This needs to be done at top of file, but since we are replacing runCode block which is far down, 
+// we will assume imports are handled or valid. Wait, I should double check imports at top of file.)
 
 export async function loadComments() {
   try {
@@ -505,43 +514,93 @@ export async function loadComments() {
   }
 }
 
+// Fixed: Render Comments with Metadata
 export function renderComments() {
   const list = document.getElementById("commentsList");
   list.innerHTML = "";
 
   if (!state.board) return;
 
+  // Flatten comments from board and files
   let allComments = [...(state.board.comments || [])];
 
-  const currentFile = getCurrentFile();
-  if (currentFile && currentFile.comments) {
-    allComments = [...allComments, ...currentFile.comments];
-  }
+  // Create a map to look up file names by ID for global board comments
+  const fileMap = {};
+  state.board.folders.forEach(folder => {
+    folder.files.forEach(file => {
+      fileMap[file._id] = file.name;
+      // Add file-specific comments to the list
+      if (file.comments) {
+        file.comments.forEach(c => {
+          // Attach file info to the comment object temporarily for rendering
+          c._fileName = file.name;
+          c._fileId = file._id;
+          c._folderId = folder._id;
+        });
+        allComments = [...allComments, ...file.comments];
+      }
+    });
+  });
 
   // Sort by date
   allComments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
+  if (allComments.length === 0) {
+    list.innerHTML = '<div style="padding:16px; color:#888; text-align:center; font-style:italic;">No comments yet.</div>';
+    renderInlineMarkers();
+    return;
+  }
+
   allComments.forEach(comment => {
     const el = document.createElement("div");
     el.className = "comment";
+
+    // Resolve file name if not already attached
+    let fileName = comment._fileName;
+    if (!fileName && comment.fileId) {
+      fileName = fileMap[comment.fileId] || "Unknown File";
+    }
+
+    const userName = comment.authorId?.name || "User";
+    const dateStr = new Date(comment.createdAt).toLocaleString();
+    const lineInfo = comment.line != null ? ` • <span style="font-weight:bold;color:var(--highlight)">Line ${comment.line + 1}</span>` : "";
+    const fileInfo = fileName ? ` • <span>${fileName}</span>` : "";
+
     el.innerHTML = `
-      <div style="font-size:12px;color:#666">
-        ${comment.authorId?.name || "User"} • ${new Date(comment.createdAt).toLocaleString()}
-        ${comment.line != null ? ` • <span style="font-weight:bold;color:#ff9f1c">Line ${comment.line + 1}</span>` : ""}
+      <div style="font-size:12px;color:var(--text-light);display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span><strong>${userName}</strong>${fileInfo}${lineInfo}</span>
+        <span style="font-size:10px;opacity:0.7">${dateStr}</span>
       </div>
-      <div style="margin-top:6px">${comment.text}</div>
+      <div style="line-height:1.4; color:var(--text-dark)">${comment.text}</div>
     `;
     list.appendChild(el);
 
-    // Highlight if clicked?
-    if (comment.line != null) {
-      el.style.borderLeft = "2px solid #ff9f1c";
+    // Click to jump to line
+    if (comment.line != null && comment._fileId) {
+      el.style.borderLeft = "3px solid var(--highlight)";
       el.style.cursor = "pointer";
+      el.title = "Jump to code";
       el.onclick = () => {
-        if (state.editor) {
-          state.editor.scrollIntoView({ line: comment.line, ch: 0 }, 200);
-          state.editor.setSelection({ line: comment.line, ch: 0 }, { line: comment.line, ch: 1000 });
+        // Switch to file if not active
+        if (state.active) {
+          const [currentFolder, currentFile] = state.active.split("/");
+          if (currentFile !== comment._fileId) {
+            openFile(comment._folderId, comment._fileId);
+          }
+        } else {
+          openFile(comment._folderId, comment._fileId);
         }
+
+        // Wait for editor to init
+        setTimeout(() => {
+          if (state.editor) {
+            state.editor.scrollIntoView({ line: comment.line, ch: 0 }, 200);
+            state.editor.setSelection({ line: comment.line, ch: 0 }, { line: comment.line, ch: 1000 });
+            // Highlight effect
+            const lineHandle = state.editor.addLineClass(comment.line, "background", "highlight-line");
+            setTimeout(() => state.editor.removeLineClass(lineHandle, "background", "highlight-line"), 2000);
+          }
+        }, 100);
       };
     }
   });
@@ -561,12 +620,12 @@ function renderInlineMarkers() {
       if (typeof comment.line === "number") {
         const marker = document.createElement("div");
         marker.className = "comment-marker";
-        marker.innerHTML = '<i class="fa-solid fa-comment"></i>';
-        marker.title = `${comment.authorName}: ${comment.text}`;
+        // Bubble Icon style
+        marker.innerHTML = '<i class="fa-solid fa-comment-dots"></i>';
+        marker.title = `${comment.authorId?.name || 'User'}: ${comment.text}`;
 
-        // Allow clicking marker to open comments panel
         marker.onclick = (e) => {
-          e.stopPropagation(); // prevent gutterClick
+          e.stopPropagation();
           toggleComments(true);
         };
 
@@ -603,15 +662,15 @@ async function handleAddInlineComment(lineIdx) {
 export function toggleComments(force) {
   const panel = document.getElementById("commentsPanel");
   const fabButton = document.getElementById("toggleComments");
-  
+
   if (typeof force === "boolean") {
     state.commentsOpen = force;
   } else {
     state.commentsOpen = !state.commentsOpen;
   }
-  
+
   panel.classList.toggle("open", state.commentsOpen);
-  
+
   // Hide FAB button when panel is open, show when closed
   if (state.commentsOpen) {
     fabButton.classList.add("hidden");
@@ -731,14 +790,42 @@ export function confirmModal(message) {
   });
 }
 
-// Theme toggle
-document.getElementById("themeToggle").addEventListener("click", () => {
-  document.documentElement.classList.toggle("dark");
-  const isDark = document.documentElement.classList.contains("dark");
-  if (state.editor) {
-    state.editor.setOption("theme", isDark ? "material-darker" : "default");
-  }
-});
+// Theme toggle & Persistence
+const themeToggleBtn = document.getElementById("themeToggle");
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    const isDark = document.documentElement.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+
+    if (state.editor) {
+      state.editor.setOption("theme", isDark ? "material-darker" : "default");
+    }
+  });
+}
+
+// Global Click for CRUD Menu logic
+const dotsBtn = document.querySelector(".dots");
+if (dotsBtn) {
+  dotsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // Show menu at button position
+    const menu = document.getElementById("contextMenu");
+    const rect = dotsBtn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 5) + "px";
+    menu.style.left = (rect.left - 100) + "px"; // Align roughly
+    menu.classList.remove("hidden");
+
+    // Default context to root folder if nothing selected?
+    // Ideally we want to just allow "New Folder" or "New File" in root
+    // For simplicity, we can let user pick logic, or default to first folder
+    if (state.board && state.board.folders.length > 0) {
+      // Default to first folder for "New File" actions if triggered via dots
+      contextTargetFolderId = state.board.folders[0]._id;
+      contextTargetFileId = null;
+    }
+  });
+}
 
 // Event listeners
 document.getElementById("saveBtn").onclick = saveActive;
@@ -912,27 +999,21 @@ if (terminalToggle) {
 if (terminalInput) {
   terminalInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      const command = terminalInput.value.trim();
-      if (command) {
-        // Display the command in output
-        const commandLine = document.createElement("div");
-        commandLine.style.color = "#4ec9b0";
-        commandLine.textContent = `$ ${command}`;
-        terminalOutput.appendChild(commandLine);
-        
-        // Display a message (for now, just echo - can be extended later)
-        const responseLine = document.createElement("div");
-        responseLine.style.color = "#d4d4d4";
-        responseLine.style.marginBottom = "8px";
-        responseLine.textContent = `Command received: ${command}\nNote: Terminal is currently display-only. Use the Run button to execute code.`;
-        terminalOutput.appendChild(responseLine);
-        
-        // Clear input
-        terminalInput.value = "";
-        
-        // Scroll to bottom
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
-      }
+      e.preventDefault(); // Prevent newline in input
+      const command = terminalInput.value;
+
+      // Emit to backend
+      emitTerminalInput(boardId, command);
+
+      // Local echo (optional, but backend usually handles output)
+      // For now, we rely on backend echoing or just explicit output from program
+      // But typically we want to see what we typed:
+      const commandLine = document.createElement("div");
+      commandLine.textContent = command;
+      // terminalOutput.appendChild(commandLine); // Let backend echo if needed, or just rely on result. 
+      // Actually standard terminals echo chars. Let's just clear input.
+
+      terminalInput.value = "";
     }
   });
 }
@@ -988,5 +1069,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load initial board data
   await loadBoard();
 
+  // Restore Theme
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+    document.documentElement.classList.add("dark");
+  }
+
   console.log("✅ Initialization complete");
 });
+// Mobile Sidebar Toggle
+const sidebarToggle = document.getElementById("sidebarToggle");
+const folderArea = document.querySelector(".folder-area");
+if (sidebarToggle && folderArea) {
+  sidebarToggle.addEventListener("click", () => {
+    folderArea.classList.toggle("show");
+
+    // Optional: Toggle icon state if we want (bars vs x)
+    const icon = sidebarToggle.querySelector("i");
+    if (folderArea.classList.contains("show")) {
+      icon.className = "fa-solid fa-xmark";
+    } else {
+      icon.className = "fa-solid fa-bars";
+    }
+  });
+
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth < 768 &&
+      folderArea.classList.contains("show") &&
+      !folderArea.contains(e.target) &&
+      !sidebarToggle.contains(e.target)) {
+      folderArea.classList.remove("show");
+      sidebarToggle.querySelector("i").className = "fa-solid fa-bars";
+    }
+  });
+}

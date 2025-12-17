@@ -219,6 +219,13 @@ router.post("/:id/share", verifyToken, async (req, res) => {
 
     // Generate token
     const shareToken = crypto.randomBytes(32).toString('hex');
+
+    // Defensive init
+    if (!Array.isArray(board.shareLinks)) {
+      board.shareLinks = [];
+    }
+    board.markModified('shareLinks');
+
     board.shareLinks.push({
       token: shareToken,
       permission: permission || 'viewer',
@@ -255,6 +262,15 @@ router.post("/:id/invite", verifyToken, async (req, res) => {
 
     // Generate token
     const shareToken = crypto.randomBytes(32).toString('hex');
+
+    // Defensive init: Ensure it's an array
+    if (!Array.isArray(board.shareLinks)) {
+      board.shareLinks = [];
+    }
+
+    // Explicitly mark as modified if using Mongoose doc this way, just in case
+    board.markModified('shareLinks');
+
     board.shareLinks.push({
       token: shareToken,
       permission: permission || 'viewer',
@@ -575,6 +591,47 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
     const newComment = board.comments[board.comments.length - 1];
     const io = req.app.get("io");
     emitBoard(io, req.params.id, "comment-created", { folderId, fileId, comment: newComment });
+
+    // --- NOTIFICATION LOGIC ---
+    // Notify all members except author
+    // Collect all involved users (owner, members, permissions)
+    // For simplicity, let's just notify 'members' and 'owner' if they are not the author
+    const recipients = new Set();
+    if (board.owner && board.owner.toString() !== req.user.id) recipients.add(board.owner.toString());
+
+    board.members.forEach(m => {
+      const mid = m._id ? m._id.toString() : m.toString();
+      if (mid !== req.user.id) recipients.add(mid);
+    });
+
+    // Also notify editors/viewers if they are not members (depending on schema usage, sometimes they overlap)
+    // Safely checking just members+owner is usually enough for "team", but let's be thorough
+    ["editors", "commenters", "viewers"].forEach(role => {
+      if (board.permissions[role]) {
+        board.permissions[role].forEach(u => {
+          const uid = u._id ? u._id.toString() : u.toString();
+          if (uid !== req.user.id) recipients.add(uid);
+        });
+      }
+    });
+
+    const notifPromises = Array.from(recipients).map(async (userId) => {
+      const notification = new Notification({
+        user_id: userId,
+        title: "New Comment in Pair Programming",
+        message: `${user?.name || "Someone"} commented on ${board.name}: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
+        type: "comment",
+        link: `/pair-programming.html?id=${board._id}`, // Redirect to board
+      });
+      await notification.save();
+
+      // Real-time
+      io.to(userId).emit("notification", notification);
+      return notification;
+    });
+
+    await Promise.all(notifPromises);
+    // --------------------------
 
     res.status(201).json(newComment);
   } catch (err) {

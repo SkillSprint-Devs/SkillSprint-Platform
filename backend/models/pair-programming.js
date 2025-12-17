@@ -51,6 +51,15 @@ const PairProgrammingSchema = new Schema(
     },
     folders: [FolderSchema],
     comments: [CommentSchema],
+    shareLinks: [
+      {
+        token: String,
+        permission: { type: String, enum: ['viewer', 'commenter', 'editor', 'owner'], default: 'viewer' },
+        createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
+        createdAt: { type: Date, default: Date.now },
+        expiresAt: Date
+      }
+    ]
   },
   { timestamps: true }
 );

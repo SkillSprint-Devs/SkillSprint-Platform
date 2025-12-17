@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pair Programming — SkillSprint</title>
 
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Your variables.css (already uploaded) -->
-  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/variables.css?v=2">
 
   <!-- Page CSS -->
-  <link rel="stylesheet" href="assets/css/pair-programming.css">
+  <link rel="stylesheet" href="assets/css/pair-programming.css?v=2">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -29,6 +34,8 @@
     <!-- TOP NAV -->
     <header class="top-nav">
       <div class="left">
+        <!-- Mobile Sidebar Toggle -->
+        <button id="sidebarToggle" class="btn-icon mobile-only" style="display:none; margin-right: 8px;"><i class="fa-solid fa-bars"></i></button>
         <div class="logo">SkillSprint</div>
         <div class="project-name">/SkillSprint / PairProject</div>
       </div>
@@ -233,7 +240,8 @@
   </div>
 
   <!-- Page JS -->
-  <script src="js/pair-programming.js" type="module"></script>
+  <!-- Page JS -->
+  <script src="js/pair-programming.js?v=2" type="module"></script>
   <!-- <script src="js/pair-programming-sio.js" type="module"></script>
   <script src="js/toast.js" type="module"></script> -->
   

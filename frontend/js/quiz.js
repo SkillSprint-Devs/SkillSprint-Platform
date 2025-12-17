@@ -3,7 +3,7 @@
  * SkillSprint Platform
  */
 
-const API_BASE = '/api';
+const API_BASE = 'http://127.0.0.1:5000/api';
 
 // State
 let currentQuiz = null;

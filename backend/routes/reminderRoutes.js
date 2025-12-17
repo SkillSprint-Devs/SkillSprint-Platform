@@ -1,5 +1,6 @@
 import express from "express";
 import Reminder from "../models/reminder.js";
+import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -31,8 +32,29 @@ router.post("/", verifyToken, async (req, res) => {
         });
 
         await reminder.save();
+
+        // Create notification for reminder creation
+        try {
+            const notification = new Notification({
+                user_id: req.user.id,
+                title: "Reminder Set",
+                message: `Reminder set: "${text}"`,
+                type: "reminder",
+                link: `/dashboard`, // or wherever reminders are viewed
+            });
+            await notification.save();
+
+            const io = req.app.get("io");
+            if (io) {
+                io.to(req.user.id.toString()).emit("notification", notification);
+            }
+        } catch (notifErr) {
+            console.error("Failed to create reminder notification:", notifErr);
+        }
+
         res.status(201).json(reminder);
     } catch (err) {
+        console.error("Create reminder error:", err);
         res.status(500).json({ message: "Server error" });
     }
 });
