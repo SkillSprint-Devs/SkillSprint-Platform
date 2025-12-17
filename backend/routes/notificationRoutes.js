@@ -22,6 +22,47 @@ router.get("/", verifyToken, async (req, res) => {
     }
 });
 
+// POST a new notification (Manual/System)
+router.post("/", verifyToken, async (req, res) => {
+    try {
+        const { title, message, type, link, user_id } = req.body;
+
+        // Allow sending to self if no user_id provided, or specific user if admin (logic can be expanded)
+        // For now, assuming self or validated logic.
+        // If user_id is provided, use it. Otherwise default to current user? 
+        // Actually, usually you post a notification FOR someone. 
+        // The requester might be the system or another user. 
+        // Let's assume the body contains the target user_id. 
+        // If not provided, maybe default to self for testing.
+
+        const targetUserId = user_id || req.user.id;
+
+        if (!title || !message) {
+            return res.status(400).json({ message: "Title and message are required" });
+        }
+
+        const notification = new Notification({
+            user_id: targetUserId,
+            title,
+            message,
+            type: type || "system",
+            link: link || "",
+        });
+
+        await notification.save();
+
+        const io = req.app.get("io");
+        if (io) {
+            io.to(targetUserId.toString()).emit("notification", notification);
+        }
+
+        res.status(201).json(notification);
+    } catch (err) {
+        console.error("Error creating notification:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 // DELETE a notification
 router.delete("/:id", verifyToken, async (req, res) => {
     try {

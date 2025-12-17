@@ -109,6 +109,10 @@ io.on("connection", (socket) => {
   const userId = user.id || user._id || null;
   console.log("Socket connected:", socket.id, "user:", userId || "anonymous");
 
+  if (userId) {
+    socket.join(userId.toString());
+  }
+
   // Global Presence Tracking
   if (userId) {
     if (!onlineUsers.has(userId)) {

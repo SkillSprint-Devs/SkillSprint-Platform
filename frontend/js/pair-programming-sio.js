@@ -195,6 +195,12 @@ export function initSocket(token, boardIdParam) {
     // Optional: handle remote cursor update visual
     console.log("Cursor update:", userId, cursor);
   });
+
+  socket.on("terminal:output", ({ data }) => {
+    // Dispatch custom event to be picked up by main UI
+    const event = new CustomEvent("terminal-output", { detail: data });
+    window.dispatchEvent(event);
+  });
 }
 
 // Emitters - ALL FUNCTIONS PROPERLY EXPORTED
@@ -226,6 +232,25 @@ export function emitJoinBoard(boardId) {
 export function emitLeaveBoard(boardId) {
   if (socket && socket.connected) {
     socket.emit("leave-board", { boardId });
+  }
+}
+
+// TERMINAL EMITTERS
+export function emitTerminalStart(boardId, fileId, code, language) {
+  if (socket && socket.connected) {
+    socket.emit("terminal:start", { boardId, fileId, code, language });
+  }
+}
+
+export function emitTerminalInput(boardId, data) {
+  if (socket && socket.connected) {
+    socket.emit("terminal:input", { boardId, data });
+  }
+}
+
+export function emitTerminalKill(boardId) {
+  if (socket && socket.connected) {
+    socket.emit("terminal:kill", { boardId });
   }
 }
 
