@@ -1,29 +1,28 @@
 import mongoose from "mongoose";
 
 const reminderSchema = new mongoose.Schema({
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId, // FK - Users._id
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: true
   },
-  title: {
+  text: {
     type: String,
     required: true,
+    trim: true
   },
-  date_time: {
-    type: Date,
-    required: true,
+  dueDate: {
+    type: Date
   },
-  is_done: {
+  completed: {
     type: Boolean,
-    default: false,
+    default: false
   },
-  created_at: {
+  createdAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
 const Reminder = mongoose.model("Reminder", reminderSchema);
-
 export default Reminder;

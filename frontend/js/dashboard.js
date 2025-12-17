@@ -1,27 +1,40 @@
 // === DASHBOARD.JS ===
+const API_BASE = "http://127.0.0.1:5000/api";
 
 // SIDEBAR TOGGLE
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleSidebar");
 const aiGuide = document.getElementById("aiGuide");
 
-// Set initial icon (expanded state)
 if (toggleBtn) {
+  // Initial state check
   toggleBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
 
   toggleBtn.addEventListener("click", () => {
-    const collapsed = sidebar.classList.toggle("collapsed");
+    sidebar.classList.toggle("collapsed");
+    const isCollapsed = sidebar.classList.contains("collapsed");
 
-    if (collapsed) {
-      toggleBtn.textContent = "S";
-      if (aiGuide)
-        aiGuide.innerHTML =
-          '<i class="fa-solid fa-robot" aria-hidden="true" style="font-size:1.25rem;"></i>';
+    // 1. Toggle Button Icon: Arrow <-> 'S'
+    if (isCollapsed) {
+      toggleBtn.innerHTML = "S";
     } else {
       toggleBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
-      if (aiGuide)
-        aiGuide.innerHTML =
-          '<p>Learn with your AI guide!</p><button type="button">Open Chat</button>';
+    }
+
+    // 2. AI Guide: Text <-> Bot Icon
+    if (aiGuide) {
+      if (isCollapsed) {
+        aiGuide.innerHTML = `
+          <button type="button" title="Open Chat">
+            <i class="fa-solid fa-robot"></i>
+          </button>
+        `;
+      } else {
+        aiGuide.innerHTML = `
+          <p>Your AI Guide</p>
+          <button type="button">Open Chat</button>
+        `;
+      }
     }
   });
 }
@@ -30,284 +43,248 @@ if (toggleBtn) {
 async function loadDashboard() {
   const token = localStorage.getItem("token");
   if (!token) {
-    alert("Session expired, please log in again.");
     window.location.href = "login.html";
     return;
   }
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/dashboard", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const res = await fetch(`${API_BASE}/dashboard`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
+    if (!res.ok) throw new Error("Failed to load dashboard.");
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to load dashboard.");
 
-    console.log("Dashboard data:", data);
-
-    // Load user from localStorage as single source of truth for user info UI
+    // User Info
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-    // Update user info UI elements
     ["username", "usernameTop"].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.textContent = user.name || "User";
+      if (el) el.textContent = user.name || "Guest";
     });
 
-    // Update profile avatar images 
     const profileImgUrl = user.profile_image || "assets/images/user-avatar.png";
-    ["creatorAvatar", "creatorAvatarSmall", "profileAvatar"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.src = profileImgUrl;
-    });
+    if (document.getElementById("profileAvatar")) document.getElementById("profileAvatar").src = profileImgUrl;
 
-    // user profile fields present in the DOM
-    if (document.getElementById("profileName")) document.getElementById("profileName").textContent = user.name || "";
-    if (document.getElementById("profilePosition")) document.getElementById("profilePosition").textContent = user.role || "";
-    if (document.getElementById("connectionsCount")) document.getElementById("connectionsCount").textContent = user.followers_count || 0;
-    if (document.getElementById("followingCount")) document.getElementById("followingCount").textContent = user.following_count || 0;
+    // Wallet Info
+    // Ensure elements exist before setting
+    if (document.getElementById("walletCredits")) document.getElementById("walletCredits").textContent = `$${data.wallet?.remaining_time || "0"}`;
+    if (document.getElementById("walletSpent")) document.getElementById("walletSpent").textContent = `$${data.wallet?.spent || "0"}`;
+    if (document.getElementById("walletEarned")) document.getElementById("walletEarned").textContent = `$${data.wallet?.earned || "0"}`;
 
-    // wallet info from API response
-    document.querySelector(".wallet-card:nth-child(1) div:nth-child(2)").textContent = `$${data.wallet?.remaining_time || "0"}`;
-    document.querySelector(".wallet-card:nth-child(2) div:nth-child(2)").textContent = `$${data.wallet?.spent || 0}`;
-    document.querySelector(".wallet-card:nth-child(3) div:nth-child(2)").textContent = `$${data.wallet?.earned || 0}`;
+    // Tasks and Notifications
+    renderTasks(data.tasks);
+    loadNotifications(); // Load from API
+    loadReminders();     // Load Reminders
 
-    // --- Notifications ---
-    // Fetch all notifications from the dedicated endpoint
-    await loadNotifications();
+    // Socket.IO for Realtime
+    if (window.io) setupSocket(token);
 
-    // --- Real-time Notifications ---
-    // Initialize Socket.IO
-    // The token is already defined at the top of loadDashboard, but we need it here for the socket.
-    // Re-declaring for clarity within this scope, or using the outer 'token' variable.
-    // Using the outer 'token' variable is fine.
-    if (token && window.io) {
-      const socket = io("http://127.0.0.1:5000", {
-        auth: { token },
-        transports: ["websocket"]
-      });
-
-      socket.on("connect", () => {
-        console.log("Dashboard socket connected:", socket.id);
-      });
-
-      // Listen for new notifications
-      socket.on("notification", (notification) => {
-        console.log("New notification received:", notification);
-
-        // Play sound (optional, browser policy dependent)
-        // const audio = new Audio('assets/sounds/notification.mp3');
-        // audio.play().catch(e => console.log("Audio autoplay blocked"));
-
-        // Prepend to list
-        const notifList = document.getElementById("notifList");
-        if (notifList) {
-          // Remove empty state if present
-          const empty = notifList.querySelector(".empty-state");
-          if (empty) empty.remove();
-
-          const div = document.createElement("div");
-          div.className = "notif-item highlight-new"; // optional class for animation
-          div.id = `notif-${notification._id}`;
-
-          let iconClass = "fa-circle-info";
-          if (notification.type === "chat") iconClass = "fa-comment";
-          if (notification.type === "task") iconClass = "fa-list-check";
-          if (notification.type === "invite") iconClass = "fa-user-plus";
-          if (notification.type === "reminder") iconClass = "fa-clock";
-
-          div.innerHTML = `
-            <div class="notif-icon"><i class="fa-solid ${iconClass}"></i></div>
-            <div class="notif-content">
-              <h4>
-                ${notification.title}
-                 <button class="delete-notif-btn" onclick="deleteNotification('${notification._id}')" title="Delete">×</button>
-              </h4>
-              <p>${notification.message}</p>
-              <span class="time">Just now</span>
-            </div>
-          `;
-
-          notifList.prepend(div);
-
-          // Update bell icon badge? (optional)
-        }
-      });
-
-      socket.on("connect_error", (err) => {
-        console.error("Socket connection error:", err.message);
-      });
-    }
-
-    // --- Render Tasks ---
-    const taskList = document.getElementById("taskList");
-    const taskFilter = document.getElementById("taskFilter");
-
-    if (taskList) {
-      const renderTasks = (filter = "all") => {
-        taskList.innerHTML = "";
-
-        const filtered = data.tasks.filter(t => {
-          if (filter === "all") return true;
-          if (filter === "ongoing") return t.status === "in_progress" || t.status === "open";
-          if (filter === "completed") return t.status === "completed";
-          if (filter === "pending") return !t.status || t.status === "open";
-        });
-
-        // EMPTY STATE
-        if (filtered.length === 0) {
-          taskList.innerHTML = `
-              <div class="empty-task">
-                <img src="assets/images/empty.png" alt="empty" style="width:120px; opacity:0.8; margin-bottom:10px;">
-                <h4>Wohoo! No upcoming tasks 🎉</h4>
-                <p>Enjoy the free time or create a new task!</p>
-              </div>
-            `;
-          return;
-        }
-
-        // TEMPLATE
-        const template = document.getElementById("taskCardTemplate");
-
-        filtered.forEach(t => {
-          const card = template.content.cloneNode(true);
-
-          // Title
-          card.querySelector(".task-title").textContent = t.title;
-
-          // Description
-          card.querySelector(".task-description").textContent = t.description || "No description provided.";
-
-          // Priority Color (Red, Yellow, Green)
-          const dot = card.querySelector(".color-dot");
-          let priorityColor = "#4caf50"; // default Low/Green
-          if (t.priority === 'high') priorityColor = "#ef5350"; // Red
-          if (t.priority === 'medium') priorityColor = "#ffb300"; // Yellow
-          if (t.priority === 'low') priorityColor = "#4caf50"; // Green
-          dot.style.background = priorityColor;
-          // Also set title prompt/tooltip
-          dot.title = `Priority: ${t.priority || 'low'}`;
-
-          // Subtasks
-          const subCount = t.subtasks ? t.subtasks.length : 0;
-          card.querySelector(".subtasks-count").textContent = `${subCount} Sub-tasks`;
-
-          // Footer
-          const dateStr = t.dueDate ? new Date(t.dueDate).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "No Date";
-          card.querySelector(".task-due-date").textContent = `due ${dateStr}`;
-
-          const progress = t.progress || 0;
-          const badge = card.querySelector(".task-progress-badge");
-          badge.textContent = `${progress}% completed`;
-          // Badge color based on progress magnitude matching the reference image's pastel feel
-          // or we can stick to priority color. The request said "Color of progress badge remains based on percentage scaling used in system."
-          // Using a simple scaling for now:
-          if (progress < 30) badge.style.backgroundColor = "#ffcdd2"; // light red
-          else if (progress < 70) badge.style.backgroundColor = "#fff9c4"; // light yellow
-          else badge.style.backgroundColor = "#c8e6c9"; // light green
-
-          taskList.appendChild(card);
-        });
-      };
-
-      // First load
-      renderTasks();
-
-      // Filter dropdown
-      if (taskFilter) {
-        taskFilter.addEventListener("change", (e) => renderTasks(e.target.value));
-      }
-    }
   } catch (err) {
     console.error("Dashboard load error:", err);
-    alert("Error loading dashboard data: " + err.message);
+    if (typeof showToast === 'function') showToast("Error loading dashboard data", "error");
   }
 }
 
+// === TASKS ===
+function renderTasks(tasks) {
+  const taskList = document.getElementById("taskList");
+  if (!taskList) return;
 
+  taskList.innerHTML = "";
+
+  if (!tasks || tasks.length === 0) {
+    taskList.innerHTML = `<div class="empty-state" style="padding:10px; color:#999;">No active tasks.</div>`;
+    return;
+  }
+
+  const template = document.getElementById("taskCardTemplate");
+
+  tasks.forEach(t => {
+    const card = template.content.cloneNode(true);
+
+    card.querySelector(".task-title").textContent = t.title;
+    card.querySelector(".task-description").textContent = t.description || "No description";
+
+    const dot = card.querySelector(".color-dot");
+    let color = "#4caf50";
+    if (t.priority === 'high') color = "#ef5350";
+    if (t.priority === 'medium') color = "#ffb300";
+    dot.style.background = color;
+
+    const dateStr = t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "No Date";
+    card.querySelector(".task-due-date").textContent = `Due ${dateStr}`;
+
+    const badge = card.querySelector(".task-progress-badge");
+    badge.textContent = `${t.progress || 0}%`;
+
+    card.querySelector(".task-card").onclick = () => location.href = "task.html";
+    taskList.appendChild(card);
+  });
+}
+
+// === NOTIFICATIONS ===
 async function loadNotifications() {
   const token = localStorage.getItem("token");
-  if (!token) return;
+  const list = document.getElementById("notifList");
+  if (!list) return;
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/notifications", {
+    const res = await fetch(`${API_BASE}/notifications`, {
       headers: { Authorization: `Bearer ${token}` }
     });
+    // Check if endpoint exists (it definitely should, but just in case)
+    if (res.status === 404) return; // Silent fail if not implemented
+
     const notifications = await res.json();
     renderNotifications(notifications);
   } catch (err) {
-    console.error("Failed to load notifications:", err);
+    console.error("Load notifs error:", err);
   }
 }
 
 function renderNotifications(notifications) {
-  const notifList = document.getElementById("notifList");
-  if (!notifList) return;
+  const list = document.getElementById("notifList");
+  if (!list) return;
 
-  notifList.innerHTML = "";
-
+  list.innerHTML = "";
   if (!notifications || notifications.length === 0) {
-    notifList.innerHTML = `<p class="empty-state">You don’t have any notifications yet.</p>`;
+    list.innerHTML = `<div style="text-align:center; color:#ccc; padding:10px;">No new notifications</div>`;
     return;
   }
 
   notifications.forEach(n => {
-    const div = document.createElement("div");
-    div.className = "notif-item";
-    div.id = `notif-${n._id}`;
+    const item = document.createElement("div");
+    item.className = "notif-item";
 
-    // Icon based on type (optional enhancement)
     let iconClass = "fa-circle-info";
     if (n.type === "chat") iconClass = "fa-comment";
     if (n.type === "task") iconClass = "fa-list-check";
     if (n.type === "invite") iconClass = "fa-user-plus";
     if (n.type === "reminder") iconClass = "fa-clock";
 
-    div.innerHTML = `
+    item.innerHTML = `
       <div class="notif-icon"><i class="fa-solid ${iconClass}"></i></div>
       <div class="notif-content">
-        <h4>
-          ${n.title || "Notification"}
-          <button class="delete-notif-btn" onclick="deleteNotification('${n._id}')" title="Delete">×</button>
-        </h4>
+        <h4>${n.title || "Notification"}</h4>
         <p>${n.message || ""}</p>
-        <span class="time">${new Date(n.created_at).toLocaleString()}</span>
+        <span class="time">${new Date(n.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
     `;
-    notifList.appendChild(div);
+    list.appendChild(item);
   });
 }
 
-window.deleteNotification = async (id) => {
+// === REMINDERS ===
+async function loadReminders() {
   const token = localStorage.getItem("token");
-  const el = document.getElementById(`notif-${id}`);
-
-  // Optimistic removal
-  if (el) el.remove();
+  const list = document.getElementById("reminderList");
 
   try {
-    await fetch(`http://127.0.0.1:5000/api/notifications/${id}`, {
-      method: "DELETE",
+    const res = await fetch(`${API_BASE}/reminders`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    // check if empty
-    const notifList = document.getElementById("notifList");
-    if (notifList && notifList.children.length === 0) {
-      notifList.innerHTML = `<p class="empty-state">You don’t have any notifications yet.</p>`;
+    // Check for HTML response (server not restarted)
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      console.warn("Server returned HTML for API request - likely 404/Server not restarted");
+      if (list) list.innerHTML = `<div style="color:var(--danger); padding:10px;">API Unavailable. Please restart server.</div>`;
+      return;
     }
 
+    if (!res.ok) throw new Error("API Error");
+
+    const reminders = await res.json();
+
+    list.innerHTML = "";
+    if (reminders.length === 0) {
+      list.innerHTML = `<div style="text-align:center; color:#999; padding:10px;">No reminders yet</div>`;
+      return;
+    }
+
+    reminders.forEach(r => {
+      const item = document.createElement("div");
+      item.className = `reminder-item ${r.completed ? 'completed' : ''}`;
+      item.innerHTML = `
+        <div class="reminder-checkbox ${r.completed ? 'checked' : ''}" onclick="toggleReminder('${r._id}', ${!r.completed})"></div>
+        <div class="reminder-content">
+          <div class="reminder-text">${r.text}</div>
+          <div class="reminder-meta">${new Date(r.createdAt).toLocaleDateString()}</div>
+        </div>
+        <button class="delete-reminder-btn" onclick="deleteReminder('${r._id}')"><i class="fa-solid fa-trash"></i></button>
+      `;
+      list.appendChild(item);
+    });
+
   } catch (err) {
-    console.error("Error deleting notification:", err);
-    // revert or toast?
+    console.error("Load reminders error:", err);
   }
+}
+
+// Global Handlers
+async function addReminder() {
+  const input = document.getElementById("newReminderInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const token = localStorage.getItem("token");
+  try {
+    await fetch(`${API_BASE}/reminders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ text })
+    });
+    input.value = "";
+    loadReminders();
+  } catch (err) { console.error(err); }
+}
+
+window.toggleReminder = async (id, completed) => {
+  const token = localStorage.getItem("token");
+  try {
+    await fetch(`${API_BASE}/reminders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ completed })
+    });
+    loadReminders();
+  } catch (err) { console.error(err); }
 };
 
+window.deleteReminder = async (id) => {
+  const token = localStorage.getItem("token");
+  if (!confirm("Delete this reminder?")) return;
+  try {
+    await fetch(`${API_BASE}/reminders/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    loadReminders();
+  } catch (err) { console.error(err); }
+};
 
+// Listeners
+document.getElementById("addReminderBtn")?.addEventListener("click", addReminder);
+document.getElementById("newReminderInput")?.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") addReminder();
+});
 
+// Socket
+function setupSocket(token) {
+  const socket = io("http://127.0.0.1:5000", {
+    auth: { token },
+    transports: ["websocket"]
+  });
 
-// Initialize on page load
+  socket.on("connect", () => console.log("Socket connected"));
+  socket.on("notification", (n) => {
+    if (typeof showToast === 'function') showToast(n.message || "New Notification", "info");
+    loadNotifications(); // Refresh list
+  });
+}
+
+// Init
 document.addEventListener("DOMContentLoaded", loadDashboard);
-

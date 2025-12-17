@@ -26,6 +26,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
+import reminderRoutes from "./routes/reminderRoutes.js";
 import { initTaskScheduler } from "./utils/taskScheduler.js";
 
 const app = express();
@@ -268,6 +269,7 @@ console.log("Registering /api/notifications route...");
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/certificates", certificateRoutes);
+app.use("/api/reminders", reminderRoutes);
 
 // central error handler for express routes 
 app.use((err, req, res, next) => {
