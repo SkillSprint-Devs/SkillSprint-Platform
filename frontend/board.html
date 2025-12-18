@@ -14,10 +14,6 @@
   <header class="top-bar">
     <div class="left-section">
       <button id="btnBack" class="icon-btn" title="Back"><span class="material-icons-outlined">arrow_back</span></button>
-      <div class="undo-redo">
-        <button id="undoBtn" class="icon-btn" title="Undo"><span class="material-icons-outlined">undo</span></button>
-        <button id="redoBtn" class="icon-btn" title="Redo"><span class="material-icons-outlined">redo</span></button>
-      </div>
     </div>
 
     <div class="center-section">
@@ -38,11 +34,18 @@
   </header>
 
 <aside class="toolbox">
+  <button id="undoBtn" class="tool" title="Undo (Ctrl+Z)">
+    <span class="material-icons-outlined">undo</span>
+  </button>
+  <button id="redoBtn" class="tool" title="Redo (Ctrl+Y)">
+    <span class="material-icons-outlined">redo</span>
+  </button>
+  <div class="tool-divider"></div>
   <button data-tool="pen" class="tool active" title="Pen Tool">
     <span class="material-icons-outlined">draw</span>
   </button>
   <button data-tool="eraser" class="tool" title="Eraser Tool">
-    <span class="material-icons-outlined">ink_eraser</span>
+    <span class="material-icons-outlined">cleaning_services</span>
   </button>
   <button data-tool="highlighter" class="tool" title="Highlighter">
     <span class="material-icons-outlined">auto_fix_high</span>
