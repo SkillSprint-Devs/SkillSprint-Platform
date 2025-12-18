@@ -8,7 +8,10 @@
 
   /* Optional tones for later use */
   --muted: #bfbfbf;
-  --highlight: #8C52FF; /* secondary accent, tweak if you prefer another */
+  --highlight: #8C52FF;
+  /* secondary accent, tweak if you prefer another */
+  --primary: #8C52FF;
+  /* primary action color */
 }
 
 body {

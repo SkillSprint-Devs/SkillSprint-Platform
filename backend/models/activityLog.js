@@ -18,7 +18,7 @@ const activityLogSchema = new mongoose.Schema({
   category: {
     type: String, // e.g. "Task", "Learning"
     required: true,
-    enum: ["Task", "Learning", "Project", "Collaboration"], // optional set of categories
+    enum: ["Task", "Learning", "Collaboration"], // optional set of categories
   },
 });
 

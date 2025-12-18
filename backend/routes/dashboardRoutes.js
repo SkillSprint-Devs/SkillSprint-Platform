@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 
 // import all models
 import User from "../models/user.js";
-import Project from "../models/project.js";
 import Task from "../models/task.js";
 import Wallet from "../models/wallet.js";
 import Reminder from "../models/reminder.js";
@@ -67,10 +66,6 @@ router.get("/", verifyToken, async (req, res) => {
         .limit(7)) || [];
 
 
-    const projects =
-      (await Project.find({ created_by: userId })
-        .sort({ created_at: -1 })
-        .limit(3)) || [];
 
 
     const library =
@@ -86,7 +81,6 @@ router.get("/", verifyToken, async (req, res) => {
       tasks,
       reminders,
       activity,
-      projects,
       library,
     });
   } catch (error) {

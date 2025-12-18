@@ -31,7 +31,7 @@ const CommentSchema = new Schema({
 const StrokeSchema = new Schema({
   tool: {
     type: String,
-    enum: ["pencil", "pen", "highlighter"],
+    enum: ["pencil", "pen", "highlighter", "eraser"],
     default: "pen",
   },
   color: String,
@@ -69,6 +69,18 @@ const NotificationSchema = new Schema({
   readBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
 
+// 🔤 Text Boxes
+const TextBoxSchema = new Schema({
+  text: { type: String, default: "" },
+  x: { type: Number, default: 0 },
+  y: { type: Number, default: 0 },
+  width: { type: Number, default: 150 },
+  height: { type: Number, default: 50 },
+  color: { type: String, default: "#000" },
+  userId: { type: Schema.Types.ObjectId, ref: "User" },
+  createdAt: { type: Date, default: Date.now },
+});
+
 // 🎥 Recordings
 const RecordingSchema = new Schema({
   fileUrl: String,
@@ -95,6 +107,7 @@ const BoardSchema = new Schema(
     comments: [CommentSchema],
     strokes: [StrokeSchema],
     shapes: [ShapeSchema],
+    textBoxes: [TextBoxSchema],
     notifications: [NotificationSchema],
     recordings: [RecordingSchema],
 

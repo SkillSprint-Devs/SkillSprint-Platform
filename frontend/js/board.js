@@ -100,25 +100,109 @@
       // Save global data for share/invite usage
       window.currentBoardData = data.data;
 
-      console.log('Loaded board:', data.data);
-
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       const ownerId = data.data.owner?._id || data.data.owner;
 
       if (currentUser._id === ownerId) {
         console.log('You are the board owner');
-        document.getElementById('boardTitle').style.color = '#4CAF50'; // green indicator
-      } else {
-        console.log('You are a member');
-        document.getElementById('boardTitle').style.color = '#f39c12'; // orange for non-owner
+        const titleEl = document.getElementById('boardTitle');
+        if (titleEl) titleEl.style.color = 'var(--accent)';
       }
+
+      // Display active users
+      updateActiveUsersUI(data.data.activeUsers);
 
       // Initialize real-time listeners after board loads
       setupRealtimeListeners();
 
+      // RENDER SAVED STATE
+      renderBoardState(data.data);
+
     } catch (err) {
       console.error('Error fetching board info:', err);
     }
+  }
+
+  // --- Rendering Logic ---
+  function renderBoardState(board) {
+    if (!board) return;
+
+    // 1. Render Strokes (on canvas)
+    if (board.strokes && board.strokes.length) {
+      board.strokes.forEach(s => {
+        if (!s.points || s.points.length < 2) return;
+        const ctx = document.getElementById('boardCanvas').getContext('2d');
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = s.color || '#000';
+        ctx.lineWidth = s.width || 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        if (s.tool === 'highlighter') ctx.globalAlpha = 0.5;
+        if (s.tool === 'eraser') ctx.globalCompositeOperation = 'destination-out';
+
+        ctx.moveTo(s.points[0].x, s.points[0].y);
+        for (let i = 1; i < s.points.length; i++) {
+          ctx.lineTo(s.points[i].x, s.points[i].y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    // 2. Render Shapes (on canvas)
+    if (board.shapes && board.shapes.length) {
+      board.shapes.forEach(s => {
+        // We'll reuse the drawShapeFromTo logic if possible, or just re-implement
+        const canvas = document.getElementById('boardCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.strokeStyle = s.color || '#000';
+        ctx.lineWidth = s.width || 4;
+        if (s.type === 'rectangle') {
+          ctx.strokeRect(s.start.x, s.start.y, s.end.x - s.start.x, s.end.y - s.start.y);
+        } else {
+          const cx = (s.start.x + s.end.x) / 2;
+          const cy = (s.start.y + s.end.y) / 2;
+          const r = Math.max(Math.abs(s.end.x - s.start.x), Math.abs(s.end.y - s.start.y)) / 2;
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, r, r, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+    }
+
+    // 3. Render Stickies (DOM)
+    if (board.stickies && board.stickies.length) {
+      board.stickies.forEach(s => {
+        window.smartboard.createStickyElement(s.x, s.y, s.text, s._id);
+      });
+    }
+
+    // 4. Render Text Boxes (DOM)
+    if (board.textBoxes && board.textBoxes.length) {
+      board.textBoxes.forEach(t => {
+        window.smartboard.createTextBoxElement(t.x, t.y, t.text, t._id);
+      });
+    }
+  }
+
+  function updateActiveUsersUI(users) {
+    const container = document.getElementById('activeUsers');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // De-duplicate and filter nulls
+    const uniqueUsers = Array.from(new Map(users.filter(u => u).map(u => [u._id, u])).values());
+
+    uniqueUsers.forEach(u => {
+      const img = document.createElement('img');
+      img.src = u.profile_image || u.avatarUrl || 'assets/images/user-avatar.png';
+      img.className = 'user-avatar-stack';
+      img.title = u.name || 'User';
+      container.appendChild(img);
+    });
   }
 
   // --- Real-time Handlers ---
@@ -180,14 +264,18 @@
     loadBoardInfo();
 
     // Show current user info in top nav
-    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const currentUser = window.CURRENT_USER || JSON.parse(localStorage.getItem('user') || 'null');
 
     if (currentUser) {
-      const avatarEl = document.getElementById('currentUserAvatar');
-      const usernameEl = document.getElementById('usernameTop');
-
-      if (avatarEl) avatarEl.src = currentUser.avatarUrl || './assets/images/user-avatar.png';
-      if (usernameEl) usernameEl.textContent = currentUser.name || 'Guest';
+      const badgeContainer = document.getElementById('currentUserBadge');
+      if (badgeContainer) {
+        const avatarUrl = currentUser.profile_image || currentUser.avatarUrl || './assets/images/user-avatar.png';
+        badgeContainer.className = 'current-user-badge';
+        badgeContainer.innerHTML = `
+          <img src="${avatarUrl}" alt="Me">
+          <span>${currentUser.name || 'You'}</span>
+        `;
+      }
     }
 
     try {
@@ -219,7 +307,12 @@
         safeLog('fatal: Required core elements missing (canvas/wrapper/container). Aborting script.');
         notify('Fatal error: Required elements missing. See console.', 'error');
         return;
-        return;
+      }
+
+      if (colorPicker) {
+        const initialColor = colorPicker.value || '#000000';
+        const display = document.querySelector('.color-display');
+        if (display) display.style.backgroundColor = initialColor;
       }
 
       // --- Remote Listeners ---
@@ -452,7 +545,7 @@
             const stroke = parseInt((strokeRange && strokeRange.value) || 4, 10);
             ctx.lineWidth = stroke;
             ctx.strokeStyle = (colorPicker && colorPicker.value) || '#000';
-            ctx.globalAlpha = (tool === 'highlighter') ? 0.32 : 1;
+            ctx.globalAlpha = (tool === 'highlighter') ? 0.5 : 1;
             ctx.globalCompositeOperation = (tool === 'eraser') ? 'destination-out' : 'source-over';
           }
         } catch (err) {
@@ -484,8 +577,11 @@
               });
             }
 
-            // Update 'last' for next segment (already done implicitly by pointer logic, but explicit here for clarity)
-            last = p; // this was missing in original code logic for continuous drawing! FIX:
+            // Track points for saving
+            if (!window.currentPath) window.currentPath = [];
+            window.currentPath.push(p);
+
+            last = p;
             // Actually, the original code had `last = p` implicitly effectively handled via ctx state? 
             // No, standard canvas drawing requires updating `last` point. 
             // Wait, `last` is global. Let's look at pointerMove again.
@@ -519,6 +615,18 @@
           if (tool === 'rectangle' || tool === 'circle') {
             drawShapeFromTo(last, p, tool);
 
+            // Record shape in local strokes list for serialization (simplification)
+            // Ideally shapes and strokes are separate, but for the 'Save' button, 
+            // we'll collect them from the canvas or maintain local arrays.
+            if (!window.currentShapes) window.currentShapes = [];
+            window.currentShapes.push({
+              type: tool,
+              start: last,
+              end: p,
+              color: colorPicker ? colorPicker.value : '#000',
+              width: parseInt((strokeRange && strokeRange.value) || 4, 10)
+            });
+
             // Emit shape
             if (window.BoardSocket) {
               window.BoardSocket.emitDraw({
@@ -530,8 +638,29 @@
                 width: parseInt((strokeRange && strokeRange.value) || 4, 10)
               });
             }
+            // PERSIST SHAPE
+            if (!window.currentShapes) window.currentShapes = [];
+            window.currentShapes.push({
+              type: tool,
+              start: last,
+              end: p,
+              color: colorPicker ? colorPicker.value : '#000',
+              width: parseInt((strokeRange && strokeRange.value) || 4, 10)
+            });
+          } else if (tool === 'pen' || tool === 'highlighter' || tool === 'eraser') {
+            // Record current stroke
+            if (window.currentPath && window.currentPath.length > 1) {
+              if (!window.currentStrokes) window.currentStrokes = [];
+              window.currentStrokes.push({
+                tool,
+                color: (tool === 'eraser') ? '#ffffff' : (colorPicker ? colorPicker.value : '#000'),
+                width: parseInt((strokeRange && strokeRange.value) || 4, 10),
+                points: window.currentPath
+              });
+            }
           }
           last = null;
+          window.currentPath = [];
         } catch (err) {
           console.error('pointerUpHandler error', err);
           notify('Drawing end error. See console.', 'error');
@@ -630,7 +759,19 @@
             toolButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             tool = btn.dataset.tool || btn.id || 'pen';
-            if (tool === 'highlighter') canvas.classList.add('highlighter'); else canvas.classList.remove('highlighter');
+
+            // Set canvas state based on tool
+            if (tool === 'eraser') {
+              ctx.globalCompositeOperation = 'destination-out';
+            } else {
+              ctx.globalCompositeOperation = 'source-over';
+              // Ensure color is reapplied when switching away from eraser
+              if (colorPicker) ctx.strokeStyle = colorPicker.value;
+            }
+
+            if (tool === 'highlighter') canvas.classList.add('highlighter');
+            else canvas.classList.remove('highlighter');
+
             safeLog('tool set to', tool);
           });
         });
@@ -699,36 +840,92 @@
         }
       }
 
+      function createTextBoxElement(x, y, textContent = '', id = null) {
+        const box = document.createElement('div');
+        box.className = 'text-box';
+        // Constraints: Ensure it's inside canvas
+        const canvasW = canvas.width / devicePixelRatio;
+        const canvasH = canvas.height / devicePixelRatio;
+        x = Math.max(0, Math.min(x, canvasW - 150));
+        y = Math.max(0, Math.min(y, canvasH - 50));
+
+        box.style.left = x + 'px';
+        box.style.top = y + 'px';
+        if (id) box.dataset.id = id;
+
+        box.innerHTML = `
+          <div class="text-box-header">
+            <button class="close-text" title="Remove">✕</button>
+          </div>
+          <textarea placeholder="Type...">${textContent}</textarea>
+        `;
+        wrapper.appendChild(box);
+
+        const closeBtn = box.querySelector('.close-text');
+        const area = box.querySelector('textarea');
+
+        if (textContent === '') area.focus();
+
+        closeBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          box.remove();
+        });
+
+        // Draggable
+        let dragging = false, start = null;
+        const header = box.querySelector('.text-box-header');
+        header.addEventListener('pointerdown', (ev) => {
+          dragging = true;
+          start = {
+            x: ev.clientX,
+            y: ev.clientY,
+            sx: parseFloat(box.style.left) || 0,
+            sy: parseFloat(box.style.top) || 0
+          };
+          header.setPointerCapture(ev.pointerId);
+          ev.stopPropagation();
+        });
+
+        header.addEventListener('pointermove', (ev) => {
+          if (!dragging) return;
+          let nx = start.sx + (ev.clientX - start.x) / scale;
+          let ny = start.sy + (ev.clientY - start.y) / scale;
+
+          // Boundaries
+          nx = Math.max(0, Math.min(nx, canvasW - box.offsetWidth));
+          ny = Math.max(0, Math.min(ny, canvasH - box.offsetHeight));
+
+          box.style.left = nx + 'px';
+          box.style.top = ny + 'px';
+        });
+
+        header.addEventListener('pointerup', (ev) => {
+          dragging = false;
+          try { header.releasePointerCapture(ev.pointerId); } catch (e) { }
+        });
+      }
+
       function createTextBoxAt(clientX, clientY) {
         try {
           const rect = wrapper.getBoundingClientRect();
           const x = (clientX - rect.left - translate.x) / scale;
           const y = (clientY - rect.top - translate.y) / scale;
-          const box = document.createElement('textarea');
-          box.className = 'text-box';
-          box.style.left = x + 'px';
-          box.style.top = y + 'px';
-          box.placeholder = 'Type...';
-          wrapper.appendChild(box);
-          box.focus();
-
-          let dragging = false, start = null;
-          box.addEventListener('pointerdown', (ev) => {
-            if (ev.target !== box) return;
-            dragging = true;
-            start = { x: ev.clientX, y: ev.clientY, sx: parseFloat(box.style.left) || 0, sy: parseFloat(box.style.top) || 0 };
-            box.setPointerCapture(ev.pointerId);
-          });
-          box.addEventListener('pointermove', (ev) => {
-            if (!dragging) return;
-            box.style.left = (start.sx + (ev.clientX - start.x) / scale) + 'px';
-            box.style.top = (start.sy + (ev.clientY - start.y) / scale) + 'px';
-          });
-          box.addEventListener('pointerup', (ev) => { dragging = false; try { box.releasePointerCapture(ev.pointerId); } catch (e) { } });
+          createTextBoxElement(x, y);
         } catch (err) {
           console.error('createTextBoxAt error', err);
           notify('Error creating text box. See console.', 'error');
         }
+      }
+
+      // Color Picker Logic
+      if (colorPicker) {
+        colorPicker.addEventListener('input', (e) => {
+          const color = e.target.value;
+          ctx.strokeStyle = color;
+          const display = document.querySelector('.color-display');
+          if (display) display.style.backgroundColor = color;
+          safeLog('color set to', color);
+        });
       }
 
       // expose safe API
@@ -737,10 +934,14 @@
         undo,
         redo,
         createStickyAt,
+        createStickyElement,
         createTextBoxAt,
+        createTextBoxElement,
         setTool: (t) => {
           tool = t;
           document.querySelectorAll('.toolbox .tool').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+          if (t === 'eraser') ctx.globalCompositeOperation = 'destination-out';
+          else ctx.globalCompositeOperation = 'source-over';
         }
       };
 
@@ -756,7 +957,8 @@
           if (!t) return;
           const comment = document.createElement('div');
           comment.className = 'comment';
-          comment.innerHTML = `<div class="meta"><span>You</span><span>${nowStr()}</span></div><div>${escapeHtml(t)}</div>`;
+          const userName = (window.CURRENT_USER && window.CURRENT_USER.name) || 'You';
+          comment.innerHTML = `<div class="meta"><span class="author">${userName}</span><span>${nowStr()}</span></div><div>${escapeHtml(t)}</div>`;
           commentsList.prepend(comment);
           commentInput.value = '';
         });
@@ -771,7 +973,7 @@
       safeLog('board.js initialized successfully');
       applyTransform();
 
-      // --- Save Feature (Correctly Scoped) ---
+      // --- Save Feature ---
       async function saveBoard() {
         try {
           if (!window.currentBoardId) {
@@ -780,18 +982,42 @@
           }
 
           notify('Saving...', 'info');
-          // 'canvas' is now in scope
           const dataURL = canvas.toDataURL('image/png');
           const boardId = window.currentBoardId;
           const token = localStorage.getItem('token');
 
-          const res = await fetch(`${API_BASE}/${boardId}`, {
-            method: 'PUT',
+          // Collect State
+          const stickies = Array.from(document.querySelectorAll('.sticky')).map(el => ({
+            text: el.querySelector('textarea').value,
+            x: parseFloat(el.style.left),
+            y: parseFloat(el.style.top),
+            color: '#fff59d' // default for now
+          }));
+
+          const textBoxes = Array.from(document.querySelectorAll('.text-box')).map(el => ({
+            text: el.querySelector('textarea').value,
+            x: parseFloat(el.style.left),
+            y: parseFloat(el.style.top),
+            width: el.offsetWidth,
+            height: el.offsetHeight
+          }));
+
+          // Shapes and Strokes were collected during drawing actions
+          const payload = {
+            stickies,
+            textBoxes,
+            strokes: window.currentStrokes || window.currentBoardData.strokes || [],
+            shapes: window.currentShapes || window.currentBoardData.shapes || [],
+            lastSavedImage: dataURL
+          };
+
+          const res = await fetch(`${API_BASE}/${boardId}/save-state`, {
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               Authorization: 'Bearer ' + token,
             },
-            body: JSON.stringify({ lastSavedImage: dataURL }),
+            body: JSON.stringify(payload),
           });
 
           const result = await res.json();
@@ -1028,7 +1254,18 @@
     recordBtn.addEventListener('click', async () => {
       try {
         if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-          const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+          // Time Limit
+          const TIME_LIMIT_MS = 10 * 60 * 1000; // 10 minutes
+          // Switch to Canvas-only recording
+          const stream = canvas.captureStream(30); // 30 FPS
+
+          // Optionally add audio from microphone if available
+          try {
+            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioStream.getAudioTracks().forEach(track => stream.addTrack(track));
+          } catch (e) {
+            console.warn('Microphone access denied or not available for recording');
+          }
 
           mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
           recordedChunks = [];
@@ -1038,15 +1275,21 @@
           };
 
           mediaRecorder.onstop = async () => {
+            clearInterval(timerInterval);
+            recordBtn.innerHTML = '<span class="material-icons-outlined">fiber_manual_record</span>';
+            recordBtn.style.color = '';
+
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
             const formData = new FormData();
             formData.append('file', blob, 'recording.webm');
             formData.append('recordingId', currentRecordingId);
+            formData.append('duration', Math.round((TIME_LIMIT_MS - timeLeft) / 1000));
 
             const boardId = window.currentBoardId || '';
             const token = localStorage.getItem('token');
 
-            const uploadRes = await fetch(`${API_BASE}/api/board/${boardId}/recording/stop`, {
+            // FIX: Removed duplicated /api/board
+            const uploadRes = await fetch(`${API_BASE}/${boardId}/recording/stop`, {
               method: 'POST',
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -1060,12 +1303,16 @@
             } else {
               notify('Failed to save recording: ' + (uploadResult.message || 'Unknown error'), 'error');
             }
+
+            // stop all tracks
+            stream.getTracks().forEach(track => track.stop());
           };
 
           const boardId = window.currentBoardId || '';
           const token = localStorage.getItem('token');
 
-          const startRes = await fetch(`${API_BASE}/api/board/${boardId}/recording/start`, {
+          // FIX: Removed duplicated /api/board
+          const startRes = await fetch(`${API_BASE}/${boardId}/recording/start`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1079,17 +1326,30 @@
           currentRecordingId = startResult.data._id;
 
           mediaRecorder.start();
-          recordBtn.textContent = 'Stop Recording';
+
+          // UI Feedback & Timer
+          recordBtn.innerHTML = '<span class="material-icons-outlined">stop</span> 10:00';
+          recordBtn.style.color = '#ff4d4d';
+
+          const timerInterval = setInterval(() => {
+            timeLeft -= 1000;
+            const mins = Math.floor(timeLeft / 60000);
+            const secs = Math.floor((timeLeft % 60000) / 1000);
+            recordBtn.innerHTML = `<span class="material-icons-outlined">stop</span> ${mins}:${secs.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+              mediaRecorder.stop();
+            }
+          }, 1000);
+
         } else if (mediaRecorder.state === 'recording') {
           mediaRecorder.stop();
-          recordBtn.textContent = 'Record';
         }
       } catch (err) {
         console.error('Recording error:', err);
         notify('Recording failed or cancelled.', 'error');
         if (mediaRecorder && mediaRecorder.state === 'recording') {
           mediaRecorder.stop();
-          recordBtn.textContent = 'Record';
         }
       }
     });

@@ -14,55 +14,59 @@
   <header class="top-bar">
     <div class="left-section">
       <button id="btnBack" class="icon-btn" title="Back"><span class="material-icons-outlined">arrow_back</span></button>
-      <h3 id="boardTitle">SkillSprint • <span id="boardName">untitled</span>.smartboard</h3>
       <div class="undo-redo">
         <button id="undoBtn" class="icon-btn" title="Undo"><span class="material-icons-outlined">undo</span></button>
         <button id="redoBtn" class="icon-btn" title="Redo"><span class="material-icons-outlined">redo</span></button>
       </div>
     </div>
 
+    <div class="center-section">
+      <h3 id="boardTitle">SkillSprint • <span id="boardName">untitled</span>.smartboard</h3>
+    </div>
+
     <div class="right-section">
-      <button id="saveBtn" class="accent-btn" title="Save Board (Ctrl+S)" style="background:var(--accent); color:#000; margin-right:8px;"><span class="material-icons-outlined">save</span> Save</button>
-      <button id="inviteBtn" class="icon-btn" title="Invite"><span class="material-icons-outlined">person_add</span></button>
-      <div id="activeUsers" class="avatars"></div>
-      <img id="currentUserAvatar" src="assets/images/user-avatar.png" alt="Me" class="avatar" title="You">
-      <button id="notifBtn" class="icon-btn" title="Notifications"><span class="material-icons-outlined">notifications</span></button>
-      <button id="recordBtn" class="icon-btn" title="Record (start/stop)"><span class="material-icons-outlined">fiber_manual_record</span></button>
-      <button id="shareBtn" class="accent-btn" title="Share"><span class="material-icons-outlined">share</span></button>
+      <button id="saveBtn" class="accent-btn" title="Save Board (Ctrl+S)"><span class="material-icons-outlined">save</span> Save</button>
+      <button id="inviteBtn" class="icon-btn" title="Invite User"><span class="material-icons-outlined">person_add_alt</span></button>
+      <div id="activeUsers" class="active-users"></div>
+      <div id="currentUserBadge" class="user-presence">
+        <!-- Badge populated by JS -->
+        <img id="currentUserAvatar" src="assets/images/user-avatar.png" alt="Me" class="user-avatar-stack" title="You">
+      </div>
+      <button id="recordBtn" class="icon-btn" title="Record Board"><span class="material-icons-outlined">radio_button_checked</span></button>
+      <button id="shareBtn" class="accent-btn" title="Share (Public Link)"><span class="material-icons-outlined">ios_share</span> Share</button>
     </div>
   </header>
 
 <aside class="toolbox">
-  <button data-tool="pen" class="tool active" title="Pen">
-    <span class="material-icons-outlined">edit</span>
+  <button data-tool="pen" class="tool active" title="Pen Tool">
+    <span class="material-icons-outlined">draw</span>
   </button>
-  <button data-tool="eraser" class="tool" title="Eraser">
-    <span class="material-icons-outlined">auto_fix_high</span>
+  <button data-tool="eraser" class="tool" title="Eraser Tool">
+    <span class="material-icons-outlined">ink_eraser</span>
   </button>
   <button data-tool="highlighter" class="tool" title="Highlighter">
-    <span class="material-icons-outlined">highlight</span>
+    <span class="material-icons-outlined">auto_fix_high</span>
   </button>
-  <button data-tool="rectangle" class="tool" title="Rectangle">
-    <span class="material-icons-outlined">crop_square</span>
+  <button data-tool="rectangle" class="tool" title="Rectangle Shape">
+    <span class="material-icons-outlined">rectangle</span>
   </button>
-  <button data-tool="circle" class="tool" title="Circle">
-    <span class="material-icons-outlined">circle</span>
+  <button data-tool="circle" class="tool" title="Circle Shape">
+    <span class="material-icons-outlined">panorama_fish_eye</span>
   </button>
-  <button data-tool="text" class="tool" title="Text">
-    <span class="material-icons-outlined">text_fields</span>
+  <button data-tool="text" class="tool" title="Text Box">
+    <span class="material-icons-outlined">title</span>
   </button>
   
-    <div class="color-picker-wrapper">
-  <input id="colorPicker" type="color" value="#000000" title="Color">
-  <span class="color-display"></span>
-</div>
+  <div class="color-picker-wrapper">
+    <input id="colorPicker" type="color" value="#000000" title="Select Color">
+    <span class="color-display"></span>
+  </div>
 
-
-  <button id="commentToggle" data-tool="comment" class="tool" title="Comments">
-    <span class="material-icons-outlined">chat_bubble_outline</span>
+  <button id="commentToggle" data-tool="comment" class="tool" title="Discussion / Comments">
+    <span class="material-icons-outlined">forum</span>
   </button>
-  <button id="stickyBtn" data-tool="sticky" class="tool" title="Sticky Note">
-    <span class="material-icons-outlined">note_add</span>
+  <button id="stickyBtn" data-tool="sticky" class="tool" title="Add Sticky Note">
+    <span class="material-icons-outlined">sticky_note_2</span>
   </button>
 
 

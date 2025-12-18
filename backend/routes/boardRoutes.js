@@ -1,8 +1,27 @@
 import express from "express";
 import mongoose from "mongoose";
+import path from "path";
+import fs from "fs";
+import multer from "multer";
 import Board from "../models/board.js";
 import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
+
+// Ensure uploads/recordings folder exists
+const uploadDir = path.resolve("uploads/recordings");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Multer config for recordings
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, "rec-" + uniqueSuffix + path.extname(file.originalname || ".webm"));
+  },
+});
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -617,8 +636,9 @@ router.post(
 router.post(
   "/:id/recording/stop",
   verifyToken,
+  upload.single("file"),
   asyncHandler(async (req, res) => {
-    const { recordingId, fileUrl, duration } = req.body;
+    const { recordingId, duration } = req.body;
     if (!recordingId) return res.status(400).json({ success: false, message: "recordingId required" });
 
     const board = await Board.findById(req.params.id);
@@ -633,7 +653,12 @@ router.post(
     }
 
     recording.endedAt = Date.now();
-    if (fileUrl) recording.fileUrl = fileUrl;
+
+    // If a file was uploaded, set the URL
+    if (req.file) {
+      recording.fileUrl = `${req.protocol}://${req.get("host")}/uploads/recordings/${req.file.filename}`;
+    }
+
     if (duration !== undefined) recording.duration = Number(duration);
 
     await board.save();
@@ -642,6 +667,30 @@ router.post(
     emitBoard(io, req.params.id, "board:recording:stopped", { recording });
 
     res.json({ success: true, data: recording });
+  })
+);
+
+// Bulk Save Canvas State
+router.post(
+  "/:id/save-state",
+  verifyToken,
+  asyncHandler(async (req, res) => {
+    const { stickies, strokes, shapes, textBoxes, lastSavedImage } = req.body;
+    const board = await Board.findById(req.params.id);
+    if (!board) return res.status(404).json({ success: false, message: "Board not found" });
+
+    if (!hasPermission(board, req.user.id, ["owner", "editor"]))
+      return res.status(403).json({ success: false, message: "Permission denied" });
+
+    if (stickies) board.stickies = stickies;
+    if (strokes) board.strokes = strokes;
+    if (shapes) board.shapes = shapes;
+    if (textBoxes) board.textBoxes = textBoxes;
+    if (lastSavedImage) board.lastSavedImage = lastSavedImage;
+
+    await board.save();
+
+    res.json({ success: true, message: "Board state saved successfully" });
   })
 );
 

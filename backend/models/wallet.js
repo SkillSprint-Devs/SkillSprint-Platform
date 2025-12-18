@@ -21,7 +21,7 @@ const walletSchema = new mongoose.Schema({
   },
   activity_model: {
     type: String,
-    enum: ["Task", "Project"], // model names for refPath
+    enum: ["Task"], // model names for refPath
   },
   timestamp: {
     type: Date,
