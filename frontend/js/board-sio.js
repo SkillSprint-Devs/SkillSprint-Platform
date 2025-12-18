@@ -56,8 +56,8 @@
 
     data.activeUsers.forEach((user) => {
       const img = document.createElement("img");
-      img.src = user.profile_image || "assets/images/user-avatar.png";
-      img.className = "avatar";
+      img.src = user.profile_image || user.avatarUrl || "assets/images/user-avatar.png";
+      img.className = "user-avatar-stack";
       img.title = user.name || "User";
       container.appendChild(img);
     });
@@ -66,8 +66,8 @@
     const me = window.CURRENT_USER;
     if (me && !data.activeUsers.some(u => u._id === me._id)) {
       const myImg = document.createElement("img");
-      myImg.src = me.profile_image || "assets/images/user-avatar.png";
-      myImg.className = "avatar";
+      myImg.src = me.profile_image || me.avatarUrl || "assets/images/user-avatar.png";
+      myImg.className = "user-avatar-stack";
       myImg.title = `${me.name || "You"} (You)`;
       container.appendChild(myImg);
     }

@@ -99,6 +99,13 @@ function renderActivity(activities) {
 }
 
 function init() {
+    // Basic Auth Check
+    const adminUser = JSON.parse(localStorage.getItem("adminUser"));
+    if (!adminUser || adminUser.role !== 'admin') {
+        window.location.href = "admin-login.html";
+        return;
+    }
+
     fetchStats();
     fetchActivity();
     fetchUsersPreview();

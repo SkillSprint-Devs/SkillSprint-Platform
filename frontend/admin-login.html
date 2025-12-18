@@ -1,52 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | SkillSprint</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="assets/css/admin.css">
-</head>
-<body>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | SkillSprint</title>
 
-  <div class="login-container">
-    <div class="login-box">
-      <div style="text-align: center; margin-bottom: 2rem;">
-        <i class="fa-solid fa-user-shield" style="font-size: 3rem; color: var(--admin-accent);"></i>
-        <h2 style="margin-top: 1rem; color: #2c3e50;">Admin Portal</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Protected Area</p>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ===== Variables (same as login.html) ===== */
+    :root {
+      --base-bg: #F9F8D9;
+      --sidebar-bg: #1A1A1A;
+      --accent: #DCEF62;
+      --admin-accent: #8C52FF; /* Professional purple for admin */
+      --text-dark: #1A1A1A;
+      --text-light: #FFFFFF;
+      --muted: #bfbfbf;
+      --highlight: #8C52FF;
+    }
+
+    /* ===== General Layout ===== */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: var(--base-bg);
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+ 
+    .auth-card {
+      background: var(--text-light);
+      padding: 2.5rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 480px;
+    }
+
+    .auth-card .admin-icon {
+      font-size: 3rem;
+      color: var(--admin-accent);
+      margin-bottom: 1rem;
+    }
+
+    .auth-card h1 {
+      color: var(--admin-accent);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-card h2 {
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.8rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 3px rgba(139, 82, 255, 0.1);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--admin-accent);
+      color: var(--text-light);
+      border: none;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .switch-text {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .switch-text a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .switch-text a:hover {
+      color: var(--text-dark);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="admin-icon">
+        <i class="fa-solid fa-user-shield"></i>
       </div>
+      <h1>Admin Portal</h1>
+      <h2>Secure Access</h2>
+      <p class="subtitle">Enter your credentials to manage the platform.</p>
 
       <form id="adminLoginForm">
-        <div>
-          <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.9rem;">Email Address</label>
-          <input type="email" placeholder="admin@skillsprint.com" required />
-        </div>
-        
-        <div>
-           <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.9rem;">Password</label>
-           <input type="password" placeholder="••••••••" required />
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;">
-          Login Securely
-        </button>
+        <input type="email" id="email" placeholder="Admin Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit" id="loginBtn" class="btn-primary">Login Securely</button>
       </form>
 
-      <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem;">
-        <a href="index.html" style="color: var(--text-muted);"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+      <div class="switch-text">
+        <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
       </div>
     </div>
   </div>
 
+  <!-- Toast script -->
+  <script src="js/toast.js"></script>
+
   <script>
-    document.getElementById('adminLoginForm').addEventListener('submit', (e)=>{
-      e.preventDefault();
-      // Simple mock redirect for now
-      window.location.href = "admin-dashboard.html";
+    document.addEventListener("DOMContentLoaded", () => {
+      const adminLoginForm = document.getElementById("adminLoginForm");
+
+      adminLoginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        if (!email || !password)
+          return showToast("Please fill both fields!", "error");
+
+        try {
+          // Using the same login endpoint
+          const res = await fetch("http://localhost:5000/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            showToast(data.message || "Invalid login credentials.", "error");
+            return;
+          }
+
+          // Role verification: Must be admin
+          if (data.user.role !== 'admin') {
+            showToast("Access Denied: You do not have administrator privileges.", "error");
+            return;
+          }
+
+          // Login successful
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("adminUser", JSON.stringify(data.user));
+
+          showToast("Admin login successful!", "success", 2000, () => {
+            window.location.href = "admin-dashboard.html";
+          });
+        } catch (err) {
+          console.error("Login error:", err);
+          showToast("Server error. Please try again later.", "error");
+        }
+      });
     });
   </script>
 </body>
 </html>
-
