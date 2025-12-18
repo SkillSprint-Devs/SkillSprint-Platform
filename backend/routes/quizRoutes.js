@@ -3,6 +3,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import Question, { COURSES, LEVELS } from "../models/question.js";
 import QuizAttempt from "../models/quizAttempt.js";
 import Certificate from "../models/certificate.js";
+import Achievement from "../models/achievement.js";
 import {
     generateQuiz,
     calculateScore,
@@ -131,8 +132,6 @@ router.get("/attempts/today", verifyToken, async (req, res) => {
 
         const attemptsToday = await QuizAttempt.countDocuments({
             user: userId,
-            course,
-            level,
             startedAt: { $gte: todayStart }
         });
 
@@ -397,7 +396,8 @@ router.post("/submit", verifyToken, async (req, res) => {
             passed: result.passed,
             topicPerformance: result.topicPerformance,
             feedback,
-            certificateAwarded
+            certificateAwarded,
+            achievementAwarded: result.passed ? await awardAchievement(userId, quiz.course, quiz.level, result.score, certificateAwarded?.verificationId) : null
         });
     } catch (err) {
         console.error("Submit quiz error:", err);
@@ -514,6 +514,52 @@ async function checkAndAwardCertificate(userId, course) {
         overallScore: certificate.overallScore,
         issuedAt: certificate.issuedAt
     };
+}
+
+// ============================================================
+// Helper: Award Achievement
+// ============================================================
+async function awardAchievement(userId, course, level, score, verificationId) {
+    try {
+        const achievementType = level === "advanced" ? "certificate" : "badge";
+        const badgeTier = level === "basic" ? "silver" : (level === "intermediate" ? "gold" : null);
+        const title = level === "advanced" ? "Certificate of Achievement" : `${level.charAt(0).toUpperCase() + level.slice(1)} Level Completed`;
+        const description = level === "advanced" ? `Awarded for completing all levels of ${formatCourseName(course)}` : `Awarded for successfully completing the ${level} level of ${formatCourseName(course)}`;
+        const reason = `${level} level passed`;
+
+        // Check for existing achievement
+        const existing = await Achievement.findOne({ user: userId, course, level, achievementType });
+        if (existing) return { awarded: false, reason: "already_awarded" };
+
+        const achievementData = {
+            user: userId,
+            course,
+            level,
+            achievementType,
+            badgeTier,
+            title,
+            description,
+            reason,
+            awardedAt: new Date()
+        };
+
+        if (level === "advanced") {
+            achievementData.overallScore = score;
+            achievementData.verificationId = verificationId;
+        }
+
+        const achievement = await Achievement.create(achievementData);
+
+        return {
+            awarded: true,
+            type: achievementType,
+            tier: badgeTier,
+            title: achievement.title
+        };
+    } catch (err) {
+        console.error("Award achievement error:", err);
+        return { awarded: false, error: err.message };
+    }
 }
 
 // Helper: Format course name

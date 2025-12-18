@@ -8,8 +8,8 @@ const router = express.Router();
 // GET /api/reminders - List all reminders for the user
 router.get("/", verifyToken, async (req, res) => {
     try {
-        const reminders = await Reminder.find({ user: req.user.id }).sort({
-            completed: 1, // Uncompleted first
+        const reminders = await Reminder.find({ user_id: req.user.id }).sort({
+            is_done: 1, // Uncompleted first
             dueDate: 1,   // Then by due date
             createdAt: -1 // Newest first if no due date
         });
@@ -22,12 +22,13 @@ router.get("/", verifyToken, async (req, res) => {
 // POST /api/reminders - Create a reminder
 router.post("/", verifyToken, async (req, res) => {
     try {
-        const { text, dueDate } = req.body;
+        const { text, dueDate, dueTime } = req.body;
         if (!text) return res.status(400).json({ message: "Text is required" });
 
         const reminder = new Reminder({
-            user: req.user.id,
+            user_id: req.user.id,
             text,
+            dueTime,
             dueDate: dueDate ? new Date(dueDate) : undefined
         });
 
@@ -59,13 +60,13 @@ router.post("/", verifyToken, async (req, res) => {
     }
 });
 
-// PATCH /api/reminders/:id - Update reminder (toggle completed)
+// PATCH /api/reminders/:id - Update reminder (toggle is_done)
 router.patch("/:id", verifyToken, async (req, res) => {
     try {
-        const { completed } = req.body;
+        const { completed } = req.body; // Incoming still labeled 'completed' from JS, but map to 'is_done'
         const reminder = await Reminder.findOneAndUpdate(
-            { _id: req.params.id, user: req.user.id },
-            { completed },
+            { _id: req.params.id, user_id: req.user.id },
+            { is_done: completed },
             { new: true }
         );
 
@@ -79,7 +80,7 @@ router.patch("/:id", verifyToken, async (req, res) => {
 // DELETE /api/reminders/:id - Delete reminder
 router.delete("/:id", verifyToken, async (req, res) => {
     try {
-        const result = await Reminder.deleteOne({ _id: req.params.id, user: req.user.id });
+        const result = await Reminder.deleteOne({ _id: req.params.id, user_id: req.user.id });
         if (result.deletedCount === 0) return res.status(404).json({ message: "Reminder not found" });
         res.json({ message: "Reminder deleted" });
     } catch (err) {

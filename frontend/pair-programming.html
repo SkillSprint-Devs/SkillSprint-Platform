@@ -62,7 +62,11 @@
       <aside class="folder-area">
         <div class="explorer-header">
           <div>Explorer</div>
-          <button class="dots" title="More options"><i class="fa-solid fa-ellipsis"></i></button>
+          <div style="display: flex; gap: 8px;">
+            <button id="addFileBtn" class="btn-icon" title="New File"><i class="fa-solid fa-file-circle-plus"></i></button>
+            <button id="addFolderBtn" class="btn-icon" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
+            <!-- <button class="dots" title="More options"><i class="fa-solid fa-ellipsis"></i></button> -->
+          </div>
         </div>
         <div id="fileTree" class="file-tree"></div>
       </aside>

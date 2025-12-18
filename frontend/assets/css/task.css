@@ -13,25 +13,25 @@
   /* Optional tones */
   --muted: #bfbfbf;
   --highlight: #8C52FF;
-  
+
   /* UI Components */
   --card-bg: #FFFFFF;
   --border-light: rgba(26, 26, 26, 0.1);
   --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.08);
   --shadow-md: 0 4px 12px rgba(26, 26, 26, 0.12);
   --radius: 16px;
-  
+
   /* Priority Colors - Pastel */
   --low-bg: #d1fae5;
   --low-text: #065f46;
   --low-dot: #10b981;
   --low-border: #10b981;
-  
+
   --medium-bg: #fef3c7;
   --medium-text: #92400e;
   --medium-dot: #f59e0b;
   --medium-border: #f59e0b;
-  
+
   --high-bg: #fee2e2;
   --high-text: #991b1b;
   --high-dot: #ef4444;
@@ -518,6 +518,10 @@ input {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .st-chip {
@@ -869,7 +873,9 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .fg-desc, .fg-date, .fg-subtasks {
+  .fg-desc,
+  .fg-date,
+  .fg-subtasks {
     grid-column: 1 / -1;
   }
 }
@@ -919,4 +925,32 @@ input {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-dark);
+}
+
+/* Task Checkbox */
+.task-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--text-dark);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: white;
+}
+
+.task-checkbox:hover {
+  border-color: var(--accent);
+}
+
+.task-checkbox.checked {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.completed-text {
+  text-decoration: line-through;
+  color: var(--muted);
 }

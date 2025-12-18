@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import Certificate from "../models/certificate.js";
+import Achievement from "../models/achievement.js";
 import User from "../models/user.js";
 
 const router = express.Router();
@@ -29,6 +30,38 @@ router.get("/", verifyToken, async (req, res) => {
         });
     } catch (err) {
         console.error("Get certificates error:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+// ============================================================
+// GET /api/certificates/achievements - List user's achievements (badges & certificates)
+// ============================================================
+router.get("/achievements", verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const achievements = await Achievement.find({ user: userId })
+            .sort({ awardedAt: -1 });
+
+        res.json({
+            achievements: achievements.map(ach => ({
+                id: ach._id,
+                course: ach.course,
+                courseName: formatCourseName(ach.course),
+                level: ach.level,
+                type: ach.achievementType,
+                tier: ach.badgeTier,
+                title: ach.title,
+                description: ach.description,
+                reason: ach.reason,
+                awardedAt: ach.awardedAt,
+                overallScore: ach.overallScore,
+                verificationId: ach.verificationId
+            }))
+        });
+    } catch (err) {
+        console.error("Get achievements error:", err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });

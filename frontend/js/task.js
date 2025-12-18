@@ -67,8 +67,8 @@ function firstWeekday(date) {
 }
 
 function escapeHtml(str = '') {
-  return ('' + str).replace(/[&<>"']/g, m => ({ 
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' 
+  return ('' + str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[m]));
 }
 
@@ -108,7 +108,7 @@ function renderSubtaskListUI() {
   });
 }
 
-window.removeSubTask = function(idx) {
+window.removeSubTask = function (idx) {
   currentSubtasks.splice(idx, 1);
   renderSubtaskListUI();
 };
@@ -243,7 +243,12 @@ function renderAllTasks(filterType = 'all') {
     // Build task card HTML
     let cardHTML = `
       <div class="task-card-header">
-        <div class="task-title">${escapeHtml(task.title)}</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="task-checkbox ${task.status === 'completed' ? 'checked' : ''}" onclick="toggleTaskCompletion('${task._id}', '${task.status}')">
+             ${task.status === 'completed' ? '<span class="material-icons" style="font-size:14px;color:white;">check</span>' : ''}
+          </div>
+          <div class="task-title ${task.status === 'completed' ? 'completed-text' : ''}">${escapeHtml(task.title)}</div>
+        </div>
         <button class="icon-action" onclick="deleteTask('${task._id}')" title="Delete">
           <span class="material-icons">close</span>
         </button>
@@ -275,7 +280,7 @@ function renderAllTasks(filterType = 'all') {
           <span class="st-label">${escapeHtml(st.title)}</span>
         </div>
       `).join('');
-      
+
       cardHTML += `<div class="subtasks-container">${subtaskChips}</div>`;
     }
 
@@ -309,7 +314,7 @@ function renderAllTasks(filterType = 'all') {
 }
 
 // TOGGLE SUBTASK - REAL-TIME PROGRESS UPDATE
-window.toggleSubtask = async function(taskId, subIdx) {
+window.toggleSubtask = async function (taskId, subIdx) {
   const task = allTasks.find(t => t._id === taskId);
   if (!task || !task.subTasks[subIdx]) return;
 
@@ -330,6 +335,29 @@ window.toggleSubtask = async function(taskId, subIdx) {
   } catch (e) {
     console.error("Failed to save subtask state", e);
     showToast("Failed to save progress", "error");
+  }
+};
+
+window.toggleTaskCompletion = async function (id, currentStatus) {
+  const newStatus = currentStatus === 'completed' ? 'open' : 'completed';
+  try {
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (!res.ok) throw new Error("Status update failed");
+
+    // Update local state and re-render
+    const updated = await res.json();
+    allTasks = allTasks.map(t => t._id === id ? updated : t);
+    tasks = tasks.map(t => t._id === id ? updated : t);
+    updateStats();
+    renderAllTasks(currentFilter);
+    showToast(`Task marked as ${newStatus}`, "success");
+  } catch (e) {
+    console.error(e);
+    showToast("Failed to update status", "error");
   }
 };
 
@@ -401,7 +429,7 @@ async function updateTask(id, updates) {
   }
 }
 
-window.deleteTask = async function(id) {
+window.deleteTask = async function (id) {
   if (!confirm('Are you sure you want to delete this task?')) return;
 
   try {
@@ -435,12 +463,12 @@ async function onCreateClick() {
     return;
   }
 
-  const payload = { 
-    title, 
-    description, 
-    priority, 
-    dueDate, 
-    subTasks: currentSubtasks 
+  const payload = {
+    title,
+    description,
+    priority,
+    dueDate,
+    subTasks: currentSubtasks
   };
 
   if (editingId) {
@@ -471,7 +499,7 @@ function populateFormForEdit(task) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-window.populateFormForEditWrapper = function(id) {
+window.populateFormForEditWrapper = function (id) {
   const t = allTasks.find(x => x._id === id);
   if (t) populateFormForEdit(t);
 };
@@ -547,10 +575,10 @@ searchInput.addEventListener('input', (e) => {
   filtered.forEach(task => {
     const el = document.createElement('div');
     el.className = `task-card task-${task.priority || 'medium'}`;
-    
+
     // Ensure subTasks exists
     if (!task.subTasks) task.subTasks = [];
-    
+
     const totalSub = task.subTasks.length;
     const doneSub = task.subTasks.filter(s => s.completed).length;
     const pct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
@@ -584,7 +612,7 @@ searchInput.addEventListener('input', (e) => {
           <span class="st-label">${escapeHtml(st.title)}</span>
         </div>
       `).join('');
-      
+
       cardHTML += `<div class="subtasks-container">${subtaskChips}</div>`;
     }
 

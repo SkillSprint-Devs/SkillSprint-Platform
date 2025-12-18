@@ -412,24 +412,14 @@ h3 {
 
 .task-list {
   display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding: 5px 5px 15px 5px;
-  scroll-behavior: smooth;
-}
-
-.task-list::-webkit-scrollbar {
-  height: 6px;
-}
-
-.task-list::-webkit-scrollbar-thumb {
-  background: #ddd;
-  border-radius: 20px;
+  flex-direction: column;
+  gap: 15px;
+  overflow-x: hidden;
+  padding: 5px;
 }
 
 .task-card {
-  min-width: 280px;
-  /* Smaller width */
+  width: 100%;
   background: #fff;
   border-radius: 16px;
   padding: 1.2rem;
@@ -437,11 +427,12 @@ h3 {
   border: 1px solid rgba(0, 0, 0, 0.02);
   transition: var(--transition);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
-  height: 180px;
-  /* Smaller height */
+  align-items: center;
+  min-height: 100px;
   cursor: pointer;
+  height: auto;
 }
 
 .task-card:hover {
@@ -449,44 +440,44 @@ h3 {
   box-shadow: var(--shadow-md);
 }
 
+.task-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 100px;
+}
+
 .task-card-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 0.6rem;
-}
-
-.color-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.task-card h4 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #333;
+  margin-bottom: 0;
 }
 
 .task-description {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin-bottom: auto;
+  margin-bottom: 0;
 }
 
-.task-footer {
+.task-meta-row {
   display: flex;
-  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 4px;
+}
+
+.task-meta-item {
+  display: flex;
   align-items: center;
-  margin-top: 0.8rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid #f5f5f5;
+  gap: 4px;
 }
 
 .task-due-date {
@@ -549,7 +540,7 @@ h3 {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(220, 239, 98, 0.2);
+  background: var(--accent);
   color: var(--text-dark);
   display: flex;
   align-items: center;
@@ -583,6 +574,27 @@ h3 {
   margin-top: 4px;
 }
 
+.close-notif-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-notif-btn:hover {
+  background: #f0f0f0;
+  color: var(--text-dark);
+}
+
 .delete-notif-btn {
   background: none;
   border: none;
@@ -596,38 +608,72 @@ h3 {
   color: var(--danger);
 }
 
-/* Wallet Card */
-.wallet-overview {
+/* Wallet Horizontal Bar (Main Area) */
+.wallet-horizontal {
+  display: flex;
+  gap: 1.5rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-top: -1rem;
+  /* Adjust overlap feel if desired */
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.wallet-horizontal .wallet-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0.5rem;
+  box-shadow: none;
+  /* Shadow on container instead */
+  border-right: 1px solid #eee;
+  border-radius: 0;
+}
+
+.wallet-horizontal .wallet-card:last-child {
+  border-right: none;
+}
+
+.wallet-horizontal .wallet-card i {
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.wallet-horizontal .wallet-content {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
 }
 
-.wallet-card {
-  background: #fff;
-  /* Simplified background */
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: var(--transition);
-}
-
-.wallet-card:hover {
-  transform: translateX(-2px);
-}
-
-.wallet-card div:first-child div:first-child {
-  font-size: 0.8rem;
+.wallet-horizontal .wallet-label {
+  font-size: 0.75rem;
   color: var(--text-muted);
-  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
-.wallet-card div:first-child div:last-child {
-  font-size: 1.1rem;
+.wallet-horizontal .wallet-value {
+  font-size: 1.3rem;
   font-weight: 700;
+  color: var(--text-dark);
+}
+
+.wallet-horizontal .wallet-value.danger {
+  color: var(--danger);
+}
+
+.wallet-horizontal .wallet-value.success {
+  color: var(--success);
+}
+
+/* Sidebar cleanup */
+.right-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* Quick Reminders Module */
@@ -642,23 +688,35 @@ h3 {
   display: flex;
   gap: 8px;
   margin-bottom: 1rem;
-}
-
-.reminder-input-group input {
-  flex: 1;
   background: #f5f5f5;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 0.85rem;
-  outline: none;
-  transition: var(--transition);
+  padding: 8px;
+  border-radius: 12px;
+  align-items: center;
 }
 
-.reminder-input-group input:focus {
-  background: #fff;
-  box-shadow: 0 0 0 2px var(--accent);
+.reminder-inputs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reminder-inputs input[type="text"] {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  outline: none;
+}
+
+.reminder-inputs input[type="time"] {
+  background: transparent;
+  border: none;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  outline: none;
 }
 
 .add-reminder-btn {
@@ -760,6 +818,12 @@ h3 {
 .reminder-meta {
   font-size: 0.7rem;
   color: #999;
+  display: flex;
+  gap: 8px;
+}
+
+.reminder-item.completed {
+  opacity: 0.7;
 }
 
 .delete-reminder-btn {

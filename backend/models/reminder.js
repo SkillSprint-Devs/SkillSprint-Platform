@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const reminderSchema = new mongoose.Schema({
-  user: {
+  user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
@@ -11,10 +11,13 @@ const reminderSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  dueTime: {
+    type: String
+  },
   dueDate: {
     type: Date
   },
-  completed: {
+  is_done: {
     type: Boolean,
     default: false
   },
