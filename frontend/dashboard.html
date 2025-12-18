@@ -104,6 +104,33 @@
             </div>
           </div>
 
+          <!-- WALLET OVERVIEW (Now horizontal bar) -->
+          <section class="wallet-horizontal">
+            <div class="wallet-card">
+              <i class="fa-solid fa-wallet"></i>
+              <div class="wallet-content">
+                <div class="wallet-label">Credits Remaining</div>
+                <div id="walletCredits" class="wallet-value">$0</div>
+              </div>
+            </div>
+
+            <div class="wallet-card">
+              <i class="fa-solid fa-arrow-trend-down" style="color: var(--danger);"></i>
+              <div class="wallet-content">
+                <div class="wallet-label">Credits Spent</div>
+                <div id="walletSpent" class="wallet-value danger">$0</div>
+              </div>
+            </div>
+
+            <div class="wallet-card">
+              <i class="fa-solid fa-arrow-trend-up" style="color: var(--success);"></i>
+              <div class="wallet-content">
+                <div class="wallet-label">Credits Earned</div>
+                <div id="walletEarned" class="wallet-value success">$0</div>
+              </div>
+            </div>
+          </section>
+
           <!-- Ongoing Tasks (Horizontal Scroll) -->
           <section class="ongoing-tasks">
             <h3><i class="fa-solid fa-fire"></i> Active Tasks</h3>
@@ -135,36 +162,7 @@
         <!-- RIGHT COLUMN -->
         <aside class="right-sidebar">
           
-          <!-- Wallet Overview -->
-          <div class="wallet-overview">
-            <h3><i class="fa-solid fa-wallet"></i> Wallet</h3>
-            
-            <div class="wallet-card">
-              <div>
-                <div>Credits Remaining</div>
-                <div id="walletCredits">$0</div>
-              </div>
-              <i class="fa-solid fa-coins" style="font-size: 1.5rem; color: var(--accent);"></i>
-            </div>
-
-            <div class="wallet-card">
-              <div>
-                <div>Credits Spent</div>
-                <div id="walletSpent" style="color: var(--danger);">$0</div>
-              </div>
-              <i class="fa-solid fa-arrow-trend-down" style="font-size: 1.5rem; color: var(--danger);"></i>
-            </div>
-
-            <div class="wallet-card">
-              <div>
-                <div>Credits Earned</div>
-                <div id="walletEarned" style="color: var(--success);">$0</div>
-              </div>
-              <i class="fa-solid fa-arrow-trend-up" style="font-size: 1.5rem; color: var(--success);"></i>
-            </div>
-          </div>
-
-          <!-- Notifications Section -->
+          <!-- Notifications Section (Now TOP) -->
           <div class="notifications-container">
              <h3><i class="fa-solid fa-bell"></i> Notifications</h3>
              <div id="notifList" class="notif-list">
@@ -172,12 +170,15 @@
              </div>
           </div>
 
-          <!-- Quick Reminders Module -->
+          <!-- Quick Reminders Module (Now BOTTOM) -->
           <div class="reminders-container">
             <h3><i class="fa-solid fa-list-ul"></i> Quick Reminders</h3>
             
             <div class="reminder-input-group">
-              <input type="text" id="newReminderInput" placeholder="Add a new reminder..." />
+              <div class="reminder-inputs">
+                <input type="text" id="newReminderInput" placeholder="Add a new reminder..." />
+                <input type="time" id="newReminderTime" title="Due Time" />
+              </div>
               <button class="add-reminder-btn" id="addReminderBtn">
                 <i class="fa-solid fa-plus"></i>
               </button>

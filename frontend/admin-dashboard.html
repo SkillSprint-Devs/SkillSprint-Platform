@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | SkillSprint</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/admin.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-bolt" style="margin-right: 10px; color: var(--admin-accent);"></i> SkillSprint
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </div>
+      <div class="nav-item">
+        <i class="fa-solid fa-users"></i> Users
+      </div>
+      <div class="nav-item">
+        <i class="fa-solid fa-chalkboard-user"></i> Sessions
+      </div>
+      <div class="nav-item">
+        <i class="fa-solid fa-server"></i> System Logs
+      </div>
+      <div class="nav-item">
+        <i class="fa-solid fa-gears"></i> Settings
+      </div>
+    </nav>
+    <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <button class="btn" style="width: 100%; background: rgba(255,255,255,0.1); color: white;" onclick="window.location.href='admin-login.html'">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <!-- Top Header -->
+    <header class="admin-header">
+      <h2 class="text-xl">Dashboard Overview</h2>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 text-sm text-muted">
+          <span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span>
+          System Stable
+        </div>
+        <div class="flex items-center gap-2">
+          <div style="width: 32px; height: 32px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <span class="font-bold">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="admin-content">
+      
+      <!-- Stats Row -->
+      <div class="stat-grid">
+        <div class="card stat-card">
+          <div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="totalUsersCount">--</div>
+            <div class="text-sm" style="color: var(--success);"><i class="fa-solid fa-arrow-up"></i> +12%</div>
+          </div>
+          <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        </div>
+
+        <div class="card stat-card">
+          <div>
+            <div class="stat-label">Online Now</div>
+            <div class="stat-value" id="onlineUsersCount">--</div>
+            <div class="text-sm text-muted">Real-time</div>
+          </div>
+          <div class="stat-icon"><i class="fa-solid fa-globe"></i></div>
+        </div>
+
+        <div class="card stat-card">
+          <div>
+            <div class="stat-label">Active Sessions</div>
+            <div class="stat-value" id="activeSessionsCount">--</div>
+            <div class="text-sm text-muted">Pair Programming</div>
+          </div>
+          <div class="stat-icon"><i class="fa-solid fa-code"></i></div>
+        </div>
+
+        <div class="card stat-card">
+          <div>
+            <div class="stat-label">System Load</div>
+            <div class="stat-value">12%</div>
+            <div class="text-sm" style="color: var(--success);">Healthy</div>
+          </div>
+          <div class="stat-icon"><i class="fa-solid fa-server"></i></div>
+        </div>
+      </div>
+
+      <!-- Activity & Lists Row -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        
+        <!-- Recent Users Table -->
+        <div class="card">
+          <div class="flex justify-between items-center mb-4">
+            <h3>Recent User Activity</h3>
+            <button class="btn btn-primary" style="font-size: 0.8rem;">View All</button>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                <th style="padding: 10px;">User</th>
+                <th style="padding: 10px;">Role</th>
+                <th style="padding: 10px;">Status</th>
+                <th style="padding: 10px;">Joined</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody" style="font-size: 0.95rem;">
+               <!-- Populated by JS -->
+               <tr><td colspan="4" style="padding:12px; text-align:center;">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card">
+          <h3 class="mb-4">System Log</h3>
+          <div id="activityFeed" style="display: flex; flex-direction: column; gap: 1rem;">
+             <!-- Populated by JS -->
+             <div class="text-muted">Loading activity...</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+  
+  <script src="js/admin-dashboard.js" type="module"></script>
+</body>
+</html>

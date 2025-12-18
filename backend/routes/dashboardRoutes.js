@@ -58,7 +58,7 @@ router.get("/", verifyToken, async (req, res) => {
 
     const reminders =
       (await Reminder.find({ user_id: userId, is_done: false })
-        .sort({ date_time: 1 })
+        .sort({ dueDate: 1 })
         .limit(3)) || [];
 
     const activity =

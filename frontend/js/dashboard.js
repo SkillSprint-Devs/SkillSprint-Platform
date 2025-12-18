@@ -1,5 +1,5 @@
 // === DASHBOARD.JS ===
-const API_BASE = "http://127.0.0.1:5000/api";
+const API_BASE = "http://localhost:5000/api";
 
 // SIDEBAR TOGGLE
 const sidebar = document.getElementById("sidebar");
@@ -100,25 +100,34 @@ function renderTasks(tasks) {
   const template = document.getElementById("taskCardTemplate");
 
   tasks.forEach(t => {
-    const card = template.content.cloneNode(true);
+    // Calc subtask progress
+    const totalSub = t.subTasks ? t.subTasks.length : 0;
+    const doneSub = t.subTasks ? t.subTasks.filter(s => s.completed).length : 0;
+    const pct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
 
-    card.querySelector(".task-title").textContent = t.title;
-    card.querySelector(".task-description").textContent = t.description || "No description";
+    const div = document.createElement('div');
+    div.className = 'task-card';
+    div.onclick = () => location.href = "task.html";
 
-    const dot = card.querySelector(".color-dot");
-    let color = "#4caf50";
-    if (t.priority === 'high') color = "#ef5350";
-    if (t.priority === 'medium') color = "#ffb300";
-    dot.style.background = color;
+    div.innerHTML = `
+      <div class="task-left">
+        <div class="task-card-header">
+          <div class="color-dot" style="background: ${t.priority === 'high' ? '#ef5350' : t.priority === 'medium' ? '#ffb300' : '#4caf50'}"></div>
+          <h4 class="task-title" style="font-size:1rem; margin:0;">${t.title}</h4>
+        </div>
+        <p class="task-description" style="font-size:0.85rem; color:#666;">${t.description || "No description"}</p>
+        <div class="task-meta-row">
+           <div class="task-meta-item"><i class="fa-solid fa-calendar"></i> ${t.dueDate ? new Date(t.dueDate).toLocaleDateString() : 'No Date'}</div>
+           <div class="task-meta-item"><i class="fa-solid fa-list-check"></i> ${doneSub}/${totalSub} Subtasks</div>
+        </div>
+      </div>
+      
+      <div class="task-right">
+        <div class="task-progress-badge" style="background: #e8f5e9; color: #4caf50;">${pct || 0}%</div>
+      </div>
+    `;
 
-    const dateStr = t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "No Date";
-    card.querySelector(".task-due-date").textContent = `Due ${dateStr}`;
-
-    const badge = card.querySelector(".task-progress-badge");
-    badge.textContent = `${t.progress || 0}%`;
-
-    card.querySelector(".task-card").onclick = () => location.href = "task.html";
-    taskList.appendChild(card);
+    taskList.appendChild(div);
   });
 }
 
@@ -163,6 +172,7 @@ function renderNotifications(notifications) {
     if (n.type === "reminder") iconClass = "fa-clock";
 
     item.innerHTML = `
+      <button class="close-notif-btn" onclick="deleteNotification('${n._id}')"><i class="fa-solid fa-xmark"></i></button>
       <div class="notif-icon"><i class="fa-solid ${iconClass}"></i></div>
       <div class="notif-content">
         <h4>${n.title || "Notification"}</h4>
@@ -172,6 +182,30 @@ function renderNotifications(notifications) {
     `;
     list.appendChild(item);
   });
+}
+
+window.deleteNotification = async (id) => {
+  const token = localStorage.getItem("token");
+  // Optimistic UI removal
+  const list = document.getElementById("notifList");
+  // If we wanted to animate removal we could find the element, but for now just reload or let it update on refresh.
+  // Actually, let's just call API and reload list
+  try {
+    // Check if DELETE endpoint exists, if not we just hide it locally
+    const res = await fetch(`${API_BASE}/notifications/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Notification dismissed", "success");
+      loadNotifications();
+    } else {
+      // Fallback for local simulation if API missing
+      console.warn("Notification delete API failed, hiding locally");
+      loadNotifications(); // Depending on implementation could filter locally
+    }
+  } catch (e) { console.error(e); }
 }
 
 // === REMINDERS ===
@@ -204,12 +238,18 @@ async function loadReminders() {
 
     reminders.forEach(r => {
       const item = document.createElement("div");
-      item.className = `reminder-item ${r.completed ? 'completed' : ''}`;
+      const isDone = (r.is_done !== undefined) ? r.is_done : r.completed;
+      item.className = `reminder-item ${isDone ? 'completed' : ''}`;
+      const timeStr = r.dueTime ? `<div class="reminder-time" style="font-size:0.7rem; color:var(--accent); font-weight:600;"><i class="fa-solid fa-clock"></i> ${r.dueTime}</div>` : '';
+
       item.innerHTML = `
-        <div class="reminder-checkbox ${r.completed ? 'checked' : ''}" onclick="toggleReminder('${r._id}', ${!r.completed})"></div>
+        <div class="reminder-checkbox ${isDone ? 'checked' : ''}" onclick="toggleReminder('${r._id}', ${!isDone})"></div>
         <div class="reminder-content">
           <div class="reminder-text">${r.text}</div>
-          <div class="reminder-meta">${new Date(r.createdAt).toLocaleDateString()}</div>
+          <div class="reminder-meta">
+            ${timeStr}
+            <div class="reminder-date">${new Date(r.createdAt).toLocaleDateString()}</div>
+          </div>
         </div>
         <button class="delete-reminder-btn" onclick="deleteReminder('${r._id}')"><i class="fa-solid fa-trash"></i></button>
       `;
@@ -224,33 +264,52 @@ async function loadReminders() {
 // Global Handlers
 async function addReminder() {
   const input = document.getElementById("newReminderInput");
+  const timeInput = document.getElementById("newReminderTime");
   const text = input.value.trim();
-  if (!text) return;
+  const dueTime = timeInput ? timeInput.value : null;
+
+  if (!text) {
+    if (typeof showToast === 'function') showToast("Please enter a reminder", "info");
+    return;
+  }
 
   const token = localStorage.getItem("token");
   try {
-    await fetch(`${API_BASE}/reminders`, {
+    const res = await fetch(`${API_BASE}/reminders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, dueTime })
     });
-    input.value = "";
-    loadReminders();
-  } catch (err) { console.error(err); }
+
+    if (res.ok) {
+      input.value = "";
+      if (timeInput) timeInput.value = "";
+      loadReminders();
+      if (typeof showToast === 'function') showToast("Reminder added", "success");
+    } else {
+      throw new Error("Failed to add reminder");
+    }
+  } catch (err) {
+    console.error(err);
+    if (typeof showToast === 'function') showToast("Failed to add reminder", "error");
+  }
 }
 
 window.toggleReminder = async (id, completed) => {
   const token = localStorage.getItem("token");
   try {
-    await fetch(`${API_BASE}/reminders/${id}`, {
+    const res = await fetch(`${API_BASE}/reminders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ completed })
+      body: JSON.stringify({ completed }) // Server route maps 'completed' to 'is_done'
     });
-    loadReminders();
+    if (res.ok) {
+      loadReminders();
+      if (typeof showToast === 'function') showToast(completed ? "Reminder completed" : "Reminder restored", "success");
+    }
   } catch (err) { console.error(err); }
 };
 
@@ -258,11 +317,14 @@ window.deleteReminder = async (id) => {
   const token = localStorage.getItem("token");
   if (!confirm("Delete this reminder?")) return;
   try {
-    await fetch(`${API_BASE}/reminders/${id}`, {
+    const res = await fetch(`${API_BASE}/reminders/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
-    loadReminders();
+    if (res.ok) {
+      loadReminders();
+      if (typeof showToast === 'function') showToast("Reminder deleted", "success");
+    }
   } catch (err) { console.error(err); }
 };
 

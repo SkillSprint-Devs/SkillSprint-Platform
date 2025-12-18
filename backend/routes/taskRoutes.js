@@ -11,7 +11,7 @@ const router = express.Router();
 // ========================================================
 router.post("/", verifyToken, async (req, res) => {
   try {
-    const { title, description, priority, status, dueDate } = req.body;
+    const { title, description, priority, status, dueDate, subTasks } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ message: "Title and Description are required" });
@@ -24,6 +24,7 @@ router.post("/", verifyToken, async (req, res) => {
       priority,
       status,
       dueDate,
+      subTasks: subTasks || [],
       user: req.user.id   // <--- IMPORTANT
     });
 
