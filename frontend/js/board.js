@@ -471,8 +471,13 @@
           notify('Redo failed. See console.', 'error');
         }
       }
-      if (undoBtn) undoBtn.addEventListener('click', undo);
-      if (redoBtn) redoBtn.addEventListener('click', redo);
+      const bindUndoRedo = () => {
+        const u = document.querySelectorAll('#undoBtn');
+        const r = document.querySelectorAll('#redoBtn');
+        u.forEach(btn => btn.onclick = undo);
+        r.forEach(btn => btn.onclick = redo);
+      };
+      bindUndoRedo();
 
       try { pushSnapshot(); } catch (e) { safeLog('initial snapshot push failed', e); }
 
@@ -855,7 +860,7 @@
 
         box.innerHTML = `
           <div class="text-box-header">
-            <button class="close-text" title="Remove">✕</button>
+            <button class="close-text" title="Remove" style="z-index:10; pointer-events:auto;">✕</button>
           </div>
           <textarea placeholder="Type...">${textContent}</textarea>
         `;
@@ -866,10 +871,10 @@
 
         if (textContent === '') area.focus();
 
-        closeBtn.addEventListener('click', (ev) => {
+        closeBtn.onpointerdown = (ev) => {
           ev.stopPropagation();
           box.remove();
-        });
+        };
 
         // Draggable
         let dragging = false, start = null;
@@ -1020,6 +1025,13 @@
             body: JSON.stringify(payload),
           });
 
+          if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Save failed:', errorText);
+            notify('Failed to save (Server Error). Check console.', 'error');
+            return;
+          }
+
           const result = await res.json();
           if (result.success) {
             notify('Board saved successfully!', 'success');
@@ -1043,316 +1055,283 @@
         }
       });
 
-    } catch (err) {
-      console.error('Initialization error in board.js:', err);
-      notify('Initialization failed. Check console.', 'error');
-    }
-  });
 
-  // Share button handler
-  const shareBtn = document.getElementById('shareBtn');
-  if (shareBtn) {
-    shareBtn.addEventListener('click', () => {
-      const modal = document.getElementById('shareModal');
-      if (modal) {
-        modal.classList.add('open');
-        // Pre-fill if exists
-        if (window.currentBoardData?.shareLink?.isActive) {
-          const link = `${window.location.origin}${window.location.pathname}?token=${window.currentBoardData.shareLink.token}`;
-          document.getElementById('shareLinkInput').value = link;
-          // set radio
-          const role = window.currentBoardData.shareLink.role;
-          const radio = document.querySelector(`input[name="shareRole"][value="${role}"]`);
-          if (radio) radio.checked = true;
-        }
-      }
-    });
-  }
-
-  function debounce(fn, t) { let id; return (...a) => { clearTimeout(id); id = setTimeout(() => fn(...a), t); }; }
-
-  // --- Invite & Share Modal Logic ---
-  const inviteModal = document.getElementById('inviteModal');
-  const shareModal = document.getElementById('shareModal');
-  const inviteBtn = document.getElementById('inviteBtn');
-
-  if (inviteBtn && inviteModal) {
-    inviteBtn.addEventListener('click', () => {
-      inviteModal.classList.add('open');
-      document.getElementById('userSearchInput').focus();
-    });
-  }
-
-  // Close buttons
-  ['closeInviteBtn', 'closeShareBtn'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      btn.addEventListener('click', () => {
-        if (inviteModal) inviteModal.classList.remove('open');
-        if (shareModal) shareModal.classList.remove('open');
-      });
-    }
-  });
-
-  // Invite Search
-  const searchInput = document.getElementById('userSearchInput');
-  const userList = document.getElementById('userList');
-  let selectedUser = null;
-
-  if (searchInput && userList) {
-    searchInput.addEventListener('input', debounce(async (e) => {
-      const q = e.target.value.trim();
-      if (!q) { userList.innerHTML = ''; return; }
-
-      try {
-        const isDev = window.location.port === '5500';
-        const API_CHAT = isDev ? 'http://localhost:5000/api/chat' : '/api/chat';
-        const token = localStorage.getItem('token');
-
-        const res = await fetch(`${API_CHAT}/users/search?query=${encodeURIComponent(q)}`, {
-          headers: { Authorization: `Bearer ${token}` }
+      // Share button handler
+      const shareBtn = document.getElementById('shareBtn');
+      if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+          const modal = document.getElementById('shareModal');
+          if (modal) {
+            modal.classList.add('open');
+            // Pre-fill if exists
+            if (window.currentBoardData?.shareLink?.isActive) {
+              const link = `${window.location.origin}${window.location.pathname}?token=${window.currentBoardData.shareLink.token}`;
+              document.getElementById('shareLinkInput').value = link;
+              // set radio
+              const role = window.currentBoardData.shareLink.role;
+              const radio = document.querySelector(`input[name="shareRole"][value="${role}"]`);
+              if (radio) radio.checked = true;
+            }
+          }
         });
-        const users = await res.json();
+      }
 
-        userList.innerHTML = '';
-        users.forEach(u => {
-          const div = document.createElement('div');
-          div.className = 'user-item';
-          div.innerHTML = `<img src="${u.profile_image || 'assets/images/user-avatar.png'}">
+
+      // --- Invite & Share Modal Logic ---
+      const inviteModal = document.getElementById('inviteModal');
+      const shareModal = document.getElementById('shareModal');
+      const inviteBtn = document.getElementById('inviteBtn');
+
+      if (inviteBtn && inviteModal) {
+        inviteBtn.addEventListener('click', () => {
+          inviteModal.classList.add('open');
+          document.getElementById('userSearchInput').focus();
+        });
+      }
+
+      // Close buttons
+      ['closeInviteBtn', 'closeShareBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.addEventListener('click', () => {
+            if (inviteModal) inviteModal.classList.remove('open');
+            if (shareModal) shareModal.classList.remove('open');
+          });
+        }
+      });
+
+      // Invite Search
+      const searchInput = document.getElementById('userSearchInput');
+      const userList = document.getElementById('userList');
+      let selectedUser = null;
+
+      if (searchInput && userList) {
+        searchInput.addEventListener('input', debounce(async (e) => {
+          const q = e.target.value.trim();
+          if (!q) { userList.innerHTML = ''; return; }
+
+          try {
+            const isDev = window.location.port === '5500';
+            const API_CHAT = isDev ? 'http://localhost:5000/api/chat' : '/api/chat';
+            const token = localStorage.getItem('token');
+
+            const res = await fetch(`${API_CHAT}/users/search?query=${encodeURIComponent(q)}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            const users = await res.json();
+
+            userList.innerHTML = '';
+            users.forEach(u => {
+              const div = document.createElement('div');
+              div.className = 'user-item';
+              div.innerHTML = `<img src="${u.profile_image || 'assets/images/user-avatar.png'}">
                            <div>
                              <div style="font-weight:600">${u.name}</div>
                              <div style="font-size:12px;color:#666">${u.email}</div>
                            </div>`;
-          div.addEventListener('click', () => {
-            document.querySelectorAll('.user-item').forEach(x => x.classList.remove('selected'));
-            div.classList.add('selected');
-            selectedUser = u;
-            document.getElementById('sendInviteBtn').disabled = false;
-          });
-          userList.appendChild(div);
-        });
-      } catch (err) { console.error('Search error', err); }
-    }, 500));
-  }
-
-  // Send Invite
-  const sendInviteBtn = document.getElementById('sendInviteBtn');
-  if (sendInviteBtn) {
-    sendInviteBtn.addEventListener('click', async () => {
-      if (!selectedUser) return;
-      const role = document.getElementById('inviteRole').value; // viewer/editor
-
-      try {
-        notify('Sending invite...', 'info');
-        // We need to generate a link or just send plain text to ID
-        // Note: Direct Invite usually doesn't need a token if we add them to members directly via backend,
-        // but the prompt says: "A message... containing An invite link... The permissions assigned".
-        // SO we definitely need a link. We can use the Share Link (if enabled) OR just the board URL (if we add them as member manually).
-        // Let's Add them as member FIRST via API? backend doesn't have "addMember" explicit route exposed in boardRoutes (except join).
-        // The prompt says "Selecting a user triggers: A message sent... containing invite link".
-        // It does NOT explicitly say "add them to board immediately".
-        // However, if they click the link, they need access.
-        // If I use the *Share Token*, it works for anyone.
-        // If I invite a specific user, I should ideally add them to the board.
-        // BUT I don't have an "add member" route handy in the list I saw earlier (only join).
-        // I'll assume I should generate a Share Link or use the generic board URL + Manual Add logic if I had it.
-        // PROMPT requirement: "The invite message must include these permissions in text."
-        // Strategy: I will use the Share Link approach for simplicity. I will ensure a share link exists with at least 'viewer' or matching role, OR just send the board URL and assume the user will request access?
-        // Wait, "Invite Button" usually implies direct addition.
-        // Since I can't easily add them without a new route, I will use the SHARE LINK flow.
-        // I will auto-generate a share link if one doesn't exist.
-
-        let token = window.currentBoardData.shareLink?.token;
-        if (!token || !window.currentBoardData.shareLink?.isActive) {
-          // Force generate one
-          const genRes = await fetch(`${API_BASE}/${window.currentBoardId}/share`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: 'Bearer ' + localStorage.getItem('token')
-            },
-            body: JSON.stringify({ role: role }) // Use the role selected for the invite
-          });
-          const genData = await genRes.json();
-          if (genData.success) token = genData.data.token;
-        }
-
-        const link = `${window.location.origin}${window.location.pathname}?token=${token}`;
-
-        const isDev = window.location.port === '5500';
-        const API_CHAT = isDev ? 'http://localhost:5000/api/chat' : '/api/chat';
-
-        const msg = `Hey, I'm inviting you to join my board "${window.currentBoardData.name}".\nRole: ${role === 'editor' ? 'Can Edit' : 'View Only'}\nLink: ${link}`;
-
-        await fetch(`${API_CHAT}/send`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-          },
-          body: JSON.stringify({ recipientId: selectedUser._id, content: msg })
-        });
-
-        notify('Invite sent!', 'success');
-        inviteModal.classList.remove('open');
-      } catch (e) {
-        console.error(e);
-        notify('Failed to send invite.', 'error');
+              div.addEventListener('click', () => {
+                document.querySelectorAll('.user-item').forEach(x => x.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedUser = u;
+                document.getElementById('sendInviteBtn').disabled = false;
+              });
+              userList.appendChild(div);
+            });
+          } catch (err) { console.error('Search error', err); }
+        }, 500));
       }
-    });
-  }
 
-  // Generate / Copy Share Link
-  const checkLinkBtn = document.getElementById('generateLinkBtn');
-  if (checkLinkBtn) {
-    checkLinkBtn.addEventListener('click', async () => {
-      try {
-        const role = document.querySelector('input[name="shareRole"]:checked').value;
-        const res = await fetch(`${API_BASE}/${window.currentBoardId}/share`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-          },
-          body: JSON.stringify({ role, isActive: true })
-        });
-        const data = await res.json();
-        if (data.success) {
-          const link = `${window.location.origin}${window.location.pathname}?token=${data.data.token}`;
-          document.getElementById('shareLinkInput').value = link;
-          notify('Link generated!', 'success');
+      // Send Invite
+      const sendInviteBtn = document.getElementById('sendInviteBtn');
+      if (sendInviteBtn) {
+        sendInviteBtn.addEventListener('click', async () => {
+          if (!selectedUser) return;
+          const role = document.getElementById('inviteRole').value; // viewer/editor
 
-          // Update local cache
-          if (!window.currentBoardData.shareLink) window.currentBoardData.shareLink = {};
-          window.currentBoardData.shareLink = data.data;
-        }
-      } catch (e) {
-        notify('Error generating link', 'error');
-      }
-    });
-  }
-
-  const copyBtn = document.getElementById('copyShareLinkBtn');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      const input = document.getElementById('shareLinkInput');
-      if (input.value) {
-        navigator.clipboard.writeText(input.value);
-        notify('Link copied to clipboard!', 'success');
-      }
-    });
-  }
-
-
-  let mediaRecorder = null;
-  let recordedChunks = [];
-  let currentRecordingId = null;
-
-  const recordBtn = document.getElementById('recordBtn');
-
-  if (recordBtn) {
-    recordBtn.addEventListener('click', async () => {
-      try {
-        if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-          // Time Limit
-          const TIME_LIMIT_MS = 10 * 60 * 1000; // 10 minutes
-          // Switch to Canvas-only recording
-          const stream = canvas.captureStream(30); // 30 FPS
-
-          // Optionally add audio from microphone if available
           try {
-            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            audioStream.getAudioTracks().forEach(track => stream.addTrack(track));
-          } catch (e) {
-            console.warn('Microphone access denied or not available for recording');
-          }
+            notify('Sending invite...', 'info');
+            // We need to generate a link or just send plain text to ID
+            // Note: Direct Invite usually doesn't need a token if we add them to members directly via backend,
+            // but the prompt says: "A message... containing An invite link... The permissions assigned".
+            // SO we definitely need a link. We can use the Share Link (if enabled) OR just the board URL (if we add them as member manually).
+            // Let's Add them as member FIRST via API? backend doesn't have "addMember" explicit route exposed in boardRoutes (except join).
+            // The prompt says "Selecting a user triggers: A message sent... containing invite link".
+            // It does NOT explicitly say "add them to board immediately".
+            // However, if they click the link, they need access.
+            // If I use the *Share Token*, it works for anyone.
+            // If I invite a specific user, I should ideally add them to the board.
+            // BUT I don't have an "add member" route handy in the list I saw earlier (only join).
+            // I'll assume I should generate a Share Link or use the generic board URL + Manual Add logic if I had it.
+            // PROMPT requirement: "The invite message must include these permissions in text."
+            // Strategy: I will use the Share Link approach for simplicity. I will ensure a share link exists with at least 'viewer' or matching role, OR just send the board URL and assume the user will request access?
+            // Wait, "Invite Button" usually implies direct addition.
+            // Since I can't easily add them without a new route, I will use the SHARE LINK flow.
+            // I will auto-generate a share link if one doesn't exist.
 
-          mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-          recordedChunks = [];
+            let token = window.currentBoardData.shareLink?.token;
+            if (!token || !window.currentBoardData.shareLink?.isActive) {
+              // Force generate one
+              const genRes = await fetch(`${API_BASE}/${window.currentBoardId}/share`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ role: role }) // Use the role selected for the invite
+              });
+              const genData = await genRes.json();
+              if (genData.success) token = genData.data.token;
+            }
 
-          mediaRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) recordedChunks.push(e.data);
-          };
+            const link = `${window.location.origin}${window.location.pathname}?token=${token}`;
 
-          mediaRecorder.onstop = async () => {
-            clearInterval(timerInterval);
-            recordBtn.innerHTML = '<span class="material-icons-outlined">fiber_manual_record</span>';
-            recordBtn.style.color = '';
+            const isDev = window.location.port === '5500';
+            const API_CHAT = isDev ? 'http://localhost:5000/api/chat' : '/api/chat';
 
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const formData = new FormData();
-            formData.append('file', blob, 'recording.webm');
-            formData.append('recordingId', currentRecordingId);
-            formData.append('duration', Math.round((TIME_LIMIT_MS - timeLeft) / 1000));
+            const msg = `Hey, I'm inviting you to join my board "${window.currentBoardData.name}".\nRole: ${role === 'editor' ? 'Can Edit' : 'View Only'}\nLink: ${link}`;
 
-            const boardId = window.currentBoardId || '';
-            const token = localStorage.getItem('token');
-
-            // FIX: Removed duplicated /api/board
-            const uploadRes = await fetch(`${API_BASE}/${boardId}/recording/stop`, {
+            await fetch(`${API_CHAT}/send`, {
               method: 'POST',
               headers: {
-                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token')
               },
-              body: formData,
+              body: JSON.stringify({ recipientId: selectedUser._id, content: msg })
             });
 
-            const uploadResult = await uploadRes.json();
-            if (uploadResult.success) {
-              notify('Recording saved!', 'success');
-            } else {
-              notify('Failed to save recording: ' + (uploadResult.message || 'Unknown error'), 'error');
-            }
-
-            // stop all tracks
-            stream.getTracks().forEach(track => track.stop());
-          };
-
-          const boardId = window.currentBoardId || '';
-          const token = localStorage.getItem('token');
-
-          // FIX: Removed duplicated /api/board
-          const startRes = await fetch(`${API_BASE}/${boardId}/recording/start`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const startResult = await startRes.json();
-          if (!startResult.success) {
-            notify('Failed to start recording: ' + (startResult.message || 'Unknown error'), 'error');
-            return;
+            notify('Invite sent!', 'success');
+            inviteModal.classList.remove('open');
+          } catch (e) {
+            console.error(e);
+            notify('Failed to send invite.', 'error');
           }
-          currentRecordingId = startResult.data._id;
+        });
+      }
 
-          mediaRecorder.start();
+      // Generate / Copy Share Link
+      const checkLinkBtn = document.getElementById('generateLinkBtn');
+      if (checkLinkBtn) {
+        checkLinkBtn.addEventListener('click', async () => {
+          try {
+            const role = document.querySelector('input[name="shareRole"]:checked').value;
+            const res = await fetch(`${API_BASE}/${window.currentBoardId}/share`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+              },
+              body: JSON.stringify({ role, isActive: true })
+            });
+            const data = await res.json();
+            if (data.success) {
+              const link = `${window.location.origin}${window.location.pathname}?token=${data.data.token}`;
+              document.getElementById('shareLinkInput').value = link;
+              notify('Link generated!', 'success');
 
-          // UI Feedback & Timer
-          recordBtn.innerHTML = '<span class="material-icons-outlined">stop</span> 10:00';
-          recordBtn.style.color = '#ff4d4d';
+              // Update local cache
+              if (!window.currentBoardData.shareLink) window.currentBoardData.shareLink = {};
+              window.currentBoardData.shareLink = data.data;
+            }
+          } catch (e) {
+            notify('Error generating link', 'error');
+          }
+        });
+      }
 
-          const timerInterval = setInterval(() => {
-            timeLeft -= 1000;
-            const mins = Math.floor(timeLeft / 60000);
-            const secs = Math.floor((timeLeft % 60000) / 1000);
-            recordBtn.innerHTML = `<span class="material-icons-outlined">stop</span> ${mins}:${secs.toString().padStart(2, '0')}`;
+      // Text Box Close logic already exists in createTextBoxElement, 
+      // but let's ensure it's robust by also handling pointerdown to avoid propagation issues
+      const robustClose = (box) => {
+        const btn = box.querySelector('.close-text');
+        if (btn) {
+          btn.onpointerdown = (e) => {
+            e.stopPropagation();
+            box.remove();
+          };
+        }
+      };
+      document.querySelectorAll('.text-box').forEach(robustClose);
 
-            if (timeLeft <= 0) {
+      // --- Recording Logic (moved inside scope) ---
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let currentRecordingId = null;
+      const recordBtn = document.getElementById('recordBtn');
+      let timeLeft = 10 * 60 * 1000;
+
+      if (recordBtn) {
+        recordBtn.addEventListener('click', async () => {
+          try {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+              const stream = canvas.captureStream(30);
+              try {
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioStream.getAudioTracks().forEach(track => stream.addTrack(track));
+              } catch (e) {
+                console.warn('Microphone access denied or not available');
+              }
+              mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+              recordedChunks = [];
+              mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+              mediaRecorder.onstop = async () => {
+                clearInterval(timerInv);
+                recordBtn.innerHTML = '<span class="material-icons-outlined">fiber_manual_record</span>';
+                recordBtn.style.color = '';
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const formData = new FormData();
+                formData.append('file', blob, 'recording.webm');
+                formData.append('recordingId', currentRecordingId);
+                formData.append('duration', Math.round((10 * 60 * 1000 - timeLeft) / 1000));
+                const bId = window.currentBoardId || '';
+                const t = localStorage.getItem('token');
+                await fetch(`${API_BASE}/${bId}/recording/stop`, {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${t}` },
+                  body: formData,
+                });
+                notify('Recording saved!', 'success');
+                stream.getTracks().forEach(track => track.stop());
+              };
+              const bId = window.currentBoardId || '';
+              const t = localStorage.getItem('token');
+              const startRes = await fetch(`${API_BASE}/${bId}/recording/start`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${t}` },
+              });
+              const startResult = await startRes.json();
+              if (!startResult.success) return notify('Failed to start recording', 'error');
+              currentRecordingId = startResult.data._id;
+              mediaRecorder.start();
+              timeLeft = 10 * 60 * 1000;
+              recordBtn.style.color = '#ff4d4d';
+              const timerInv = setInterval(() => {
+                timeLeft -= 1000;
+                const mins = Math.floor(timeLeft / 60000);
+                const secs = Math.floor((timeLeft % 60000) / 1000);
+                recordBtn.innerHTML = `<span class="material-icons-outlined">stop</span> ${mins}:${secs.toString().padStart(2, '0')}`;
+                if (timeLeft <= 0) mediaRecorder.stop();
+              }, 1000);
+            } else {
               mediaRecorder.stop();
             }
-          }, 1000);
-
-        } else if (mediaRecorder.state === 'recording') {
-          mediaRecorder.stop();
-        }
-      } catch (err) {
-        console.error('Recording error:', err);
-        notify('Recording failed or cancelled.', 'error');
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-          mediaRecorder.stop();
-        }
+          } catch (err) {
+            console.error('Recording error:', err);
+            notify('Recording failed.', 'error');
+          }
+        });
       }
-    });
-  }
-})
-  ();
+
+      const copyBtn = document.getElementById('copyShareLinkBtn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          const input = document.getElementById('shareLinkInput');
+          if (input && input.value) {
+            navigator.clipboard.writeText(input.value);
+            notify('Link copied!', 'success');
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Board logic error:', e);
+    }
+  });
+})();
