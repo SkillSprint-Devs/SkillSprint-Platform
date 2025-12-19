@@ -159,53 +159,79 @@
   <!-- Toast script -->
   <script src="js/toast.js"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const adminLoginForm = document.getElementById("adminLoginForm");
+ <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const adminLoginForm = document.getElementById("adminLoginForm");
 
-      adminLoginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+    // HARD-CODED ADMIN (demo only)
+    const HARDCODED_ADMIN = {
+      email: "admin@skillsprint.com",
+      password: "admin.123",
+      role: "admin",
+      name: "SkillSprint Admin",
+    };
 
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
+    adminLoginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-        if (!email || !password)
-          return showToast("Please fill both fields!", "error");
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-        try {
-          // Using the same login endpoint
-          const res = await fetch("http://localhost:5000/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-          });
+      if (!email || !password) {
+        showToast("Please fill both fields!", "error");
+        return;
+      }
 
-          const data = await res.json();
+      /* ===== 1️⃣ HARD-CODED ADMIN CHECK ===== */
+      if (
+        email === HARDCODED_ADMIN.email &&
+        password === HARDCODED_ADMIN.password
+      ) {
+        localStorage.setItem("token", "admin-demo-token");
+        localStorage.setItem("adminUser", JSON.stringify(HARDCODED_ADMIN));
 
-          if (!res.ok) {
-            showToast(data.message || "Invalid login credentials.", "error");
-            return;
-          }
+        showToast("Admin login successful!", "success", 2000, () => {
+          window.location.href = "admin-dashboard.html";
+        });
+        return;
+      }
 
-          // Role verification: Must be admin
-          if (data.user.role !== 'admin') {
-            showToast("Access Denied: You do not have administrator privileges.", "error");
-            return;
-          }
+      /* ===== 2️⃣ BACKEND LOGIN (NORMAL USERS) ===== */
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
-          // Login successful
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("adminUser", JSON.stringify(data.user));
+        const data = await res.json();
 
-          showToast("Admin login successful!", "success", 2000, () => {
-            window.location.href = "admin-dashboard.html";
-          });
-        } catch (err) {
-          console.error("Login error:", err);
-          showToast("Server error. Please try again later.", "error");
+        if (!res.ok) {
+          showToast(data.message || "Invalid login credentials.", "error");
+          return;
         }
-      });
+
+        if (data.user.role !== "admin") {
+          showToast(
+            "Access Denied: You do not have administrator privileges.",
+            "error"
+          );
+          return;
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("adminUser", JSON.stringify(data.user));
+
+        showToast("Admin login successful!", "success", 2000, () => {
+          window.location.href = "admin-dashboard.html";
+        });
+      } catch (err) {
+        console.error("Login error:", err);
+        showToast("Server error. Please try again later.", "error");
+      }
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>

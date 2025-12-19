@@ -5,70 +5,131 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Library | SkillSprint</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Styles -->
   <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/dashboard.css" />
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous"
-  />
+  <link rel="stylesheet" href="assets/css/library.css" />
 </head>
 
 <body>
-  <div class="placeholder-page">
-    <div class="content">
-      <i class="fa-solid fa-book-open"></i>
-      <h1>Library Screen</h1>
-      <p>This section is under development.</p>
-      <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
+  <div class="library-container">
+    <header class="library-top-nav">
+      <div class="nav-left">
+        <a href="dashboard.html" class="back-btn" title="Back to Dashboard"><i class="fa-solid fa-arrow-left"></i></a>
+        <div class="logo">SkillSprint <span>Library</span></div>
+      </div>
+
+      <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="librarySearch" placeholder="Search resources, notes, recordings..." />
+      </div>
+
+      <div class="top-actions">
+         <button class="upload-btn" id="openUploadModal">
+           <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+         </button>
+      </div>
+    </header>
+
+    <main class="library-content-area">
+
+      <!-- Library Content -->
+      <div class="library-wrapper">
+        <aside class="library-sidebar">
+           <h3>Categories</h3>
+           <ul class="category-list">
+             <li class="active" data-category="All"><i class="fa-solid fa-layer-group"></i> All Items</li>
+             <li data-category="Note"><i class="fa-solid fa-note-sticky"></i> Notes</li>
+             <li data-category="Recording"><i class="fa-solid fa-video"></i> Board Recordings</li>
+             <li data-category="Document"><i class="fa-solid fa-file-lines"></i> Documents</li>
+             <li data-category="Other"><i class="fa-solid fa-ellipsis"></i> Other</li>
+           </ul>
+
+           <h3 style="margin-top: 2rem;">Visibility</h3>
+           <ul class="category-list">
+             <li data-visibility="All" class="active"><i class="fa-solid fa-globe"></i> All</li>
+             <li data-visibility="Public"><i class="fa-solid fa-eye"></i> Public</li>
+             <li data-visibility="Private"><i class="fa-solid fa-eye-slash"></i> Private</li>
+           </ul>
+        </aside>
+
+        <section class="library-main">
+          <div class="library-header">
+            <h2 id="currentCategoryTitle">All Items</h2>
+            <div class="view-toggles">
+              <button class="active" id="gridViewBtn"><i class="fa-solid fa-grip"></i></button>
+              <button id="listViewBtn"><i class="fa-solid fa-list"></i></button>
+            </div>
+          </div>
+
+          <div class="library-grid" id="libraryGrid">
+            <!-- Items injected here -->
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="emptyState" style="display: none;">
+            <img src="assets/images/empty-folder.png" alt="Empty Library" />
+            <h3>Your Library is empty</h3>
+            <p>Upload your first learning asset or start a board recording!</p>
+            <button class="upload-btn" onclick="document.getElementById('openUploadModal').click()">
+              Upload Now
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Upload Resource</h2>
+        <button class="close-modal" id="closeUploadModal">&times;</button>
+      </div>
+      <form id="uploadForm">
+        <div class="form-group">
+          <label for="uploadTitle">Title</label>
+          <input type="text" id="uploadTitle" placeholder="Enter title..." required />
+        </div>
+        <div class="form-group">
+          <label for="uploadDesc">Description (Optional)</label>
+          <textarea id="uploadDesc" placeholder="Brief description..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="uploadType">Category</label>
+            <select id="uploadType">
+              <option value="Document">Document</option>
+              <option value="Note">Note</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="uploadVisibility">Visibility</label>
+            <select id="uploadVisibility">
+              <option value="Private">Private (Only Me)</option>
+              <option value="Public">Public (Everyone)</option>
+            </select>
+          </div>
+        </div>
+        <div class="upload-area" id="dropZone">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <p>Drag & Drop files here or <span>Browse</span></p>
+          <input type="file" id="fileInput" hidden />
+          <div id="filePreview" class="file-preview"></div>
+        </div>
+        <button type="submit" class="submit-btn" id="submitUpload">Upload to Library</button>
+      </form>
     </div>
   </div>
+
+  <!-- JS -->
+  <script src="js/toast.js"></script>
+  <script src="js/library.js"></script>
 </body>
 </html>
-
-<style>
-  body {
-    background-color: #F9F8D9;
-    font-family: "Poppins", sans-serif;
-    color: #1A1A1A;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  .placeholder-page .content {
-    text-align: center;
-  }
-  .placeholder-page i {
-    font-size: 3rem;
-    color: #DCEF7E;
-    margin-bottom: 1rem;
-  }
-  .placeholder-page h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .placeholder-page p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 1.5rem;
-  }
-  .back-btn {
-    display: inline-block;
-    background-color: #1A1A1A;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: 0.3s;
-  }
-  .back-btn:hover {
-    background-color: #333;
-  }
-</style>

@@ -80,10 +80,22 @@ router.patch("/:id", verifyToken, async (req, res) => {
 // DELETE /api/reminders/:id - Delete reminder
 router.delete("/:id", verifyToken, async (req, res) => {
     try {
-        const result = await Reminder.deleteOne({ _id: req.params.id, user_id: req.user.id });
-        if (result.deletedCount === 0) return res.status(404).json({ message: "Reminder not found" });
+        console.log(`[DELETE] Reminder ID: ${req.params.id} for User: ${req.user.id}`);
+        // Ensure user_id is compared correctly (it's often stored as an ObjectId but req.user.id might be a string)
+        const result = await Reminder.deleteOne({
+            _id: req.params.id,
+            user_id: req.user.id
+        });
+
+        if (result.deletedCount === 0) {
+            console.warn(`Reminder ${req.params.id} not found or unauthorized for delete`);
+            return res.status(404).json({ message: "Reminder not found" });
+        }
+
+        console.log(`Reminder ${req.params.id} deleted successfully`);
         res.json({ message: "Reminder deleted" });
     } catch (err) {
+        console.error("Delete reminder error:", err);
         res.status(500).json({ message: "Server error" });
     }
 });

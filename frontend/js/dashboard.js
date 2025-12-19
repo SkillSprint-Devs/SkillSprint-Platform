@@ -72,6 +72,7 @@ async function loadDashboard() {
     if (document.getElementById("walletEarned")) document.getElementById("walletEarned").textContent = `$${data.wallet?.earned || "0"}`;
 
     // Tasks and Notifications
+    window.currentDashboardData = data; // Cache for search filtering
     renderTasks(data.tasks);
     loadNotifications(); // Load from API
     loadReminders();     // Load Reminders
@@ -322,10 +323,16 @@ window.deleteReminder = async (id) => {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {
-      loadReminders();
       if (typeof showToast === 'function') showToast("Reminder deleted", "success");
+      await loadReminders(); // Re-fetch all to ensure sync
+    } else {
+      const errData = await res.json();
+      if (typeof showToast === 'function') showToast(errData.message || "Failed to delete reminder", "error");
     }
-  } catch (err) { console.error(err); }
+  } catch (err) {
+    console.error("Delete reminder error:", err);
+    if (typeof showToast === 'function') showToast("Error connecting to server", "error");
+  }
 };
 
 // Listeners
@@ -333,6 +340,39 @@ document.getElementById("addReminderBtn")?.addEventListener("click", addReminder
 document.getElementById("newReminderInput")?.addEventListener("keypress", (e) => {
   if (e.key === "Enter") addReminder();
 });
+
+// --- Search Functionality ---
+const dashboardSearch = document.querySelector('.search-bar input');
+if (dashboardSearch) {
+  dashboardSearch.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase().trim();
+    filterDashboard(term);
+  });
+}
+
+function filterDashboard(term) {
+  if (!window.currentDashboardData) return;
+
+  // Filter Tasks
+  const filteredTasks = window.currentDashboardData.tasks.filter(t =>
+    t.title.toLowerCase().includes(term) ||
+    (t.description && t.description.toLowerCase().includes(term))
+  );
+  renderTasks(filteredTasks);
+
+  // Filter Reminders
+  // We need to fetch reminders separately because they are loaded into 'list'
+  // Let's modify loadReminders to accept a filter term or keep a local copy
+  const reminderItems = document.querySelectorAll('.reminder-item');
+  reminderItems.forEach(item => {
+    const text = item.querySelector('.reminder-text').textContent.toLowerCase();
+    if (text.includes(term)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
 
 // Socket
 function setupSocket(token) {

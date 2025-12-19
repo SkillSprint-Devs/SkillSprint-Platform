@@ -230,7 +230,8 @@ function renderAllTasks(filterType = 'all') {
 
   filtered.forEach(task => {
     const el = document.createElement('div');
-    el.className = `task-card task-${task.priority || 'medium'}`;
+    const priorityClass = `task-${(task.priority || 'medium').toLowerCase()}`;
+    el.className = `task-card ${priorityClass}`;
 
     // Ensure subTasks exists and is an array
     if (!task.subTasks) task.subTasks = [];
@@ -263,7 +264,7 @@ function renderAllTasks(filterType = 'all') {
     // Add progress bar if there are subtasks
     if (totalSub > 0) {
       cardHTML += `
-        <div class="task-progress-wrapper">
+        <div class="task-progress-wrapper" style="margin-top: 10px;">
           <div class="progress-track">
             <div class="progress-fill" style="width: ${pct}%"></div>
           </div>
@@ -274,35 +275,36 @@ function renderAllTasks(filterType = 'all') {
 
     // Add subtasks horizontally with checkboxes
     if (totalSub > 0) {
+      console.log(`Rendering ${totalSub} subtasks for task ${task._id}`);
       const subtaskChips = task.subTasks.map((st, i) => `
-        <div class="st-chip ${st.completed ? 'done' : ''}" onclick="toggleSubtask('${task._id}', ${i})">
+        <div class="st-chip ${st.completed ? 'done' : ''}" onclick="event.stopPropagation(); toggleSubtask('${task._id}', ${i})">
           <div class="st-check"></div>
           <span class="st-label">${escapeHtml(st.title)}</span>
         </div>
       `).join('');
 
-      cardHTML += `<div class="subtasks-container">${subtaskChips}</div>`;
+      cardHTML += `<div class="subtasks-container" style="display: flex !important; flex-wrap: wrap !important; gap: 8px !important; margin-top: 12px !important; visibility: visible !important; opacity: 1 !important;">${subtaskChips}</div>`;
     }
 
     // Add footer with metadata and actions
     cardHTML += `
-      <div class="task-footer">
+      <div class="task-footer" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
         <div class="task-meta">
           <div class="meta-item">
-            <span class="material-icons">flag</span>
-            ${task.priority || 'medium'}
+            <span class="material-icons" style="font-size: 16px;">flag</span>
+            ${(task.priority || 'medium').toUpperCase()}
           </div>
           <div class="meta-item">
-            <span class="material-icons">event</span>
+            <span class="material-icons" style="font-size: 16px;">event</span>
             ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No Date'}
           </div>
           ${totalSub > 0 ? `
           <div class="meta-item">
-            <span class="material-icons">checklist</span>
+            <span class="material-icons" style="font-size: 16px;">checklist</span>
             ${doneSub}/${totalSub}
           </div>` : ''}
         </div>
-        <button class="icon-action" onclick="populateFormForEditWrapper('${task._id}')" title="Edit">
+        <button class="icon-action" onclick="event.stopPropagation(); populateFormForEditWrapper('${task._id}')" title="Edit">
           <span class="material-icons">edit</span>
         </button>
       </div>
