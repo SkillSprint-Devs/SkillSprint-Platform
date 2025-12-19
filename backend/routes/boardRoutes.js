@@ -4,6 +4,8 @@ import path from "path";
 import fs from "fs";
 import multer from "multer";
 import Board from "../models/board.js";
+import Library from "../models/library.js";
+import User from "../models/user.js";
 import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 
@@ -160,12 +162,11 @@ router.post(
       color = "#fff59d",
     } = req.body;
 
-    if (!text || !String(text).trim()) {
-      return res.status(400).json({ success: false, message: "Sticky text required" });
-    }
+    // Text is no longer strictly required for placeholders
+    const stickyText = text ? String(text) : "";
 
     const sticky = {
-      text: String(text),
+      text: stickyText,
       x: Number(x),
       y: Number(y),
       width: Number(width),
@@ -288,15 +289,15 @@ router.post(
     if (!hasPermission(board, req.user.id, ["owner", "editor", "commenter"]))
       return res.status(403).json({ success: false, message: "Permission denied" });
 
-    if (!text || !String(text).trim())
-      return res.status(400).json({ success: false, message: "Comment text required" });
+    // Comment text can be empty momentarily or just a placeholder
+    const commentText = text ? String(text) : "";
 
     // If stickyId provided, ensure it exists
     if (stickyId && !board.stickies.id(stickyId))
       return res.status(400).json({ success: false, message: "Invalid stickyId" });
 
     const comment = {
-      text: String(text),
+      text: commentText,
       authorId: req.user.id,
       stickyId: stickyId || null,
       createdAt: Date.now(),
@@ -662,6 +663,26 @@ router.post(
     if (duration !== undefined) recording.duration = Number(duration);
 
     await board.save();
+
+    // Automatically add to Library
+    try {
+      const user = await User.findById(req.user.id);
+      const libraryEntry = new Library({
+        user_id: req.user.id,
+        title: `Board Recording - ${board.name}`,
+        description: `Automated recording from board "${board.name}"`,
+        type: "Recording",
+        file_url: recording.fileUrl,
+        file_size: req.file ? req.file.size : 0,
+        file_ext: req.file ? path.extname(req.file.originalname).toLowerCase() : ".webm",
+        visibility: "Private",
+        owner_name: user ? user.name : "Unknown",
+      });
+      await libraryEntry.save();
+      console.log(`Recording auto-saved to Library for user ${req.user.id}`);
+    } catch (err) {
+      console.error("Error auto-saving recording to library:", err);
+    }
 
     const io = req.app.get("io");
     emitBoard(io, req.params.id, "board:recording:stopped", { recording });

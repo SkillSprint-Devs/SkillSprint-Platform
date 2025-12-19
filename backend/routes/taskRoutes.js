@@ -167,19 +167,23 @@ router.put("/:id", verifyToken, async (req, res) => {
 });
 
 
-// ========================================================
 // DELETE TASK (ONLY USER'S OWN TASK)
 // ========================================================
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
-    //  user scoping for delete
-    const task = await Task.findOneAndDelete({
+    console.log(`[DELETE] Task ID: ${req.params.id} for User: ${req.user.id}`);
+    const task = await Task.findOne({
       _id: req.params.id,
-      user: req.user.id   // <--- IMPORTANT
+      user: req.user.id
     });
 
-    if (!task) return res.status(404).json({ message: "Task not found" });
+    if (!task) {
+      console.warn(`Task ${req.params.id} not found or unauthorized for delete`);
+      return res.status(404).json({ message: "Task not found" });
+    }
 
+    await task.deleteOne();
+    console.log(`Task ${req.params.id} deleted successfully`);
     res.json({ message: "Task deleted successfully" });
   } catch (err) {
     console.error("Delete task error:", err);

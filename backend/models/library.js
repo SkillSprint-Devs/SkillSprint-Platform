@@ -10,18 +10,39 @@ const librarySchema = new mongoose.Schema({
     type: String,
     required: true, // resource or course name
   },
+  description: {
+    type: String,
+    default: "",
+  },
   type: {
     type: String,
-    required: true, // e.g. "course", "certificate"
-    enum: ["course", "certificate", "file", "other"], // optional for validation
+    required: true,
+    enum: ["Note", "Recording", "Document", "Other"],
   },
   file_url: {
     type: String,
     default: "", // link to file or certificate
   },
-  date_earned: {
+  file_size: {
+    type: Number, // in bytes
+    default: 0,
+  },
+  file_ext: {
+    type: String, // e.g., ".pdf", ".mp4"
+    default: "",
+  },
+  visibility: {
+    type: String,
+    enum: ["Public", "Private"],
+    default: "Private",
+  },
+  owner_name: {
+    type: String,
+    default: "Unknown",
+  },
+  date_added: {
     type: Date,
-    default: Date.now, // completion or upload date
+    default: Date.now,
   },
 });
 

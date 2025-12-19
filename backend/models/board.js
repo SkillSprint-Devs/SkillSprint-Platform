@@ -7,7 +7,7 @@ const { Schema } = mongoose;
 
 // 🗒️ Sticky Notes
 const StickySchema = new Schema({
-  text: { type: String, required: true },
+  text: { type: String, default: "" },
   x: { type: Number, default: 0 },
   y: { type: Number, default: 0 },
   width: { type: Number, default: 200 },
@@ -20,7 +20,7 @@ const StickySchema = new Schema({
 
 // 💬 Comments
 const CommentSchema = new Schema({
-  text: { type: String, required: true },
+  text: { type: String, default: "" },
   authorId: { type: Schema.Types.ObjectId, ref: "User" },
   stickyId: { type: Schema.Types.ObjectId, required: false },
   createdAt: { type: Date, default: Date.now },
