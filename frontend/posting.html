@@ -1,28 +1,20 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SkillSprint — Feed</title>
 
   <!-- Fonts & Core Styles -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/css/variables.css" />
   <link rel="stylesheet" href="./assets/css/posting.css" />
 
 
   <!-- Icon Libraries -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  />
-  <link
-    href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
-    rel="stylesheet"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 </head>
 
 
@@ -39,7 +31,7 @@
     <div class="nav-center-icons">
       <a href="dashboard.html" title="Dashboard"><i class="fa-solid fa-table-columns"></i></a>
       <a href="chat.html" title="Chat"><i class="fa-solid fa-comments"></i></a>
-      <a href="notifications.html" title="Notifications"><i class="fa-solid fa-bell"></i></a>
+      <a href="history.html" title="Notifications"><i class="fa-solid fa-bell"></i></a>
     </div>
 
     <div class="profile">
@@ -72,22 +64,22 @@
         </div>
 
         <nav class="menu-links">
-          <a href="myposts.html">My Posts</a>
+          <a href="#">My Posts</a>
           <a href="achievements.html">Achievements</a>
-          <a href="mentorship.html">Mentorship</a>
-          <a href="settings.html">Settings</a>
+          <a href="#">Mentorship</a>
+          <a href="#">Settings</a>
         </nav>
       </div>
     </aside>
 
     <!-- CONNECTIONS PANEL (slide-in) -->
-<div id="connectionsPanel">
-  <div id="connectionsPanelTitle">
-    <span id="connectionsPanelText">Followers</span>
-    <button id="closeConnectionsPanel" aria-label="Close">&times;</button>
-  </div>
-  <div id="connectionsPanelBody"></div>
-</div>
+    <div id="connectionsPanel">
+      <div id="connectionsPanelTitle">
+        <span id="connectionsPanelText">Followers</span>
+        <button id="closeConnectionsPanel" aria-label="Close">&times;</button>
+      </div>
+      <div id="connectionsPanelBody"></div>
+    </div>
 
 
     <!-- CENTER FEED -->
@@ -117,7 +109,7 @@
       </div>
 
       <!-- SORT FILTER BUTTON -->
-      <div class="post-sort"> 
+      <div class="post-sort">
         <button id="sortPostsBtn" class="sort-btn">All Users</button>
         <div class="sort-menu hidden" id="sortMenu">
           <button class="sort-option" data-sort="following">Following</button>
@@ -168,8 +160,5 @@
   <script type="module" src="js/posting-sio.js"></script>
   <script type="module" src="js/posting.js"></script>
 </body>
+
 </html>
-
-
-
-
