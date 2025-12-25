@@ -8,20 +8,7 @@ import User from "../models/user.js";
 
 const router = express.Router();
 
-// Ensure uploads/library folder exists
-const uploadDir = path.resolve("uploads/library");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Multer config for library assets
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, "lib-" + uniqueSuffix + path.extname(file.originalname));
-    },
-});
+import { storage } from "../config/cloudinary.js";
 
 const upload = multer({
     storage,

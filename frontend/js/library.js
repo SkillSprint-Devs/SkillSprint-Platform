@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const API_BASE = "http://localhost:5000/api";
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+        ? 'http://localhost:5000/api'
+        : '/api';
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -62,14 +64,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch(`${API_BASE}/library`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            
+
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
-            
+
             const result = await res.json();
             console.log("Fetch result:", result);
-            
+
             if (result.success) {
                 libraryItems = result.data;
                 console.log(`Loaded ${libraryItems.length} items`);
@@ -98,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log(`Rendering ${filtered.length} filtered items`);
         libraryGrid.innerHTML = "";
-        
+
         if (filtered.length === 0) {
             emptyState.style.display = "block";
             libraryGrid.style.display = "none";
@@ -159,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if ([".xls", ".xlsx"].includes(extension)) return "fa-solid fa-file-excel";
             if ([".zip", ".rar", ".7z"].includes(extension)) return "fa-solid fa-file-zipper";
         }
-        
+
         return "fa-solid fa-file-lines";
     }
 
@@ -175,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("=== STARTING DELETE PROCESS ===");
         console.log("ID to delete:", id);
         console.log("ID type:", typeof id);
-        
+
         if (!id) {
             console.error("ERROR: No ID provided!");
             showToast("Error: Invalid item ID", "error");
@@ -184,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const confirmed = confirm("⚠️ Delete this item?\n\nThis action cannot be undone.");
         console.log("User confirmed:", confirmed);
-        
+
         if (!confirmed) {
             console.log("User cancelled deletion");
             return;
@@ -205,10 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             console.log("Sending DELETE request...");
-            
+
             const res = await fetch(deleteUrl, {
                 method: "DELETE",
-                headers: { 
+                headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 }
@@ -223,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Success: status 200-299 or 204 No Content
             if (res.ok || res.status === 204) {
                 console.log("✓ DELETE SUCCESSFUL");
-                
+
                 // Try to get response body (may not exist for 204)
                 let responseData = null;
                 const contentType = res.headers.get("content-type");
@@ -235,13 +237,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         console.log("No JSON body (likely 204 No Content)");
                     }
                 }
-                
+
                 // Update local state
                 const beforeCount = libraryItems.length;
                 libraryItems = libraryItems.filter(item => item._id !== id);
                 const afterCount = libraryItems.length;
                 console.log(`Items removed: ${beforeCount - afterCount}`);
-                
+
                 // Animate removal
                 if (card) {
                     card.style.transition = "all 0.3s ease";
@@ -251,20 +253,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     renderLibrary();
                 }
-                
+
                 showToast("✓ Item deleted successfully", "success");
-                
+
                 // Refresh after delay
                 setTimeout(() => {
                     console.log("Refreshing library data...");
                     fetchLibraryItems();
                 }, 800);
-                
+
             } else {
                 // Error response
                 console.error("❌ DELETE FAILED");
                 let errorMessage = `Server error: ${res.status}`;
-                
+
                 try {
                     const errorData = await res.json();
                     console.error("Error response:", errorData);
@@ -274,9 +276,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.error("Error text:", textError);
                     errorMessage = textError || errorMessage;
                 }
-                
+
                 showToast(errorMessage, "error");
-                
+
                 // Restore card
                 if (card) {
                     card.style.opacity = "1";
@@ -288,9 +290,9 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Name:", err.name);
             console.error("Message:", err.message);
             console.error("Stack:", err.stack);
-            
+
             showToast("Network error: Could not delete item", "error");
-            
+
             // Restore card
             if (card) {
                 card.style.opacity = "1";
@@ -386,7 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("description", document.getElementById("uploadDesc").value);
         formData.append("type", document.getElementById("uploadType").value);
         formData.append("visibility", document.getElementById("uploadVisibility").value);
-        
+
         if (fileInput.files[0]) {
             formData.append("file", fileInput.files[0]);
         }
@@ -397,9 +399,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,
             });
-            
+
             const result = await res.json();
-            
+
             if (result.success || res.ok) {
                 showToast("Asset uploaded successfully", "success");
                 uploadModal.classList.remove("active");

@@ -9,20 +9,9 @@ import User from "../models/user.js";
 import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 
-// Ensure uploads/recordings folder exists
-const uploadDir = path.resolve("uploads/recordings");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+import { storage } from "../config/cloudinary.js";
 
 // Multer config for recordings
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, "rec-" + uniqueSuffix + path.extname(file.originalname || ".webm"));
-  },
-});
 const upload = multer({ storage });
 
 const router = express.Router();

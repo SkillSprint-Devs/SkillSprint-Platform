@@ -10,8 +10,7 @@
 
 
   // Determine Socket URL dynamically
-  const isDev = window.location.port === '5500';
-  const SOCKET_IO_BACKEND_URL = isDev ? 'http://localhost:5000' : '';
+  const SOCKET_IO_BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000' ? 'http://localhost:5000' : '';
 
 
   const socket = io(SOCKET_IO_BACKEND_URL, { transports: ["websocket"], reconnection: true });

@@ -32,6 +32,8 @@ import quizRoutes from "./routes/quizRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import errorRoutes from "./routes/errorRoutes.js";
+import errorLogger from "./middleware/errorLogger.js";
 import { initTaskScheduler } from "./utils/taskScheduler.js";
 
 const app = express();
@@ -285,6 +287,7 @@ app.use("/api/quiz", quizRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/errors", errorRoutes);
 
 // Favicon handler
 app.get("/favicon.ico", (req, res) => res.status(204).end());
@@ -296,6 +299,9 @@ app.use("/api", (req, res) => {
 
 app.use("/uploads", express.static("uploads"));
 app.use(express.static(path.join(__dirname, "../frontend")));
+
+// Error logging middleware (before error handler)
+app.use(errorLogger);
 
 // central error handler for express routes 
 app.use((err, req, res, next) => {

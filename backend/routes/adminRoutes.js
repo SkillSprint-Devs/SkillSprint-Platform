@@ -93,4 +93,34 @@ router.get("/users-preview", async (req, res) => {
     }
 });
 
+// POST /api/admin/make-admin
+// Temporary endpoint to grant admin privileges
+router.post("/make-admin", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email required" });
+        }
+
+        const user = await User.findOneAndUpdate(
+            { email: email },
+            { $set: { role: "admin" } },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.json({
+            success: true,
+            message: `User ${user.email} is now an admin`,
+            user: { name: user.name, email: user.email, role: user.role }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 export default router;

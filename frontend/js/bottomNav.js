@@ -1,5 +1,7 @@
 (function () {
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+    ? 'http://localhost:5000/api'
+    : '/api';
   const navHTML = `
     <style>
       .bottom-nav {
@@ -212,7 +214,7 @@
       submitBoardBtn.textContent = "Creating...";
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://127.0.0.1:5000/api/board/create", {
+        const res = await fetch(`${API_BASE}/board/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ name: title }),
@@ -238,7 +240,7 @@
       submitPairBtn.textContent = "Creating...";
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://127.0.0.1:5000/api/pair-programming/create", {
+        const res = await fetch(`${API_BASE}/pair-programming/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ name: title }),
@@ -276,7 +278,7 @@
 
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://127.0.0.1:5000/api/live-sessions/create", {
+        const res = await fetch(`${API_BASE}/live-sessions/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ sessionName: name, purpose, durationMinutes: duration, scheduledDateTime, invitedUserIds }),
