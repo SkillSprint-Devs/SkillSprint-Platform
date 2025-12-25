@@ -65,7 +65,9 @@ export function initSocket(token, boardIdParam) {
 
   console.log("Initializing socket with boardId:", currentBoardId);
 
-  const backendUrl = "http://127.0.0.1:5000";
+  const backendUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+    ? 'http://localhost:5000'
+    : ''; // Empty string for relative path in production
   socket = io(`${backendUrl}/pair-programming`, {
     transports: ["websocket"],
     auth: { token }
