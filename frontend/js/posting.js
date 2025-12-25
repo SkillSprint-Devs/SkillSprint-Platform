@@ -1,6 +1,8 @@
 // frontend/js/posting.js
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+  ? 'http://localhost:5000/api'
+  : '/api';
 const POSTING_BASE = `${API_BASE}/posting`;
 const AUTH_ME = `${API_BASE}/auth/me`;
 const POSTS_API = `${POSTING_BASE}/posts`;

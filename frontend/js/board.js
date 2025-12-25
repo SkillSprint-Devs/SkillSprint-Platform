@@ -10,8 +10,7 @@
   if (token && !boardId) {
     (async () => {
       try {
-        const isDev = window.location.port === '5500';
-        const API = isDev ? 'http://localhost:5000/api/board' : '/api/board';
+        const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000' ? 'http://localhost:5000/api/board' : '/api/board';
         const t = localStorage.getItem('token');
         if (!t) {
           // If no user token, redirect to login? Or assume public access might allow simplified view? 
@@ -69,9 +68,8 @@
 (function () {
   'use strict';
 
-  // Determine API_BASE dynamically to support both Live Server (5500) and Production (Same Origin)
-  const isDev = window.location.port === '5500';
-  const API_BASE = isDev ? 'http://localhost:5000/api/board' : '/api/board';
+  // Determine API_BASE dynamically
+  const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000' ? 'http://localhost:5000/api/board' : '/api/board';
 
   // Fetch and display board info
   async function loadBoardInfo() {

@@ -205,16 +205,41 @@
 
         async function loadSessionHistory() {
             const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
             try {
                 const res = await fetch(`${API_BASE}/live-sessions/my-schedule?all=true`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        localStorage.clear();
+                        window.location.href = "login.html";
+                        return;
+                    }
+                    throw new Error(`HTTP ${res.status}`);
+                }
+
                 const sessions = await res.json();
+
+                // Ensure sessions is an array
+                if (!Array.isArray(sessions)) {
+                    console.error("Invalid response:", sessions);
+                    window.allHistory = [];
+                    renderHistory([]);
+                    return;
+                }
+
                 window.allHistory = sessions;
                 renderHistory(sessions);
             } catch (err) {
                 console.error(err);
                 if (typeof showToast === 'function') showToast("Failed to load history", "error");
+                renderHistory([]);
             }
         }
 

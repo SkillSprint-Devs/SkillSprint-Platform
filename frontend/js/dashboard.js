@@ -1,5 +1,7 @@
 // === DASHBOARD.JS ===
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+  ? 'http://localhost:5000/api'
+  : '/api';
 
 // SIDEBAR TOGGLE
 const sidebar = document.getElementById("sidebar");
@@ -381,7 +383,10 @@ function filterDashboard(term) {
 
 // Socket
 function setupSocket(token) {
-  const socket = io("http://127.0.0.1:5000", {
+  const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+    ? 'http://localhost:5000'
+    : '';
+  const socket = io(SOCKET_URL, {
     auth: { token }
   });
 

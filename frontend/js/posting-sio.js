@@ -8,7 +8,11 @@ const currentUser = JSON.parse(localStorage.getItem('user'));
 if (!token || !currentUser?._id) {
   console.error("Socket connection skipped: missing token or user");
 } else {
-  const socket = io("http://localhost:5000", {
+  const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+    ? 'http://localhost:5000'
+    : '';
+
+  const socket = io(SOCKET_URL, {
     auth: { token },
     transports: ['websocket', 'polling']
   });

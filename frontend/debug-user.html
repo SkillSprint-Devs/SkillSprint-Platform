@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug User Info</title>
+</head>
+
+<body>
+    <h1>Debug User Information</h1>
+    <div id="output" style="font-family: monospace; white-space: pre-wrap;"></div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const token = localStorage.getItem("token");
+
+        const output = document.getElementById("output");
+        output.textContent = `
+User Object from localStorage:
+${JSON.stringify(user, null, 2)}
+
+User Email: ${user.email}
+User Role: ${user.role}
+User ID: ${user.id || user._id}
+
+Token exists: ${!!token}
+
+Admin Emails List:
+- admin@skillsprint.com
+- fatimahshaikh1226@gmail.com
+
+Email Match: ${["admin@skillsprint.com", "fatimahshaikh1226@gmail.com"].includes(user.email)}
+        `;
+    </script>
+</body>
+
+</html>

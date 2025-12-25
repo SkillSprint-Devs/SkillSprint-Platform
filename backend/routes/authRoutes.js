@@ -11,15 +11,7 @@ import WalletService from "../utils/walletService.js";
 
 dotenv.config();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${Date.now()}${ext}`);
-  },
-});
+import { storage } from "../config/cloudinary.js";
 
 function fileFilter(req, file, cb) {
   if (file.mimetype.startsWith("image/")) cb(null, true);
@@ -332,6 +324,27 @@ router.get("/search-users", verifyToken, async (req, res) => {
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: "Search failed" });
+  }
+});
+
+// GET /api/auth/profile
+// Get current user profile from token
+router.get("/profile", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password_hash");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      profile_image: user.profile_image
+    });
+  } catch (err) {
+    console.error("Profile fetch error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
