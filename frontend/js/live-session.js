@@ -1,5 +1,9 @@
 const token = localStorage.getItem("token");
-const socket = io("http://127.0.0.1:5000", {
+const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+    ? 'http://localhost:5000'
+    : ''; // Empty string for relative path in production
+
+const socket = io(SOCKET_URL, {
     auth: { token }
 });
 let localStream;

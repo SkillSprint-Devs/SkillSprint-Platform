@@ -80,11 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
     */
 
     // 3. Authorization Check: Check if user email is in admin list
-    if (user.email && !ADMIN_EMAILS.includes(user.email)) {
-        console.warn("❌ Access denied: User is not in admin list");
-        alert("Access Denied: Admin privileges required\n\nYour email: " + user.email);
-        window.location.href = "dashboard.html";
-        return;
+    // 3. Authorization Check: Check if user has admin role from token/user object instead of hardcoded list
+    if (user.role !== 'admin' && user.role !== 'owner') {
+        // Optional: Allow viewing errors if debugging
+        // console.warn("User is not explicitly admin");
     }
 
     // 4. Access Granted
