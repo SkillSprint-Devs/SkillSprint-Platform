@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -155,6 +156,11 @@
   <script src="js/toast.js"></script>
 
   <script>
+    // Dynamic API Base
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+      ? 'http://localhost:5000/api'
+      : '/api';
+
     const sendBtn = document.getElementById("sendOtpBtn");
     const verifyBtn = document.getElementById("verifyBtn");
     const otpSection = document.getElementById("otpSection");
@@ -170,7 +176,7 @@
         return showToast("Please fill all fields first!", "error");
 
       try {
-        const res = await fetch("http://127.0.0.1:5000/api/auth/send-otp", {
+        const res = await fetch(`${API_BASE}/auth/send-otp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
@@ -205,7 +211,7 @@
 
       try {
         const verifyRes = await fetch(
-          "http://127.0.0.1:5000/api/auth/verify-signup-otp",
+          `${API_BASE}/auth/verify-signup-otp`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -234,6 +240,5 @@
     });
   </script>
 </body>
+
 </html>
-
-

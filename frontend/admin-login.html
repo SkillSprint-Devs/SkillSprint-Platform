@@ -159,8 +159,13 @@
   <!-- Toast script -->
   <script src="js/toast.js"></script>
 
- <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  <script>
+   document.addEventListener("DOMContentLoaded", () => {
+    // Dynamic API Base
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+      ? 'http://localhost:5000/api'
+      : '/api';
+
     const adminLoginForm = document.getElementById("adminLoginForm");
 
     // HARD-CODED ADMIN (demo only)
@@ -198,7 +203,7 @@
 
       /* ===== 2️⃣ BACKEND LOGIN (NORMAL USERS) ===== */
       try {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
+        const res = await fetch(`${API_BASE}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -231,7 +236,7 @@
       }
     });
   });
-</script>
+ </script>
 
 </body>
 </html>

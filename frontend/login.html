@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,7 +39,7 @@
       justify-content: center;
       width: 100%;
     }
- 
+
     .auth-card {
       background: var(--text-light);
       padding: 2.5rem 2rem;
@@ -142,6 +143,11 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // Dynamic API Base
+      const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+        ? 'http://localhost:5000/api'
+        : '/api';
+
       const loginBtn = document.getElementById("loginBtn");
 
       if (!loginBtn) {
@@ -159,7 +165,7 @@
           return showToast("Please fill both fields!", "error");
 
         try {
-          const res = await fetch("http://localhost:5000/api/auth/login", {
+          const res = await fetch(`${API_BASE}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
@@ -188,5 +194,5 @@
     });
   </script>
 </body>
-</html>
 
+</html>
