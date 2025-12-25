@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,291 +8,291 @@
   <link rel="stylesheet" href="assets/css/variables.css" />
 
   <style>
-/* ===================== BASE ===================== */
-* {
-  box-sizing: border-box;
-}
+    /* ===================== BASE ===================== */
+    * {
+      box-sizing: border-box;
+    }
 
-body {
-  margin: 0;
-  font-family: "Poppins", sans-serif;
-  background: var(--base-bg, #F9F8D9);
-  color: var(--text-dark, #1A1A1A);
-  padding-bottom: 80px;
-  min-height: 100vh;
-}
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: var(--base-bg, #F9F8D9);
+      color: var(--text-dark, #1A1A1A);
+      padding-bottom: 80px;
+      min-height: 100vh;
+    }
 
-/* ===================== CONTAINER ===================== */
-.page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
+    /* ===================== CONTAINER ===================== */
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-/* ===================== TOP BAR ===================== */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  
-  background: var(--sidebar-bg, #1A1A1A);
-  padding: 14px 20px;
-  border-radius: 20px;
-  
-  position: sticky;
-  top: 16px;
-  z-index: 50;
-  
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  margin: 16px 0 32px;
-  
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
+    /* ===================== TOP BAR ===================== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
 
-.back-btn {
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 10px;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--accent, #DCEF62);
-  color: var(--text-dark, #1A1A1A);
-  border: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  transition: all 0.2s ease;
-  font-weight: 600;
-}
+      background: var(--sidebar-bg, #1A1A1A);
+      padding: 14px 20px;
+      border-radius: 20px;
 
-.back-btn:hover {
-  background: var(--highlight, #8C52FF);
-  color: var(--text-light, #fff);
-  transform: translateX(-3px);
-}
+      position: sticky;
+      top: 16px;
+      z-index: 50;
 
-.platform-name {
-  flex: 1;
-  text-align: center;
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--text-light, #fff);
-  letter-spacing: 0.3px;
-}
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin: 16px 0 32px;
 
-.search-box {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 10px 16px;
-  width: 220px;
-  border: 2px solid transparent;
-  outline: none;
-  
-  font-size: 0.9rem;
-  font-family: inherit;
-  color: var(--text-light, #fff);
-  
-  transition: all 0.2s ease;
-}
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-.search-box:focus {
-  border-color: var(--accent, #DCEF62);
-  background: rgba(255, 255, 255, 0.15);
-}
+    .back-btn {
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent, #DCEF62);
+      color: var(--text-dark, #1A1A1A);
+      border: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
-.search-box::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-/* ===================== SECTION HEADINGS ===================== */
-.section-heading {
-  margin: 40px 0 20px;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--text-dark, #1A1A1A);
-  letter-spacing: 0.3px;
-  text-align: center;
-}
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
 
-.section-heading:first-of-type {
-  margin-top: 0;
-}
+    .back-btn:hover {
+      background: var(--highlight, #8C52FF);
+      color: var(--text-light, #fff);
+      transform: translateX(-3px);
+    }
 
-/* ===================== CARD GRID ===================== */
-.collab-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-  padding: 0;
-}
+    .platform-name {
+      flex: 1;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-light, #fff);
+      letter-spacing: 0.3px;
+    }
 
-/* ===================== PASTEL COLORS ===================== */
-.collab-card {
-  background: #ffffff;
-}
+    .search-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px 16px;
+      width: 220px;
+      border: 2px solid transparent;
+      outline: none;
 
-.collab-card:nth-child(4n+1) {
-  background: linear-gradient(135deg, #f7e7ff 0%, #f0d9ff 100%);
-}
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-light, #fff);
 
-.collab-card:nth-child(4n+2) {
-  background: linear-gradient(135deg, #e8f7ff 0%, #d9f0ff 100%);
-}
+      transition: all 0.2s ease;
+    }
 
-.collab-card:nth-child(4n+3) {
-  background: linear-gradient(135deg, #fff4e5 0%, #ffe8cc 100%);
-}
+    .search-box:focus {
+      border-color: var(--accent, #DCEF62);
+      background: rgba(255, 255, 255, 0.15);
+    }
 
-.collab-card:nth-child(4n+4) {
-  background: linear-gradient(135deg, #e8ffe8 0%, #d4ffd4 100%);
-}
+    .search-box::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
 
-/* ===================== CARDS ===================== */
-.collab-card {
-  color: var(--text-dark, #1A1A1A);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid rgba(0,0,0,0.06);
-  position: relative;
-  overflow: hidden;
-}
+    /* ===================== SECTION HEADINGS ===================== */
+    .section-heading {
+      margin: 40px 0 20px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-dark, #1A1A1A);
+      letter-spacing: 0.3px;
+      text-align: center;
+    }
 
-.collab-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--accent, #DCEF62);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
+    .section-heading:first-of-type {
+      margin-top: 0;
+    }
 
-.collab-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  border-color: var(--accent, #DCEF62);
-}
+    /* ===================== CARD GRID ===================== */
+    .collab-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      padding: 0;
+    }
 
-.collab-card:hover::before {
-  transform: scaleX(1);
-}
+    /* ===================== PASTEL COLORS ===================== */
+    .collab-card {
+      background: #ffffff;
+    }
 
-.card-title {
-  font-weight: 600;
-  font-size: 1.15rem;
-  margin-bottom: 16px;
-  letter-spacing: 0.3px;
-  color: var(--text-dark, #1A1A1A);
-}
+    .collab-card:nth-child(4n+1) {
+      background: linear-gradient(135deg, #f7e7ff 0%, #f0d9ff 100%);
+    }
 
-.card-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+    .collab-card:nth-child(4n+2) {
+      background: linear-gradient(135deg, #e8f7ff 0%, #d9f0ff 100%);
+    }
 
-.card-meta p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #555;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+    .collab-card:nth-child(4n+3) {
+      background: linear-gradient(135deg, #fff4e5 0%, #ffe8cc 100%);
+    }
 
-.card-meta strong {
-  color: #333;
-  font-weight: 500;
-  min-width: 90px;
-}
+    .collab-card:nth-child(4n+4) {
+      background: linear-gradient(135deg, #e8ffe8 0%, #d4ffd4 100%);
+    }
 
-.role-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+    /* ===================== CARDS ===================== */
+    .collab-card {
+      color: var(--text-dark, #1A1A1A);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(0, 0, 0, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
 
-.role-owner {
-  background: var(--accent, #DCEF62);
-  color: var(--text-dark, #1A1A1A);
-  font-weight: 700;
-}
+    .collab-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--accent, #DCEF62);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
 
-.role-member {
-  background: var(--muted, #bfbfbf);
-  color: var(--text-dark, #1A1A1A);
-}
+    .collab-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border-color: var(--accent, #DCEF62);
+    }
 
-/* Empty message */
-.empty-msg {
-  text-align: center;
-  padding: 40px 20px;
-  color: #999;
-  font-size: 0.95rem;
-  grid-column: 1 / -1;
-}
+    .collab-card:hover::before {
+      transform: scaleX(1);
+    }
 
-/* ===================== RESPONSIVE ===================== */
-@media (max-width: 768px) {
-  .page-container {
-    padding: 0 16px;
-  }
-  
-  .topbar {
-    top: 12px;
-    margin: 12px 16px 24px;
-    padding: 12px 16px;
-    border-radius: 16px;
-  }
-  
-  .platform-name {
-    font-size: 1.1rem;
-  }
-  
-  .search-box {
-    width: 160px;
-    font-size: 0.85rem;
-    padding: 8px 12px;
-  }
-  
-  .collab-container {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  
-  .section-heading {
-    font-size: 1.2rem;
-    margin: 32px 0 16px;
-  }
-}
+    .card-title {
+      font-weight: 600;
+      font-size: 1.15rem;
+      margin-bottom: 16px;
+      letter-spacing: 0.3px;
+      color: var(--text-dark, #1A1A1A);
+    }
 
-@media (max-width: 480px) {
-  .back-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
-  }
-  
-  .search-box {
-    display: none;
-  }
-}
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-meta p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-meta strong {
+      color: #333;
+      font-weight: 500;
+      min-width: 90px;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .role-owner {
+      background: var(--accent, #DCEF62);
+      color: var(--text-dark, #1A1A1A);
+      font-weight: 700;
+    }
+
+    .role-member {
+      background: var(--muted, #bfbfbf);
+      color: var(--text-dark, #1A1A1A);
+    }
+
+    /* Empty message */
+    .empty-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+      font-size: 0.95rem;
+      grid-column: 1 / -1;
+    }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 768px) {
+      .page-container {
+        padding: 0 16px;
+      }
+
+      .topbar {
+        top: 12px;
+        margin: 12px 16px 24px;
+        padding: 12px 16px;
+        border-radius: 16px;
+      }
+
+      .platform-name {
+        font-size: 1.1rem;
+      }
+
+      .search-box {
+        width: 160px;
+        font-size: 0.85rem;
+        padding: 8px 12px;
+      }
+
+      .collab-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .section-heading {
+        font-size: 1.2rem;
+        margin: 32px 0 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .back-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+      }
+
+      .search-box {
+        display: none;
+      }
+    }
   </style>
 </head>
 
@@ -318,6 +319,11 @@ body {
     let pairProjects = [];
 
     document.addEventListener("DOMContentLoaded", async () => {
+      // Dynamic API Base
+      window.API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+        ? 'http://localhost:5000/api'
+        : '/api';
+
       const token = localStorage.getItem("token");
       if (!token) return alert("Please login first!");
 
@@ -333,7 +339,7 @@ body {
       container.innerHTML = "<div class='empty-msg'>Loading whiteboards...</div>";
 
       try {
-        const res = await fetch("http://127.0.0.1:5000/api/board/all", {
+        const res = await fetch(`${window.API_BASE}/board/all`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -370,7 +376,7 @@ body {
       container.innerHTML = "<div class='empty-msg'>Loading pair-programming projects...</div>";
 
       try {
-        const res = await fetch("http://127.0.0.1:5000/api/pair-programming/all", {
+        const res = await fetch(`${window.API_BASE}/pair-programming/all`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -444,7 +450,7 @@ body {
         filtered.forEach(item => {
           const user = JSON.parse(localStorage.getItem("user"));
           const isOwner = item.owner?._id === user._id;
-          
+
           container.appendChild(
             createCard(item, () => {
               window.location.href = `${page}?id=${item._id}`;
@@ -455,4 +461,5 @@ body {
     }
   </script>
 </body>
+
 </html>
