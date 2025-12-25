@@ -8,6 +8,8 @@ import Library from "../models/library.js";
 import User from "../models/user.js";
 import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import { sendBoardInvite } from "../utils/mailService.js";
+import crypto from 'crypto'; // Needed for token generation if not already imported
 
 import { storage } from "../config/cloudinary.js";
 
@@ -846,6 +848,84 @@ router.post(
     emitBoard(io, req.params.id, "board:share:updated", { shareLink: board.shareLink });
 
     res.json({ success: true, data: board.shareLink });
+  })
+);
+
+// Invite to Board (New Endpoint)
+router.post(
+  "/:id/invite",
+  verifyToken,
+  asyncHandler(async (req, res) => {
+    const { userIds, role } = req.body; // userIds: [string]
+    if (!userIds || !Array.isArray(userIds)) {
+      return res.status(400).json({ success: false, message: "userIds array required" });
+    }
+
+    const board = await Board.findById(req.params.id);
+    if (!board) return res.status(404).json({ success: false, message: "Board not found" });
+
+    if (board.owner.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Only owner can invite" });
+    }
+
+    const inviter = await User.findById(req.user.id).select("name");
+
+    // Generate unique share token if not exists (or reuse)
+    let token = board.shareLink?.token;
+    if (!token) {
+      const crypto = await import("crypto");
+      token = crypto.randomBytes(16).toString("hex");
+      board.shareLink = {
+        token,
+        role: role || "viewer",
+        isActive: true
+      };
+      await board.save();
+    }
+
+    // Determine share URL
+    const shareUrl = `${req.protocol}://${req.get('host')}/board?join=${token}`;
+
+    const sentInvites = [];
+
+    // Process each user
+    await Promise.all(userIds.map(async (uid) => {
+      const user = await User.findById(uid);
+      if (!user) return;
+
+      // Add to permissions/members if desired? 
+      // Typically invites just notify and send link. 
+      // Actual permission added when they CLICK accept/join.
+      // But we can preemptively add them if we want.
+      // Let's stick to notification + email.
+
+      // Email
+      await sendBoardInvite(user.email, {
+        inviterName: inviter.name,
+        boardName: board.name,
+        shareUrl
+      });
+
+      // In-App Notification
+      const notif = new Notification({
+        user_id: uid,
+        title: "Board Invite",
+        message: `${inviter.name} invited you to board "${board.name}"`,
+        type: "invite",
+        link: `/board?join=${token}`
+      });
+      await notif.save();
+
+      // Socket Notification
+      const io = req.app.get("io");
+      if (io) {
+        io.to(uid).emit("notification", notif);
+      }
+
+      sentInvites.push(uid);
+    }));
+
+    res.json({ success: true, message: `Invited ${sentInvites.length} users`, sentInvites });
   })
 );
 

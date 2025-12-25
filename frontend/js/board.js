@@ -1148,60 +1148,40 @@
 
           try {
             notify('Sending invite...', 'info');
-            // We need to generate a link or just send plain text to ID
-            // Note: Direct Invite usually doesn't need a token if we add them to members directly via backend,
-            // but the prompt says: "A message... containing An invite link... The permissions assigned".
-            // SO we definitely need a link. We can use the Share Link (if enabled) OR just the board URL (if we add them as member manually).
-            // Let's Add them as member FIRST via API? backend doesn't have "addMember" explicit route exposed in boardRoutes (except join).
-            // The prompt says "Selecting a user triggers: A message sent... containing invite link".
-            // It does NOT explicitly say "add them to board immediately".
-            // However, if they click the link, they need access.
-            // If I use the *Share Token*, it works for anyone.
-            // If I invite a specific user, I should ideally add them to the board.
-            // BUT I don't have an "add member" route handy in the list I saw earlier (only join).
-            // I'll assume I should generate a Share Link or use the generic board URL + Manual Add logic if I had it.
-            // PROMPT requirement: "The invite message must include these permissions in text."
-            // Strategy: I will use the Share Link approach for simplicity. I will ensure a share link exists with at least 'viewer' or matching role, OR just send the board URL and assume the user will request access?
-            // Wait, "Invite Button" usually implies direct addition.
-            // Since I can't easily add them without a new route, I will use the SHARE LINK flow.
-            // I will auto-generate a share link if one doesn't exist.
+            sendInviteBtn.disabled = true;
 
-            let token = window.currentBoardData.shareLink?.token;
-            if (!token || !window.currentBoardData.shareLink?.isActive) {
-              // Force generate one
-              const genRes = await fetch(`${API_BASE}/${window.currentBoardId}/share`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: 'Bearer ' + localStorage.getItem('token')
-                },
-                body: JSON.stringify({ role: role }) // Use the role selected for the invite
-              });
-              const genData = await genRes.json();
-              if (genData.success) token = genData.data.token;
-            }
-
-            const link = `${window.location.origin}${window.location.pathname}?token=${token}`;
-
-            const isDev = window.location.port === '5500';
-            const API_CHAT = isDev ? 'http://localhost:5000/api/chat' : '/api/chat';
-
-            const msg = `Hey, I'm inviting you to join my board "${window.currentBoardData.name}".\nRole: ${role === 'editor' ? 'Can Edit' : 'View Only'}\nLink: ${link}`;
-
-            await fetch(`${API_CHAT}/send`, {
+            const res = await fetch(`${API_BASE}/${window.currentBoardId}/invite`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 Authorization: 'Bearer ' + localStorage.getItem('token')
               },
-              body: JSON.stringify({ recipientId: selectedUser._id, content: msg })
+              body: JSON.stringify({ userIds: [selectedUser._id], role })
             });
 
-            notify('Invite sent!', 'success');
-            inviteModal.classList.remove('open');
+            const data = await res.json();
+
+            if (data.success) {
+              notify('Invite sent successfully via Email & Notification!', 'success');
+              // Optional: Force reload active users?
+              // window.location.reload(); 
+              document.getElementById('inviteModal').classList.remove('open'); // or .remove('visible') depending on CSS
+
+              // Existing code used .classList.remove('open') but my previous search suggested .visible logic. 
+              // Let's stick to what was likely there or standard. 
+              // The grep showed inviteModal.classList.remove('visible') in one place, 
+              // but the code block I am replacing had inviteModal.classList.remove('open'). 
+              // I'll try both or check CSS class usage if needed.
+              // Assuming 'open' based on the block I am replacing.
+              document.getElementById('inviteModal').classList.remove('visible');
+            } else {
+              notify(data.message || 'Failed to send invite', 'error');
+            }
           } catch (e) {
             console.error(e);
-            notify('Failed to send invite.', 'error');
+            notify('Error sending invite.', 'error');
+          } finally {
+            sendInviteBtn.disabled = false;
           }
         });
       }

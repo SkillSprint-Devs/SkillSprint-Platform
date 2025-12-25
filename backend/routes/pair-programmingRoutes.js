@@ -5,6 +5,7 @@ import PairProgramming from "../models/pair-programming.js";
 import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { exec } from "child_process";
+import { sendPairProgrammingInvite } from "../utils/mailService.js";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -297,8 +298,19 @@ router.post("/:id/invite", verifyToken, async (req, res) => {
     let permDesc = permMap[permission] || "View Only";
     if (permission === 'editor') permDesc = "Can Edit Files, Run Code";
 
-    // 1. Create Notifications using the global Notification model
+    // 1. Create Notifications & Send Emails
     const notificationPromises = userIds.map(async (userId) => {
+      // Fetch user details for email
+      const invitee = await User.findById(userId).select("email name");
+      if (invitee) {
+        // Send Email
+        await sendPairProgrammingInvite(invitee.email, {
+          inviterName: inviter.name,
+          projectName: board.name,
+          shareUrl
+        });
+      }
+
       const notification = new Notification({
         user_id: userId,
         title: "Pair Programming Invite",
