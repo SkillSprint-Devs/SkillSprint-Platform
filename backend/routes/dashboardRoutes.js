@@ -11,6 +11,7 @@ import ActivityLog from "../models/activityLog.js";
 import Library from "../models/library.js";
 
 import { verifyToken } from "../middleware/authMiddleware.js";
+import WalletService from "../utils/walletService.js";
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.get("/", verifyToken, async (req, res) => {
 
 
     const user = await User.findById(userId).select(
-      "name role credits_remaining credits_earned total_hours_spent profile_image email"
+      "name role profile_image email"
     );
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -40,19 +41,8 @@ router.get("/", verifyToken, async (req, res) => {
         .limit(3)) || [];
 
 
-    const walletEntries = (await Wallet.find({ user_id: userId })) || [];
-    const earned = walletEntries
-      .filter((t) => t.credit_type === "earned")
-      .reduce((sum, t) => sum + t.amount, 0);
-    const spent = walletEntries
-      .filter((t) => t.credit_type === "spent")
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const wallet = {
-      remaining_time: user.credits_remaining || 0,
-      earned,
-      spent,
-    };
+    // Wallet Info (Single Source of Truth)
+    const wallet = await WalletService.getWalletSummary(userId);
 
 
     const reminders =

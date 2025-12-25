@@ -1,74 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>livevideo | SkillSprint</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Live Session | SkillSprint</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Styles -->
   <link rel="stylesheet" href="assets/css/variables.css" />
-  <link rel="stylesheet" href="assets/css/dashboard.css" />
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous"
-  />
+  <link rel="stylesheet" href="assets/css/live-session.css" />
 </head>
 
 <body>
-  <div class="placeholder-page">
-    <div class="content">
-      <i class="fa-solid fa-video"></i>
-      <h1>Live Chat</h1>
-      <p>This section is under development.</p>
-      <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
-    </div>
-  </div>
-</body>
-</html>
+  <div class="live-container">
 
-<style>
-  body {
-    background-color: #F9F8D9;
-    font-family: "Poppins", sans-serif;
-    color: #1A1A1A;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  .placeholder-page .content {
-    text-align: center;
-  }
-  .placeholder-page i {
-    font-size: 3rem;
-    color: #DCEF7E;
-    margin-bottom: 1rem;
-  }
-  .placeholder-page h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .placeholder-page p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 1.5rem;
-  }
-  .back-btn {
-    display: inline-block;
-    background-color: #1A1A1A;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: 0.3s;
-  }
-  .back-btn:hover {
-    background-color: #333;
-  }
-</style>
+    <!-- LEFT PANEL: CHAT -->
+    <aside class="side-panel left-panel">
+      <div class="panel-header">
+        <h3><i class="fa-solid fa-comments"></i> Live Chat</h3>
+        <span class="chat-warning">Not Saved</span>
+      </div>
+      <div id="chatMessages" class="chat-messages">
+        <!-- Messages injected here -->
+      </div>
+      <div class="chat-banner">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>This chat is temporary and will be permanently deleted when the session ends or you leave.</p>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Type a message..." />
+        <button id="sendChatBtn"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: VIDEO / WHITEBOARD -->
+    <main class="center-panel">
+      <div class="session-info-bar">
+        <div class="session-titles">
+          <h2 id="sessionName">Session Name</h2>
+          <span id="sessionStatus" class="status-tag">Scheduled</span>
+        </div>
+        <div class="timer-area">
+          <i class="fa-solid fa-clock"></i>
+          <span id="sessionTimer">00:00</span>
+        </div>
+      </div>
+
+      <div class="stage-container">
+        <!-- Video Grid -->
+        <div id="videoGrid" class="video-grid">
+          <div class="video-wrapper local">
+            <video id="localVideo" autoplay muted playsinline></video>
+            <span class="participant-name">You (Mentor)</span>
+          </div>
+          <!-- Remote videos injected here -->
+        </div>
+
+        <!-- Whiteboard Overlay (Hidden by default) -->
+        <div id="whiteboardContainer" class="whiteboard-container" style="display:none;">
+          <canvas id="whiteboardCanvas"></canvas>
+          <div class="whiteboard-tools">
+            <button data-tool="pen" class="tool active"><i class="fa-solid fa-pen"></i></button>
+            <button data-tool="eraser" class="tool"><i class="fa-solid fa-eraser"></i></button>
+            <button id="clearBoard"><i class="fa-solid fa-trash-can"></i></button>
+            <input type="color" id="whiteboardColor" value="#1A1A1A" />
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM BAR: CONTROLS -->
+      <div class="live-controls">
+        <button id="toggleMic" class="control-btn" title="Mic Off"><i class="fa-solid fa-microphone"></i></button>
+        <button id="toggleCam" class="control-btn" title="Camera Off"><i class="fa-solid fa-video"></i></button>
+        <button id="toggleShare" class="control-btn" title="Share Screen"><i class="fa-solid fa-desktop"></i></button>
+        <button id="toggleWhiteboard" class="control-btn" title="Whiteboard"><i
+            class="fa-solid fa-chalkboard"></i></button>
+
+        <div class="control-divider"></div>
+
+        <button id="startSessionBtn" class="action-btn start-btn" style="display:none;">Start Session</button>
+        <button id="endSessionBtn" class="action-btn end-btn" title="End Session"><i
+            class="fa-solid fa-phone-slash"></i></button>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL: PARTICIPANTS -->
+    <aside class="side-panel right-panel">
+      <div class="panel-header">
+        <h3><i class="fa-solid fa-users"></i> Attendees</h3>
+        <span class="chat-warning" id="attendeeCount">0</span>
+      </div>
+      <div id="participantList" class="participant-list">
+        <!-- Participants injected here -->
+      </div>
+
+      <div class="tools-section">
+        <h4>Tools & Info</h4>
+        <div class="credit-info-box">
+          <span class="label">Your Credits</span>
+          <strong id="userCredits">--:--</strong>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- JS -->
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/live-session.js"></script>
+</body>
+
+</html>

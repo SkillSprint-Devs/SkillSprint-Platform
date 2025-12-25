@@ -1,78 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Wallet | SkillSprint</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Styles -->
   <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/dashboard.css" />
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous"
-  />
-  <style>
-  body {
-    background-color: #F9F8D9;
-    font-family: "Poppins", sans-serif;
-    color: #1A1A1A;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  .placeholder-page .content {
-    text-align: center;
-  }
-  .placeholder-page i {
-    font-size: 3rem;
-    color: #DCEF7E;
-    margin-bottom: 1rem;
-  }
-  .placeholder-page h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .placeholder-page p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 1.5rem;
-  }
-  .back-btn {
-    display: inline-block;
-    background-color: #1A1A1A;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: 0.3s;
-  }
-  .back-btn:hover {
-    background-color: #333;
-  }
-</style>
-
+  <link rel="stylesheet" href="assets/css/wallet-extra.css" />
 </head>
 
 <body>
-  <div class="placeholder-page">
-    <div class="content">
-      <i class="fa-solid fa-wallet"></i>
-      <h1>Wallet Screen</h1>
-      <p>This section is under development.</p>
-      <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
+  <!-- Simplified Header (No Sidebar) -->
+  <header class="wallet-header">
+    <div class="header-content">
+      <a href="dashboard.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <div class="logo">SkillSprint Wallet</div>
+      <div class="profile" id="userProfile">
+        <img src="assets/images/user-avatar.png" alt="User" id="profileAvatar" />
+      </div>
     </div>
+  </header>
+
+  <main class="wallet-focused-container">
+    <div class="wallet-layout">
+      <!-- TOP SECTION: OVERVIEW -->
+      <section class="wallet-overview-grid">
+        <div class="overview-card primary">
+          <div class="card-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="card-data">
+            <span class="label">Available Credits</span>
+            <h2 id="availableCredits">00:00</h2>
+            <div class="status-badge" id="creditStatus">Sufficient</div>
+          </div>
+        </div>
+
+        <div class="overview-card">
+          <div class="card-data">
+            <span class="label">Weekly Limit</span>
+            <h3 id="weeklyLimit">5h 30m</h3>
+          </div>
+        </div>
+
+        <div class="overview-card">
+          <div class="card-data">
+            <span class="label">Last Reset</span>
+            <h3 id="lastReset">--/--/----</h3>
+          </div>
+        </div>
+
+        <div class="overview-card highlight">
+          <div class="card-data">
+            <span class="label">Next Reset</span>
+            <h3 id="nextReset">--/--/----</h3>
+            <p class="sub-label" id="resetCountdown">Resets in 7 days</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN SECTION: HISTORY -->
+      <section class="wallet-history-section">
+        <div class="section-header">
+          <h3><i class="fa-solid fa-list-ul"></i> Transaction History</h3>
+          <div class="filter-actions">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="session-earn">Earned</button>
+            <button class="filter-btn" data-filter="session-spend">Spent</button>
+            <button class="filter-btn" data-filter="weekly-reset">Resets</button>
+          </div>
+        </div>
+
+        <div class="history-table-container">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Session / Activity</th>
+                <th>Role</th>
+                <th>Amount</th>
+                <th>Date & Time</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="transactionHistory">
+              <!-- Data injected here -->
+            </tbody>
+          </table>
+          <div id="emptyHistory" class="empty-state" style="display:none;">
+            <i class="fa-solid fa-receipt"></i>
+            <p>No transactions found</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
   </div>
+
+  <div id="toast-container"></div>
+
+  <!-- JS -->
+  <script src="js/toast.js"></script>
+  <script src="js/wallet.js"></script>
 </body>
 
-<script src="js/toast.js"></script>
-
 </html>
-
