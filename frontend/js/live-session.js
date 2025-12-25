@@ -1,0 +1,348 @@
+const token = localStorage.getItem("token");
+const socket = io("http://127.0.0.1:5000", {
+    auth: { token }
+});
+let localStream;
+let peerConnections = {};
+let sessionId = new URLSearchParams(window.location.search).get("sessionId");
+let currentTool = 'pen';
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+let canvas, ctx;
+
+const iceConfig = {
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+    if (!sessionId) {
+        alert("Session ID missing!");
+        window.location.href = "dashboard.html";
+        return;
+    }
+
+    setupCanvas();
+    await initMedia();
+    joinSession();
+    setupEventListeners();
+});
+
+async function initMedia() {
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById("localVideo").srcObject = localStream;
+    } catch (err) {
+        console.error("Media error:", err);
+        if (typeof showToast === 'function') showToast("Could not access camera/mic. You can still join as observer.", "warning");
+        // Create dummy stream to avoid crashes
+        const canvas = document.createElement("canvas");
+        localStream = canvas.captureStream();
+    }
+}
+
+function joinSession() {
+    const token = localStorage.getItem("token");
+
+    socket.emit("live:join", { sessionId, token });
+
+    socket.on("live:error", (msg) => {
+        if (typeof showToast === 'function') showToast(msg, "error");
+        setTimeout(() => window.location.href = "dashboard.html", 3000);
+    });
+
+    socket.on("live:init", (data) => {
+        document.getElementById("sessionName").textContent = data.sessionName || "Live Session";
+        document.getElementById("sessionStatus").textContent = data.status;
+
+        const isMentor = data.isMentor;
+        window.isMentor = isMentor; // Global for checks
+
+        if (isMentor) {
+            if (data.status === 'scheduled') {
+                document.getElementById("startSessionBtn").style.display = "block";
+            }
+            document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Mentor)";
+        } else {
+            // Mentee UI Restrictions
+            document.getElementById("startSessionBtn").style.display = "none";
+            document.getElementById("endSessionBtn").style.display = "none";
+            document.getElementById("toggleWhiteboard").style.display = "none"; // Mentee can't open it
+            document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Learner)";
+
+            // Note: If mentor opens whiteboard, mentee should see it. 
+            // We'll handle sync below.
+        }
+
+        updateParticipants(data.participants);
+        if (data.whiteboard && data.whiteboard.length > 0) {
+            data.whiteboard.forEach(draw => drawOnCanvas(draw));
+        }
+
+        if (data.status === 'live') startTimer();
+    });
+
+    socket.on("live:chat", (msg) => {
+        appendChatMessage(msg);
+    });
+
+    socket.on("live:whiteboard", (draw) => {
+        drawOnCanvas(draw);
+    });
+
+    socket.on("live:whiteboardClear", () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    socket.on("live:statusChanged", (status) => {
+        document.getElementById("sessionStatus").textContent = status;
+        if (status === 'live') {
+            document.getElementById("startSessionBtn").style.display = "none";
+            startTimer();
+        } else if (status === 'completed') {
+            if (typeof showToast === 'function') showToast("Session ended by Mentor", "info");
+            setTimeout(() => window.location.href = "dashboard.html", 2000);
+        }
+    });
+
+    socket.on("live:presence", (participants) => {
+        updateParticipants(participants);
+    });
+
+    socket.on("live:signal", async ({ fromUserId, signal }) => {
+        // Handle signals for WebRTC logic...
+    });
+}
+
+async function createPeerConnection(peerId, isOffer) {
+    const pc = new RTCPeerConnection(iceConfig);
+    peerConnections[peerId] = pc;
+
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+    pc.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit("live:signal", { to: peerId, signal: { candidate: event.candidate } });
+        }
+    };
+
+    pc.ontrack = (event) => {
+        let remoteVid = document.getElementById(`video-${peerId}`);
+        if (!remoteVid) {
+            const wrapper = document.createElement("div");
+            wrapper.className = "video-wrapper";
+            wrapper.id = `wrapper-${peerId}`;
+            remoteVid = document.createElement("video");
+            remoteVid.id = `video-${peerId}`;
+            remoteVid.autoplay = true;
+            remoteVid.playsinline = true;
+            wrapper.appendChild(remoteVid);
+            document.getElementById("videoGrid").appendChild(wrapper);
+        }
+        remoteVid.srcObject = event.streams[0];
+    };
+
+    if (isOffer) {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit("live:signal", { to: peerId, signal: offer });
+    }
+
+    return pc;
+}
+
+function setupCanvas() {
+    canvas = document.getElementById("whiteboardCanvas");
+    ctx = canvas.getContext("2d");
+
+    const resize = () => {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+    };
+    window.addEventListener("resize", resize);
+    resize();
+
+    canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        [lastX, lastY] = getCoords(e);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const [x, y] = getCoords(e);
+        const drawData = {
+            x0: lastX, y0: lastY,
+            x1: x, y1: y,
+            color: currentTool === 'eraser' ? '#ffffff' : document.getElementById("whiteboardColor").value,
+            width: currentTool === 'eraser' ? 20 : 2
+        };
+        drawOnCanvas(drawData);
+        socket.emit("live:whiteboard", { sessionId, draw: drawData });
+        [lastX, lastY] = [x, y];
+    });
+
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
+}
+
+function getCoords(e) {
+    if (!window.isMentor) return [0, 0]; // Double check although UI is hidden
+    const rect = canvas.getBoundingClientRect();
+    return [e.clientX - rect.left, e.clientY - rect.top];
+}
+
+function drawOnCanvas(draw) {
+    // Auto-show whiteboard for mentees when mentor draws
+    const container = document.getElementById("whiteboardContainer");
+    if (container.style.display === "none") {
+        container.style.display = "block";
+        document.getElementById("toggleWhiteboard")?.classList.add("active");
+    }
+
+    const { x0, y0, x1, y1, color, width } = draw;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function setupEventListeners() {
+    document.getElementById("sendChatBtn").addEventListener("click", sendChat);
+    document.getElementById("chatInput").addEventListener("keypress", (e) => e.key === 'Enter' && sendChat());
+
+    document.getElementById("toggleMic").addEventListener("click", function () {
+        const audioTrack = localStream.getAudioTracks()[0];
+        audioTrack.enabled = !audioTrack.enabled;
+        this.classList.toggle("off", !audioTrack.enabled);
+    });
+
+    document.getElementById("toggleCam").addEventListener("click", function () {
+        const videoTrack = localStream.getVideoTracks()[0];
+        videoTrack.enabled = !videoTrack.enabled;
+        this.classList.toggle("off", !videoTrack.enabled);
+    });
+
+    document.getElementById("toggleWhiteboard").addEventListener("click", () => {
+        const container = document.getElementById("whiteboardContainer");
+        const isVisible = container.style.display !== "none";
+        container.style.display = isVisible ? "none" : "block";
+        document.getElementById("toggleWhiteboard").classList.toggle("active", !isVisible);
+    });
+
+    document.getElementById("clearBoard").addEventListener("click", () => {
+        socket.emit("live:whiteboardClear", { sessionId });
+    });
+
+    document.getElementById("startSessionBtn").addEventListener("click", () => {
+        socket.emit("live:startSession", { sessionId });
+    });
+
+    document.getElementById("endSessionBtn").addEventListener("click", () => {
+        if (confirm("End session and settle credits?")) {
+            socket.emit("live:endSession", { sessionId });
+        }
+    });
+
+    // Tool switching
+    document.querySelectorAll(".whiteboard-tools .tool").forEach(btn => {
+        btn.addEventListener("click", function () {
+            if (!window.isMentor) return;
+            document.querySelectorAll(".whiteboard-tools .tool").forEach(b => b.classList.remove("active"));
+            this.classList.add("active");
+            currentTool = this.dataset.tool;
+        });
+    });
+
+    document.getElementById("toggleShare").addEventListener("click", async function () {
+        if (!window.isMentor) {
+            if (typeof showToast === 'function') showToast("Only Mentors can start screen sharing", "info");
+            return;
+        }
+
+        try {
+            const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            const screenTrack = screenStream.getVideoTracks()[0];
+
+            // Sync UI
+            document.getElementById("localVideo").srcObject = screenStream;
+            this.classList.add("active");
+
+            screenTrack.onended = () => {
+                stopScreenShare();
+            };
+        } catch (err) {
+            console.error(err);
+        }
+    });
+}
+
+function stopScreenShare() {
+    document.getElementById("localVideo").srcObject = localStream;
+    document.getElementById("toggleShare").classList.remove("active");
+}
+
+function sendChat() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text) return;
+    socket.emit("live:chat", { sessionId, message: text });
+    input.value = "";
+}
+
+function appendChatMessage({ user, message, timestamp }) {
+    const container = document.getElementById("chatMessages");
+    const isSelf = user.id === getMyId();
+    const div = document.createElement("div");
+    div.className = `message ${isSelf ? 'self' : 'other'}`;
+    div.innerHTML = `<strong>${isSelf ? 'You' : user.name}</strong><br>${message}`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function updateParticipants(participants) {
+    const list = document.getElementById("participantList");
+    list.innerHTML = "";
+    document.getElementById("attendeeCount").textContent = participants.length;
+    participants.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "participant-item";
+
+        let statusIcon = "🔴";
+        if (p.status === "Joined") statusIcon = "🟢";
+        if (p.status === "Waiting") statusIcon = "🟡";
+
+        div.innerHTML = `
+            <img src="${p.profile_image || 'assets/images/user-avatar.png'}" alt="${p.name}" class="p-avatar">
+            <div class="p-info">
+                <h5>${p.name} <span class="status-icon">${statusIcon}</span></h5>
+                <span class="p-role ${p.role.toLowerCase()}">${p.role}</span>
+                <span class="p-status-text">${p.status}</span>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function getMyId() {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    return user.id || user._id;
+}
+
+let timerInterval;
+function startTimer() {
+    let seconds = 0;
+    const timerDisplay = document.getElementById("sessionTimer");
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        seconds++;
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        timerDisplay.textContent = `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }, 1000);
+}

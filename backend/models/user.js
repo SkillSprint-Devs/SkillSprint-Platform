@@ -63,11 +63,6 @@ const userSchema = new mongoose.Schema({
   linkedin: { type: String, default: "" },
   portfolio: { type: String, default: "" },
 
-  // 📊 PLATFORM STATS
-  credits_remaining: { type: Number, default: 0 },
-  credits_earned: { type: Number, default: 0 },
-  total_hours_spent: { type: Number, default: 0 },
-
   // 📅 META
   created_at: { type: Date, default: Date.now },
 

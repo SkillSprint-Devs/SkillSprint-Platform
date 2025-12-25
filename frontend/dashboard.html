@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -13,6 +14,7 @@
   <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/dashboard.css" />
 </head>
+
 <body>
   <div class="dashboard-container">
 
@@ -84,10 +86,10 @@
 
       <!-- Main Layout Grid -->
       <div class="main-sections">
-        
+
         <!-- LEFT COLUMN -->
         <section class="main-left">
-          
+
           <!-- Welcome Card -->
           <div class="welcome-card">
             <div class="text">
@@ -106,47 +108,46 @@
 
           <!-- WALLET OVERVIEW (Now horizontal bar) -->
           <section class="wallet-horizontal">
-            <div class="wallet-card">
+            <a href="wallet.html" class="wallet-card" style="text-decoration: none; color: inherit;">
               <i class="fa-solid fa-wallet"></i>
               <div class="wallet-content">
                 <div class="wallet-label">Credits Remaining</div>
-                <div id="walletCredits" class="wallet-value">$0</div>
+                <div id="walletCredits" class="wallet-value">0h 0m</div>
               </div>
-            </div>
+            </a>
 
-            <div class="wallet-card">
+            <a href="wallet.html" class="wallet-card" style="text-decoration: none; color: inherit;">
               <i class="fa-solid fa-arrow-trend-down" style="color: var(--danger);"></i>
               <div class="wallet-content">
                 <div class="wallet-label">Credits Spent</div>
-                <div id="walletSpent" class="wallet-value danger">$0</div>
+                <div id="walletSpent" class="wallet-value danger">0h 0m</div>
               </div>
-            </div>
+            </a>
 
-            <div class="wallet-card">
+            <a href="wallet.html" class="wallet-card" style="text-decoration: none; color: inherit;">
               <i class="fa-solid fa-arrow-trend-up" style="color: var(--success);"></i>
               <div class="wallet-content">
                 <div class="wallet-label">Credits Earned</div>
-                <div id="walletEarned" class="wallet-value success">$0</div>
+                <div id="walletEarned" class="wallet-value success">0h 0m</div>
               </div>
-            </div>
+            </a>
           </section>
 
           <!-- Ongoing Tasks (Horizontal Scroll) -->
           <section class="ongoing-tasks">
             <h3><i class="fa-solid fa-fire"></i> Active Tasks</h3>
-            
+
             <template id="taskCardTemplate">
               <div class="task-card">
-                <div>
+                <div class="task-left">
                   <div class="task-card-header">
                     <div class="color-dot"></div>
                     <h4 class="task-title">Task Title</h4>
                   </div>
                   <p class="task-description">Description goes here...</p>
                 </div>
-                
-                <div class="task-footer">
-                  <div class="task-due-date">Due Today</div>
+
+                <div class="task-right">
                   <div class="task-progress-badge" style="background: #e8f5e9; color: #4caf50;">50%</div>
                 </div>
               </div>
@@ -157,23 +158,63 @@
             </div>
           </section>
 
+          <!-- Pending Invitations Section -->
+          <section id="pendingInvitesSection" class="upcoming-sessions" style="display:none; margin-bottom: 2rem;">
+            <h3><i class="fa-solid fa-envelope-open-text" style="color: var(--accent);"></i> Pending Invitations</h3>
+            <div id="pendingInvitesList" class="session-list">
+              <!-- Injected via JS -->
+            </div>
+          </section>
+
+          <!-- Upcoming Sessions Section (NEW) -->
+          <section class="upcoming-sessions">
+            <h3><i class="fa-solid fa-video"></i> Upcoming Sessions</h3>
+
+            <template id="sessionCardTemplate">
+              <div class="session-card">
+                <div class="session-left">
+                  <div class="session-time-badge">
+                    <span class="session-day">24</span>
+                    <span class="session-month">Oct</span>
+                  </div>
+                  <div class="session-name-group">
+                    <h4 class="session-title">Session Name</h4>
+                    <p class="session-purpose">Purpose...</p>
+                  </div>
+                </div>
+
+                <div class="session-right">
+                  <div class="session-meta">
+                    <span><i class="fa-solid fa-clock"></i> <span class="duration">60 min</span></span>
+                    <span><i class="fa-solid fa-user-tie"></i> <span class="mentor">Mentor Name</span></span>
+                  </div>
+                  <button class="join-session-btn">Join</button>
+                </div>
+              </div>
+            </template>
+
+            <div id="sessionList" class="session-list">
+              <!-- Sessions injected here -->
+            </div>
+          </section>
+
         </section>
 
         <!-- RIGHT COLUMN -->
         <aside class="right-sidebar">
-          
+
           <!-- Notifications Section (Now TOP) -->
           <div class="notifications-container">
-             <h3><i class="fa-solid fa-bell"></i> Notifications</h3>
-             <div id="notifList" class="notif-list">
-               <!-- Notifications injected here -->
-             </div>
+            <h3><i class="fa-solid fa-bell"></i> Notifications</h3>
+            <div id="notifList" class="notif-list">
+              <!-- Notifications injected here -->
+            </div>
           </div>
 
           <!-- Quick Reminders Module (Now BOTTOM) -->
           <div class="reminders-container">
             <h3><i class="fa-solid fa-list-ul"></i> Quick Reminders</h3>
-            
+
             <div class="reminder-input-group">
               <div class="reminder-inputs">
                 <input type="text" id="newReminderInput" placeholder="Add a new reminder..." />
@@ -204,4 +245,5 @@
   <script src="js/dashboard.js"></script>
   <script src="js/bottomNav.js"></script>
 </body>
+
 </html>

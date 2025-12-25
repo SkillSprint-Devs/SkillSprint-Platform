@@ -4,14 +4,16 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import nodemailer from "nodemailer";
+import { verifyToken } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import User from "../models/user.js";
+import WalletService from "../utils/walletService.js";
 
 dotenv.config();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); 
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -102,13 +104,13 @@ router.post("/verify-signup-otp", async (req, res) => {
       email,
       password_hash: hashedPassword,
       role: "student",
-      credits_remaining: 100,
-      credits_earned: 0,
-      total_hours_spent: 0,
       profile_image: "",
     });
 
     await newUser.save();
+
+    // Create Wallet for new user
+    await WalletService.createWallet(newUser._id);
     delete tempOtps[email];
 
     res.status(201).json({ message: "Signup successful! Please login." });
@@ -212,7 +214,7 @@ router.post("/reset-password", async (req, res) => {
 
 router.put("/update-profile", upload.single("profile_image"), async (req, res) => {
   try {
-    
+
     const {
       name,
       role,
@@ -255,9 +257,9 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
 
     // Parse JSON strings for projects, education, achievements
     let projectsParsed = [], educationParsed = [], achievementsParsed = [];
-    try { projectsParsed = JSON.parse(projects); } catch {}
-    try { educationParsed = JSON.parse(education); } catch {}
-    try { achievementsParsed = JSON.parse(achievements); } catch {}
+    try { projectsParsed = JSON.parse(projects); } catch { }
+    try { educationParsed = JSON.parse(education); } catch { }
+    try { achievementsParsed = JSON.parse(achievements); } catch { }
 
     if (Array.isArray(projectsParsed)) user.projects = projectsParsed;
     if (Array.isArray(educationParsed)) user.education = educationParsed;
@@ -265,17 +267,17 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
 
     await user.save();
 
-    
- const freshUser = await User.findById(user._id).select("-password_hash -otp -otpExpires").lean();
 
-if (freshUser.profile_image && !freshUser.profile_image.startsWith("http")) {
-  freshUser.profile_image = `${req.protocol}://${req.get("host")}/${freshUser.profile_image}`;
-}
+    const freshUser = await User.findById(user._id).select("-password_hash -otp -otpExpires").lean();
 
-res.json({
-  message: "Profile updated successfully",
-  user: freshUser,
-});
+    if (freshUser.profile_image && !freshUser.profile_image.startsWith("http")) {
+      freshUser.profile_image = `${req.protocol}://${req.get("host")}/${freshUser.profile_image}`;
+    }
+
+    res.json({
+      message: "Profile updated successfully",
+      user: freshUser,
+    });
 
   } catch (error) {
     console.error("Update profile error:", error);
@@ -296,15 +298,40 @@ router.get("/me", async (req, res) => {
 
     const user = await User.findById(decoded.id).select("-password_hash -otp -otpExpires").lean();
 
-if (user.profile_image && !user.profile_image.startsWith("http")) {
-  user.profile_image = `${req.protocol}://${req.get("host")}/${user.profile_image}`;
-}
+    if (user.profile_image && !user.profile_image.startsWith("http")) {
+      user.profile_image = `${req.protocol}://${req.get("host")}/${user.profile_image}`;
+    }
 
-res.json(user);
+    res.json(user);
 
   } catch (error) {
     console.error("Get current user error:", error);
     res.status(401).json({ message: "Invalid or expired token" });
+  }
+});
+
+// Search users for invites (by name or email)
+router.get("/search-users", verifyToken, async (req, res) => {
+  console.log(`Search users hit with query: ${req.query.q}`);
+  try {
+    const query = req.query.q;
+    if (!query || query.length < 2) {
+      return res.json([]);
+    }
+
+    const users = await User.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } }
+      ],
+      _id: { $ne: req.user.id } // Don't search for self
+    })
+      .select("name email profile_image _id")
+      .limit(10);
+
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: "Search failed" });
   }
 });
 

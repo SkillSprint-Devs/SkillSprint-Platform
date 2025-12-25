@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Session History | SkillSprint</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/wallet-extra.css" />
+    <style>
+        .history-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .history-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .role-mentor {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .role-mentee {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #DCEF62;
+            color: #1A1A1A;
+        }
+
+        .status-scheduled {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .status-live {
+            background: #e3f2fd;
+            color: #1976d2;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(25, 118, 210, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(25, 118, 210, 0);
+            }
+        }
+
+        .status-cancelled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .join-history-btn {
+            background: var(--accent);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .join-history-btn:hover {
+            transform: scale(1.05);
+            background: #c5d84a;
+        }
+
+        .join-history-btn.live {
+            background: #1976d2;
+            color: white;
+        }
+
+        .session-info h4 {
+            margin: 0 0 5px 0;
+            color: #1A1A1A;
+        }
+
+        .session-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .session-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: right;
+        }
+
+        .session-meta span {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 4rem;
+            color: #999;
+        }
+
+        .empty-history i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="wallet-header">
+        <div class="header-content">
+            <a href="dashboard.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+            <div class="logo">Live Session History</div>
+            <div class="profile" id="userProfile">
+                <img src="assets/images/user-avatar.png" alt="User" id="profileAvatar" />
+            </div>
+        </div>
+    </header>
+
+    <main class="wallet-focused-container">
+        <div class="section-header"
+            style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-weight: 700; color: var(--sidebar-bg);"><i class="fa-solid fa-video"></i> Session Activity
+            </h2>
+            <div class="filter-actions">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="mentor">As Mentor</button>
+                <button class="filter-btn" data-filter="mentee">As Mentee</button>
+            </div>
+        </div>
+
+        <div id="historyList">
+            <!-- Sessions injected here -->
+        </div>
+
+        <div id="emptyHistory" class="empty-history" style="display:none;">
+            <i class="fa-solid fa-video-slash"></i>
+            <p>No live sessions found.</p>
+        </div>
+    </main>
+
+    <div id="toast-container"></div>
+
+    <script src="js/toast.js"></script>
+    <script>
+        const API_BASE = "http://localhost:5000/api";
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const userId = user.id || user._id;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadSessionHistory();
+
+            document.querySelectorAll(".filter-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+                    e.target.classList.add("active");
+                    filterSessions(e.target.dataset.filter);
+                });
+            });
+        });
+
+        async function loadSessionHistory() {
+            const token = localStorage.getItem("token");
+            try {
+                const res = await fetch(`${API_BASE}/live-sessions/my-schedule?all=true`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const sessions = await res.json();
+                window.allHistory = sessions;
+                renderHistory(sessions);
+            } catch (err) {
+                console.error(err);
+                if (typeof showToast === 'function') showToast("Failed to load history", "error");
+            }
+        }
+
+        function renderHistory(sessions) {
+            const list = document.getElementById("historyList");
+            const empty = document.getElementById("emptyHistory");
+            list.innerHTML = "";
+
+            if (!sessions || sessions.length === 0) {
+                empty.style.display = "block";
+                return;
+            }
+            empty.style.display = "none";
+
+            sessions.forEach(s => {
+                const isMentor = s.mentorId && (s.mentorId._id === userId || s.mentorId === userId);
+                const roleLabel = isMentor ? "Mentor" : "Mentee";
+                const date = new Date(s.scheduledDateTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+
+                const card = document.createElement("div");
+                card.className = "history-card";
+                card.innerHTML = `
+                    <div class="session-info">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                            <span class="role-badge role-${roleLabel.toLowerCase()}">${roleLabel}</span>
+                            <span class="status-badge status-${s.status.toLowerCase()}">${s.status}</span>
+                        </div>
+                        <h4>${s.sessionName}</h4>
+                        <p>${s.purpose}</p>
+                    </div>
+                    <div class="session-duration" style="text-align: center;">
+                        <span style="display:block; font-weight:700; font-size:1.1rem;">${s.durationMinutes}</span>
+                        <span style="font-size:0.7rem; color:#999; text-transform:uppercase;">Minutes</span>
+                    </div>
+                    <div class="session-meta">
+                        <span style="color:#1A1A1A; font-weight:600;">${date}</span>
+                        <div style="display:flex; align-items:center; gap:10px; justify-content: flex-end; margin-top:5px;">
+                            <span style="font-size: 0.75rem;">${isMentor ? (s.invitedUserIds?.length || 0) + ' Mentees' : 'with ' + (s.mentorId?.name || 'Mentor')}</span>
+                            ${(s.status === 'scheduled' || s.status === 'live') ?
+                        `<button class="join-history-btn ${s.status === 'live' ? 'live' : ''}" onclick="location.href='livevideo.html?sessionId=${s._id}'">
+                                    ${s.status === 'live' ? '<i class="fa-solid fa-circle"></i> Join' : 'Open'}
+                                 </button>` : ''}
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function filterSessions(filter) {
+            if (!window.allHistory) return;
+            let filtered = window.allHistory;
+            if (filter === 'mentor') {
+                filtered = window.allHistory.filter(s => (s.mentorId?._id || s.mentorId) === userId);
+            } else if (filter === 'mentee') {
+                filtered = window.allHistory.filter(s => (s.mentorId?._id || s.mentorId) !== userId);
+            }
+            renderHistory(filtered);
+        }
+    </script>
+</body>
+
+</html>

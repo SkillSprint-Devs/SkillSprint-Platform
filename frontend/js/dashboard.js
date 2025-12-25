@@ -66,10 +66,15 @@ async function loadDashboard() {
     if (document.getElementById("profileAvatar")) document.getElementById("profileAvatar").src = profileImgUrl;
 
     // Wallet Info
-    // Ensure elements exist before setting
-    if (document.getElementById("walletCredits")) document.getElementById("walletCredits").textContent = `$${data.wallet?.remaining_time || "0"}`;
-    if (document.getElementById("walletSpent")) document.getElementById("walletSpent").textContent = `$${data.wallet?.spent || "0"}`;
-    if (document.getElementById("walletEarned")) document.getElementById("walletEarned").textContent = `$${data.wallet?.earned || "0"}`;
+    if (document.getElementById("walletCredits")) document.getElementById("walletCredits").textContent = formatMinutes(data.wallet?.remaining_time || 0);
+    if (document.getElementById("walletSpent")) document.getElementById("walletSpent").textContent = formatMinutes(data.wallet?.spent || 0);
+    if (document.getElementById("walletEarned")) document.getElementById("walletEarned").textContent = formatMinutes(data.wallet?.earned || 0);
+
+    function formatMinutes(mins) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${h}h ${m}m`;
+    }
 
     // Tasks and Notifications
     window.currentDashboardData = data; // Cache for search filtering
@@ -377,16 +382,164 @@ function filterDashboard(term) {
 // Socket
 function setupSocket(token) {
   const socket = io("http://127.0.0.1:5000", {
-    auth: { token },
-    transports: ["websocket"]
+    auth: { token }
   });
 
   socket.on("connect", () => console.log("Socket connected"));
   socket.on("notification", (n) => {
     if (typeof showToast === 'function') showToast(n.message || "New Notification", "info");
     loadNotifications(); // Refresh list
+    if (typeof loadPendingInvites === 'function') loadPendingInvites();
+    if (typeof loadSchedule === 'function') loadSchedule();
   });
 }
 
+// === SCHEDULE ===
+async function loadSchedule() {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API_BASE}/live-sessions/my-schedule`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const sessions = await res.json();
+    renderSessions(sessions);
+  } catch (err) {
+    console.error("Load schedule error:", err);
+  }
+}
+
+function renderSessions(sessions) {
+  const list = document.getElementById("sessionList");
+  if (!list) return;
+  list.innerHTML = "";
+
+  if (!sessions || sessions.length === 0) {
+    list.innerHTML = `<div class="empty-state" style="padding:10px; color:#999;">No upcoming sessions.</div>`;
+    return;
+  }
+
+  sessions.forEach(s => {
+    const date = new Date(s.scheduledDateTime);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+
+    const div = document.createElement('div');
+    div.className = 'session-card';
+    if (s.status === 'live') div.classList.add('live-now');
+
+    div.innerHTML = `
+            <div class="session-left">
+                <div class="session-time-badge">
+                    <span class="session-day">${day}</span>
+                    <span class="session-month">${month}</span>
+                </div>
+                <div class="session-name-group">
+                    <h4 class="session-title">${s.sessionName}</h4>
+                    <p class="session-purpose">${s.purpose}</p>
+                </div>
+            </div>
+            <div class="session-right">
+                <div class="session-meta">
+                    <span><i class="fa-solid fa-clock"></i> ${s.durationMinutes} min</span>
+                    <span><i class="fa-solid fa-user-tie"></i> ${s.mentorId?.name || 'Mentor'}</span>
+                </div>
+                <button class="join-session-btn" onclick="location.href='livevideo.html?sessionId=${s._id}'" ${s.status === 'completed' ? 'disabled' : ''}>
+                    ${s.status === 'live' ? '<span class="pulse"></span> Join Live' : s.status === 'completed' ? 'Completed' : 'Join'}
+                </button>
+            </div>
+        `;
+    list.appendChild(div);
+  });
+}
+
+window.loadSchedule = loadSchedule;
+
+// === PENDING INVITES ===
+async function loadPendingInvites() {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API_BASE}/live-sessions/pending-invites`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const invites = await res.json();
+    renderPendingInvites(invites);
+  } catch (err) {
+    console.error("Load invites error:", err);
+  }
+}
+
+function renderPendingInvites(invites) {
+  const container = document.getElementById("pendingInvitesSection");
+  const list = document.getElementById("pendingInvitesList");
+  if (!container || !list) return;
+
+  if (!invites || invites.length === 0) {
+    container.style.display = "none";
+    return;
+  }
+
+  container.style.display = "block";
+  list.innerHTML = "";
+
+  invites.forEach(invite => {
+    const div = document.createElement("div");
+    div.className = "session-card";
+    div.style.borderLeft = "4px solid var(--accent)";
+
+    div.innerHTML = `
+      <div class="session-left">
+        <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid #eee;">
+          <img src="${invite.mentorId?.profile_image || 'assets/images/user-avatar.png'}" style="width: 100%; height: 100%; object-fit: cover;" />
+        </div>
+        <div class="session-name-group">
+          <h4 class="session-title">${invite.sessionName}</h4>
+          <p class="session-purpose">Invite from <strong>${invite.mentorId?.name}</strong></p>
+        </div>
+      </div>
+      <div class="session-right">
+        <div style="display: flex; gap: 8px;">
+          <button class="accept-btn" style="background:#4caf50; color:#fff; border:none; padding:5px 12px; border-radius:15px; cursor:pointer; font-size:0.8rem; font-weight:600;">Accept</button>
+          <button class="decline-btn" style="background:#ef5350; color:#fff; border:none; padding:5px 12px; border-radius:15px; cursor:pointer; font-size:0.8rem; font-weight:600;">Decline</button>
+        </div>
+      </div>
+    `;
+
+    div.querySelector(".accept-btn").onclick = () => respondInvite(invite._id, 'accept');
+    div.querySelector(".decline-btn").onclick = () => respondInvite(invite._id, 'decline');
+
+    list.appendChild(div);
+  });
+}
+
+async function respondInvite(sessionId, action) {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API_BASE}/live-sessions/respond-invite`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ sessionId, action })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast(data.message, "success");
+      loadPendingInvites();
+      loadSchedule(); // Refresh upcoming list
+    } else {
+      alert(data.message);
+    }
+  } catch (err) {
+    console.error("Respond error:", err);
+  }
+}
+
 // Init
-document.addEventListener("DOMContentLoaded", loadDashboard);
+document.addEventListener("DOMContentLoaded", () => {
+  loadDashboard();
+  loadSchedule();
+  loadPendingInvites();
+});

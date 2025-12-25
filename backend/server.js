@@ -19,9 +19,12 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import postingRoutes from "./routes/postingRoutes.js";
 import boardRoutes from "./routes/boardRoutes.js";
 import libraryRoutes from "./routes/libraryRoutes.js";
+import walletRoutes from "./routes/walletRoutes.js";
+import liveSessionRoutes from "./routes/liveSessionRoutes.js";
 import Board from "./models/board.js";
 import tasksRouter from "./routes/taskRoutes.js";
 import pairProgrammingSocket from "./socket/pair-programming-sio.js";
+import liveSessionSocket from "./socket/live-session-sio.js";
 import pairProgrammingRoutes from './routes/pair-programmingRoutes.js';
 import chatRoutes from "./routes/chatRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
@@ -50,8 +53,6 @@ app.use(
 app.options(/.*/, cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use("/uploads", express.static("uploads"));
-app.use(express.static(path.join(__dirname, "../frontend"))); // Serve frontend static files
 
 // DATABASE CONNECTION 
 mongoose
@@ -74,6 +75,7 @@ const io = new Server(server, {
 app.set("io", io);
 
 pairProgrammingSocket(io);
+liveSessionSocket(io);
 
 // Socket Authentication
 io.use((socket, next) => {
@@ -265,11 +267,15 @@ io.on("connection", (socket) => {
 });
 
 // ROUTES 
+app.get("/api/status", (req, res) => res.json({ status: "ok", version: "1.2.0" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/posting", postingRoutes);
 app.use("/api/board", boardRoutes);
 app.use("/api/library", libraryRoutes);
+app.use("/api/wallet", walletRoutes);
+console.log("Registering /api/live-sessions route...");
+app.use("/api/live-sessions", liveSessionRoutes);
 app.use("/api/tasks", tasksRouter);
 app.use('/api/pair-programming', pairProgrammingRoutes);
 app.use("/api/chat", chatRoutes);
@@ -279,6 +285,17 @@ app.use("/api/quiz", quizRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/admin", adminRoutes);
+
+// Favicon handler
+app.get("/favicon.ico", (req, res) => res.status(204).end());
+
+// JSON 404 for API (after all routes)
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: `API endpoint not found: ${req.method} ${req.originalUrl}` });
+});
+
+app.use("/uploads", express.static("uploads"));
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 // central error handler for express routes 
 app.use((err, req, res, next) => {

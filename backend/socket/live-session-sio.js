@@ -1,0 +1,197 @@
+import LiveSession from "../models/liveSession.js";
+import WalletService from "../utils/walletService.js";
+import User from "../models/user.js";
+
+const liveSessionSocket = (io) => {
+    const sessionRooms = new Map(); // sessionId -> { chat: [], whiteboard: [] }
+
+    io.on("connection", (socket) => {
+        const userId = socket.data.user?.id || socket.data.user?._id;
+        if (!userId) return;
+
+        socket.on("live:join", async ({ sessionId }) => {
+            try {
+                const session = await LiveSession.findById(sessionId);
+                if (!session) return socket.emit("live:error", "Session not found");
+
+                // 1. Time Validation
+                const now = new Date();
+                const startTime = new Date(session.scheduledDateTime);
+                const endTime = new Date(startTime.getTime() + session.durationMinutes * 60000);
+
+                // Early check (5 mins early allow)
+                if (now < new Date(startTime.getTime() - 5 * 60000)) {
+                    return socket.emit("live:error", "Session hasn't started yet. Please wait.");
+                }
+                // Late check
+                if (now > endTime && session.status !== 'live') {
+                    return socket.emit("live:error", "This session has already ended.");
+                }
+
+                // 2. Auth check
+                const isMentor = session.mentorId.toString() === userId.toString();
+                const isInvited = session.invitedUserIds.some(id => id.toString() === userId.toString());
+
+                if (!isMentor && !isInvited) {
+                    return socket.emit("live:error", "Not authorized to join this session");
+                }
+
+                socket.join(sessionId);
+                socket.data.sessionId = sessionId; // Track for disconnect
+
+                // 3. Status Tracking
+                if (!sessionRooms.has(sessionId)) {
+                    sessionRooms.set(sessionId, {
+                        chat: [],
+                        whiteboard: [],
+                        connectedUsers: new Set()
+                    });
+                }
+                const room = sessionRooms.get(sessionId);
+                room.connectedUsers.add(userId.toString());
+
+                // 4. Detailed Presence
+                const allInvited = await User.find({
+                    _id: { $in: [...session.invitedUserIds, session.mentorId] }
+                }).select("name profile_image");
+
+                const presenceList = allInvited.map(u => {
+                    const uid = u._id.toString();
+                    let status = "Absent";
+                    if (room.connectedUsers.has(uid)) status = "Joined";
+                    else if (session.acceptedUserIds.some(id => id.toString() === uid) || uid === session.mentorId.toString()) status = "Waiting";
+
+                    return {
+                        id: uid,
+                        name: u.name,
+                        profile_image: u.profile_image,
+                        role: uid === session.mentorId.toString() ? "Mentor" : "Mentee",
+                        status
+                    };
+                });
+
+                socket.emit("live:init", {
+                    chat: room.chat,
+                    whiteboard: room.whiteboard,
+                    status: session.status,
+                    participants: presenceList,
+                    isMentor
+                });
+
+                io.to(sessionId).emit("live:presence", presenceList);
+
+            } catch (e) {
+                console.error("live:join error:", e);
+            }
+        });
+
+        socket.on("live:chat", async ({ sessionId, message }) => {
+            if (!sessionRooms.has(sessionId)) return;
+
+            const user = await User.findById(userId).select("name");
+            const chatMsg = {
+                user: { id: userId, name: user?.name || "Unknown" },
+                message,
+                timestamp: new Date()
+            };
+            sessionRooms.get(sessionId).chat.push(chatMsg);
+            io.to(sessionId).emit("live:chat", chatMsg);
+        });
+
+        socket.on("live:whiteboard", async ({ sessionId, data }) => {
+            const session = await LiveSession.findById(sessionId);
+            if (!session || session.mentorId.toString() !== userId.toString()) return;
+
+            if (!sessionRooms.has(sessionId)) return;
+            sessionRooms.get(sessionId).whiteboard.push(data);
+            socket.to(sessionId).emit("live:whiteboard", data);
+        });
+
+        socket.on("live:whiteboardClear", async ({ sessionId }) => {
+            const session = await LiveSession.findById(sessionId).select("mentorId");
+            if (!session || session.mentorId.toString() !== userId.toString()) return;
+
+            if (!sessionRooms.has(sessionId)) return;
+            sessionRooms.get(sessionId).whiteboard = [];
+            io.to(sessionId).emit("live:whiteboardClear");
+        });
+
+        // WebRTC Signaling
+        socket.on("live:signal", ({ sessionId, targetUserId, signal }) => {
+            io.to(targetUserId.toString()).emit("live:signal", { fromUserId: userId, signal });
+        });
+
+        socket.on("live:startSession", async ({ sessionId }) => {
+            try {
+                const session = await LiveSession.findById(sessionId);
+                if (session.mentorId.toString() !== userId.toString()) return;
+
+                session.status = "live";
+                await session.save();
+                io.to(sessionId).emit("live:statusChanged", "live");
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        socket.on("live:endSession", async ({ sessionId }) => {
+            try {
+                const session = await LiveSession.findById(sessionId);
+                if (session.mentorId.toString() !== userId.toString()) return;
+
+                session.status = "completed";
+                await session.save();
+
+                const duration = session.durationMinutes;
+                for (const learnerId of session.acceptedUserIds) {
+                    try {
+                        await WalletService.spendCredits(learnerId, session._id, session.sessionName, duration, "Mentor");
+                    } catch (e) {
+                        console.error(`Failed to deduct credits for ${learnerId}:`, e.message);
+                    }
+                }
+                await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
+
+                io.to(sessionId).emit("live:statusChanged", "completed");
+                sessionRooms.delete(sessionId);
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        socket.on("disconnect", async () => {
+            const sessionId = socket.data.sessionId;
+            if (sessionId && sessionRooms.has(sessionId)) {
+                const room = sessionRooms.get(sessionId);
+                room.connectedUsers.delete(userId.toString());
+
+                // Broadcast updated presence
+                // Note: Simplified for now, in production we'd re-fetch or keep presenceList in room data
+                const session = await LiveSession.findById(sessionId).select("mentorId invitedUserIds acceptedUserIds");
+                if (session) {
+                    const allInvited = await User.find({
+                        _id: { $in: [...session.invitedUserIds, session.mentorId] }
+                    }).select("name profile_image");
+
+                    const presenceList = allInvited.map(u => {
+                        const uid = u._id.toString();
+                        let status = "Absent";
+                        if (room.connectedUsers.has(uid)) status = "Joined";
+                        else if (session.acceptedUserIds.some(id => id.toString() === uid) || uid === session.mentorId.toString()) status = "Waiting";
+
+                        return {
+                            id: uid,
+                            name: u.name,
+                            profile_image: u.profile_image,
+                            role: uid === session.mentorId.toString() ? "Mentor" : "Mentee",
+                            status
+                        };
+                    });
+                    io.to(sessionId).emit("live:presence", presenceList);
+                }
+            }
+        });
+    });
+};
+
+export default liveSessionSocket;

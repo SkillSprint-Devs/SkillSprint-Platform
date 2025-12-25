@@ -2,30 +2,26 @@ import mongoose from "mongoose";
 
 const walletSchema = new mongoose.Schema({
   user_id: {
-    type: mongoose.Schema.Types.ObjectId, // FK - Users._id
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    unique: true,
   },
-  credit_type: {
-    type: String,
-    enum: ["earned", "spent"], // only two options
-    required: true,
-  },
-  amount: {
+  available_credits: {
     type: Number,
-    required: true,
+    default: 330, // 5 hours 30 minutes
   },
-  activity_ref: {
-    type: mongoose.Schema.Types.ObjectId, // can link to task or project
-    refPath: "activity_model", // dynamic reference
+  weekly_limit: {
+    type: Number,
+    default: 330,
   },
-  activity_model: {
-    type: String,
-    enum: ["Task"], // model names for refPath
-  },
-  timestamp: {
+  last_reset_date: {
     type: Date,
     default: Date.now,
+  },
+  next_reset_date: {
+    type: Date,
+    required: true,
   },
 });
 
