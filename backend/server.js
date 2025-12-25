@@ -298,7 +298,13 @@ app.use("/api", (req, res) => {
 });
 
 app.use("/uploads", express.static("uploads"));
-app.use(express.static(path.join(__dirname, "../frontend")));
+const frontendPath = path.join(__dirname, "../frontend");
+console.log("Serving static files from:", frontendPath);
+app.use(express.static(frontendPath));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
 
 // Error logging middleware (before error handler)
 app.use(errorLogger);
