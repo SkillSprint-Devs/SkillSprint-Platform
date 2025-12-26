@@ -754,3 +754,38 @@ body {
         gap: 1rem;
     }
 }
+
+@media (max-width: 480px) {
+    .quiz-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .question-card {
+        padding: 1.5rem 1rem;
+    }
+
+    .question-text {
+        font-size: 1rem;
+    }
+
+    .option-item {
+        padding: 0.8rem;
+    }
+
+    .option-text {
+        font-size: 0.85rem;
+    }
+
+    .results-title {
+        font-size: 1.5rem;
+    }
+
+    .results-score {
+        font-size: 2.5rem;
+    }
+
+    .back-link {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+    }
+}

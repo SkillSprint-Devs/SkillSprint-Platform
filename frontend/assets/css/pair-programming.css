@@ -21,7 +21,7 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
-  
+
   /* Semantic Colors */
   --primary-btn-bg: var(--accent);
   --primary-btn-text: #000;
@@ -174,7 +174,7 @@ html,
   background: var(--primary-btn-bg);
   border-color: transparent;
   color: var(--primary-btn-text);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .btn.accent:hover {
@@ -702,8 +702,8 @@ html,
   --muted: #bfbfbf;
   --highlight: #8C52FF;
   /* Use highlight as the main accent in dark mode if desired, or keep accent separate */
-  --accent: #DCEF62; 
-  
+  --accent: #DCEF62;
+
   /* Dark Mode Overrides */
   --primary-btn-bg: var(--highlight);
   --primary-btn-text: #fff;
@@ -806,6 +806,7 @@ html,
     bottom: 0;
     transform: translateX(-100%);
     box-shadow: 4px 0 12px rgba(0, 0, 0, 0.2);
+    width: 280px;
   }
 
   .folder-area.show {
@@ -814,6 +815,7 @@ html,
 
   .top-nav {
     padding: 0 12px;
+    height: 56px;
   }
 
   .logo {
@@ -824,11 +826,49 @@ html,
     display: none;
   }
 
-  /* hide on small screens */
-
   .comments-panel {
     width: 100%;
     max-width: none;
+    z-index: 70;
+  }
+
+  .right .btn span:not(.fa-solid):not(.fa-brands) {
+    display: none;
+  }
+
+  .right .btn {
+    padding: 8px;
+    min-width: 40px;
+    justify-content: center;
+  }
+
+  .members {
+    display: none;
+    /* Hide members list to save space on mobile header */
+  }
+
+  .terminal-panel {
+    min-height: 40px;
+  }
+
+  .terminal-panel:not(.collapsed) {
+    height: 200px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 14px;
+  }
+
+  .tab {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .tab .close {
+    display: none;
+    /* Hide close button on very small screens to avoid accidental clicks */
   }
 }
 
