@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
-import nodemailer from "nodemailer";
+import { sendOTPEmail } from "../utils/mailService.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import User from "../models/user.js";
@@ -28,15 +28,7 @@ router.use((req, res, next) => {
   next();
 });
 
-// Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
+// REMOVED: Local nodemailer transporter. Using shared mailService.
 
 const tempOtps = {};
 
@@ -54,12 +46,8 @@ router.post("/send-otp", async (req, res) => {
 
     tempOtps[email] = { otp, otpExpires, verified: false };
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "SkillSprint Signup OTP",
-      text: `Your OTP for SkillSprint signup is: ${otp}. It expires in 5 minutes.`,
-    });
+    // Use shared service
+    await sendOTPEmail(email, otp, "signup");
 
     res.json({ message: "OTP sent successfully" });
   } catch (error) {
@@ -161,12 +149,8 @@ router.post("/forgot-password", async (req, res) => {
     user.otpExpires = otpExpires;
     await user.save();
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "SkillSprint Password Reset OTP",
-      text: `Your OTP for resetting password is: ${otp}. It expires in 5 minutes.`,
-    });
+    // Use shared service
+    await sendOTPEmail(email, otp, "reset");
 
     res.json({ message: "Password reset OTP sent successfully." });
   } catch (error) {

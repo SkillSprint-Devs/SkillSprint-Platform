@@ -84,3 +84,20 @@ export const sendBoardInvite = async (to, { inviterName, boardName, shareUrl }) 
     `;
     await sendEmail(to, `Board Invite: ${boardName}`, html);
 };
+
+export const sendOTPEmail = async (to, otp, type = "signup") => {
+    const subject = type === "signup" ? "SkillSprint Signup OTP" : "SkillSprint Password Reset OTP";
+    const action = type === "signup" ? "signup" : "resetting password";
+
+    const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+             <h2 style="color: #1A1A1A;">${subject}</h2>
+            <p>Hello,</p>
+            <p>Your OTP for ${action} is: <strong style="font-size: 1.2rem; color: #DCEF62; background: #333; padding: 4px 8px; border-radius: 4px;">${otp}</strong>.</p>
+            <p>It expires in 5 minutes.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size: 0.8rem; color: #999;">If you didn't request this code, please ignore this email.</p>
+        </div>
+    `;
+    await sendEmail(to, subject, html);
+};
