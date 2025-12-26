@@ -3,8 +3,8 @@ import nodemailer from "nodemailer";
 // NOTE: In production, these should be in .env
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST || "smtp.gmail.com",
-    port: parseInt(process.env.EMAIL_PORT || "465"),
-    secure: true, // true for 465, false for other ports
+    port: parseInt(process.env.EMAIL_PORT || "587"),
+    secure: false, // true for 465, false for other ports (587 uses STARTTLS)
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -14,6 +14,8 @@ const transporter = nodemailer.createTransport({
         rejectUnauthorized: false
     },
     connectionTimeout: 20000, // Increased timeout for reliability
+    logger: true, // Log to console
+    debug: true,  // Include SMTP traffic in logs
 });
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5000";
