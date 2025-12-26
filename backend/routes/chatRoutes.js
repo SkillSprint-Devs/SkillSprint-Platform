@@ -6,6 +6,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 const router = express.Router();
 import User from "../models/user.js";
 import mongoose from "mongoose";
+import { updateStreak } from "../utils/streakHelper.js";
 
 // Search users to start a chat with
 router.get("/users/search", verifyToken, async (req, res) => {
@@ -73,6 +74,9 @@ router.post("/send", verifyToken, async (req, res) => {
             console.error("Failed to create chat notification:", notifErr);
             // Don't fail the message send if notification fails
         }
+
+        // Update Streak Activity
+        await updateStreak(senderId);
 
         res.status(201).json(newMessage);
     } catch (err) {

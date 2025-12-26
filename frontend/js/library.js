@@ -15,6 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentVisibility = "All";
     let currentView = "grid";
 
+    // --- STREAK TRACKING ---
+    let scrollTime = 0;
+    let isTracking = false;
+    let streakLogged = false;
+
     // --- ELEMENTS ---
     const libraryGrid = document.getElementById("libraryGrid");
     const emptyState = document.getElementById("emptyState");
@@ -419,4 +424,42 @@ document.addEventListener("DOMContentLoaded", () => {
             submitBtn.textContent = "Upload to Library";
         }
     };
+
+    // Activity tracking: 30 seconds of scroll/presence
+    let lastScrollTime = Date.now();
+    window.addEventListener("scroll", () => {
+        if (streakLogged) return;
+
+        const now = Date.now();
+        if (now - lastScrollTime > 1000) {
+            // Significant gap, reset or just count 1 second
+            scrollTime += 1000;
+        } else {
+            scrollTime += (now - lastScrollTime);
+        }
+        lastScrollTime = now;
+
+        if (scrollTime >= 30000 && !streakLogged) {
+            logStreakActivity();
+        }
+    });
+
+    async function logStreakActivity() {
+        if (streakLogged) return;
+        streakLogged = true;
+
+        try {
+            await fetch(`${API_BASE}/auth/log-activity`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            console.log("Streak activity logged via Library scroll");
+        } catch (err) {
+            console.error("Failed to log streak activity:", err);
+            streakLogged = false; // Retry later
+        }
+    }
 });

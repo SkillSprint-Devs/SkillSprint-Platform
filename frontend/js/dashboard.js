@@ -67,6 +67,9 @@ async function loadDashboard() {
     const profileImgUrl = user.profile_image || "assets/images/user-avatar.png";
     if (document.getElementById("profileAvatar")) document.getElementById("profileAvatar").src = profileImgUrl;
 
+    // Streak Info (NEW)
+    renderStreaks(data.user);
+
     // Wallet Info
     if (document.getElementById("walletCredits")) document.getElementById("walletCredits").textContent = formatMinutes(data.wallet?.remaining_time || 0);
     if (document.getElementById("walletSpent")) document.getElementById("walletSpent").textContent = formatMinutes(data.wallet?.spent || 0);
@@ -91,6 +94,46 @@ async function loadDashboard() {
     console.error("Dashboard load error:", err);
     if (typeof showToast === 'function') showToast("Error loading dashboard data", "error");
   }
+}
+
+// === STREAKS ===
+function renderStreaks(user) {
+  const countText = document.getElementById("streakCountText");
+  const motivText = document.getElementById("streakMotivationalText");
+  const progressBar = document.getElementById("streakProgressBar");
+
+  if (!user || !countText || !motivText || !progressBar) return;
+
+  const count = user.streakCount || 1;
+  countText.textContent = `🔥 ${count}-Day Streak`;
+
+  // Motivational messages
+  let message = "Keep up the great work!";
+  if (count === 1) message = "Start your journey today!";
+  else if (count < 3) message = "You're on a roll! Don't stop now.";
+  else if (count < 7) message = "Unstoppable! Keep the fire burning.";
+  else message = "Legendary! You're a SkillSprint champion.";
+
+  // Custom message if missed today (lastActiveDate check)
+  const lastActive = new Date(user.lastActiveDate);
+  const now = new Date();
+  const isToday = lastActive.getDate() === now.getDate() &&
+    lastActive.getMonth() === now.getMonth() &&
+    lastActive.getFullYear() === now.getFullYear();
+
+  if (!isToday) {
+    message = "Don't break your streak today!";
+  }
+
+  motivText.textContent = message;
+
+  // Progress logic: Cycle of 7 days for the progress bar
+  const progressPercent = ((count % 7) || 7) * (100 / 7);
+
+  // Small delay for animation
+  setTimeout(() => {
+    progressBar.style.width = `${progressPercent}%`;
+  }, 100);
 }
 
 // === TASKS ===

@@ -11,6 +11,7 @@ import {
     QUIZ_CONFIG,
     PASS_THRESHOLD
 } from "../utils/quizGenerator.js";
+import { updateStreak } from "../utils/streakHelper.js";
 
 const router = express.Router();
 
@@ -266,6 +267,9 @@ router.post("/start", verifyToken, async (req, res) => {
             shuffledOptionIndexes,
             userAnswers: new Array(questions.length).fill(-1)
         });
+
+        // Update Streak Activity
+        await updateStreak(userId);
 
         res.json({
             quizId: quizAttempt._id,

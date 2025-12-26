@@ -79,6 +79,11 @@ const userSchema = new mongoose.Schema({
   // SMARTBOARD
   avatarUrl: { type: String, default: "" },
   colorTag: { type: String, default: "" },
+
+  // 🔥 STREAKS
+  streakCount: { type: Number, default: 1 },
+  lastActiveDate: { type: Date, default: Date.now },
+  longestStreak: { type: Number, default: 1 },
 });
 
 // Auto-update counts

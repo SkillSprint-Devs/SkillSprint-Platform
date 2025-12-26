@@ -77,7 +77,10 @@ export async function apiCall(endpoint, method = "GET", body = null) {
 
   if (body) options.body = JSON.stringify(body);
 
-  let response;
+  if (endpoint.includes("/null/")) {
+    console.error("Blocked API call with null ID:", endpoint);
+    throw new Error("Invalid session state: Board ID is missing. Please refresh.");
+  }
 
   try {
     response = await fetch(API_BASE + endpoint, options);
@@ -1098,8 +1101,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  if (!boardId) {
-    showToast("No board ID provided", "error");
+  if (!boardId || boardId === "null" || boardId === "undefined") {
+    console.error("Invalid Board ID:", boardId);
+    showToast("Invalid or missing board ID", "error");
     return;
   }
 

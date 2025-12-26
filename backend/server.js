@@ -56,7 +56,7 @@ console.error = (...args) => {
 
     ErrorLog.create({
       errorMessage: errorMessage.substring(0, 5000), // Truncate if too long
-      errorType: 'Console',
+      errorType: 'Backend', // Use a valid enum value
       severity: 'Critical', // Assume console.error implies something important
       stackTrace: new Error().stack, // Capture where console.error was called
       environment: process.env.NODE_ENV || 'Development',
@@ -104,6 +104,7 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
+  transports: ["websocket", "polling"], // Explicitly set transports
 });
 
 app.set("io", io);
