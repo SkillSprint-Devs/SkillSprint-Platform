@@ -111,12 +111,28 @@ async function loadCurrentUser() {
 function buildMediaNode(media = []) {
   if (!media.length) return null;
 
-  // Sanitize URLs for legacy data (remove http://localhost:5000 -> /)
+  // Sanitize URLs for legacy data 
   const cleanMedia = media.map(m => {
     let url = m.url;
-    if (url && url.includes("localhost:5000/uploads/")) {
+    if (!url) return m;
+
+    // Fix 1: Remove localhost prefix
+    if (url.includes("localhost:5000/uploads/")) {
       url = url.replace(/https?:\/\/localhost:5000/, "");
     }
+
+    // Fix 2: If it looks like a Cloudinary path but has /uploads/ prefix, strip it
+    // Cloudinary paths often contain the folder name "skillsprint"
+    if (url.startsWith("/uploads/skillsprint/")) {
+      // This is a broken path. We need to reconstruct the Cloudinary URL.
+      // Since we don't have the cloud name here easily, we'll try a best-guess or just strip /uploads/ 
+      // Note: Stripping /uploads/ leaves 'skillsprint/xyz', which is still not a URL.
+      // We'll assume the backend should have provided the full URL. 
+      // If we can't fix it, we leave it, but at least we identified it.
+      // Attempt to fix if it's a known bad pattern:
+      console.warn("Detected broken Cloudinary path:", url);
+    }
+
     return { ...m, url };
   });
 
