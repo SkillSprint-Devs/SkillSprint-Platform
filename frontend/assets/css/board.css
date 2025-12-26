@@ -764,12 +764,17 @@ button:disabled {
     justify-content: center;
     max-width: 95vw;
     border-radius: 16px;
+    background: rgba(255, 255, 255, 0.95);
   }
 
   .toolbox .tool {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .toolbox .material-icons-outlined {
+    font-size: 20px;
   }
 
   .comments {
@@ -778,8 +783,16 @@ button:disabled {
     z-index: 1200;
   }
 
+  .current-user-badge {
+    padding: 4px;
+  }
+
   .current-user-badge span {
     display: none;
+  }
+
+  .right-section {
+    gap: 8px;
   }
 }
 
@@ -796,5 +809,12 @@ button:disabled {
     padding: 6px;
     min-width: 36px;
     border-radius: 10px;
+  }
+
+  .left-section #boardTitle {
+    font-size: 14px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

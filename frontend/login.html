@@ -103,15 +103,36 @@
       opacity: 0.9;
     }
 
-    .switch-text {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-    }
-
     .switch-text a {
       color: var(--accent);
       text-decoration: none;
       font-weight: 600;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem;
+        align-items: flex-start;
+        overflow-y: auto;
+      }
+
+      .auth-container {
+        padding-top: 2rem;
+      }
+
+      .auth-card {
+        padding: 2rem 1.5rem;
+        min-height: auto;
+      }
+
+      .auth-card h1 {
+        font-size: 1.8rem;
+      }
+
+      .auth-card h2 {
+        font-size: 1.4rem;
+      }
     }
   </style>
 </head>
