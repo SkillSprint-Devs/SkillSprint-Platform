@@ -71,7 +71,7 @@ export const sendPairProgrammingInvite = async (to, { inviterName, projectName, 
 };
 
 export const sendBoardInvite = async (to, { inviterName, boardName, shareUrl }) => {
-    const link = shareUrl.startsWith('http) ? shareUrl : `${BASE_URL}${shareUrl.startsWith(' / ') ? '' : ' / '}${shareUrl}`;
+    const link = shareUrl.startsWith('http') ? shareUrl : `${BASE_URL}${shareUrl.startsWith('/') ? '' : '/'}${shareUrl}`;
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
              <h2 style="color: #1A1A1A;">Whiteboard Invite!</h2>
