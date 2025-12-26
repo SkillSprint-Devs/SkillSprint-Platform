@@ -1,12 +1,20 @@
 import nodemailer from "nodemailer";
 
 // NOTE: In production, these should be in .env
+// NOTE: In production, these should be in .env
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.EMAIL_PORT || "465"),
+    secure: true, // true for 465, false for other ports
     auth: {
-        user: process.env.EMAIL_USER || "your-email@gmail.com",
-        pass: process.env.EMAIL_PASS || "your-password"
-    }
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        // do not fail on invalid certs if necessary (optional, use with caution)
+        rejectUnauthorized: false
+    },
+    connectionTimeout: 10000, // 10 seconds
 });
 
 
