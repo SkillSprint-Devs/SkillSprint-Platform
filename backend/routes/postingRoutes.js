@@ -50,7 +50,7 @@ router.post("/posts", verifyToken, upload.array("media", 3), async (req, res) =>
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const media = (req.files || []).map((f) => ({
-      url: f.path,
+      url: f.path || f.secure_url,
       type: f.mimetype,
     }));
 
