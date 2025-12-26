@@ -1,41 +1,38 @@
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 
-// Load SendGrid API Key
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-
-if (SENDGRID_API_KEY) {
-    sgMail.setApiKey(SENDGRID_API_KEY);
-    console.log("[MailService] SendGrid SDK Initialized.");
-} else {
-    console.warn("[MailService] WARNING: SENDGRID_API_KEY is missing. Email delivery will fail.");
-    console.log("[MailService] Fallback: Please check environment variables on Render.");
-}
+// NOTE: In production, these should be in .env
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.EMAIL_PORT || "465"),
+    secure: true, // true for 465, false for other ports
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false
+    },
+    connectionTimeout: 20000, // Increased timeout for reliability
+});
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5000";
 // Ensure CLIENT_URL doesn't have trailing slash for consistency
 const BASE_URL = CLIENT_URL.endsWith('/') ? CLIENT_URL.slice(0, -1) : CLIENT_URL;
 
 const sendEmail = async (to, subject, html) => {
-    if (!SENDGRID_API_KEY) {
-        console.error(`[MailService] Cannot send email to ${to}: SENDGRID_API_KEY is not set.`);
-        return;
-    }
-
-    const msg = {
+    const mailOptions = {
+        from: `"SkillSprint" <${process.env.EMAIL_USER}>`,
         to,
-        from: {
-            email: process.env.EMAIL_USER || "info@skillsprint.platform", // Needs to be a verified sender in SendGrid
-            name: "SkillSprint"
-        },
         subject,
         html
     };
 
     try {
-        await sgMail.send(msg);
-        console.log(`[MailService] Email sent successfully to ${to}`);
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${to}`);
     } catch (error) {
-        console.error("[MailService] SendGrid Error:", error.response ? error.response.body : error.message);
+        console.error("Email error:", error);
     }
 };
 
@@ -74,7 +71,7 @@ export const sendPairProgrammingInvite = async (to, { inviterName, projectName, 
 };
 
 export const sendBoardInvite = async (to, { inviterName, boardName, shareUrl }) => {
-    const link = shareUrl.startsWith('http') ? shareUrl : `${BASE_URL}${shareUrl.startsWith('/') ? '' : '/'}${shareUrl}`;
+    const link = shareUrl.startsWith('http) ? shareUrl : `${BASE_URL}${shareUrl.startsWith(' / ') ? '' : ' / '}${shareUrl}`;
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
              <h2 style="color: #1A1A1A;">Whiteboard Invite!</h2>
