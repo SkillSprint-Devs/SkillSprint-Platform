@@ -1,4 +1,7 @@
 const token = localStorage.getItem("token");
+if (!token) {
+    window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.href);
+}
 const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
     ? 'http://localhost:5000'
     : ''; // Empty string for relative path in production

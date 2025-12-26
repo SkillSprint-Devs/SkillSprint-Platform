@@ -97,7 +97,8 @@ router.get("/all", verifyToken, async (req, res) => {
         { "permissions.commenters": userId },
         { "permissions.viewers": userId },
       ],
-    }).select("name owner createdAt updatedAt members");
+    }).select("name owner createdAt updatedAt members")
+      .populate("owner", "name profile_image");
 
     res.json(boards);
   } catch (err) {
@@ -242,7 +243,7 @@ router.post("/:id/share", verifyToken, async (req, res) => {
 
     await board.save();
 
-    const shareUrl = `${req.protocol}://${req.get('host')}/pair-programming/join/${shareToken}`;
+    const shareUrl = `${req.protocol}://${req.get('host')}/pair-programming.html?join=${shareToken}`;
 
     res.json({
       success: true,
@@ -321,7 +322,7 @@ router.post("/:id/invite", verifyToken, async (req, res) => {
         title: "Pair Programming Invite",
         message: `${inviter?.name || 'Someone'} invited you to \"${board.name}\"`,
         type: "invite",
-        link: shareUrl,
+        link: `${req.protocol}://${req.get('host')}/pair-programming.html?join=${shareToken}`,
       });
       await notification.save();
       return notification;
@@ -776,13 +777,81 @@ router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, r
         if (!res.headersSent) {
           res.status(500).json({ message: "Error saving run result", error: saveErr.message });
         }
-      }
-    });
+      });
 
   } catch (err) {
     console.error("❌ Error running code:", err);
     res.status(500).json({ message: "Error running code", error: err.message });
   }
 });
+
+// Join Board via Token
+router.post(
+  "/join",
+  verifyToken,
+  async (req, res) => {
+    try {
+      const { token } = req.body;
+      if (!token) return res.status(400).json({ success: false, message: "Token required" });
+
+      const board = await PairProgramming.findOne({
+        "shareLinks": {
+          $elemMatch: {
+            token: token,
+            expiresAt: { $gt: new Date() }
+          }
+        }
+      });
+
+      if (!board) return res.status(404).json({ success: false, message: "Invalid or expired link" });
+
+      const userId = req.user.id;
+      const shareLink = board.shareLinks.find(sl => sl.token === token);
+      const permission = shareLink.permission || 'viewer';
+
+      let changed = false;
+      if (!board.members.includes(userId)) {
+        board.members.push(userId);
+        changed = true;
+      }
+
+      // Add specific permission
+      const roleMap = {
+        'editor': 'editors',
+        'commenter': 'commenters',
+        'viewer': 'viewers'
+      };
+      const listName = roleMap[permission] || 'viewers';
+
+      if (!board.permissions[listName].includes(userId)) {
+        board.permissions[listName].push(userId);
+        changed = true;
+      }
+
+      if (changed) {
+        await board.save();
+
+        const notification = new Notification({
+          user_id: userId,
+          title: "Access Granted",
+          message: `You have joined the project "${board.name}" as ${permission}`,
+          type: "invite",
+          link: `/pair-programming.html?id=${board._id}`,
+        });
+        await notification.save();
+
+        const io = req.app.get("io");
+        if (io) {
+          io.to(userId.toString()).emit("notification", notification);
+        }
+      }
+
+      res.json({ success: true, data: { boardId: board._id } });
+    } catch (err) {
+      console.error("❌ Error joining board:", err);
+      res.status(500).json({ success: false, message: "Error joining board", error: err.message });
+    }
+  }
+);
 
 export default router;

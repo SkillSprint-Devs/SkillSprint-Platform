@@ -54,22 +54,46 @@
     if (!data || !Array.isArray(data.activeUsers)) return;
 
     data.activeUsers.forEach((user) => {
+      // Don't show self in the small stack if we have a primary badge
+      if (currentUser && user._id === currentUser._id) return;
+
       const img = document.createElement("img");
       img.src = user.profile_image || user.avatarUrl || "assets/images/user-avatar.png";
       img.className = "user-avatar-stack";
       img.title = user.name || "User";
+      // Add a border color if they have a consistent color tag
+      if (user.colorTag) img.style.borderColor = user.colorTag;
       container.appendChild(img);
     });
+  });
 
+  // Cursor handling
+  const remoteCursors = {};
 
-    const me = window.CURRENT_USER;
-    if (me && !data.activeUsers.some(u => u._id === me._id)) {
-      const myImg = document.createElement("img");
-      myImg.src = me.profile_image || me.avatarUrl || "assets/images/user-avatar.png";
-      myImg.className = "user-avatar-stack";
-      myImg.title = `${me.name || "You"} (You)`;
-      container.appendChild(myImg);
+  socket.on("board:cursor", (data) => {
+    const { userId, name, x, y, color } = data;
+    if (currentUser && userId === currentUser._id) return;
+
+    let cursorEl = remoteCursors[userId];
+    if (!cursorEl) {
+      cursorEl = document.createElement("div");
+      cursorEl.className = "remote-cursor";
+      cursorEl.innerHTML = `
+        <div class="cursor-pointer" style="background: ${color || '#8C52FF'}"></div>
+        <div class="cursor-label">${name || 'User'}</div>
+      `;
+      document.getElementById("canvasWrapper").appendChild(cursorEl);
+      remoteCursors[userId] = cursorEl;
     }
+
+    cursorEl.style.transform = `translate(${x}px, ${y}px)`;
+
+    // Auto-remove after inactivity
+    clearTimeout(cursorEl.timeout);
+    cursorEl.timeout = setTimeout(() => {
+      cursorEl.remove();
+      delete remoteCursors[userId];
+    }, 5000);
   });
 
 
@@ -134,6 +158,16 @@
       }
       socket.emit("board:autosave", { boardId, ...data });
     },
+    emitCursor: (x, y) => {
+      if (!boardId || !currentUser) return;
+      socket.emit("board:cursor", {
+        boardId,
+        userId: currentUser._id,
+        name: currentUser.name,
+        x, y,
+        color: currentUser.colorTag || '#8C52FF'
+      });
+    }
   };
 })();
 

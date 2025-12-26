@@ -115,6 +115,7 @@ router.get(
       ],
     })
       .select("name owner createdAt updatedAt lastSavedImage members")
+      .populate("owner", "name profile_image")
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -884,7 +885,7 @@ router.post(
     }
 
     // Determine share URL
-    const shareUrl = `${req.protocol}://${req.get('host')}/board?join=${token}`;
+    const shareUrl = `${req.protocol}://${req.get('host')}/board.html?join=${token}`;
 
     const sentInvites = [];
 

@@ -432,8 +432,8 @@
       const roleClass = isOwner ? 'role-owner' : 'role-member';
 
       // Calculate member count (default to 1 inclusive of owner if undefined, or length of members array)
-      // Note: Backend now selects 'members', which is an array of IDs.
-      const memberCount = item.members ? item.members.length : 1;
+      const members = item.members || [];
+      const memberCount = members.length || 1;
 
       div.innerHTML = `
         <div class="card-header">
