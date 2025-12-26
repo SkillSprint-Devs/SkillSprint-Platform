@@ -114,7 +114,7 @@ router.get(
         { "permissions.viewers": userId },
       ],
     })
-      .select("name owner createdAt updatedAt lastSavedImage")
+      .select("name owner createdAt updatedAt lastSavedImage members")
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
