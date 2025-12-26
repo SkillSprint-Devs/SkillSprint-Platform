@@ -649,7 +649,7 @@ router.post(
 
     // If a file was uploaded, set the URL
     if (req.file) {
-      recording.fileUrl = `${req.protocol}://${req.get("host")}/uploads/recordings/${req.file.filename}`;
+      recording.fileUrl = req.file.path || req.file.secure_url;
     }
 
     if (duration !== undefined) recording.duration = Number(duration);

@@ -122,17 +122,15 @@ function buildMediaNode(media = []) {
     }
 
     // Fix 2: If it looks like a Cloudinary path but has /uploads/ prefix, strip it
-    // Cloudinary paths often contain the folder name "skillsprint" or the host res.cloudinary.com
     if (url.includes("res.cloudinary.com") && url.includes("/uploads/")) {
       url = url.replace("/uploads/", "/");
     } else if (url.startsWith("/uploads/skillsprint/")) {
       // If it's a relative path starting with /uploads/skillsprint/, 
-      // it might be missing the base Cloudinary URL parts.
-      // However, for now, let's at least make it a relative path the server can try to resolve 
-      // if it's actually stored locally, OR try to strip /uploads/ if it's meant to be Cloudinary.
-      console.warn("Detected broken Cloudinary path:", url);
-      // Logic from your existing backend shows Cloudinary is used. 
-      // If the backend returns /uploads/skillsprint/xxx, it's likely a bug in how f.path was saved.
+      // it might be stored locally OR be a mis-formatted Cloudinary path.
+      // Since the backend now uses Cloudinary, we should try to resolve it correctly.
+      // If the file actually exists locally, the current /uploads/ static middleware will serve it.
+      // If it's meant to be Cloudinary, we'd need the cloud name, but for now we'll just log and try relative.
+      console.log("Normalizing relative path:", url);
     }
 
     return { ...m, url };

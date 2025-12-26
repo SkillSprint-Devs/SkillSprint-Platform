@@ -38,7 +38,7 @@ router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
         let fileExt = "";
 
         if (req.file) {
-            fileUrl = `${req.protocol}://${req.get("host")}/uploads/library/${req.file.filename}`;
+            fileUrl = req.file.path || req.file.secure_url;
             fileSize = req.file.size;
             fileExt = path.extname(req.file.originalname).toLowerCase();
         } else if (type === "Note") {
