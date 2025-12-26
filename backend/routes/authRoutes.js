@@ -246,8 +246,8 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
 
     const freshUser = await User.findById(user._id).select("-password_hash -otp -otpExpires").lean();
 
-    if (freshUser.profile_image && !freshUser.profile_image.startsWith("http")) {
-      freshUser.profile_image = `${req.protocol}://${req.get("host")}/${freshUser.profile_image}`;
+    if (freshUser.profile_image && !freshUser.profile_image.startsWith("http") && !freshUser.profile_image.startsWith("/")) {
+      freshUser.profile_image = `/${freshUser.profile_image}`;
     }
 
     res.json({
@@ -274,8 +274,8 @@ router.get("/me", async (req, res) => {
 
     const user = await User.findById(decoded.id).select("-password_hash -otp -otpExpires").lean();
 
-    if (user.profile_image && !user.profile_image.startsWith("http")) {
-      user.profile_image = `${req.protocol}://${req.get("host")}/${user.profile_image}`;
+    if (user.profile_image && !user.profile_image.startsWith("http") && !user.profile_image.startsWith("/")) {
+      user.profile_image = `/${user.profile_image}`;
     }
 
     res.json(user);
