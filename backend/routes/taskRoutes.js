@@ -2,6 +2,7 @@ import express from "express";
 import Task from "../models/task.js";
 import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import { updateStreak } from "../utils/streakHelper.js";
 
 const router = express.Router();
 
@@ -46,6 +47,9 @@ router.post("/", verifyToken, async (req, res) => {
     } catch (notifErr) {
       console.error("Failed to create task notification:", notifErr);
     }
+
+    // Update Streak Activity
+    await updateStreak(req.user.id);
 
     res.status(201).json(task);
   } catch (err) {

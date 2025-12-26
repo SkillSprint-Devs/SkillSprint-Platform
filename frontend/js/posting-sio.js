@@ -14,7 +14,10 @@ if (!token || !currentUser?._id) {
 
   const socket = io(SOCKET_URL, {
     auth: { token },
-    transports: ['websocket', 'polling']
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000
   });
 
   // --- CONNECTION HANDLING ---
@@ -120,7 +123,10 @@ if (!token || !currentUser?._id) {
 
   // ----------------- ERROR HANDLING -----------------
   socket.on("connect_error", (err) => {
-    console.error("Socket.io connection error:", err.message);
+    console.error("❌ Socket.io connection error:", err.message);
+    if (err.message === "xhr poll error") {
+      console.warn("Possible CORS or network issue. Check server status.");
+    }
   });
 }
 

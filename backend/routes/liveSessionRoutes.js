@@ -5,6 +5,7 @@ import WalletService from "../utils/walletService.js";
 import User from "../models/user.js";
 import Notification from "../models/notification.js";
 import { sendInviteEmail } from "../utils/mailService.js";
+import { updateStreak } from "../utils/streakHelper.js";
 
 const router = express.Router();
 console.log("LiveSessionRoutes initialized");
@@ -166,6 +167,9 @@ router.post("/create", verifyToken, async (req, res) => {
             }
         }
 
+        // Update Streak Activity
+        await updateStreak(mentorId);
+
         res.status(201).json({ message: "Session created successfully", session });
 
     } catch (error) {
@@ -237,12 +241,18 @@ router.post("/respond-invite", verifyToken, async (req, res) => {
                 session.acceptedUserIds.push(userId);
                 await session.save();
             }
+            // Update Streak Activity
+            await updateStreak(userId);
+
             return res.json({ message: "Invitation accepted", success: true });
         } else {
             // Decline logic: remove from invited and accepted (if they previously accepted)
             session.invitedUserIds = session.invitedUserIds.filter(id => id.toString() !== userId);
             session.acceptedUserIds = session.acceptedUserIds.filter(id => id.toString() !== userId);
             await session.save();
+            // Update Streak Activity
+            await updateStreak(userId);
+
             return res.json({ message: "Invitation declined", success: true });
         }
     } catch (err) {

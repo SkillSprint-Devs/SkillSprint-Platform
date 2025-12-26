@@ -9,6 +9,7 @@ import Follower from "../models/follower.js";
 import Like from "../models/like.js";
 import Comment from "../models/comment.js";
 import Notification from "../models/notification.js";
+import { updateStreak } from "../utils/streakHelper.js";
 
 const router = express.Router();
 
@@ -64,6 +65,9 @@ router.post("/posts", verifyToken, upload.array("media", 3), async (req, res) =>
 
     await newPost.save();
     await newPost.populate("authorId", "name email avatarUrl position");
+
+    // Update Streak Activity
+    await updateStreak(userId);
 
     // SOCKET emits
     try {
@@ -367,6 +371,9 @@ router.post("/posts/:postId/comments", verifyToken, async (req, res) => {
     });
 
     await newComment.save();
+
+    // Update Streak Activity
+    await updateStreak(userId);
 
     // Create notification for post author
     try {

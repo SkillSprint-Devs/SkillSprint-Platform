@@ -8,6 +8,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import User from "../models/user.js";
 import WalletService from "../utils/walletService.js";
+import { updateStreak } from "../utils/streakHelper.js";
 
 dotenv.config();
 
@@ -117,6 +118,9 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
+    // Update Streak on Login
+    await updateStreak(user._id);
+
     res.json({
       message: "Login successful",
       token,
@@ -125,6 +129,8 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        streakCount: user.streakCount,
+        longestStreak: user.longestStreak
       },
     });
   } catch (error) {
@@ -329,6 +335,17 @@ router.get("/profile", verifyToken, async (req, res) => {
   } catch (err) {
     console.error("Profile fetch error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Log User Activity (for streaks)
+router.post("/log-activity", verifyToken, async (req, res) => {
+  try {
+    await updateStreak(req.user.id);
+    res.json({ success: true, message: "Activity logged" });
+  } catch (err) {
+    console.error("Log activity error:", err);
+    res.status(500).json({ message: "Failed to log activity" });
   }
 });
 

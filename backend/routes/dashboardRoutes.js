@@ -12,6 +12,7 @@ import Library from "../models/library.js";
 
 import { verifyToken } from "../middleware/authMiddleware.js";
 import WalletService from "../utils/walletService.js";
+import { updateStreak } from "../utils/streakHelper.js";
 
 const router = express.Router();
 
@@ -22,9 +23,11 @@ router.get("/", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
+    // Update Streak Activity
+    await updateStreak(userId);
 
     const user = await User.findById(userId).select(
-      "name role profile_image email"
+      "name role profile_image email streakCount lastActiveDate longestStreak"
     );
     if (!user) return res.status(404).json({ message: "User not found" });
 

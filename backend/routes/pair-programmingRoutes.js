@@ -3,6 +3,7 @@ import express from "express";
 import User from "../models/user.js";
 import PairProgramming from "../models/pair-programming.js";
 import Notification from "../models/notification.js";
+import { updateStreak } from "../utils/streakHelper.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { exec } from "child_process";
 import { sendPairProgrammingInvite } from "../utils/mailService.js";
@@ -108,6 +109,10 @@ router.get("/all", verifyToken, async (req, res) => {
 router.get("/:id", verifyToken, async (req, res) => {
   try {
     console.log("📥 GET /:id - Fetching board:", req.params.id);
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid Board ID" });
+    }
 
     const board = await PairProgramming.findById(req.params.id)
       .populate("owner", "name email")
@@ -573,6 +578,11 @@ router.delete("/:id/folder/:folderId/file/:fileId", verifyToken, async (req, res
 router.post("/:id/comment", verifyToken, async (req, res) => {
   try {
     const { text, folderId, fileId, line } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid Board ID" });
+    }
+
     const board = await PairProgramming.findById(req.params.id);
     if (!board) return res.status(404).json({ message: "Board not found" });
 
