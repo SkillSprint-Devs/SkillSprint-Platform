@@ -96,7 +96,7 @@ router.get("/all", verifyToken, async (req, res) => {
         { "permissions.commenters": userId },
         { "permissions.viewers": userId },
       ],
-    }).select("name owner createdAt updatedAt");
+    }).select("name owner createdAt updatedAt members");
 
     res.json(boards);
   } catch (err) {

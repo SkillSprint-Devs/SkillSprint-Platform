@@ -128,100 +128,100 @@
     /* ===================== CARD GRID ===================== */
     .collab-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 24px;
       padding: 0;
     }
 
-    /* ===================== PASTEL COLORS ===================== */
-    .collab-card {
-      background: #ffffff;
-    }
-
-    .collab-card:nth-child(4n+1) {
-      background: linear-gradient(135deg, #f7e7ff 0%, #f0d9ff 100%);
-    }
-
-    .collab-card:nth-child(4n+2) {
-      background: linear-gradient(135deg, #e8f7ff 0%, #d9f0ff 100%);
-    }
-
-    .collab-card:nth-child(4n+3) {
-      background: linear-gradient(135deg, #fff4e5 0%, #ffe8cc 100%);
-    }
-
-    .collab-card:nth-child(4n+4) {
-      background: linear-gradient(135deg, #e8ffe8 0%, #d4ffd4 100%);
-    }
-
     /* ===================== CARDS ===================== */
     .collab-card {
+      background: #ffffff;
       color: var(--text-dark, #1A1A1A);
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid rgba(0, 0, 0, 0.06);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
+    .collab-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* Top colored strip for visual interest without being overwhelming */
     .collab-card::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: var(--accent, #DCEF62);
-      transform: scaleX(0);
-      transition: transform 0.3s ease;
+      height: 6px;
+      background: linear-gradient(90deg, var(--accent, #DCEF62), var(--highlight, #8C52FF));
+      opacity: 0.8;
     }
 
-    .collab-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      border-color: var(--accent, #DCEF62);
-    }
-
-    .collab-card:hover::before {
-      transform: scaleX(1);
+    .card-header {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .card-title {
-      font-weight: 600;
-      font-size: 1.15rem;
-      margin-bottom: 16px;
-      letter-spacing: 0.3px;
+      font-weight: 700;
+      font-size: 1.25rem;
       color: var(--text-dark, #1A1A1A);
+      line-height: 1.3;
+      margin: 0;
     }
 
-    .card-meta {
+    .card-type-icon {
+      color: var(--text-light-2, #888);
+      font-size: 1.5rem;
+      /* Placeholder for icon */
+    }
+
+    .card-body {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
     }
 
-    .card-meta p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #555;
+    .meta-row {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 0.9rem;
+      color: #666;
     }
 
-    .card-meta strong {
-      color: #333;
-      font-weight: 500;
-      min-width: 90px;
+    .meta-icon {
+      font-size: 1.1rem;
+      opacity: 0.7;
+    }
+
+    .card-footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .role-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 50px;
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -229,23 +229,35 @@
     }
 
     .role-owner {
-      background: var(--accent, #DCEF62);
-      color: var(--text-dark, #1A1A1A);
-      font-weight: 700;
+      background: rgba(220, 239, 98, 0.2);
+      color: #7a8618;
+      /* Darker accent */
+      border: 1px solid rgba(220, 239, 98, 0.4);
     }
 
     .role-member {
-      background: var(--muted, #bfbfbf);
-      color: var(--text-dark, #1A1A1A);
+      background: #f0f0f0;
+      color: #666;
+      border: 1px solid #e0e0e0;
+    }
+
+    .members-count {
+      font-size: 0.85rem;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* Empty message */
     .empty-msg {
       text-align: center;
-      padding: 40px 20px;
+      padding: 60px 20px;
       color: #999;
-      font-size: 0.95rem;
+      font-size: 1rem;
       grid-column: 1 / -1;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 16px;
     }
 
     /* ===================== RESPONSIVE ===================== */
@@ -412,16 +424,40 @@
       const div = document.createElement("div");
       div.className = "collab-card";
 
-      const createdDate = new Date(item.createdAt).toLocaleDateString();
-      const roleClass = isOwner ? 'role-owner' : 'role-member';
+      // Date Formatting
+      const dateObj = new Date(item.updatedAt || item.createdAt);
+      const dateStr = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
       const roleText = isOwner ? 'Owner' : 'Member';
+      const roleClass = isOwner ? 'role-owner' : 'role-member';
+
+      // Calculate member count (default to 1 inclusive of owner if undefined, or length of members array)
+      // Note: Backend now selects 'members', which is an array of IDs.
+      const memberCount = item.members ? item.members.length : 1;
 
       div.innerHTML = `
-        <div class="card-title">${item.name}</div>
-        <div class="card-meta">
-          <p><strong>Created By:</strong> ${item.owner?.name || "Unknown"}</p>
-          <p><strong>Created On:</strong> ${createdDate}</p>
-          <p><strong>Your Role:</strong> <span class="role-badge ${roleClass}">${roleText}</span></p>
+        <div class="card-header">
+           <h3 class="card-title">${item.name}</h3>
+           <!-- Optional Icon based on type or just a placeholder? 
+                Let's use a generic 'workspaces' icon or similar if we imported material icons.
+                But for now, clean header is enough. -->
+        </div>
+        
+        <div class="card-body">
+            <div class="meta-row">
+                <span>Created by <strong>${item.owner?.name || "Unknown"}</strong></span>
+            </div>
+            <div class="meta-row">
+                <span>Last updated ${dateStr}</span>
+            </div>
+        </div>
+
+        <div class="card-footer">
+           <span class="role-badge ${roleClass}">${roleText}</span>
+           <span class="members-count" title="${memberCount} members">
+              <!-- Simple text or icon -->
+              ${memberCount} Members
+           </span>
         </div>
       `;
 
