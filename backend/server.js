@@ -35,6 +35,41 @@ import adminRoutes from "./routes/adminRoutes.js";
 import errorRoutes from "./routes/errorRoutes.js";
 import errorLogger from "./middleware/errorLogger.js";
 import { initTaskScheduler } from "./utils/taskScheduler.js";
+import ErrorLog from "./models/ErrorLog.js";
+
+// --- CONSOLE ERROR INTERCEPTOR ---
+// Captures all console.error calls and saves them to MongoDB
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  // 1. Output to terminal as usual
+  originalConsoleError.apply(console, args);
+
+  // 2. Persist to Database (Fire-and-forget)
+  try {
+    const errorMessage = args.map(arg => {
+      if (arg instanceof Error) return arg.stack || arg.message;
+      if (typeof arg === 'object') return JSON.stringify(arg);
+      return String(arg);
+    }).join(' ');
+
+    // Basic filtering to avoid logging harmless warnings if needed
+
+    ErrorLog.create({
+      errorMessage: errorMessage.substring(0, 5000), // Truncate if too long
+      errorType: 'Console',
+      severity: 'Critical', // Assume console.error implies something important
+      stackTrace: new Error().stack, // Capture where console.error was called
+      environment: process.env.NODE_ENV || 'Development',
+      timestamp: new Date()
+    }).catch(err => {
+      // Prevent infinite loops if DB connection fails
+      process.stdout.write(`[Interceptor] DB Log Failed: ${err.message}\n`);
+    });
+  } catch (interceptErr) {
+    process.stdout.write(`[Interceptor] Logic Failed: ${interceptErr.message}\n`);
+  }
+};
+
 
 const app = express();
 
@@ -267,6 +302,12 @@ io.on("connection", (socket) => {
 
 // ROUTES 
 app.get("/api/status", (req, res) => res.json({ status: "ok", version: "1.2.0" }));
+
+// TEST ROUTE: Trigger an error to test DB persistence
+app.get("/api/test-error-log", (req, res) => {
+  console.error("TEST_ERROR_LOG: This is a manual test error to verify DB persistence.");
+  res.json({ message: "Error triggered. Check server console and ErrorLog DB collection." });
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/posting", postingRoutes);
