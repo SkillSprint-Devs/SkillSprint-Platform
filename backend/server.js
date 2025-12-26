@@ -355,9 +355,34 @@ app.use((err, req, res, next) => {
 });
 
 // SERVER START 
+// SERVER START 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Health check: http://localhost:${PORT}/api/status`);
+
   // Initialize task reminder scheduler
   initTaskScheduler(io);
 });
+
+// GRACEFUL SHUTDOWN
+const gracefulShutdown = () => {
+  console.log("Received kill signal, shutting down gracefully...");
+  server.close(() => {
+    console.log("Closed out remaining connections.");
+    mongoose.connection.close(false, () => {
+      console.log("MongoDB connection closed.");
+      process.exit(0);
+    });
+  });
+
+  // Force close after 10s
+  setTimeout(() => {
+    console.error("Could not close connections in time, forcefully shutting down");
+    process.exit(1);
+  }, 10000);
+};
+
+process.on("SIGTERM", gracefulShutdown);
+process.on("SIGINT", gracefulShutdown);
