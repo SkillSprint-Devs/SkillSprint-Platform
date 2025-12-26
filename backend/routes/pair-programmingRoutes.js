@@ -777,7 +777,8 @@ router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, r
         if (!res.headersSent) {
           res.status(500).json({ message: "Error saving run result", error: saveErr.message });
         }
-      });
+      }
+    });
 
   } catch (err) {
     console.error("❌ Error running code:", err);
