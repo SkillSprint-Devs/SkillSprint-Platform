@@ -15,7 +15,7 @@
         if (!t) {
           // If no user token, redirect to login? Or assume public access might allow simplified view? 
           // For now, assume auth required.
-          window.location.href = 'login.html'; // Or simple alert
+          window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
           return;
         }
 
@@ -578,6 +578,13 @@
                 width: parseInt((strokeRange && strokeRange.value) || 4, 10),
                 tool: tool
               });
+            }
+
+            // Emit cursor for real-time presence
+            if (window.BoardSocket && !window.cursorThrottle) {
+              window.cursorThrottle = true;
+              window.BoardSocket.emitCursor(e.clientX, e.clientY);
+              setTimeout(() => { window.cursorThrottle = false; }, 50); // 20fps emission
             }
 
             // Track points for saving

@@ -322,7 +322,8 @@ body {
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  height: 220px;
+  height: auto;
+  min-height: 220px;
 }
 
 .welcome-card::after {
@@ -349,8 +350,16 @@ body {
 
 .welcome-card p {
   color: #a0a0a0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   font-size: 1rem;
+}
+
+#sprintGoalsText {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  margin-bottom: 1.5rem;
 }
 
 .actions {
@@ -1027,11 +1036,53 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: -1.5rem;
-  /* Slight overlap with welcome card */
+  margin-top: 1.5rem;
   z-index: 10;
   position: relative;
   transition: var(--transition);
+}
+
+.nested-streak {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+  margin-top: 1rem;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.nested-streak:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nested-streak .streak-info h3 {
+  color: var(--accent);
+  margin-bottom: 2px;
+  font-size: 1rem;
+}
+
+.nested-streak .streak-info p {
+  color: #ccc;
+  font-size: 0.8rem;
+  margin-bottom: 0;
+}
+
+.nested-streak .streak-fire {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+  background: rgba(220, 239, 98, 0.2);
+}
+
+.nested-streak .streak-progress-container {
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  height: 6px;
+}
+
+.nested-streak .streak-progress-bar {
+  background: var(--accent);
 }
 
 .streak-card:hover {

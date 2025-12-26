@@ -185,7 +185,13 @@
           localStorage.setItem("user", JSON.stringify(data.user));
 
           showToast("Login successful!", "success", 2000, () => {
-            window.location.href = "dashboard.html";
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+            if (redirectUrl) {
+              window.location.href = redirectUrl;
+            } else {
+              window.location.href = "dashboard.html";
+            }
           });
         } catch (err) {
           console.error("Login error:", err);

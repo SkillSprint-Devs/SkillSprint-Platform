@@ -34,6 +34,39 @@ const state = {
 
 let boardId = null;
 
+// Join via Token Logic
+(async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const joinToken = urlParams.get('join');
+  if (joinToken) {
+    try {
+      const t = localStorage.getItem('token');
+      if (!t) {
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + t
+        },
+        body: JSON.stringify({ token: joinToken })
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = `pair-programming.html?id=${data.data.boardId}`;
+      } else {
+        alert('Invalid or expired invite link.');
+        window.location.href = 'dashboard.html';
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+})();
+
 export function showToast(message, type = "info", duration = 2500) {
   const existing = document.querySelector(".toast");
   if (existing) existing.remove();
@@ -1141,6 +1174,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   console.log("✅ Initialization complete");
+
+  // Track cursor for real-time presence
+  let cursorThrottle = false;
+  document.addEventListener("mousemove", (e) => {
+    if (!cursorThrottle && boardId) {
+      cursorThrottle = true;
+      emitCursorUpdate(boardId, { x: e.clientX, y: e.clientY });
+      setTimeout(() => { cursorThrottle = false; }, 100); // 10fps for PP is sufficient
+    }
+  });
 });
 // Mobile Sidebar Toggle
 const sidebarToggle = document.getElementById("sidebarToggle");

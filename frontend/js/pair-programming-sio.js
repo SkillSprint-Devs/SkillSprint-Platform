@@ -59,7 +59,7 @@ export function initSocket(token, boardIdParam) {
 
   if (!token) {
     _showToast("Please login to continue", "error");
-    window.location.href = "/login";
+    window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.href);
     return;
   }
 
@@ -193,9 +193,42 @@ export function initSocket(token, boardIdParam) {
     }
   });
 
-  socket.on("cursor-update", ({ userId, fileId, cursor }) => {
-    // Optional: handle remote cursor update visual
-    console.log("Cursor update:", userId, cursor);
+  // Remote Cursors handling for Pair Programming
+  const remoteCursors = {};
+
+  socket.on("cursor-update", ({ userId, name, cursor, color }) => {
+    if (userId === currentUserId) return;
+
+    let cursorEl = remoteCursors[userId];
+    if (!cursorEl) {
+      cursorEl = document.createElement("div");
+      cursorEl.className = "remote-cursor pp-cursor";
+      cursorEl.innerHTML = `
+        <div class="cursor-pointer" style="background: ${color || '#8C52FF'}"></div>
+        <div class="cursor-label">${name || 'User'}</div>
+      `;
+      document.body.appendChild(cursorEl); // Static positioning or relative to editor? Editor is better but complex.
+      remoteCursors[userId] = cursorEl;
+    }
+
+    if (cursor) {
+      // In Pair Programming, cursor might be {line, ch} for editor, or {x, y} for mouse.
+      // If it's x,y coordinates:
+      if (cursor.x !== undefined && cursor.y !== undefined) {
+        cursorEl.style.display = "flex";
+        cursorEl.style.transform = `translate(${cursor.x}px, ${cursor.y}px)`;
+      } else {
+        // If it's editor coordinates, we might hide or try to map.
+        // For now, let's assume we want mouse tracking for general collaboration.
+        cursorEl.style.display = "none";
+      }
+    }
+
+    clearTimeout(cursorEl.timeout);
+    cursorEl.timeout = setTimeout(() => {
+      cursorEl.remove();
+      delete remoteCursors[userId];
+    }, 5000);
   });
 
   socket.on("terminal:output", ({ data }) => {
@@ -212,9 +245,15 @@ export function emitTyping(boardId, fileId, status) {
   }
 }
 
-export function emitCursorUpdate(boardId, fileId, cursor) {
+export function emitCursorUpdate(boardId, cursor) {
   if (socket && socket.connected) {
-    socket.emit("cursor-update", { boardId, fileId, cursor });
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    socket.emit("cursor-update", {
+      boardId,
+      cursor,
+      name: user.name || "User",
+      color: user.colorTag || "#8C52FF"
+    });
   }
 }
 

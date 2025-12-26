@@ -105,7 +105,7 @@ function renderStreaks(user) {
   if (!user || !countText || !motivText || !progressBar) return;
 
   const count = user.streakCount || 1;
-  countText.textContent = `🔥 ${count}-Day Streak`;
+  countText.textContent = `${count}-Day Streak`;
 
   // Motivational messages
   let message = "Keep up the great work!";

@@ -94,24 +94,24 @@
           <div class="welcome-card">
             <div class="text">
               <h2>Hi, <span id="username">Guest</span>!</h2>
-              <p>Ready to sprint towards your goals today?</p>
+              <p id="sprintGoalsText">Ready to sprint towards your goals today?</p>
+
+              <!-- STREAKS CARD (MOVED INSIDE) -->
+              <div class="streak-card nested-streak">
+                <div class="streak-header">
+                  <div class="streak-fire"><i class="fa-solid fa-fire"></i></div>
+                  <div class="streak-info">
+                    <h3 id="streakCountText">1-Day Streak</h3>
+                    <p id="streakMotivationalText">Start your journey today!</p>
+                  </div>
+                </div>
+                <div class="streak-progress-container">
+                  <div id="streakProgressBar" class="streak-progress-bar"></div>
+                </div>
+              </div>
             </div>
             <div class="img">
               <img src="assets/images/coffee-penguin.png" alt="Welcome illustration" />
-            </div>
-          </div>
-
-          <!-- STREAKS CARD (NEW) -->
-          <div class="streak-card">
-            <div class="streak-header">
-              <div class="streak-fire"><i class="fa-solid fa-fire"></i></div>
-              <div class="streak-info">
-                <h3 id="streakCountText">🔥 1-Day Streak</h3>
-                <p id="streakMotivationalText">Start your journey today!</p>
-              </div>
-            </div>
-            <div class="streak-progress-container">
-              <div class="streak-progress-bar" id="streakProgressBar"></div>
             </div>
           </div>
 

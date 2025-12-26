@@ -19,6 +19,8 @@ const transporter = nodemailer.createTransport({
 
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5000";
+// Ensure CLIENT_URL doesn't have trailing slash for consistency
+const BASE_URL = CLIENT_URL.endsWith('/') ? CLIENT_URL.slice(0, -1) : CLIENT_URL;
 
 const sendEmail = async (to, subject, html) => {
     const mailOptions = {
@@ -39,7 +41,7 @@ const sendEmail = async (to, subject, html) => {
 export const sendInviteEmail = async (to, sessionData) => { // Keep for backward compatibility or refactor
     const { sessionName, mentorName, scheduledDateTime, sessionId } = sessionData;
     const date = new Date(scheduledDateTime).toLocaleString();
-    const joinLink = `${CLIENT_URL}/livevideo.html?sessionId=${sessionId}`;
+    const joinLink = `${BASE_URL}/livevideo.html?sessionId=${sessionId}`;
 
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
@@ -57,8 +59,8 @@ export const sendInviteEmail = async (to, sessionData) => { // Keep for backward
 };
 
 export const sendPairProgrammingInvite = async (to, { inviterName, projectName, shareUrl }) => {
-    // Ensure link is absolute or uses CLIENT_URL if shareUrl is relative
-    const link = shareUrl.startsWith('http') ? shareUrl : `${CLIENT_URL}${shareUrl}`;
+    // Ensure link is absolute
+    const link = shareUrl.startsWith('http') ? shareUrl : `${BASE_URL}${shareUrl.startsWith('/') ? '' : '/'}${shareUrl}`;
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
             <h2 style="color: #1A1A1A;">Coding Invite!</h2>
@@ -72,7 +74,7 @@ export const sendPairProgrammingInvite = async (to, { inviterName, projectName, 
 };
 
 export const sendBoardInvite = async (to, { inviterName, boardName, shareUrl }) => {
-    const link = shareUrl.startsWith('http') ? shareUrl : `${CLIENT_URL}${shareUrl}`;
+    const link = shareUrl.startsWith('http') ? shareUrl : `${BASE_URL}${shareUrl.startsWith('/') ? '' : '/'}${shareUrl}`;
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
              <h2 style="color: #1A1A1A;">Whiteboard Invite!</h2>
