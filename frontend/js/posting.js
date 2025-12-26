@@ -110,17 +110,27 @@ async function loadCurrentUser() {
 
 function buildMediaNode(media = []) {
   if (!media.length) return null;
+
+  // Sanitize URLs for legacy data (remove http://localhost:5000 -> /)
+  const cleanMedia = media.map(m => {
+    let url = m.url;
+    if (url && url.includes("localhost:5000/uploads/")) {
+      url = url.replace(/https?:\/\/localhost:5000/, "");
+    }
+    return { ...m, url };
+  });
+
   const wrap = el("div", { class: "post-media" });
-  if (media.length === 1) {
-    const m = media[0];
+  if (cleanMedia.length === 1) {
+    const m = cleanMedia[0];
     wrap.appendChild(
       m.type?.startsWith("video")
         ? el("video", { src: m.url, class: "post-img", controls: true })
         : el("img", { src: m.url, class: "post-img", alt: "post media" })
     );
-  } else if (media.length === 2) {
+  } else if (cleanMedia.length === 2) {
     wrap.classList.add("two-images");
-    media.forEach((m) =>
+    cleanMedia.forEach((m) =>
       wrap.appendChild(
         m.type?.startsWith("video")
           ? el("video", { src: m.url, class: "post-img", controls: true })
@@ -129,7 +139,7 @@ function buildMediaNode(media = []) {
     );
   } else {
     wrap.classList.add("carousel");
-    media.slice(0, 3).forEach((m) => {
+    cleanMedia.slice(0, 3).forEach((m) => {
       const item = el("div", { class: "carousel-item" });
       item.appendChild(
         m.type?.startsWith("video")
