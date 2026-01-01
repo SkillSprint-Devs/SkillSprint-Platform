@@ -416,6 +416,9 @@ async function toggleLike(postId, likeBtn) {
     icon.className = liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
     countSpan.textContent = String(data.likesCount || 0);
 
+    if (liked) showToast("Liked post", "success");
+    else showToast("Unliked post", "info");
+
     await window.refreshPostLikes(postId);
 
   } catch (err) {
@@ -452,13 +455,34 @@ async function toggleComments(node, postId) {
     }
 
     data.comments.forEach((c) => {
-      const item = el("div", { class: "comment-item" });
+      const item = el("div", { class: "comment-item", "data-comment-id": c._id });
       item.appendChild(el("img", { src: c.userId?.profile_image || "./assets/images/user-avatar.png", class: "comment-avatar" }));
+
       const body = el("div", { class: "comment-body" }, [
         el("div", { class: "comment-author" }, [safeText(c.userId?.name)]),
         el("div", { class: "comment-text" }, [safeText(c.text)]),
       ]);
       item.appendChild(body);
+
+      // Add Actions if owner
+      // Use string comparison for IDs to be safe
+      const currentUserId = currentUser?._id || currentUser?.id;
+      const commentUserId = c.userId?._id || c.userId;
+
+      if (currentUserId && String(currentUserId) === String(commentUserId)) {
+        const actions = el("div", { class: "comment-actions" });
+
+        const editBtn = el("button", { class: "comment-action-btn edit", title: "Edit (5m limit)" }, [el("i", { class: "fa-solid fa-pen" })]);
+        editBtn.onclick = () => enableCommentEdit(c, item);
+
+        const delBtn = el("button", { class: "comment-action-btn delete", title: "Delete" }, [el("i", { class: "fa-solid fa-trash" })]);
+        delBtn.onclick = () => deleteComment(c._id);
+
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+        item.appendChild(actions);
+      }
+
       panel.appendChild(item);
     });
   } catch (err) {
@@ -485,6 +509,7 @@ function renderPostsToDOM(posts = []) {
 }
 
 window.renderPost = (post, { prepend = false } = {}) => {
+  if (document.querySelector(`.feed-post[data-id="${post._id}"]`)) return; // Prevent duplicates
   const node = buildPostNode(post);
   if (prepend && dom.postsContainer.firstChild) dom.postsContainer.insertBefore(node, dom.postsContainer.firstChild);
   else dom.postsContainer.appendChild(node);
@@ -541,7 +566,32 @@ function bindPostEventsFor(node) {
             inp.value = "";
             showToast("Comment added", "success");
 
-            if (typeof window.loadPosts === 'function') window.loadPosts();
+            // Manually add comment to DOM if panel is open
+            const panel = q(".comments-panel", node);
+            if (panel && panel.classList.contains("open")) {
+              const item = el("div", { class: "comment-item" });
+              item.appendChild(el("img", { src: currentUser.profile_image || "./assets/images/user-avatar.png", class: "comment-avatar" }));
+              const body = el("div", { class: "comment-body" }, [
+                el("div", { class: "comment-author" }, [safeText(currentUser.name)]),
+                el("div", { class: "comment-text" }, [safeText(inp.value.trim())]),
+              ]);
+              item.appendChild(body);
+
+              // Remove "No comments" placeholder if exists
+              const placeholder = q(".placeholder", panel);
+              if (placeholder) placeholder.remove();
+
+              panel.insertBefore(item, panel.firstChild); // Newest first or append? usually append for comments, but let's match existing flow. Actually API sorts desc, so usually prepend. Let's just prepend to match natural flow
+            }
+
+            // Update count
+            const countSpan = q(".comment-count span", node);
+            if (countSpan) {
+              const current = parseInt(countSpan.textContent || "0");
+              countSpan.textContent = String(current + 1);
+            }
+
+            // if (typeof window.loadPosts === 'function') window.loadPosts(); // REMOVED FULL RELOAD
           } else {
             throw new Error('Comment failed');
           }
@@ -882,6 +932,7 @@ async function loadChatList() {
 
     if (!res.ok) throw new Error("Failed to fetch connections");
     const conversations = await res.json();
+    console.log("DEBUG: Conversations:", conversations);
 
     if (!Array.isArray(conversations) || conversations.length === 0) {
       chatList.innerHTML = "<div class='placeholder'>No connections to chat with yet.</div>";
@@ -912,6 +963,13 @@ async function loadChatList() {
       // Pass the user object to openChatPanel (needs name, profile_image, _id)
       btn.onclick = () => openChatPanel(u);
 
+      card.dataset.userId = u._id;
+      const count = c.unreadCount || 0;
+      if (count > 0) {
+        const badge = el("span", { class: "chat-badge" }, [String(count)]);
+        card.appendChild(badge);
+      }
+
       card.append(img, info, btn);
       chatList.appendChild(card);
     });
@@ -928,6 +986,13 @@ function openChatPanel(user) {
   chatUserImg.src = user.profile_image || "./assets/images/user-avatar.png";
   chatUserName.textContent = user.name || "User";
   chatPanel.classList.add("open");
+
+  // Clear badge
+  const card = document.querySelector(`.chat-card[data-user-id="${user._id}"]`);
+  if (card) {
+    const badge = card.querySelector(".chat-badge");
+    if (badge) badge.remove();
+  }
 
   // Reset Body
   chatPanelBody.innerHTML = "<div class='loading'>Loading history...</div>";
@@ -1033,6 +1098,39 @@ async function sendChatMessage(recipientId, content) {
   }
 }
 
+window.handleIncomingMessage = (msg) => {
+  // 1. If chat open with this user
+  if (document.getElementById("chatPanel").classList.contains("open") && currentChatUserId === msg.sender) {
+    const myId = JSON.parse(localStorage.getItem("user"))?._id;
+    // msg.sender is ID string, renderMessage handles it
+    renderMessage(msg, myId);
+    const body = document.getElementById("chatPanelBody");
+    body.scrollTop = body.scrollHeight;
+  } else {
+    // 2. Else update badge
+    const card = document.querySelector(`.chat-card[data-user-id="${msg.sender}"]`);
+    if (card) {
+      let badge = card.querySelector(".chat-badge");
+      if (!badge) {
+        badge = document.createElement("span");
+        badge.className = "chat-badge";
+        badge.textContent = "0";
+        card.appendChild(badge);
+      }
+      badge.textContent = String(parseInt(badge.textContent || "0") + 1);
+
+      // Update preview text
+      const subtext = card.querySelector(".chat-subtext");
+      if (subtext) subtext.textContent = msg.content.length > 20 ? msg.content.substring(0, 20) + "..." : msg.content;
+
+    } else {
+      // New conversation? Reload list
+      if (typeof loadChatList === 'function') loadChatList();
+    }
+    if (typeof showToast === 'function') showToast("New message received", "info");
+  }
+};
+
 
 // Init
 (async function init() {
@@ -1045,3 +1143,144 @@ async function sendChatMessage(recipientId, content) {
 
 
 
+// ==========================================
+// COMMENT EDIT/DELETE FUNCTIONS (Appended)
+// ==========================================
+
+async function enableCommentEdit(comment, itemNode) {
+  const body = itemNode.querySelector(".comment-body");
+  const originalText = comment.text;
+
+  // Check time limit client-side as well
+  const diff = Date.now() - new Date(comment.createdAt).getTime();
+  if (diff > 5 * 60 * 1000) return showToast("Time limit exceeded", "error");
+
+  body.innerHTML = "";
+  const input = el("input", { type: "text", class: "comment-edit-input", value: originalText });
+  const saveBtn = el("button", { class: "btn-primary btn-sm" }, ["Save"]);
+  const cancelBtn = el("button", { class: "btn-secondary btn-sm" }, ["Cancel"]);
+
+  const wrapper = el("div", { class: "edit-wrapper" }, [input, saveBtn, cancelBtn]);
+  body.appendChild(wrapper);
+
+  cancelBtn.onclick = () => {
+    body.innerHTML = "";
+    body.appendChild(el("div", { class: "comment-author" }, [safeText(comment.userId?.name)]));
+    body.appendChild(el("div", { class: "comment-text" }, [safeText(originalText)]));
+  };
+
+  saveBtn.onclick = async () => {
+    const newText = input.value.trim();
+    if (!newText || newText === originalText) return cancelBtn.click();
+
+    try {
+      const res = await fetch(`${POSTING_BASE}/comments/${comment._id}`, {
+        method: "PUT",
+        headers: { ...authHeader, "Content-Type": "application/json" },
+        body: JSON.stringify({ text: newText }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Edit failed");
+
+      comment.text = newText; // update local object
+      body.innerHTML = "";
+      body.appendChild(el("div", { class: "comment-author" }, [safeText(comment.userId?.name)]));
+      body.appendChild(el("div", { class: "comment-text" }, [safeText(newText)]));
+      showToast("Comment updated", "success");
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  };
+}
+
+async function deleteComment(commentId) {
+  if (!await customConfirm("Delete this comment?")) return;
+
+  try {
+    const res = await fetch(`${POSTING_BASE}/comments/${commentId}`, {
+      method: "DELETE",
+      headers: authHeader,
+    });
+    if (!res.ok) throw new Error("Delete failed");
+
+    // Remove from DOM locally
+    const item = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+    if (item) {
+      // decrement count
+      const postNode = item.closest(".feed-post");
+      if (postNode) {
+        const countSpan = postNode.querySelector(".comment-count span");
+        if (countSpan) countSpan.textContent = String(Math.max(0, parseInt(countSpan.textContent || 0) - 1));
+      }
+      item.remove();
+    }
+
+    showToast("Comment deleted", "success");
+  } catch (err) {
+    showToast("Failed to delete comment", "error");
+  }
+}
+
+// INJECT STYLES FOR BUTTONS
+const style = document.createElement("style");
+style.innerHTML = `
+.comment-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.comment-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #666;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+.comment-action-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+.comment-action-btn.delete:hover {
+  color: #e74c3c;
+  background: #ffe6e6;
+}
+.comment-edit-input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.edit-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+.chat-card {
+  position: relative;
+}
+.chat-badge {
+    background: #FF5252;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    position: absolute;
+    top: 5px;
+    top: 5px;
+    right: 5px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 100;
+}
+`;
+document.head.appendChild(style);

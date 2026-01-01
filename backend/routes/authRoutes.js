@@ -7,6 +7,7 @@ import { sendOTPEmail } from "../utils/mailService.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import User from "../models/user.js";
+import Otp from "../models/otp.js";
 import WalletService from "../utils/walletService.js";
 import { updateStreak } from "../utils/streakHelper.js";
 
@@ -31,7 +32,24 @@ router.use((req, res, next) => {
 
 // REMOVED: Local nodemailer transporter. Using shared mailService.
 
-const tempOtps = {};
+// REMOVED: Local nodemailer transporter. Using shared mailService.
+
+// REMOVED: Local nodemailer transporter. Using shared mailService.
+
+// Helpers
+const validatePassword = (password) => {
+  // At least 8 chars, 1 uppercase, 1 number, 1 special char
+  const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+  return regex.test(password);
+};
+
+const validateUsername = (name) => {
+  // Cannot start with number
+  if (/^\d/.test(name)) return false;
+  // Cannot be all numbers
+  if (/^\d+$/.test(name)) return false;
+  return true;
+};
 
 //  Send Signup OTP 
 router.post("/send-otp", async (req, res) => {
@@ -43,9 +61,13 @@ router.post("/send-otp", async (req, res) => {
     if (existingUser) return res.status(400).json({ message: "User already exists" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = Date.now() + 5 * 60 * 1000;
 
-    tempOtps[email] = { otp, otpExpires, verified: false };
+    // 1) Delete any existing OTP for this email (so we don't have duplicates)
+    await Otp.deleteMany({ email });
+
+    // 2) Save new OTP to DB
+    const newOtp = new Otp({ email, otp });
+    await newOtp.save();
 
     // Use shared service
     await sendOTPEmail(email, otp, "signup");
@@ -64,19 +86,31 @@ router.post("/verify-signup-otp", async (req, res) => {
     if (!name || !email || !password || !otp)
       return res.status(400).json({ message: "Missing required fields" });
 
+    // Validate Username
+    if (!validateUsername(name)) {
+      return res.status(400).json({
+        message: "Username cannot start with a number and cannot be all numbers."
+      });
+    }
+
+    // Validate Password
+    if (!validatePassword(password)) {
+      return res.status(400).json({
+        message: "Password must contain at least 8 characters, including a number, an uppercase letter, and a special character."
+      });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User already exists" });
 
-    const record = tempOtps[email];
-    if (!record || record.otp !== otp)
+    // Check DB for OTP
+    const otpRecord = await Otp.findOne({ email, otp });
+    if (!otpRecord) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
-
-    if (Date.now() > record.otpExpires) {
-      delete tempOtps[email];
-      return res.status(400).json({ message: "OTP expired" });
     }
 
-    tempOtps[email].verified = true;
+    // If valid, allow creation
+    // (Note: No explicit 'verified' flag needed if we proceed immediately)
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -92,7 +126,10 @@ router.post("/verify-signup-otp", async (req, res) => {
 
     // Create Wallet for new user
     await WalletService.createWallet(newUser._id);
-    delete tempOtps[email];
+
+    // Clean up used OTP
+    await Otp.deleteMany({ email });
+
 
     res.status(201).json({ message: "Signup successful! Please login." });
   } catch (error) {
@@ -171,6 +208,13 @@ router.post("/reset-password", async (req, res) => {
     const { email, otp, newPassword } = req.body;
     if (!email || !otp || !newPassword)
       return res.status(400).json({ message: "Missing fields" });
+
+    // Validate Password
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({
+        message: "Password must contain at least 8 characters, including a number, an uppercase letter, and a special character."
+      });
+    }
 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });

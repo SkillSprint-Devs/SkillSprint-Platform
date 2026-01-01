@@ -38,7 +38,10 @@ socket.on('receive_message', (data) => {
         appendMessage(data, false);
         scrollToBottom();
     } else {
+        // If we are on chat page but not in this conversation, we can update badge manually or reload
+        // Reloading is easiest to fetch updated Last Message
         loadConversations();
+        // Optional: Play sound or toast
     }
 });
 
@@ -86,6 +89,15 @@ function updateUserStatus(userId) {
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     loadConversations();
+
+    // Mobile Back Button Handler
+    const backBtn = document.getElementById('mobileBackBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            document.body.classList.remove('chat-open');
+            currentChatUserId = null; // Optional: Reset selection
+        });
+    }
 });
 
 // --- Search Logic ---
@@ -189,6 +201,15 @@ async function loadConversations() {
                     <small class="text-muted text-truncate d-block" style="max-width: 180px;">${lastMsg}</small>
                 </div>
             `;
+
+            // Unread Badge
+            if (conv.unreadCount > 0) {
+                const badge = document.createElement("span");
+                badge.className = "chat-badge";
+                badge.textContent = conv.unreadCount;
+                item.appendChild(badge);
+            }
+
             list.appendChild(item);
         });
     } catch (err) {
@@ -198,6 +219,9 @@ async function loadConversations() {
 
 async function openChat(otherUser) {
     currentChatUserId = otherUser._id;
+
+    // Mobile Transition
+    document.body.classList.add('chat-open');
 
     // UI Updates
     document.getElementById('noChatSelected').style.display = 'none';
@@ -236,23 +260,32 @@ async function openChat(otherUser) {
 
 function appendMessage(msg, isMe) {
     const historyContainer = document.getElementById('chatHistory');
-    if (!isMe && msg.senderId) isMe = (msg.senderId === user._id);
+
+    // Robust ID comparison
+    const myId = user._id;
+    const senderId = msg.sender?._id || msg.sender || msg.senderId;
+    // Strict string comparison
+    if (String(senderId) === String(myId)) isMe = true;
 
     const date = new Date(msg.createdAt || Date.now());
     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const bubble = document.createElement('div');
     bubble.className = `message-bubble ${isMe ? 'message-sent' : 'message-received'}`;
-    bubble.id = `msg-${msg._id || 'temp-' + Date.now()}`;
+    const domId = `msg-${msg._id || 'temp-' + Date.now()}`;
+    bubble.id = domId;
+
+    // Debug ID
+    console.log(`Appending message ${domId}, ID: ${msg._id}`);
 
     let actionsHtml = '';
     if (isMe) {
         actionsHtml = `
             <div class="msg-actions">
-                <span class="action-btn" title="Edit" onclick="openEditModal('${msg._id}', '${msg.content.replace(/'/g, "\\'")}')">
+                <span class="action-btn edit-btn" title="Edit" onclick="window.handleEdit('${msg._id}', this)">
                     <i class="fa-solid fa-pen"></i>
                 </span>
-                <span class="action-btn text-danger" title="Delete" onclick="deleteMessage('${msg._id}')">
+                <span class="action-btn text-danger delete-btn" title="Delete" onclick="window.handleDelete('${msg._id}')">
                     <i class="fa-solid fa-trash"></i>
                 </span>
             </div>
@@ -268,8 +301,49 @@ function appendMessage(msg, isMe) {
         ${statusHtml}
     `;
 
+    // Add double click listener for actions
+    if (isMe) {
+        bubble.addEventListener('dblclick', (e) => {
+            e.stopPropagation(); // prevent document click from closing immediately
+            // Close others
+            document.querySelectorAll('.msg-actions.show').forEach(el => el.classList.remove('show'));
+
+            const actions = bubble.querySelector('.msg-actions');
+            if (actions) actions.classList.toggle('show');
+        });
+
+    }
+
     historyContainer.appendChild(bubble);
 }
+
+// Global Click to close menu
+document.addEventListener('click', (e) => {
+    // If clicking outside any bubble, close all menus
+    if (!e.target.closest('.message-bubble')) {
+        document.querySelectorAll('.msg-actions.show').forEach(el => el.classList.remove('show'));
+    }
+});
+
+// Explicit Global Handlers
+window.handleDelete = function (id) {
+    if (!id || id === 'undefined') {
+        alert("Error: Missing Message ID");
+        return;
+    }
+    deleteMessage(id);
+};
+
+window.handleEdit = function (id, btnElement) {
+    if (!id) return;
+    const bubble = document.getElementById(`msg-${id}`);
+    const content = bubble ? bubble.querySelector('.msg-content').textContent : "";
+
+    openEditModal(id, content);
+    if (btnElement) {
+        btnElement.closest('.msg-actions').classList.remove('show');
+    }
+};
 
 function scrollToBottom() {
     const historyContainer = document.getElementById('chatHistory');
@@ -397,11 +471,22 @@ window.deleteMessage = async function (id) {
         if (res.ok) {
             const bubble = document.getElementById(`msg-${id}`);
             if (bubble) bubble.remove();
+
+            // Remove the debug alert later
+            // alert("DEBUG: Delete success"); 
+
+            if (typeof showToast === 'function') {
+                showToast("Message deleted successfully", "success");
+            } else {
+                alert("Message deleted successfully");
+            }
         } else {
             const d = await res.json();
-            alert(d.message);
+            console.error("Delete failed:", d);
+            alert(`Delete Failed: ${d.message || res.statusText}`);
         }
     } catch (err) {
         console.error(err);
+        alert(`Request Error: ${err.message}`);
     }
 }

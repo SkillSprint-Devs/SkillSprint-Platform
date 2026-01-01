@@ -438,6 +438,104 @@ router.get("/posts/:postId/comments", verifyToken, async (req, res) => {
   }
 });
 
+// UPDATE COMMENT
+router.put("/comments/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text } = req.body;
+    const userId = req.user.id;
+
+    const comment = await Comment.findById(id);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    if (comment.userId.toString() !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const timeDiff = Date.now() - new Date(comment.createdAt).getTime();
+    if (timeDiff > 5 * 60 * 1000) {
+      return res.status(400).json({ message: "Edit time limit (5 mins) exceeded" });
+    }
+
+    comment.text = text || comment.text;
+    await comment.save();
+
+    // Socket emit
+    try {
+      const io = req.app.get("io");
+      const post = await Post.findById(comment.postId);
+
+      const payload = { comment };
+      io.to(comment.postId.toString()).emit("commentUpdated", payload); // if using rooms for posts? No, usually not.
+      // We emit global or to followers
+      io.emit("commentUpdatedGlobal", payload);
+
+      // Specifically notify relevant users? 
+      // For simplicity, sticking to patterns used:
+      const followerIds = await getFollowerIds(userId);
+      followerIds.forEach(fid => io.to(fid).emit("commentUpdated", payload));
+
+      // Also notify post author if different
+      if (post && post.authorId.toString() !== userId) {
+        io.to(post.authorId.toString()).emit("commentUpdated", payload);
+      }
+      io.to(userId).emit("commentUpdated", payload);
+
+    } catch (e) {
+      console.error("Socket emit error (comment update):", e);
+    }
+
+    res.json({ message: "Comment updated", comment });
+  } catch (error) {
+    console.error("Update Comment Error:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
+// DELETE COMMENT
+router.delete("/comments/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const comment = await Comment.findById(id);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    const post = await Post.findById(comment.postId);
+
+    // Allow comment author OR post author to delete
+    if (comment.userId.toString() !== userId && (!post || post.authorId.toString() !== userId)) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    await Comment.findByIdAndDelete(id);
+
+    // Socket emit
+    try {
+      const io = req.app.get("io");
+      const payload = { commentId: id, postId: comment.postId };
+
+      io.emit("commentDeletedGlobal", payload);
+
+      const followerIds = await getFollowerIds(comment.userId); // notify followers of comment author
+      followerIds.forEach(fid => io.to(fid).emit("commentDeleted", payload));
+
+      if (post) {
+        io.to(post.authorId.toString()).emit("commentDeleted", payload);
+      }
+      io.to(userId).emit("commentDeleted", payload);
+
+    } catch (e) {
+      console.error("Socket emit error (comment delete):", e);
+    }
+
+    res.json({ message: "Comment deleted" });
+  } catch (error) {
+    console.error("Delete Comment Error:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
 router.get("/posts", verifyToken, async (req, res) => {
   try {
     const currentUserId = req.user.id;

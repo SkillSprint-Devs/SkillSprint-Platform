@@ -122,6 +122,16 @@
       text-decoration: none;
       font-weight: 600;
     }
+
+    .error-msg {
+      color: #e74c3c;
+      font-size: 0.8rem;
+      text-align: left;
+      width: 100%;
+      margin-top: -0.8rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
   </style>
 </head>
 
@@ -134,8 +144,12 @@
 
       <form id="signupForm">
         <input type="text" id="name" placeholder="Full Name" required />
+        <p class="error-msg" id="nameError"></p>
+
         <input type="email" id="email" placeholder="Email" required />
+
         <input type="password" id="password" placeholder="Password" required />
+        <p class="error-msg" id="passwordError"></p>
 
         <div id="otpSection">
           <input type="text" id="otp" placeholder="Enter OTP" />
@@ -166,6 +180,17 @@
     const verifyBtn = document.getElementById("verifyBtn");
     const otpSection = document.getElementById("otpSection");
 
+    const validatePassword = (password) => {
+      const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+      return regex.test(password);
+    };
+
+    const validateUsername = (name) => {
+      if (/^\d/.test(name)) return false;
+      if (/^\d+$/.test(name)) return false;
+      return true;
+    };
+
     sendBtn.addEventListener("click", async (e) => {
       e.preventDefault();
 
@@ -173,8 +198,31 @@
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
 
+      const nameError = document.getElementById("nameError");
+      const passwordError = document.getElementById("passwordError");
+
+      // Reset errors
+      nameError.style.display = "none";
+      passwordError.style.display = "none";
+
       if (!name || !email || !password)
         return showToast("Please fill all fields first!", "error");
+
+      let isValid = true;
+
+      if (!validateUsername(name)) {
+        nameError.textContent = "Username cannot start with a number or be all numbers.";
+        nameError.style.display = "block";
+        isValid = false;
+      }
+
+      if (!validatePassword(password)) {
+        passwordError.textContent = "Password must contain at least 8 characters, including a number, an uppercase letter, and a special character.";
+        passwordError.style.display = "block";
+        isValid = false;
+      }
+
+      if (!isValid) return;
 
       try {
         const res = await fetch(`${API_BASE}/auth/send-otp`, {

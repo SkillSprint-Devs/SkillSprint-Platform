@@ -4,20 +4,20 @@ window.alert = function (msg) {
 
 
 function showToast(message, type = "info", duration = 2500, callback = null) {
- 
+
   const existing = document.querySelector(".toast");
   if (existing) existing.remove();
 
-  
+
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
   toast.textContent = message;
   document.body.appendChild(toast);
 
- 
+
   requestAnimationFrame(() => toast.classList.add("show"));
 
-  
+
   setTimeout(() => {
     toast.classList.remove("show");
     setTimeout(() => {
@@ -32,9 +32,9 @@ const toastStyle = document.createElement("style");
 toastStyle.innerHTML = `
 .toast {
   position: fixed;
-  top: 25px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%) translateY(-10px);
+  transform: translate(-50%, -50%);
   background-color: #333;
   color: #fff;
   padding: 10px 18px;
@@ -53,7 +53,7 @@ toastStyle.innerHTML = `
 }
 .toast.show {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translate(-50%, -50%);
 }
 .toast.success {
   background-color: #28a745;
@@ -74,10 +74,10 @@ document.head.appendChild(toastStyle);
 
 
 window.confirm = function (message, onConfirm, onCancel) {
-  
+
   document.querySelector(".confirm-modal")?.remove();
 
- 
+
   const modal = document.createElement("div");
   modal.className = "confirm-modal";
 
@@ -93,10 +93,10 @@ window.confirm = function (message, onConfirm, onCancel) {
 
   document.body.appendChild(modal);
 
-  
+
   requestAnimationFrame(() => modal.classList.add("show"));
 
-  
+
   modal.querySelector(".confirm-yes").onclick = () => {
     modal.classList.remove("show");
     setTimeout(() => modal.remove(), 300);
