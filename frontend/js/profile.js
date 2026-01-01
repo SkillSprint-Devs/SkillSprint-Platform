@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   window.alert = msg => showToast(msg, "info");
 
+  const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+    ? 'http://localhost:5000/api'
+    : '/api';
+
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Please login first!");
@@ -469,7 +473,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const formData = new FormData();
       formData.append(field, JSON.stringify(list));
 
-      const res = await fetch("/api/auth/update-profile", {
+      const res = await fetch(`${API_BASE}/auth/update-profile`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -529,7 +533,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load profile and initialize
   async function loadProfile() {
     try {
-      const res = await fetch("/api/auth/me", {
+      const res = await fetch(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const user = await res.json();
@@ -574,7 +578,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-      const res = await fetch("/api/auth/update-profile", {
+      const res = await fetch(`${API_BASE}/auth/update-profile`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

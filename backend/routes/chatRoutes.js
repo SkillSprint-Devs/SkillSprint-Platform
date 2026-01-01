@@ -69,6 +69,7 @@ router.post("/send", verifyToken, async (req, res) => {
             const io = req.app.get("io");
             if (io) {
                 io.to(recipientId.toString()).emit("notification", notification);
+                io.to(recipientId.toString()).emit("receiveMessage", newMessage);
             }
         } catch (notifErr) {
             console.error("Failed to create chat notification:", notifErr);
@@ -141,7 +142,19 @@ router.get("/conversations/recent", verifyToken, async (req, res) => {
 
 
 
-        res.json(conversations);
+        // Populate unread counts
+        const results = await Promise.all(conversations.map(async (c) => {
+            const chatUserId = c.userDetails._id;
+            const unreadCount = await Chat.countDocuments({
+                sender: chatUserId,
+                sender: chatUserId,
+                recipient: myId,
+                read: { $ne: true }
+            });
+            return { ...c, unreadCount };
+        }));
+
+        res.json(results);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Error fetching conversations", error: err.message });
@@ -167,6 +180,12 @@ router.get("/:userId", verifyToken, async (req, res) => {
                 { sender: new mongoose.Types.ObjectId(userId), recipient: new mongoose.Types.ObjectId(myId) }
             ]
         };
+
+        // Mark as read
+        await Chat.updateMany(
+            { sender: userId, recipient: myId, read: false },
+            { $set: { read: true } }
+        );
 
         const messages = await Chat.find(query).sort({ createdAt: 1 });
         res.json(messages);
@@ -213,17 +232,21 @@ router.delete("/:messageId", verifyToken, async (req, res) => {
     try {
         const { messageId } = req.params;
         const userId = req.user.id;
+        console.log(`Backend: DELETE request for message ${messageId} from user ${userId}`);
 
         const message = await Chat.findById(messageId);
         if (!message) {
+            console.error(`Backend: Message ${messageId} NOT FOUND.`);
             return res.status(404).json({ message: "Message not found" });
         }
 
         if (message.sender.toString() !== userId) {
+            console.error(`Backend: Permission denied. User ${userId} tried to delete message ${messageId} belonging to ${message.sender}`);
             return res.status(403).json({ message: "You can only delete your own messages" });
         }
 
         await message.deleteOne();
+        console.log(`Backend: Message ${messageId} deleted successfully.`);
 
         res.json({ message: "Message deleted successfully" });
     } catch (err) {
