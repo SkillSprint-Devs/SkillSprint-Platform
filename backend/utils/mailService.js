@@ -1,45 +1,30 @@
 import dotenv from "dotenv";
 dotenv.config();
-import nodemailer from "nodemailer";
 
-// NOTE: In production, these should be in .env
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp.gmail.com",
-    port: parseInt(process.env.EMAIL_PORT || "587"),
-    secure: false, // true for 465, false for other ports (587 uses STARTTLS)
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        // do not fail on invalid certs
-        rejectUnauthorized: false
-    },
-    connectionTimeout: 20000, // Increased timeout for reliability
-    logger: true, // Log to console
-    debug: true,  // Include SMTP traffic in logs
-});
+import sgMail from "@sendgrid/mail";
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5000";
-// Ensure CLIENT_URL doesn't have trailing slash for consistency
 const BASE_URL = CLIENT_URL.endsWith('/') ? CLIENT_URL.slice(0, -1) : CLIENT_URL;
 
 const sendEmail = async (to, subject, html) => {
-    const mailOptions = {
-        from: `"SkillSprint" <${process.env.EMAIL_USER}>`,
-        to,
-        subject,
-        html
-    };
-
     try {
-        await transporter.sendMail(mailOptions);
+        await sgMail.send({
+            to,
+            from: process.env.EMAIL_FROM, // verified sender in SendGrid
+            subject,
+            html,
+        });
         console.log(`Email sent to ${to}`);
+        return true;
     } catch (error) {
-        console.error("Email error:", error);
+        console.error("SendGrid Email Error:", error);
+        return false;
     }
 };
 
+// Live Session Invite
 export const sendInviteEmail = async (to, sessionData) => {
     const { sessionName, mentorName, scheduledDateTime, sessionId } = sessionData;
     const date = new Date(scheduledDateTime).toLocaleString();
@@ -54,12 +39,13 @@ export const sendInviteEmail = async (to, sessionData) => {
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <p>Please log in to your SkillSprint dashboard to Accept or Decline this invitation.</p>
             <a href="${joinLink}" style="display: inline-block; background: #DCEF62; color: #1A1A1A; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Invitation</a>
-             <p style="margin-top: 20px; font-size: 0.8rem; color: #999;">If you don't have a SkillSprint account, please ignore this email.</p>
+            <p style="margin-top: 20px; font-size: 0.8rem; color: #999;">If you don't have a SkillSprint account, please ignore this email.</p>
         </div>
     `;
     await sendEmail(to, `New Live Session Invitation: ${sessionName}`, html);
 };
 
+// Pair Programming Invite
 export const sendPairProgrammingInvite = async (to, { inviterName, projectName, shareUrl }) => {
     const link = shareUrl.startsWith('http') ? shareUrl : `${BASE_URL}${shareUrl.startsWith('/') ? '' : '/'}${shareUrl}`;
     const html = `
@@ -74,6 +60,7 @@ export const sendPairProgrammingInvite = async (to, { inviterName, projectName, 
     await sendEmail(to, `Collaboration Invite: ${projectName}`, html);
 };
 
+// Board Invite
 export const sendBoardInvite = async (to, { inviterName, boardName, shareUrl }) => {
     const link = shareUrl.startsWith('http') ? shareUrl : `${BASE_URL}${shareUrl.startsWith('/') ? '' : '/'}${shareUrl}`;
     const html = `
@@ -88,6 +75,7 @@ export const sendBoardInvite = async (to, { inviterName, boardName, shareUrl }) 
     await sendEmail(to, `Board Invite: ${boardName}`, html);
 };
 
+// OTP Email
 export const sendOTPEmail = async (to, otp, type = "signup") => {
     const subject = type === "signup" ? "SkillSprint Signup OTP" : "SkillSprint Password Reset OTP";
     const action = type === "signup" ? "signup" : "resetting password";
