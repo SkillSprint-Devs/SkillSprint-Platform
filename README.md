@@ -1,4 +1,4 @@
-# SkillSprint Platform
+# SkillSprint Platform&
 
 **SkillSprint** is a comprehensive collaborative learning platform that empowers developers to connect, learn, and grow together. Built with Node.js, Express, MongoDB, and Socket.IO, it features real-time chat, task management, interactive whiteboards, pair programming sessions, social posting, and intelligent notifications—all designed for seamless team collaboration.
 
@@ -27,7 +27,7 @@
 - **Socket.IO Client** - Real-time updates
 - **Responsive Design** - Mobile-friendly interface
 
-## Installation
+## Installations
 
 ### Prerequisites
 - Node.js (v14 or higher)
