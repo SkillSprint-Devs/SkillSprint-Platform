@@ -1,0 +1,14 @@
+{
+    "name": "skillsprint-root",
+    "version": "1.0.0",
+    "description": "SkillSprint Platform Root Configuration",
+    "main": "backend/server.js",
+    "scripts": {
+        "start": "node backend/server.js",
+        "install-backend": "cd backend && npm install",
+        "postinstall": "npm run install-backend"
+    },
+    "engines": {
+        "node": "22.x"
+    }
+}
