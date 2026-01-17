@@ -17,13 +17,18 @@ jobs:
           node-version: '20'
 
       - run: npm install
-
       - run: npm run build || echo "no build step"
 
-      - uses: azure/webapps-deploy@v3
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
         with:
           app-name: skillsprint
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
+
 
           
