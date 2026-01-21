@@ -1,16 +1,92 @@
-document.addEventListener("DOMContentLoaded", () => {
+// --- HELPER CONFIG ---
+function getApiConfig() {
     const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
         ? 'http://localhost:5000/api'
         : '/api';
     const token = localStorage.getItem("token");
+    return { API_BASE, token };
+}
+
+// DELETE FUNCTION (Exposed globally for inline onclick)
+window.deleteLibraryItem = async function (id) {
+    // Direct delete - No confirmation to avoid browser dialog issues
+    const { API_BASE, token } = getApiConfig();
 
     if (!token) {
-        window.location.href = "login.html";
+        showToast("Authentication error: Please login again", "error");
         return;
     }
 
-    // --- STATE ---
-    let libraryItems = [];
+    if (!id) {
+        showToast("Error: Invalid item ID", "error");
+        return;
+    }
+
+    // Confirmation bypassed
+    // if (!confirm("⚠️ Are you sure you want to delete this file?")) return;
+
+    const card = document.querySelector(`[data-item-id="${id}"]`);
+    if (card) {
+        card.style.opacity = "0.5";
+        card.style.pointerEvents = "none";
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/library/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (res.ok || res.status === 204) {
+            showToast("Item deleted", "success");
+
+            // Animate and remove
+            if (card) {
+                card.remove();
+            }
+
+            // We need to access libraryItems to update it, but it's inside the DOMContentLoaded scope.
+            // This is a tradeoff. We can trigger a custom event or just accept the list might be slightly out of sync until refersh.
+            // Or simpler: Just re-fetch if we really want to be sure, calling a global fetch if available, or just reloading page.
+
+            // Minimal approach: remove from DOM is enough for user feedback.
+            // Ideally we'd call window.refreshLibrary() if we exposed it.
+            // Verify libraryItems exists before filtering
+            if (typeof libraryItems !== 'undefined' && Array.isArray(libraryItems)) {
+                libraryItems = libraryItems.filter(item => item._id !== id);
+                renderLibrary(); // Re-render to update counts/view
+            } else if (window.fetchLibraryItems) {
+                window.fetchLibraryItems(); // Fallback if internal array not accessible
+            }
+
+        } else {
+            const data = await res.json();
+            showToast(data.message || "Failed to delete", "error");
+            if (card) {
+                card.style.opacity = "1";
+                card.style.pointerEvents = "auto";
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        // showToast("Network error during delete", "error");
+        alert("Error: " + err.message);
+        if (card) {
+            card.style.opacity = "1";
+            card.style.pointerEvents = "auto";
+        }
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Expose fetch for external use
+    window.fetchLibraryItems = fetchLibraryItems;
+
+    const { API_BASE, token } = getApiConfig();
+    // ... (rest of the file uses these consts safely)
     let currentCategory = "All";
     let currentVisibility = "All";
     let currentView = "grid";
@@ -36,26 +112,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.getElementById("fileInput");
     const filePreview = document.getElementById("filePreview");
 
-    // --- GLOBAL EVENT DELEGATION FOR DELETE BUTTONS ---
-    // This handles all delete button clicks using event delegation
+    // --- GLOBAL EVENT DELEGATION ---
+    // --- GLOBAL EVENT DELEGATION ---
     libraryGrid.addEventListener("click", (e) => {
-        const deleteBtn = e.target.closest(".delete-btn");
-        if (deleteBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const itemId = deleteBtn.getAttribute("data-id");
-            console.log("=== DELETE BUTTON CLICKED ===");
-            console.log("Item ID:", itemId);
-            handleDelete(itemId);
-        }
 
+        // DOWNLOAD
         const downloadBtn = e.target.closest(".download-btn");
         if (downloadBtn) {
             e.preventDefault();
             e.stopPropagation();
             const url = downloadBtn.getAttribute("data-url");
-            console.log("Opening URL:", url);
-            window.open(url, '_blank');
+            if (url) window.open(url, '_blank');
+            return;
+        }
+
+        // VISIBILITY TOGGLE (handled via change event usually, but click is safer for custom inputs sometimes)
+        // Note: Checkbox clicks might be handled better by 'change' event to avoid preventing default state change
+        // But if we use click, we must be careful. Let's rely on the 'change' or specifically target the label/input click.
+        // The structure is <label class="switch"><input ...> ... </label>
+    });
+
+    // Handle Toggle Change separately for robustness
+    libraryGrid.addEventListener("change", (e) => {
+        if (e.target.classList.contains("visibility-toggle")) {
+            const toggleInput = e.target;
+            const itemId = toggleInput.getAttribute("data-id");
+            const newVisibility = toggleInput.checked ? "Public" : "Private";
+            console.log("Visibility Change:", itemId, newVisibility);
+            handleVisibilityChange(itemId, newVisibility, toggleInput);
         }
     });
 
@@ -93,6 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- RENDERING ---
     function renderLibrary() {
+        // Expose for global delete function
+        window.renderLibrary = renderLibrary;
+
         const searchTerm = searchInput.value.toLowerCase();
 
         let filtered = libraryItems.filter(item => {
@@ -130,10 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
         div.innerHTML = `
             <div class="lib-card-preview">
                 <i class="${iconClass}"></i>
-                <span class="visibility-badge ${item.visibility.toLowerCase()}">
-                    <i class="fa-solid ${item.visibility === 'Public' ? 'fa-globe' : 'fa-eye-slash'}"></i>
-                    ${item.visibility}
-                </span>
+                <label class="switch" title="Toggle Visibility">
+                    <input type="checkbox" class="visibility-toggle" data-id="${item._id}" ${item.visibility === 'Public' ? 'checked' : ''}>
+                    <span class="slider round"></span>
+                </label>
             </div>
             <div class="lib-card-content">
                 <h4>${escapeHtml(item.title)}</h4>
@@ -144,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     <div class="lib-actions">
                         ${item.file_url ? `<button title="Download / Play" class="download-btn" data-url="${escapeHtml(item.file_url)}" data-type="${item.type}"><i class="fa-solid ${item.type === 'Recording' ? 'fa-play' : 'fa-download'}"></i></button>` : ''}
-                        <button class="delete-btn" title="Delete" data-id="${item._id}"><i class="fa-solid fa-trash-can"></i></button>
+                        <button class="delete-btn" title="Delete" onclick="window.deleteLibraryItem('${item._id}')"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
             </div>
@@ -177,132 +264,49 @@ document.addEventListener("DOMContentLoaded", () => {
         return div.innerHTML;
     }
 
-    // DELETE FUNCTION
-    async function handleDelete(id) {
-        console.log("=== STARTING DELETE PROCESS ===");
-        console.log("ID to delete:", id);
-        console.log("ID type:", typeof id);
+    // Old delete implementation removed in favor of global window.deleteLibraryItem defined above
 
-        if (!id) {
-            console.error("ERROR: No ID provided!");
-            showToast("Error: Invalid item ID", "error");
-            return;
-        }
 
-        const confirmed = confirm("⚠️ Delete this item?\n\nThis action cannot be undone.");
-        console.log("User confirmed:", confirmed);
+    // Internal handleDelete wrapper for backward compatibility if needed, 
+    // but we will mainly use window.deleteLibraryItem
+    function handleDelete(id) {
+        window.deleteLibraryItem(id);
+    }
 
-        if (!confirmed) {
-            console.log("User cancelled deletion");
-            return;
-        }
-
-        const card = document.querySelector(`[data-item-id="${id}"]`);
-        if (card) {
-            card.style.opacity = "0.5";
-            card.style.pointerEvents = "none";
-            console.log("✓ Card found and disabled");
-        } else {
-            console.warn("⚠ Card not found in DOM");
-        }
-
-        const deleteUrl = `${API_BASE}/library/${id}`;
-        console.log("DELETE URL:", deleteUrl);
-        console.log("Token exists:", !!token);
-
+    // VISIBILITY TOGGLE FUNCTION
+    async function handleVisibilityChange(id, newVisibility, toggleElement) {
         try {
-            console.log("Sending DELETE request...");
-
-            const res = await fetch(deleteUrl, {
-                method: "DELETE",
+            const res = await fetch(`${API_BASE}/library/${id}`, {
+                method: "PATCH",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
-                }
+                },
+                body: JSON.stringify({ visibility: newVisibility })
             });
 
-            console.log("Response received:");
-            console.log("- Status:", res.status);
-            console.log("- Status Text:", res.statusText);
-            console.log("- OK:", res.ok);
-            console.log("- Headers:", Object.fromEntries(res.headers.entries()));
-
-            // Success: status 200-299 or 204 No Content
-            if (res.ok || res.status === 204) {
-                console.log("✓ DELETE SUCCESSFUL");
-
-                // Try to get response body (may not exist for 204)
-                let responseData = null;
-                const contentType = res.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) {
-                    try {
-                        responseData = await res.json();
-                        console.log("Response data:", responseData);
-                    } catch (e) {
-                        console.log("No JSON body (likely 204 No Content)");
-                    }
+            if (res.ok) {
+                const itemIndex = libraryItems.findIndex(i => i._id === id);
+                if (itemIndex > -1) {
+                    libraryItems[itemIndex].visibility = newVisibility;
                 }
+                showToast(`Item is now ${newVisibility}`, "success");
 
-                // Update local state
-                const beforeCount = libraryItems.length;
-                libraryItems = libraryItems.filter(item => item._id !== id);
-                const afterCount = libraryItems.length;
-                console.log(`Items removed: ${beforeCount - afterCount}`);
-
-                // Animate removal
-                if (card) {
-                    card.style.transition = "all 0.3s ease";
-                    card.style.transform = "scale(0.8)";
-                    card.style.opacity = "0";
-                    setTimeout(() => renderLibrary(), 300);
-                } else {
-                    renderLibrary();
+                // If filtering by specific visibility, we might need to remove it from view
+                // But for smooth UX, maybe keep it until refresh or view change?
+                // The requirements say: "when i make it public it will be shown in the public section..."
+                // So if we are in "Private" view and make it Public, it should disappear from list.
+                if (currentVisibility !== "All" && currentVisibility !== newVisibility) {
+                    renderLibrary(); // Re-render to enforce filter
                 }
-
-                showToast("✓ Item deleted successfully", "success");
-
-                // Refresh after delay
-                setTimeout(() => {
-                    console.log("Refreshing library data...");
-                    fetchLibraryItems();
-                }, 800);
-
             } else {
-                // Error response
-                console.error("❌ DELETE FAILED");
-                let errorMessage = `Server error: ${res.status}`;
-
-                try {
-                    const errorData = await res.json();
-                    console.error("Error response:", errorData);
-                    errorMessage = errorData.message || errorData.error || errorMessage;
-                } catch (e) {
-                    const textError = await res.text();
-                    console.error("Error text:", textError);
-                    errorMessage = textError || errorMessage;
-                }
-
-                showToast(errorMessage, "error");
-
-                // Restore card
-                if (card) {
-                    card.style.opacity = "1";
-                    card.style.pointerEvents = "auto";
-                }
+                toggleElement.checked = !toggleElement.checked; // Revert
+                showToast("Failed to update visibility", "error");
             }
         } catch (err) {
-            console.error("❌ EXCEPTION DURING DELETE:");
-            console.error("Name:", err.name);
-            console.error("Message:", err.message);
-            console.error("Stack:", err.stack);
-
-            showToast("Network error: Could not delete item", "error");
-
-            // Restore card
-            if (card) {
-                card.style.opacity = "1";
-                card.style.pointerEvents = "auto";
-            }
+            console.error("Visibility toggle error:", err);
+            toggleElement.checked = !toggleElement.checked; // Revert
+            showToast("Error updating visibility", "error");
         }
     }
 
@@ -385,18 +389,63 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadForm.onsubmit = async (e) => {
         e.preventDefault();
         const submitBtn = document.getElementById("submitUpload");
+
+        // --- VALIDATION START ---
+        const title = document.getElementById("uploadTitle").value.trim();
+        const file = fileInput.files[0];
+
+        // 1. Mandatory File Check
+        if (!file) {
+            showToast("Please attach a file", "error");
+            return;
+        }
+
+        // 2. File Size Check (50MB)
+        const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+        if (file.size > MAX_SIZE) {
+            showToast("File size exceeds 50MB", "error");
+            return;
+        }
+
+        // 3. File Extension Check & Auto-Categorization
+        const allowedExtensions = [
+            // Documents
+            "docx", "pdf", "pptx", "txt",
+            // Recordings
+            "mp4",
+            // Others (Excel)
+            "xlsx", "xls"
+        ];
+
+        // Get extension (remove dot and lowercase)
+        const fileExt = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(fileExt)) {
+            showToast("file format not supported please uplaod in this format (docx, pdf, pptx, xl, mp4, xlx, txt)", "error");
+            return;
+        }
+
+        // DETERMINE CATEGORY
+        let type = "Other"; // Default
+        if (["docx", "pdf", "pptx", "txt"].includes(fileExt)) {
+            type = "Document";
+        } else if (fileExt === "mp4") {
+            type = "Recording";
+        } else if (["xl", "xlsx", "xls"].includes(fileExt)) {
+            type = "Other";
+        }
+
+        // --- VALIDATION END ---
+
         submitBtn.disabled = true;
         submitBtn.textContent = "Uploading...";
 
         const formData = new FormData();
-        formData.append("title", document.getElementById("uploadTitle").value);
+        formData.append("title", title);
         formData.append("description", document.getElementById("uploadDesc").value);
-        formData.append("type", document.getElementById("uploadType").value);
+        formData.append("type", type); // Auto-assigned
         formData.append("visibility", document.getElementById("uploadVisibility").value);
-
-        if (fileInput.files[0]) {
-            formData.append("file", fileInput.files[0]);
-        }
+        formData.append("file", file);
 
         try {
             const res = await fetch(`${API_BASE}/library/upload`, {

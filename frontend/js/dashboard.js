@@ -265,8 +265,9 @@ async function loadReminders() {
   const list = document.getElementById("reminderList");
 
   try {
-    const res = await fetch(`${API_BASE}/reminders`, {
-      headers: { Authorization: `Bearer ${token}` }
+    const res = await fetch(`${API_BASE}/reminders?t=${Date.now()}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store"
     });
 
     // Check for HTML response (server not restarted)
@@ -291,6 +292,7 @@ async function loadReminders() {
       const item = document.createElement("div");
       const isDone = (r.is_done !== undefined) ? r.is_done : r.completed;
       item.className = `reminder-item ${isDone ? 'completed' : ''}`;
+      item.setAttribute('data-reminder-id', r._id);
       const timeStr = r.dueTime ? `<div class="reminder-time" style="font-size:0.7rem; color:var(--accent); font-weight:600;"><i class="fa-solid fa-clock"></i> ${r.dueTime}</div>` : '';
 
       item.innerHTML = `
@@ -302,7 +304,7 @@ async function loadReminders() {
             <div class="reminder-date">${new Date(r.createdAt).toLocaleDateString()}</div>
           </div>
         </div>
-        <button class="delete-reminder-btn" onclick="deleteReminder('${r._id}')"><i class="fa-solid fa-trash"></i></button>
+        <button class="delete-reminder-btn" onclick="window.deleteReminder('${r._id}')"><i class="fa-solid fa-trash"></i></button>
       `;
       list.appendChild(item);
     });
@@ -324,6 +326,9 @@ async function addReminder() {
     return;
   }
 
+  // Default to TODAY if no date picker exists in this quick-add form
+  const dueDate = new Date();
+
   const token = localStorage.getItem("token");
   try {
     const res = await fetch(`${API_BASE}/reminders`, {
@@ -332,7 +337,8 @@ async function addReminder() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ text, dueTime })
+      // send dueDate so the scheduler picks it up
+      body: JSON.stringify({ text, dueTime, dueDate: dueDate.toISOString() })
     });
 
     if (res.ok) {
@@ -365,23 +371,29 @@ window.toggleReminder = async (id, completed) => {
 };
 
 window.deleteReminder = async (id) => {
+  // Direct delete - No confirmation to avoid browser dialog issues
   const token = localStorage.getItem("token");
-  if (!confirm("Delete this reminder?")) return;
   try {
     const res = await fetch(`${API_BASE}/reminders/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
+
     if (res.ok) {
       if (typeof showToast === 'function') showToast("Reminder deleted", "success");
-      await loadReminders(); // Re-fetch all to ensure sync
+      // 1. Remove from DOM
+      const item = document.querySelector(`.reminder-item[data-reminder-id="${id}"]`);
+      if (item) item.remove();
+      // 2. Reload list
+      await loadReminders();
     } else {
       const errData = await res.json();
-      if (typeof showToast === 'function') showToast(errData.message || "Failed to delete reminder", "error");
+      console.error("Delete failed:", errData);
+      alert("Failed to delete: " + (errData.message || "Unknown server error"));
     }
   } catch (err) {
     console.error("Delete reminder error:", err);
-    if (typeof showToast === 'function') showToast("Error connecting to server", "error");
+    alert("Connection Error: " + err.message);
   }
 };
 
