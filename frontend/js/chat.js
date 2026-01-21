@@ -1,4 +1,4 @@
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:5000/api'
     : '/api';
 const token = localStorage.getItem('token');
@@ -285,7 +285,7 @@ function appendMessage(msg, isMe) {
                 <span class="action-btn edit-btn" title="Edit" onclick="window.handleEdit('${msg._id}', this)">
                     <i class="fa-solid fa-pen"></i>
                 </span>
-                <span class="action-btn text-danger delete-btn" title="Delete" onclick="window.handleDelete('${msg._id}')">
+                <span class="action-btn text-danger delete-btn" title="Delete" onclick="event.stopPropagation();window.handleDelete('${msg._id}')">
                     <i class="fa-solid fa-trash"></i>
                 </span>
             </div>
@@ -463,7 +463,7 @@ window.deleteMessage = async function (id) {
     if (!confirm("Delete this message?")) return;
 
     try {
-        const res = await fetch(`${API_URL}/chat/${id}`, {
+        const res = await fetch(`${API_URL}/chat/delete/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
