@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,9 +30,9 @@
       </div>
 
       <div class="top-actions">
-         <button class="upload-btn" id="openUploadModal">
-           <i class="fa-solid fa-cloud-arrow-up"></i> Upload
-         </button>
+        <button class="upload-btn" id="openUploadModal">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+        </button>
       </div>
     </header>
 
@@ -40,21 +41,21 @@
       <!-- Library Content -->
       <div class="library-wrapper">
         <aside class="library-sidebar">
-           <h3>Categories</h3>
-           <ul class="category-list">
-             <li class="active" data-category="All"><i class="fa-solid fa-layer-group"></i> All Items</li>
-             <li data-category="Note"><i class="fa-solid fa-note-sticky"></i> Notes</li>
-             <li data-category="Recording"><i class="fa-solid fa-video"></i> Board Recordings</li>
-             <li data-category="Document"><i class="fa-solid fa-file-lines"></i> Documents</li>
-             <li data-category="Other"><i class="fa-solid fa-ellipsis"></i> Other</li>
-           </ul>
+          <h3>Categories</h3>
+          <ul class="category-list">
+            <li class="active" data-category="All"><i class="fa-solid fa-layer-group"></i> All Items</li>
+            <!-- Notes removed as per requirement -->
+            <li data-category="Recording"><i class="fa-solid fa-video"></i> Board Recordings</li>
+            <li data-category="Document"><i class="fa-solid fa-file-lines"></i> Documents</li>
+            <li data-category="Other"><i class="fa-solid fa-ellipsis"></i> Other</li>
+          </ul>
 
-           <h3 style="margin-top: 2rem;">Visibility</h3>
-           <ul class="category-list">
-             <li data-visibility="All" class="active"><i class="fa-solid fa-globe"></i> All</li>
-             <li data-visibility="Public"><i class="fa-solid fa-eye"></i> Public</li>
-             <li data-visibility="Private"><i class="fa-solid fa-eye-slash"></i> Private</li>
-           </ul>
+          <h3 style="margin-top: 2rem;">Visibility</h3>
+          <ul class="category-list">
+            <li data-visibility="All" class="active"><i class="fa-solid fa-globe"></i> All</li>
+            <li data-visibility="Public"><i class="fa-solid fa-eye"></i> Public</li>
+            <li data-visibility="Private"><i class="fa-solid fa-eye-slash"></i> Private</li>
+          </ul>
         </aside>
 
         <section class="library-main">
@@ -102,12 +103,7 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="uploadType">Category</label>
-            <select id="uploadType">
-              <option value="Document">Document</option>
-              <option value="Note">Note</option>
-              <option value="Other">Other</option>
-            </select>
+            <!-- Category is now automated based on file type -->
           </div>
           <div class="form-group">
             <label for="uploadVisibility">Visibility</label>
@@ -120,6 +116,7 @@
         <div class="upload-area" id="dropZone">
           <i class="fa-solid fa-cloud-arrow-up"></i>
           <p>Drag & Drop files here or <span>Browse</span></p>
+          <small style="display: block; margin-top: 5px; color: #888;">File size should not be more than 50 mb</small>
           <input type="file" id="fileInput" hidden />
           <div id="filePreview" class="file-preview"></div>
         </div>
@@ -132,4 +129,5 @@
   <script src="js/toast.js"></script>
   <script src="js/library.js"></script>
 </body>
+
 </html>

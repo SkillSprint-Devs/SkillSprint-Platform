@@ -14,7 +14,6 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'skillsprint', // optional, you can customize this
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webm', 'mp4', 'pdf', 'doc', 'docx', 'txt'],
     resource_type: 'auto', // Important for handling videos/raw files as well as images
   },
 });

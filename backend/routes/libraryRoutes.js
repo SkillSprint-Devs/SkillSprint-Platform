@@ -14,13 +14,27 @@ const upload = multer({
     storage,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
     fileFilter: (req, file, cb) => {
-        const allowedTypes = [".pdf", ".doc", ".docx", ".txt", ".mp4", ".webm", ".png", ".jpg", ".jpeg"];
+        const allowedTypes = [
+            ".docx",
+            ".pdf",
+            ".pptx",
+            ".xlsx",
+            ".xls",
+            ".mp4",
+            ".txt"
+        ];
+
         const ext = path.extname(file.originalname).toLowerCase();
-        if (allowedTypes.includes(ext)) {
-            cb(null, true);
-        } else {
-            cb(new Error("Invalid file type"));
+
+        if (!allowedTypes.includes(ext)) {
+            return cb(
+                new Error(
+                    "file format not supported please uplaod in this format (docx, pdf, pptx, xl, mp4, xlx, txt)"
+                )
+            );
         }
+
+        cb(null, true);
     },
 });
 
@@ -41,9 +55,6 @@ router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
             fileUrl = req.file.path || req.file.secure_url;
             fileSize = req.file.size;
             fileExt = path.extname(req.file.originalname).toLowerCase();
-        } else if (type === "Note") {
-            // Notes might not have a physical file, or they could be text files
-            // For simplicity, we just save the description as the note content if no file is provided
         }
 
         const newItem = new Library({
@@ -109,31 +120,14 @@ router.delete("/:id", verifyToken, async (req, res) => {
         const item = await Library.findById(req.params.id);
 
         if (!item) {
-            console.warn(`Library item ${req.params.id} not found`);
             return res.status(404).json({ success: false, message: "Item not found" });
         }
 
-        // Use toString() for reliable ID comparison
         if (item.user_id.toString() !== req.user.id.toString()) {
-            console.warn(`User ${req.user.id} unauthorized to delete item ${req.params.id} owned by ${item.user_id}`);
             return res.status(403).json({ success: false, message: "Unauthorized" });
         }
 
-        // Optionally delete the physical file if it exists
-        if (item.file_url) {
-            try {
-                const filename = item.file_url.split("/").pop();
-                const filePath = path.join(uploadDir, filename);
-                if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath);
-                }
-            } catch (fileErr) {
-                console.error("Error deleting physical file:", fileErr);
-            }
-        }
-
         await item.deleteOne();
-        console.log(`Library item ${req.params.id} deleted successfully`);
         res.json({ success: true, message: "Item deleted successfully" });
     } catch (error) {
         console.error("Library delete error:", error);
