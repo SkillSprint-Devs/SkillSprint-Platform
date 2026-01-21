@@ -69,7 +69,7 @@ router.post("/send", verifyToken, async (req, res) => {
             const io = req.app.get("io");
             if (io) {
                 io.to(recipientId.toString()).emit("notification", notification);
-                io.to(recipientId.toString()).emit("receiveMessage", newMessage);
+                io.to(recipientId.toString()).emit("receive_message", newMessage);
             }
         } catch (notifErr) {
             console.error("Failed to create chat notification:", notifErr);
@@ -228,7 +228,8 @@ router.put("/:messageId", verifyToken, async (req, res) => {
 });
 
 // Delete a message
-router.delete("/:messageId", verifyToken, async (req, res) => {
+// Delete a message (unique route path)
+router.delete("/delete/:messageId", verifyToken, async (req, res) => {
     try {
         const { messageId } = req.params;
         const userId = req.user.id;
@@ -248,11 +249,12 @@ router.delete("/:messageId", verifyToken, async (req, res) => {
         await message.deleteOne();
         console.log(`Backend: Message ${messageId} deleted successfully.`);
 
-        res.json({ message: "Message deleted successfully" });
+        res.json({ message: "Message deleted successfully", _id: messageId });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Error deleting message", error: err.message });
     }
 });
+
 
 export default router;

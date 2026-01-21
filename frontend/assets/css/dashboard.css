@@ -843,7 +843,9 @@ h3 {
   padding: 4px;
   font-size: 0.9rem;
   transition: var(--transition);
-  opacity: 0;
+  /* opacity: 0; Removed to make always visible */
+  color: #999;
+  /* Make it slightly visible by default */
 }
 
 .reminder-item:hover .delete-reminder-btn {
