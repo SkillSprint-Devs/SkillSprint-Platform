@@ -246,7 +246,11 @@ function getCoords(e) {
 }
 
 function drawOnCanvas(draw) {
-    if (!ctx) return;
+    if (!ctx) {
+        console.error("[WHITEBOARD] Drawing failed: No canvas context found.");
+        return;
+    }
+    console.log("[WHITEBOARD] Drawing stroke:", draw);
     // Auto-show whiteboard for mentees when mentor draws
     const container = document.getElementById("whiteboardContainer");
     if (container && container.style.display === "none") {
