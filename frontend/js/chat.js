@@ -258,6 +258,19 @@ async function openChat(otherUser) {
     }
 }
 
+function escapeHtml(s) {
+    if (!s) return "";
+    return s.replace(/[&<>"'`]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' })[m]);
+}
+
+function linkify(text) {
+    if (!text) return "";
+    const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlPattern, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-link">${url}</a>`;
+    });
+}
+
 function appendMessage(msg, isMe) {
     const historyContainer = document.getElementById('chatHistory');
 
@@ -296,7 +309,7 @@ function appendMessage(msg, isMe) {
 
     bubble.innerHTML = `
         ${actionsHtml}
-        <div class="msg-content">${msg.content}</div>
+        <div class="msg-content">${linkify(escapeHtml(msg.content))}</div>
         <span class="message-time">${timeStr}</span>
         ${statusHtml}
     `;

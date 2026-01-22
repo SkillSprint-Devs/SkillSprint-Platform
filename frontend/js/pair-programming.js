@@ -37,7 +37,7 @@ let boardId = null;
 // Join via Token Logic
 (async () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const joinToken = urlParams.get('join');
+  const joinToken = urlParams.get('join') || urlParams.get('token');
   if (joinToken) {
     try {
       const t = localStorage.getItem('token');
