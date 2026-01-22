@@ -115,10 +115,12 @@ export async function apiCall(endpoint, method = "GET", body = null) {
     throw new Error("Invalid session state: Board ID is missing. Please refresh.");
   }
 
+  let response;
   try {
     response = await fetch(API_BASE + endpoint, options);
   } catch (err) {
-    throw new Error("Network error — server unreachable");
+    console.error("Fetch failed:", err);
+    throw new Error(`Network error — ${err.message || "server unreachable"}`);
   }
 
   const parseJSON = async () => {
