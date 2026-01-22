@@ -203,25 +203,25 @@ export function initSocket(token, boardIdParam) {
     if (!cursorEl) {
       cursorEl = document.createElement("div");
       cursorEl.className = "remote-cursor pp-cursor";
+      cursorEl.style.position = "fixed";
+      cursorEl.style.zIndex = "999999";
+      cursorEl.style.pointerEvents = "none";
+      cursorEl.style.transition = "transform 0.1s linear";
       cursorEl.innerHTML = `
-        <div class="cursor-pointer" style="background: ${color || '#8C52FF'}"></div>
-        <div class="cursor-label">${name || 'User'}</div>
+        <div class="cursor-pointer" style="width:12px; height:20px; background: ${color || '#8C52FF'}; clip-path: polygon(0 0, 100% 70%, 30% 70%, 0 100%);"></div>
+        <div class="cursor-label" style="background:${color || '#8C52FF'}; color:#000; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; white-space:nowrap; margin-top:4px;">${name || 'User'}</div>
       `;
-      document.body.appendChild(cursorEl); // Static positioning or relative to editor? Editor is better but complex.
+      document.body.appendChild(cursorEl);
       remoteCursors[userId] = cursorEl;
     }
 
-    if (cursor) {
-      // In Pair Programming, cursor might be {line, ch} for editor, or {x, y} for mouse.
-      // If it's x,y coordinates:
-      if (cursor.x !== undefined && cursor.y !== undefined) {
-        cursorEl.style.display = "flex";
-        cursorEl.style.transform = `translate(${cursor.x}px, ${cursor.y}px)`;
-      } else {
-        // If it's editor coordinates, we might hide or try to map.
-        // For now, let's assume we want mouse tracking for general collaboration.
-        cursorEl.style.display = "none";
-      }
+    if (cursor && cursor.x !== undefined && cursor.y !== undefined) {
+      cursorEl.style.display = "flex";
+      cursorEl.style.flexDirection = "column";
+      cursorEl.style.alignItems = "flex-start";
+      cursorEl.style.top = "0";
+      cursorEl.style.left = "0";
+      cursorEl.style.transform = `translate(${cursor.x}px, ${cursor.y}px)`;
     }
 
     clearTimeout(cursorEl.timeout);
@@ -245,14 +245,14 @@ export function emitTyping(boardId, fileId, status) {
   }
 }
 
-export function emitCursorUpdate(boardId, cursor) {
+export function emitCursorUpdate(boardId, cursor, color) {
   if (socket && socket.connected) {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     socket.emit("cursor-update", {
       boardId,
       cursor,
       name: user.name || "User",
-      color: user.colorTag || "#8C52FF"
+      color: color || user.colorTag || "#8C52FF"
     });
   }
 }

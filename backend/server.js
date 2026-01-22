@@ -180,7 +180,7 @@ io.on("connection", (socket) => {
       try {
         await Board.findByIdAndUpdate(
           boardId,
-          { $addToSet: { activeUsers: mongoose.Types.ObjectId(userId) } },
+          { $addToSet: { activeUsers: new mongoose.Types.ObjectId(userId) } },
           { new: true }
         );
       } catch (e) {
