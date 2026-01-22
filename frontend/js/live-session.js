@@ -18,6 +18,17 @@ let lastX = 0;
 let lastY = 0;
 let canvas, ctx;
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function linkify(text) {
+    const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlPattern, '<a href="$1" target="_blank" style="color: #DCEF62; text-decoration: underline;">$1</a>');
+}
+
 const iceConfig = {
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
 };
@@ -357,7 +368,8 @@ function appendChatMessage({ user, message, timestamp }) {
     const isSelf = user.id === getMyId();
     const div = document.createElement("div");
     div.className = `message ${isSelf ? 'self' : 'other'}`;
-    div.innerHTML = `<strong>${isSelf ? 'You' : user.name}</strong><br>${message}`;
+    const safeContent = linkify(escapeHtml(message));
+    div.innerHTML = `<strong>${isSelf ? 'You' : user.name}</strong><br>${safeContent}`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
 }

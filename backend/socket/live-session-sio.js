@@ -12,7 +12,11 @@ const liveSessionSocket = (io) => {
         socket.on("live:join", async ({ sessionId }) => {
             try {
                 const session = await LiveSession.findById(sessionId);
-                if (!session) return socket.emit("live:error", "Session not found");
+                if (!session) {
+                    console.warn(`[SOCKET] Session not found: ${sessionId}`);
+                    return socket.emit("live:error", "Session not found");
+                }
+                console.log(`[SOCKET] User ${userId} joining session ${sessionId}. Mentor is ${session.mentorId}`);
 
                 // 1. Time Validation
                 const now = new Date();
@@ -137,7 +141,12 @@ const liveSessionSocket = (io) => {
         socket.on("live:endSession", async ({ sessionId }) => {
             try {
                 const session = await LiveSession.findById(sessionId);
-                if (session.mentorId.toString() !== userId.toString()) return;
+                if (!session) return;
+                console.log(`[SOCKET] End request for ${sessionId} from ${userId}. MentorID is ${session.mentorId}`);
+                if (session.mentorId.toString() !== userId.toString()) {
+                    console.warn(`[SOCKET] Unauthorized end attempt by ${userId} for session ${sessionId}`);
+                    return;
+                }
 
                 session.status = "completed";
                 await session.save();

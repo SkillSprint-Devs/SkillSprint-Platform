@@ -3,6 +3,56 @@ const API_BASE = (window.location.hostname === 'localhost' || window.location.ho
   ? 'http://localhost:5000/api'
   : '/api';
 
+// --- Card Removal Handlers (Define early) ---
+window.removeTask = async (id) => {
+  if (!id || id === 'undefined') {
+    console.error("[DASHBOARD] Cannot remove task: ID is undefined");
+    return;
+  }
+  if (!confirm("Are you sure you want to remove this task?")) return;
+  const token = localStorage.getItem("token");
+  try {
+    console.log("[DASHBOARD] Removing task:", id);
+    const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Task removed", "success");
+      loadDashboard();
+    } else {
+      const err = await res.json();
+      console.error("[DASHBOARD] Task removal failed:", err.message);
+      if (typeof showToast === 'function') showToast(err.message || "Failed to remove task", "error");
+    }
+  } catch (err) { console.error("[DASHBOARD] Task removal error:", err); }
+};
+
+window.removeSession = async (id) => {
+  if (!id || id === 'undefined') {
+    console.error("[DASHBOARD] Cannot remove session: ID is undefined");
+    return;
+  }
+  if (!confirm("Remove this session from your dashboard?")) return;
+  const token = localStorage.getItem("token");
+  try {
+    console.log("[DASHBOARD] Removing session:", id);
+    const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Session removed", "info");
+      loadSchedule();
+    } else {
+      const err = await res.json();
+      console.warn("[DASHBOARD] Session removal API returned error, hiding locally:", err.message);
+      const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
+      if (card) card.remove();
+    }
+  } catch (err) { console.error("[DASHBOARD] Session removal error:", err); }
+};
+
 // SIDEBAR TOGGLE
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleSidebar");
@@ -615,44 +665,6 @@ async function respondInvite(sessionId, action) {
     console.error("Respond error:", err);
   }
 }
-
-// --- Card Removal Handlers ---
-window.removeTask = async (id) => {
-  if (!confirm("Are you sure you want to remove this task?")) return;
-  const token = localStorage.getItem("token");
-  try {
-    const res = await fetch(`${API_BASE}/tasks/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) {
-      if (typeof showToast === 'function') showToast("Task removed", "success");
-      loadDashboard();
-    }
-  } catch (err) { console.error(err); }
-};
-
-window.removeSession = async (id) => {
-  if (!confirm("Remove this session from your dashboard?")) return;
-  const token = localStorage.getItem("token");
-  try {
-    // We'll use a specific 'cancel' or 'remove' endpoint if it exists, 
-    // for now we'll assume a DELETE route will be added or use the general one.
-    const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) {
-      if (typeof showToast === 'function') showToast("Session removed", "info");
-      loadSchedule();
-    } else {
-      // If DELETE not allowed, maybe just hide it locally for this session
-      console.warn("Session delete not supported yet, hiding locally");
-      const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
-      if (card) card.remove();
-    }
-  } catch (err) { console.error(err); }
-};
 
 // Init
 document.addEventListener("DOMContentLoaded", () => {
