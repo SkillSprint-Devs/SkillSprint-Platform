@@ -69,6 +69,9 @@ function joinSession() {
             if (data.status === 'scheduled') {
                 document.getElementById("startSessionBtn").style.display = "block";
             }
+            if (data.status === 'live' || data.status === 'scheduled') {
+                document.getElementById("endSessionBtn").style.display = "block";
+            }
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Mentor)";
         } else {
             // Mentee UI Restrictions
@@ -105,6 +108,7 @@ function joinSession() {
         document.getElementById("sessionStatus").textContent = status;
         if (status === 'live') {
             document.getElementById("startSessionBtn").style.display = "none";
+            if (window.isMentor) document.getElementById("endSessionBtn").style.display = "block";
             startTimer();
         } else if (status === 'completed') {
             if (typeof showToast === 'function') showToast("Session ended by Mentor", "info");

@@ -98,13 +98,13 @@ const liveSessionSocket = (io) => {
             io.to(sessionId).emit("live:chat", chatMsg);
         });
 
-        socket.on("live:whiteboard", async ({ sessionId, data }) => {
+        socket.on("live:whiteboard", async ({ sessionId, draw }) => {
             const session = await LiveSession.findById(sessionId);
             if (!session || session.mentorId.toString() !== userId.toString()) return;
 
             if (!sessionRooms.has(sessionId)) return;
-            sessionRooms.get(sessionId).whiteboard.push(data);
-            socket.to(sessionId).emit("live:whiteboard", data);
+            sessionRooms.get(sessionId).whiteboard.push(draw);
+            socket.to(sessionId).emit("live:whiteboard", draw);
         });
 
         socket.on("live:whiteboardClear", async ({ sessionId }) => {
