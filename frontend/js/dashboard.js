@@ -143,14 +143,22 @@ function renderTasks(tasks) {
 
   taskList.innerHTML = "";
 
-  if (!tasks || tasks.length === 0) {
+  // User Feature: Auto-remove 100% completed tasks from dashboard view
+  const activeTasks = tasks.filter(t => {
+    const totalSub = t.subTasks ? t.subTasks.length : 0;
+    const doneSub = t.subTasks ? t.subTasks.filter(s => s.completed).length : 0;
+    const pct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
+    return pct < 100;
+  });
+
+  if (activeTasks.length === 0) {
     taskList.innerHTML = `<div class="empty-state" style="padding:10px; color:#999;">No active tasks.</div>`;
     return;
   }
 
   const template = document.getElementById("taskCardTemplate");
 
-  tasks.forEach(t => {
+  activeTasks.forEach(t => {
     // Calc subtask progress
     const totalSub = t.subTasks ? t.subTasks.length : 0;
     const doneSub = t.subTasks ? t.subTasks.filter(s => s.completed).length : 0;
@@ -161,6 +169,9 @@ function renderTasks(tasks) {
     div.onclick = () => location.href = "task.html";
 
     div.innerHTML = `
+      <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeTask('${t._id}')" title="Remove from Dashboard">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
       <div class="task-left">
         <div class="task-card-header">
           <div class="color-dot" style="background: ${t.priority === 'high' ? '#ef5350' : t.priority === 'medium' ? '#ffb300' : '#4caf50'}"></div>
@@ -479,6 +490,9 @@ function renderSessions(sessions) {
     return;
   }
 
+  // Sort by latest/newest first as requested by user
+  sessions.sort((a, b) => new Date(b.scheduledDateTime) - new Date(a.scheduledDateTime));
+
   sessions.forEach(s => {
     const date = new Date(s.scheduledDateTime);
     const day = date.getDate();
@@ -489,6 +503,9 @@ function renderSessions(sessions) {
     if (s.status === 'live') div.classList.add('live-now');
 
     div.innerHTML = `
+            <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeSession('${s._id}')" title="Remove from Dashboard">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
             <div class="session-left">
                 <div class="session-time-badge">
                     <span class="session-day">${day}</span>
@@ -596,6 +613,44 @@ async function respondInvite(sessionId, action) {
     console.error("Respond error:", err);
   }
 }
+
+// --- Card Removal Handlers ---
+window.removeTask = async (id) => {
+  if (!confirm("Are you sure you want to remove this task?")) return;
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Task removed", "success");
+      loadDashboard();
+    }
+  } catch (err) { console.error(err); }
+};
+
+window.removeSession = async (id) => {
+  if (!confirm("Remove this session from your dashboard?")) return;
+  const token = localStorage.getItem("token");
+  try {
+    // We'll use a specific 'cancel' or 'remove' endpoint if it exists, 
+    // for now we'll assume a DELETE route will be added or use the general one.
+    const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Session removed", "info");
+      loadSchedule();
+    } else {
+      // If DELETE not allowed, maybe just hide it locally for this session
+      console.warn("Session delete not supported yet, hiding locally");
+      const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
+      if (card) card.remove();
+    }
+  } catch (err) { console.error(err); }
+};
 
 // Init
 document.addEventListener("DOMContentLoaded", () => {

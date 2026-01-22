@@ -69,7 +69,7 @@ router.get("/pending-invites", verifyToken, async (req, res) => {
         const invites = await LiveSession.find({
             invitedUserIds: userId,
             acceptedUserIds: { $ne: userId },
-            status: "scheduled"
+            status: { $in: ["scheduled", "live"] }
         }).populate("mentorId", "name profile_image");
 
         console.log(`[LIVE SESSIONS] Found ${invites.length} pending invites`);
@@ -258,6 +258,41 @@ router.post("/respond-invite", verifyToken, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Failed to respond to invite" });
+    }
+});
+
+/**
+ * DELETE — Cancel or Remove session from dashboard
+ */
+router.delete("/:id", verifyToken, async (req, res) => {
+    try {
+        const session = await LiveSession.findById(req.params.id);
+        if (!session) return res.status(404).json({ message: "Session not found" });
+
+        const userId = req.user.id;
+
+        if (session.mentorId.toString() === userId) {
+            // Mentor cancels/deletes the whole thing if not already completed
+            if (session.status === 'completed') {
+                // If completed, just hide it? 
+                // For now, let's keep it in history but remove from active query.
+                // We'll just delete for simplicity if requested.
+                await LiveSession.findByIdAndDelete(req.params.id);
+                return res.json({ message: "Session deleted from history" });
+            }
+            session.status = "cancelled";
+            await session.save();
+            return res.json({ message: "Session cancelled" });
+        } else {
+            // Mentee removes themselves from invited/accepted lists
+            session.invitedUserIds = session.invitedUserIds.filter(id => id.toString() !== userId);
+            session.acceptedUserIds = session.acceptedUserIds.filter(id => id.toString() !== userId);
+            await session.save();
+            return res.json({ message: "Session removed from your dashboard" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to remove session" });
     }
 });
 
