@@ -1251,7 +1251,7 @@ h3 {
   cursor: pointer;
   opacity: 0;
   transition: var(--transition);
-  z-index: 5;
+  z-index: 100;
 }
 
 .task-card:hover .remove-card-btn,

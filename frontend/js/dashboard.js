@@ -168,8 +168,9 @@ function renderTasks(tasks) {
     div.className = 'task-card';
     div.onclick = () => location.href = "task.html";
 
+    const itemID = t._id || t.id;
     div.innerHTML = `
-      <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeTask('${t._id}')" title="Remove from Dashboard">
+      <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeTask('${itemID}')" title="Remove from Dashboard">
         <i class="fa-solid fa-xmark"></i>
       </button>
       <div class="task-left">
@@ -502,8 +503,9 @@ function renderSessions(sessions) {
     div.className = 'session-card';
     if (s.status === 'live') div.classList.add('live-now');
 
+    const itemID = s._id || s.id;
     div.innerHTML = `
-            <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeSession('${s._id}')" title="Remove from Dashboard">
+            <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeSession('${itemID}')" title="Remove from Dashboard">
               <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="session-left">
