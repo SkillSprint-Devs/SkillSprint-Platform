@@ -117,12 +117,14 @@ router.get("/:id", verifyToken, async (req, res) => {
     }
 
     const board = await PairProgramming.findById(req.params.id)
-      .populate("owner", "name email")
-      .populate("members", "name email")
-      .populate("permissions.editors", "name email")
-      .populate("permissions.commenters", "name email")
-      .populate("permissions.viewers", "name email")
-      .populate("comments.authorId", "name email");
+      .populate("owner", "name email profile_image avatarUrl colorTag")
+      .populate("members", "name email profile_image avatarUrl colorTag")
+      .populate("permissions.editors", "name email profile_image avatarUrl colorTag")
+      .populate("permissions.commenters", "name email profile_image avatarUrl colorTag")
+      .populate("permissions.viewers", "name email profile_image avatarUrl colorTag")
+      .populate("comments.authorId", "name email profile_image avatarUrl colorTag")
+      // Also populate comments inside folders/files
+      .populate("folders.files.comments.authorId", "name email profile_image avatarUrl colorTag");
 
     if (!board) {
       console.log("❌ Board not found:", req.params.id);
@@ -194,7 +196,7 @@ router.get("/users/search", verifyToken, async (req, res) => {
     const { query } = req.query;
     const myId = req.user.id;
 
-    if (!query) return res.json([]);
+    if (!query || query.length < 2) return res.json([]);
 
     const users = await User.find({
       $and: [
@@ -206,7 +208,7 @@ router.get("/users/search", verifyToken, async (req, res) => {
           ]
         }
       ]
-    }).select("name email profile_image role").limit(10);
+    }).select("name email profile_image avatarUrl colorTag").limit(10);
 
     res.json(users);
   } catch (err) {
@@ -612,9 +614,22 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
 
     await board.save();
 
-    const newComment = board.comments[board.comments.length - 1];
+    // Re-fetch with population for the response and socket emit
+    const updatedBoard = await PairProgramming.findById(req.params.id)
+      .populate("comments.authorId", "name email profile_image avatarUrl colorTag")
+      .populate("folders.files.comments.authorId", "name email profile_image avatarUrl colorTag");
+
+    let savedComment;
+    if (folderId && fileId) {
+      const savedFolder = updatedBoard.folders.id(folderId);
+      const savedFile = savedFolder.files.id(fileId);
+      savedComment = savedFile.comments[savedFile.comments.length - 1];
+    } else {
+      savedComment = updatedBoard.comments[updatedBoard.comments.length - 1];
+    }
+
     const io = req.app.get("io");
-    emitBoard(io, req.params.id, "comment-created", { folderId, fileId, comment: newComment });
+    emitBoard(io, req.params.id, "comment-created", { folderId, fileId, comment: savedComment });
 
     // --- NOTIFICATION LOGIC ---
     // Notify all members except author

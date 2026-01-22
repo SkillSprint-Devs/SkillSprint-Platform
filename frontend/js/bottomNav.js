@@ -246,7 +246,11 @@
           body: JSON.stringify({ name: title }),
         });
         const data = await res.json();
-        if (data.success) window.location.href = `pair-programming.html?id=${data.data._id}`;
+        if (data.success) {
+          const joinUrl = `${window.location.origin}/pair-programming.html?join=${data.data.shareLinks[data.data.shareLinks.length - 1].token}`;
+          prompt("Copy this invite link:", joinUrl);
+          pairModal.style.display = "none";
+        }
       } catch (err) { console.error(err); }
       finally { submitPairBtn.disabled = false; submitPairBtn.textContent = "Create Project"; }
     });
@@ -256,6 +260,8 @@
       createMenu.style.display = "none";
       liveModal.style.display = "flex";
       document.getElementById("liveCreateError").style.display = "none";
+      selectedUsers.clear();
+      renderSelectedUsers();
     });
     document.getElementById("closeLiveModal").addEventListener("click", () => liveModal.style.display = "none");
 
