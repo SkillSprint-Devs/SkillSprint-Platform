@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
 const router = express.Router();
-// console.log("🔥 RUNNER ROUTE FILE LOADED:", __filename);
+// console.log("RUNNER ROUTE FILE LOADED:", __filename);
 
 
 function hasPermission(board, userId, roles = []) {
@@ -82,7 +82,7 @@ router.post("/create", verifyToken, async (req, res) => {
 
     res.status(201).json({ success: true, data: newBoard });
   } catch (err) {
-    console.error("❌ Error creating board:", err);
+    console.error("Error creating board:", err);
     res.status(500).json({ message: "Error creating board", error: err.message });
   }
 });
@@ -103,7 +103,7 @@ router.get("/all", verifyToken, async (req, res) => {
 
     res.json(boards);
   } catch (err) {
-    console.error("❌ Error fetching boards:", err);
+    console.error("Error fetching boards:", err);
     res.status(500).json({ message: "Error fetching boards", error: err.message });
   }
 });
@@ -127,19 +127,19 @@ router.get("/:id", verifyToken, async (req, res) => {
       .populate("folders.files.comments.authorId", "name email profile_image avatarUrl colorTag");
 
     if (!board) {
-      console.log("❌ Board not found:", req.params.id);
+      console.log("Board not found:", req.params.id);
       return res.status(404).json({ message: "Board not found" });
     }
 
     if (!hasPermission(board, req.user.id, ["owner", "editor", "commenter", "viewer"])) {
-      console.log("❌ Access denied for user:", req.user.id);
+      console.log("Access denied for user:", req.user.id);
       return res.status(403).json({ message: "Access denied" });
     }
 
-    console.log("✅ Board found and returned:", board.name);
+    console.log("Board found and returned:", board.name);
     res.json(board);
   } catch (err) {
-    console.error("❌ Error fetching board:", err);
+    console.error("Error fetching board:", err);
     res.status(500).json({ message: "Error fetching board", error: err.message });
   }
 });
@@ -163,7 +163,7 @@ router.put("/:id", verifyToken, async (req, res) => {
 
     res.json(board);
   } catch (err) {
-    console.error("❌ Error updating board:", err);
+    console.error("Error updating board:", err);
     res.status(500).json({ message: "Error updating board", error: err.message });
   }
 });
@@ -181,7 +181,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
 
     res.json({ message: "Board deleted" });
   } catch (err) {
-    console.error("❌ Error deleting board:", err);
+    console.error("Error deleting board:", err);
     res.status(500).json({ message: "Error deleting board", error: err.message });
   }
 });
@@ -253,7 +253,7 @@ router.post("/:id/share", verifyToken, async (req, res) => {
       shareUrl
     });
   } catch (err) {
-    console.error("❌ Error generating share link:", err);
+    console.error("Error generating share link:", err);
     res.status(500).json({ message: "Error generating share link", error: err.message });
   }
 });
@@ -291,7 +291,7 @@ router.post("/:id/invite", verifyToken, async (req, res) => {
 
     await board.save();
 
-    const shareUrl = `${req.protocol}://${req.get('host')}/pair-programming/join/${shareToken}`;
+    const shareUrl = `${req.protocol}://${req.get('host')}/pair-programming.html?join=${shareToken}`;
 
     // Permission descriptions
     const permMap = {
@@ -358,7 +358,7 @@ router.post("/:id/invite", verifyToken, async (req, res) => {
       shareUrl
     });
   } catch (err) {
-    console.error("❌ Error inviting users:", err);
+    console.error("Error inviting users:", err);
     res.status(500).json({ message: "Error inviting users", error: err.message });
   }
 });
@@ -371,7 +371,7 @@ router.get("/followers", verifyToken, async (req, res) => {
 
     res.json(user.followers || []);
   } catch (err) {
-    console.error("❌ Error fetching followers:", err);
+    console.error("Error fetching followers:", err);
     res.status(500).json({ message: "Error fetching followers", error: err.message });
   }
 });
@@ -396,7 +396,7 @@ router.post("/:id/folder", verifyToken, async (req, res) => {
 
     res.status(201).json(newFolder);
   } catch (err) {
-    console.error("❌ Error creating folder:", err);
+    console.error("Error creating folder:", err);
     res.status(500).json({ message: "Error creating folder", error: err.message });
   }
 });
@@ -415,7 +415,7 @@ router.get("/:id/folder/:folderId", verifyToken, async (req, res) => {
 
     res.json(folder);
   } catch (err) {
-    console.error("❌ Error fetching folder:", err);
+    console.error("Error fetching folder:", err);
     res.status(500).json({ message: "Error fetching folder", error: err.message });
   }
 });
@@ -440,7 +440,7 @@ router.put("/:id/folder/:folderId", verifyToken, async (req, res) => {
 
     res.json(folder);
   } catch (err) {
-    console.error("❌ Error updating folder:", err);
+    console.error("Error updating folder:", err);
     res.status(500).json({ message: "Error updating folder", error: err.message });
   }
 });
@@ -464,7 +464,7 @@ router.delete("/:id/folder/:folderId", verifyToken, async (req, res) => {
 
     res.json({ message: "Folder deleted" });
   } catch (err) {
-    console.error("❌ Error deleting folder:", err);
+    console.error("Error deleting folder:", err);
     res.status(500).json({ message: "Error deleting folder", error: err.message });
   }
 });
@@ -493,7 +493,7 @@ router.post("/:id/folder/:folderId/file", verifyToken, async (req, res) => {
 
     res.status(201).json(newFile);
   } catch (err) {
-    console.error("❌ Error creating file:", err);
+    console.error("Error creating file:", err);
     res.status(500).json({ message: "Error creating file", error: err.message });
   }
 });
@@ -514,7 +514,7 @@ router.get("/:id/folder/:folderId/file/:fileId", verifyToken, async (req, res) =
 
     res.json(file);
   } catch (err) {
-    console.error("❌ Error fetching file:", err);
+    console.error("Error fetching file:", err);
     res.status(500).json({ message: "Error fetching file", error: err.message });
   }
 });
@@ -545,7 +545,7 @@ router.put("/:id/folder/:folderId/file/:fileId", verifyToken, async (req, res) =
 
     res.json(file);
   } catch (err) {
-    console.error("❌ Error updating file:", err);
+    console.error("Error updating file:", err);
     res.status(500).json({ message: "Error updating file", error: err.message });
   }
 });
@@ -572,7 +572,7 @@ router.delete("/:id/folder/:folderId/file/:fileId", verifyToken, async (req, res
 
     res.json({ message: "File deleted" });
   } catch (err) {
-    console.error("❌ Error deleting file:", err);
+    console.error("Error deleting file:", err);
     res.status(500).json({ message: "Error deleting file", error: err.message });
   }
 });
@@ -674,7 +674,7 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
 
     res.status(201).json(newComment);
   } catch (err) {
-    console.error("❌ Error adding comment:", err);
+    console.error("Error adding comment:", err);
     res.status(500).json({ message: "Error adding comment", error: err.message });
   }
 });
@@ -704,7 +704,7 @@ router.get("/:id/comments", verifyToken, async (req, res) => {
 
     res.json(comments);
   } catch (err) {
-    console.error("❌ Error fetching comments:", err);
+    console.error("Error fetching comments:", err);
     res.status(500).json({ message: "Error fetching comments", error: err.message });
   }
 });
@@ -797,7 +797,7 @@ router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, r
     });
 
   } catch (err) {
-    console.error("❌ Error running code:", err);
+    console.error("Error running code:", err);
     res.status(500).json({ message: "Error running code", error: err.message });
   }
 });

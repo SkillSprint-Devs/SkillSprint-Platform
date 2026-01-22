@@ -885,7 +885,7 @@ router.post(
     }
 
     // Determine share URL
-    const shareUrl = `${req.protocol}://${req.get('host')}/board.html?join=${token}`;
+    const shareUrl = `${req.protocol}://${req.get('host')}/board.html?token=${token}`;
 
     const sentInvites = [];
 
@@ -913,7 +913,7 @@ router.post(
         title: "Board Invite",
         message: `${inviter.name} invited you to board "${board.name}"`,
         type: "invite",
-        link: `/board?join=${token}`
+        link: `/board.html?token=${token}`
       });
       await notif.save();
 

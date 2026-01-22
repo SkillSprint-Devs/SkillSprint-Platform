@@ -269,11 +269,12 @@
       const name = document.getElementById("sessionNameInput").value.trim();
       const purpose = document.getElementById("sessionPurposeInput").value.trim();
       const duration = parseInt(document.getElementById("sessionDurationInput").value);
-      const scheduledDateTime = document.getElementById("sessionDateTimeInput").value;
+      const rawDateTime = document.getElementById("sessionDateTimeInput").value;
+      const scheduledDateTime = rawDateTime ? new Date(rawDateTime).toISOString() : null;
       const invitedUserIds = Array.from(selectedUsers.keys());
       const errorEl = document.getElementById("liveCreateError");
 
-      if (!name || !purpose || !scheduledDateTime) {
+      if (!name || !purpose || !rawDateTime) {
         errorEl.textContent = "Please fill all required fields.";
         errorEl.style.display = "block";
         return;
