@@ -8,9 +8,8 @@
 
   /* Optional tones for later use */
   --muted: #bfbfbf;
-  --highlight: #8C52FF;
   /* secondary accent, tweak if you prefer another */
-  --primary: #8C52FF;
+  --primary: var(--accent);
   /* primary action color */
 }
 
@@ -18,5 +17,5 @@ body {
   font-family: "Poppins", sans-serif;
   background-color: var(--base-bg);
   color: var(--text-dark);
-  
+
 }
