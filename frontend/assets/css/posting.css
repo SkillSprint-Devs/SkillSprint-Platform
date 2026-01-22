@@ -193,7 +193,7 @@ body {
   display: flex;
   justify-content: space-around;
   width: 100%;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 8px 0;
   margin-bottom: 10px;
@@ -235,7 +235,7 @@ body {
 }
 
 .menu-links a:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ======================================================
@@ -387,7 +387,8 @@ body {
   gap: 8px;
   padding: 1rem;
   overflow: hidden;
-  padding-top: 58px; /* navbar height */
+  padding-top: 58px;
+  /* navbar height */
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -407,7 +408,7 @@ body {
   flex-direction: column;
   scroll-behavior: smooth;
 
-  
+
 }
 
 /* Feed Heading */
@@ -558,7 +559,7 @@ body {
 }
 
 .action-btn:hover {
-  color: var(--highlight);
+  color: var(--accent);
   transform: scale(1.05);
 }
 
@@ -834,7 +835,7 @@ body {
   flex: 1;
   background: #ffffff;
   border-radius: 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
@@ -863,6 +864,7 @@ body {
 .sidebar-list::-webkit-scrollbar {
   width: 5px;
 }
+
 .sidebar-list::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 4px;
@@ -895,7 +897,8 @@ body {
   display: flex;
   flex-direction: column;
   line-height: 1.2;
-  margin-left: 8px; /* spacing from avatar */
+  margin-left: 8px;
+  /* spacing from avatar */
   flex: 1;
 }
 
@@ -903,7 +906,8 @@ body {
   font-size: 13px;
   font-weight: 600;
   color: #222;
-  margin: 0; /* remove default margin */
+  margin: 0;
+  /* remove default margin */
 }
 
 .suggestion-info h4 {
@@ -915,7 +919,8 @@ body {
 .suggestion-info .suggestion-role {
   font-size: 11px;
   color: #777;
-  margin: 0; /* remove default margin */
+  margin: 0;
+  /* remove default margin */
 }
 
 /* Follow button style */
@@ -955,10 +960,12 @@ body {
 .chat-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* left-align text */
+  align-items: flex-start;
+  /* left-align text */
   justify-content: center;
   line-height: 1.2;
-  margin-left: 8px; /* space after avatar */
+  margin-left: 8px;
+  /* space after avatar */
   flex: 1;
 }
 
@@ -1028,8 +1035,15 @@ body {
 }
 
 @keyframes shimmer {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Error message color tweak */
@@ -1045,13 +1059,14 @@ body {
 .chat-panel {
   position: fixed;
   top: 70px;
-  right: -360px; /* hidden by default */
+  right: -360px;
+  /* hidden by default */
   width: 280px;
   height: calc(100vh - 80px);
   background: #fff;
   border-top-left-radius: 18px;
   border-bottom-left-radius: 18px;
-  box-shadow: -3px 0 12px rgba(0,0,0,0.1);
+  box-shadow: -3px 0 12px rgba(0, 0, 0, 0.1);
   transition: right 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -1181,7 +1196,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: none;
   align-items: center;
   justify-content: center;
@@ -1222,7 +1237,8 @@ body {
 }
 
 .edit-modal textarea#editText:focus {
-  border-color: var(--accent); /* match accent or highlight */
+  border-color: var(--accent);
+  /* match accent or highlight */
   outline: none;
 }
 
@@ -1250,7 +1266,7 @@ body {
 }
 
 #saveEdit:hover {
-  background-color:var(--accent);
+  background-color: var(--accent);
 }
 
 #cancelEdit {
@@ -1264,8 +1280,11 @@ body {
 
 .confirm-modal {
   position: fixed;
-  top: 0; left: 0; right:0; bottom:0;
-  background: rgba(0,0,0,0.5);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;

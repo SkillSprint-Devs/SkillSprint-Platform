@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,7 +10,8 @@
   <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/dashboard.css" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous" />
 </head>
 
 <body>
@@ -46,6 +48,7 @@
   <script src="js/toast.js"></script>
   <script src="js/achievements.js"></script>
 </body>
+
 </html>
 
 <style>
@@ -54,6 +57,7 @@
     flex-direction: column;
     gap: 3rem;
   }
+
   .achievements-section h3 {
     font-size: 1.3rem;
     margin-bottom: 1.5rem;
@@ -61,49 +65,84 @@
     border-bottom: 2px solid var(--accent);
     display: inline-block;
   }
+
   .achievements-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
   }
+
   .achievement-card {
     background: #fff;
     border-radius: 16px;
     padding: 1.5rem;
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     gap: 1rem;
     position: relative;
     overflow: hidden;
   }
+
   .achievement-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
   }
-  .achievement-card.silver { border-top: 5px solid #C0C0C0; }
-  .achievement-card.gold { border-top: 5px solid #FFD700; }
-  .achievement-card.certificate { border-top: 5px solid var(--highlight); }
+
+  .achievement-card.silver {
+    border-top: 5px solid #C0C0C0;
+  }
+
+  .achievement-card.gold {
+    border-top: 5px solid #FFD700;
+  }
+
+  .achievement-card.certificate {
+    border-top: 5px solid var(--accent);
+  }
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
   }
+
   .achievement-icon {
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
   }
-  .silver .achievement-icon { color: #A8A8A8; }
-  .gold .achievement-icon { color: #F9A825; }
-  .certificate .achievement-icon { color: var(--highlight); }
 
-  .course-name { font-weight: 700; font-size: 1.1rem; }
-  .achievement-title { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
-  .achievement-desc { font-size: 0.85rem; color: #666; line-height: 1.4; }
-  
+  .silver .achievement-icon {
+    color: #A8A8A8;
+  }
+
+  .gold .achievement-icon {
+    color: #F9A825;
+  }
+
+  .certificate .achievement-icon {
+    color: var(--accent);
+  }
+
+  .course-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .achievement-title {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .achievement-desc {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+  }
+
   .card-footer {
     margin-top: auto;
     display: flex;
@@ -112,15 +151,31 @@
     font-size: 0.75rem;
     color: #999;
   }
+
   .verify-link {
-    color: var(--highlight);
+    color: var(--accent);
     text-decoration: none;
     font-weight: 600;
   }
-  .verify-link:hover { text-decoration: underline; }
 
-  .loading { text-align: center; grid-column: 1 / -1; padding: 2rem; color: var(--text-muted); }
-  .empty-msg { text-align: center; grid-column: 1 / -1; padding: 2rem; background: rgba(0,0,0,0.02); border-radius: 12px; }
+  .verify-link:hover {
+    text-decoration: underline;
+  }
+
+  .loading {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 2rem;
+    color: var(--text-muted);
+  }
+
+  .empty-msg {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+  }
 
   .back-btn {
     text-decoration: none;
@@ -132,5 +187,8 @@
     font-weight: 600;
     transition: var(--transition);
   }
-  .back-btn:hover { background: #333; }
+
+  .back-btn:hover {
+    background: #333;
+  }
 </style>

@@ -643,7 +643,7 @@ export function renderComments() {
     const userAvatar = comment.authorId?.profile_image || comment.authorId?.avatarUrl || 'assets/images/user-avatar.png';
     const userName = comment.authorId?.name || comment.authorName || "User";
     const dateStr = new Date(comment.createdAt).toLocaleString();
-    const lineInfo = comment.line != null ? ` • <span style="font-weight:bold;color:var(--highlight)">Line ${comment.line + 1}</span>` : "";
+    const lineInfo = comment.line != null ? ` • <span style="font-weight:bold;color:var(--accent)">Line ${comment.line + 1}</span>` : "";
     const fileInfo = fileName ? ` • <span>${fileName}</span>` : "";
 
     el.innerHTML = `
@@ -660,7 +660,7 @@ export function renderComments() {
 
     // Click to jump to line
     if (comment.line != null && comment._fileId) {
-      el.style.borderLeft = "3px solid var(--highlight)";
+      el.style.borderLeft = "3px solid var(--accent)";
       el.style.cursor = "pointer";
       el.title = "Jump to code";
       el.onclick = () => {
@@ -802,7 +802,7 @@ export async function loadBoardMembers() {
       avatar.style.background = "none";
     } else {
       avatar.textContent = member.name?.substring(0, 2).toUpperCase() || "??";
-      avatar.style.background = member.colorTag || "var(--highlight)";
+      avatar.style.background = member.colorTag || "var(--accent)";
     }
     avatar.title = member.name || "User";
     mCont.appendChild(avatar);
