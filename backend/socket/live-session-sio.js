@@ -141,11 +141,14 @@ const liveSessionSocket = (io) => {
         socket.on("live:endSession", async ({ sessionId }) => {
             try {
                 const session = await LiveSession.findById(sessionId);
-                if (!session) return;
+                if (!session) {
+                    console.warn(`[SOCKET] End session failed: Session ${sessionId} not found`);
+                    return socket.emit("live:error", "Session not found");
+                }
                 console.log(`[SOCKET] End request for ${sessionId} from ${userId}. MentorID is ${session.mentorId}`);
                 if (session.mentorId.toString() !== userId.toString()) {
-                    console.warn(`[SOCKET] Unauthorized end attempt by ${userId} for session ${sessionId}`);
-                    return;
+                    console.warn(`[SOCKET] Unauthorized end attempt by ${userId} for session ${sessionId}. Expected mentor ${session.mentorId}`);
+                    return socket.emit("live:error", "Only the mentor can end the session.");
                 }
 
                 session.status = "completed";
@@ -163,8 +166,10 @@ const liveSessionSocket = (io) => {
 
                 io.to(sessionId).emit("live:statusChanged", "completed");
                 sessionRooms.delete(sessionId);
+                console.log(`[SOCKET] Session ${sessionId} ended successfully.`);
             } catch (e) {
-                console.error(e);
+                console.error("[SOCKET] Error ending session:", e);
+                socket.emit("live:error", "Failed to end session: " + e.message);
             }
         });
 
