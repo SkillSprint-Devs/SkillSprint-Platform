@@ -204,7 +204,7 @@ body {
 }
 
 .chat-name {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #1e293b;
     white-space: nowrap;
@@ -612,17 +612,18 @@ body {
 }
 
 .status-tick {
-    font-size: 0.8rem;
-    margin-left: 2px;
+    font-size: 0.85rem;
+    margin-left: 5px;
 }
 
 .single-tick {
-    color: #ccc;
+    color: #999;
+    /* Gray for sent */
 }
 
 .double-tick {
-    color: #4caf50;
-    /* Green for read */
+    color: #4fc3f7;
+    /* Nice sky blue for seen, similar to WhatsApp */
 }
 
 /* Fix mobile responsiveness for ticks */

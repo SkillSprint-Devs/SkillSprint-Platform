@@ -79,6 +79,7 @@ const liveSessionSocket = (io) => {
                 socket.emit("live:init", {
                     chat: room.chat,
                     whiteboard: room.whiteboard,
+                    sessionName: session.sessionName,
                     status: session.status,
                     participants: presenceList,
                     isMentor
