@@ -18,6 +18,12 @@ const errorLogSchema = new mongoose.Schema({
         default: 'Medium',
         index: true
     },
+    status: {
+        type: String,
+        enum: ['NEW', 'IN_PROGRESS', 'RESOLVED', 'IGNORED'],
+        default: 'NEW',
+        index: true
+    },
     timestamp: {
         type: Date,
         default: Date.now,
@@ -47,10 +53,20 @@ const errorLogSchema = new mongoose.Schema({
     httpStatusCode: Number,
     environment: {
         type: String,
-        enum: ['Development', 'Staging', 'Production'],
+        index: true,
         default: process.env.NODE_ENV || 'Development'
     },
     userAgent: String,
+    browser: String,
+    os: String,
+    device: String,
+    ipAddress: String,
+    requestUrl: String,
+    requestMethod: String,
+    sessionId: {
+        type: String,
+        index: true
+    },
     resolved: {
         type: Boolean,
         default: false,
@@ -68,7 +84,9 @@ const errorLogSchema = new mongoose.Schema({
 // Index for common queries
 errorLogSchema.index({ timestamp: -1, severity: 1 });
 errorLogSchema.index({ userId: 1, timestamp: -1 });
-errorLogSchema.index({ resolved: 1, timestamp: -1 });
+errorLogSchema.index({ status: 1, timestamp: -1 });
+errorLogSchema.index({ environment: 1, timestamp: -1 });
+errorLogSchema.index({ errorType: 1, timestamp: -1 });
 
 // Auto-delete logs older than 90 days
 errorLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });

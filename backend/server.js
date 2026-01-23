@@ -33,7 +33,7 @@ import certificateRoutes from "./routes/certificateRoutes.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import errorRoutes from "./routes/errorRoutes.js";
-import errorLogger from "./middleware/errorLogger.js";
+import errorHandler from "./middleware/errorHandler.js";
 import { initTaskScheduler } from "./utils/taskScheduler.js";
 import ErrorLog from "./models/ErrorLog.js";
 
@@ -41,10 +41,8 @@ import ErrorLog from "./models/ErrorLog.js";
 // Captures all console.error calls and saves them to MongoDB
 const originalConsoleError = console.error;
 console.error = (...args) => {
-  // 1. Output to terminal as usual
   originalConsoleError.apply(console, args);
 
-  // 2. Persist to Database - ONLY IF CONNECTED (readyState 1)
   try {
     const errorMessage = args.map(arg => {
       if (arg instanceof Error) return arg.stack || arg.message;
@@ -61,7 +59,7 @@ console.error = (...args) => {
         severity: 'Critical',
         stackTrace: new Error().stack,
         environment: process.env.NODE_ENV || 'Development',
-        timestamp: new Date()
+        status: 'NEW'
       }).catch(err => {
         process.stdout.write(`[Interceptor] DB Log Failed: ${err.message}\n`);
       });
@@ -353,15 +351,8 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-// Error logging middleware (before error handler)
-app.use(errorLogger);
-
-// central error handler for express routes 
-app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
-  const status = err.status || 500;
-  res.status(status).json({ success: false, message: err.message || "Internal server error" });
-});
+// Error handler middleware (at the end of all routes)
+app.use(errorHandler);
 
 // SERVER START 
 // SERVER START 

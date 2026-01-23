@@ -320,7 +320,14 @@ function setupEventListeners() {
         }
 
         if (confirm("Are you sure you want to end this session? This will deduct credits and close the room.")) {
+            const btn = document.getElementById("endSessionBtn");
+            const originalHtml = btn.innerHTML;
+
             try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                if (typeof showToast === 'function') showToast("Ending session and processing credits...", "info");
+
                 const res = await fetch(`${API_BASE}/live-sessions/end-session`, {
                     method: "POST",
                     headers: {
@@ -332,14 +339,20 @@ function setupEventListeners() {
 
                 if (res.ok) {
                     console.log("[LIVE] Session ended via API");
+                    if (typeof showToast === 'function') showToast("Session ended successfully", "success");
+                    setTimeout(() => window.location.href = "dashboard.html", 1500);
                 } else {
                     const err = await res.json();
                     if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
                 }
             } catch (err) {
                 console.error("[LIVE] End session API error:", err);
+                if (typeof showToast === 'function') showToast("Network error. Retrying via socket...", "warning");
                 // Fallback to socket if API fails
                 socket.emit("live:endSession", { sessionId });
+                setTimeout(() => window.location.href = "dashboard.html", 3000);
             }
         }
     });
