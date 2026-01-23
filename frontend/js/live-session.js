@@ -2,6 +2,9 @@ const token = localStorage.getItem("token");
 if (!token) {
     window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.href);
 }
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
+    ? 'http://localhost:5000/api'
+    : '/api';
 const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
     ? 'http://localhost:5000'
     : ''; // Empty string for relative path in production
@@ -122,7 +125,7 @@ function joinSession() {
             document.getElementById("startSessionBtn").style.display = "none";
             if (window.isMentor) document.getElementById("endSessionBtn").style.display = "block";
             startTimer();
-        } else if (status === 'completed') {
+        } else if (status === 'ended' || status === 'completed') {
             if (typeof showToast === 'function') showToast("Session ended by Mentor", "info");
             setTimeout(() => window.location.href = "dashboard.html", 2000);
         }
@@ -308,7 +311,7 @@ function setupEventListeners() {
         socket.emit("live:startSession", { sessionId });
     });
 
-    document.getElementById("endSessionBtn").addEventListener("click", () => {
+    document.getElementById("endSessionBtn").addEventListener("click", async () => {
         console.log("[LIVE] End Session clicked. SessionID:", sessionId);
         if (!sessionId) {
             console.error("[LIVE] Cannot end session: sessionId is missing from URL");
@@ -316,17 +319,28 @@ function setupEventListeners() {
             return;
         }
 
-        // Use a custom modal or standard confirm
         if (confirm("Are you sure you want to end this session? This will deduct credits and close the room.")) {
-            console.log("[LIVE] Emitting live:endSession for", sessionId);
-            socket.emit("live:endSession", { sessionId });
+            try {
+                const res = await fetch(`${API_BASE}/live-sessions/end-session`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ sessionId })
+                });
 
-            // Fallback UI update if socket doesn't respond immediately
-            setTimeout(() => {
-                if (document.getElementById("sessionStatus").textContent !== 'completed') {
-                    // alert("Session end signal sent...");
+                if (res.ok) {
+                    console.log("[LIVE] Session ended via API");
+                } else {
+                    const err = await res.json();
+                    if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
                 }
-            }, 3000);
+            } catch (err) {
+                console.error("[LIVE] End session API error:", err);
+                // Fallback to socket if API fails
+                socket.emit("live:endSession", { sessionId });
+            }
         }
     });
 

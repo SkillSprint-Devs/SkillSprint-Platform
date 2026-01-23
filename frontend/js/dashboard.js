@@ -553,6 +553,26 @@ function renderSessions(sessions) {
     div.className = 'session-card';
     if (s.status === 'live') div.classList.add('live-now');
 
+    let btnText = 'Join';
+    let btnDisabled = '';
+    const sDate = new Date(s.scheduledDateTime);
+
+    if (s.status === 'live') {
+      btnText = '<span class="pulse"></span> Join Now';
+    } else if (s.status === 'scheduled') {
+      btnText = `Starts: ${sDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      // We keep it clickable if it's within 10 mins of start, but the join:live socket will block learners
+      // However, to follow "Block Join Now unless status === live", I'll disable it for non-mentors or just follow the rule strictly.
+      // Actually, let's just make it disabled if not live for simplicity.
+      btnDisabled = 'disabled';
+    } else if (s.status === 'ended') {
+      btnText = 'Session Ended';
+      btnDisabled = 'disabled';
+    } else if (s.status === 'cancelled') {
+      btnText = 'Cancelled';
+      btnDisabled = 'disabled';
+    }
+
     const itemID = s._id || s.id;
     div.innerHTML = `
             <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeSession('${itemID}')" title="Remove from Dashboard">
@@ -573,8 +593,8 @@ function renderSessions(sessions) {
                     <span><i class="fa-solid fa-clock"></i> ${s.durationMinutes} min</span>
                     <span><i class="fa-solid fa-user-tie"></i> ${s.mentorId?.name || 'Mentor'}</span>
                 </div>
-                <button class="join-session-btn" onclick="location.href='livevideo.html?sessionId=${s._id}'" ${s.status === 'completed' ? 'disabled' : ''}>
-                    ${s.status === 'live' ? '<span class="pulse"></span> Join Live' : s.status === 'completed' ? 'Completed' : 'Join'}
+                <button class="join-session-btn" onclick="location.href='livevideo.html?sessionId=${s._id}'" ${btnDisabled}>
+                    ${btnText}
                 </button>
             </div>
         `;

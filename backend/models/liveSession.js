@@ -42,9 +42,18 @@ const liveSessionSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
+    startTime: {
+        type: Date,
+    },
+    endTime: {
+        type: Date,
+    },
+    endedAt: {
+        type: Date,
+    },
     status: {
         type: String,
-        enum: ["scheduled", "live", "completed", "cancelled"],
+        enum: ["scheduled", "live", "ended", "cancelled"],
         default: "scheduled",
     },
     createdAt: {
