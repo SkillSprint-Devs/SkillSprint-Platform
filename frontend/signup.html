@@ -183,27 +183,31 @@
     }
 
     .sparkle-icon {
-      width: 32px;
-      height: 32px;
+      font-size: 2rem;
       color: var(--accent);
       animation: bounce 2s ease-in-out infinite;
+      display: inline-block;
     }
 
     .logo {
       font-size: 2.2rem;
       font-weight: 700;
-      color: var(--text-dark);
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      animation: shimmer 2s ease-in-out infinite;
+      background: linear-gradient(90deg, #DCEF62 0%, #1A1A1A 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .skill {
-      color: var(--accent);
-      font-weight: 700;
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .auth-card h2 {
