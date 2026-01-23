@@ -7,7 +7,7 @@
   <title>Login | SkillSprint</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
@@ -18,19 +18,110 @@
       --accent: #DCEF62;
       --text-dark: #1A1A1A;
       --text-light: #FFFFFF;
-      --muted: #bfbfbf;
+      --muted: #999999;
+      --border-light: #e0e0e0;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-8px) scale(1.05);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.1;
+        transform: scale(1.2);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        text-shadow: 0 0 10px rgba(220, 239, 98, 0.5);
+      }
+      50% {
+        text-shadow: 0 0 20px rgba(220, 239, 98, 0.8);
+      }
+      100% {
+        text-shadow: 0 0 10px rgba(220, 239, 98, 0.5);
+      }
+    }
+
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     /* ===== General Layout ===== */
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
-      background-color: var(--base-bg);
+      background: linear-gradient(135deg, #F9F8D9 0%, #f5f3c8 50%, #F9F8D9 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
       color: var(--text-dark);
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background elements */
+    /* Floating background elements */
+    .bg-element {
+      position: fixed;
+      border-radius: 50%;
+      mix-blend-mode: multiply;
+      filter: blur(80px);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-element-1 {
+      width: 288px;
+      height: 288px;
+      background: var(--accent);
+      top: 80px;
+      left: 40px;
+      animation: pulse 8s ease-in-out infinite;
+    }
+
+    .bg-element-2 {
+      width: 288px;
+      height: 288px;
+      background: var(--accent);
+      bottom: 80px;
+      right: 40px;
+      animation: pulse 8s ease-in-out infinite;
+      animation-delay: 1s;
     }
 
     .auth-container {
@@ -38,37 +129,93 @@
       align-items: center;
       justify-content: center;
       width: 100%;
+      padding: 2rem 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      width: 44px;
+      height: 44px;
+      background: rgba(0, 0, 0, 0.08);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dark);
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .back-btn:hover {
+      background: var(--accent);
+      color: var(--text-dark);
+      transform: translateX(-4px);
     }
 
     .auth-card {
-      background: var(--text-light);
-      padding: 2.5rem 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: white;
+      padding: 3rem 2.5rem;
+      border-radius: 48px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
       text-align: center;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-height: 480px;
+      animation: slideUp 0.6s ease-out;
+      border: none;
     }
 
-    .auth-card h1 {
+    .brand-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .sparkle-icon {
+      width: 32px;
+      height: 32px;
       color: var(--accent);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    .logo {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      animation: shimmer 2s ease-in-out infinite;
+    }
+
+    .skill {
+      color: var(--accent);
+      font-weight: 700;
     }
 
     .auth-card h2 {
-      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem 0;
       color: var(--text-dark);
     }
 
     .subtitle {
       color: var(--muted);
       font-size: 0.9rem;
-      margin-bottom: 1.8rem;
+      margin: 0.5rem 0 0 0;
     }
 
     form {
@@ -76,76 +223,140 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
+      margin-top: 1.5rem;
     }
 
     input {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.875rem 1rem;
       margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
+      border: 1.5px solid var(--border-light);
+      border-radius: 12px;
       font-size: 0.95rem;
+      font-family: "Poppins", sans-serif;
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--text-dark);
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(220, 239, 98, 0.1);
+    }
+
+    input::placeholder {
+      color: var(--muted);
     }
 
     .btn-primary {
       width: 100%;
-      background: var(--accent);
-      color: var(--text-light);
+      background: linear-gradient(135deg, #1A1A1A 0%, #2a2a2a 100%);
+      color: var(--accent);
       border: none;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
+      padding: 0.95rem;
+      border-radius: 12px;
       font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
-      transition: 0.2s ease;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      font-family: "Poppins", sans-serif;
     }
 
     .btn-primary:hover {
-      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(26, 26, 26, 0.2);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .switch-text {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-dark);
     }
 
     .switch-text a {
       color: var(--accent);
       text-decoration: none;
       font-weight: 600;
+      transition: all 0.3s ease;
+      border-bottom: 2px solid transparent;
+    }
+
+    .switch-text a:hover {
+      border-bottom-color: var(--accent);
     }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 480px) {
       body {
         padding: 1rem;
-        align-items: flex-start;
-        overflow-y: auto;
+        min-height: 100vh;
       }
 
       .auth-container {
-        padding-top: 2rem;
+        padding: 5rem 1rem 2rem 1rem;
+      }
+
+      .back-btn {
+        top: 1rem;
+        left: 1rem;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
       }
 
       .auth-card {
         padding: 2rem 1.5rem;
-        min-height: auto;
+        border-radius: 24px;
       }
 
-      .auth-card h1 {
+      .logo {
         font-size: 1.8rem;
       }
 
       .auth-card h2 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+      }
+
+      input {
+        padding: 0.75rem 0.875rem;
+        margin-bottom: 0.875rem;
+      }
+
+      .btn-primary {
+        padding: 0.875rem;
+        font-size: 0.95rem;
       }
     }
   </style>
 </head>
 
 <body>
+  <!-- Floating Background Elements -->
+  <div class="bg-element bg-element-1"></div>
+  <div class="bg-element bg-element-2"></div>
+
+  <button class="back-btn" onclick="goBack()">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+
   <div class="auth-container">
-    <div class="auth-card" style="position: relative;">
-      <a href="index.html"
-        style="position: absolute; top: 20px; left: 20px; color: var(--text-dark); text-decoration: none; font-size: 1.1rem; opacity: 0.7; transition: opacity 0.2s;"
-        onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
-        <i class="fa-solid fa-arrow-left"></i>
-      </a>
-      <h1 class="logo">SkillSprint</h1>
+    <div class="auth-card">
+      <div class="brand-header">
+        <i class="fa-solid fa-sparkles sparkle-icon"></i>
+        <h1 class="logo"><span class="skill">Skill</span>Sprint</h1>
+      </div>
       <h2>Welcome Back!</h2>
       <p class="subtitle">Good to see you again.</p>
 
@@ -168,8 +379,15 @@
   <script src="js/toast.js"></script>
 
   <script>
+    function goBack() {
+      if (history.length > 1) {
+        history.back();
+      } else {
+        window.location.href = 'getstarted.html';
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-      // Dynamic API Base
       // Dynamic API Base
       const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
         ? 'http://localhost:5000/api'

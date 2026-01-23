@@ -10,11 +10,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     :root {
-      --bg: #F9F8D9;
-      --card-bg: #FFFFFF;
-      --accent: #DCEF62;
       --text-main: #1A1A1A;
       --text-muted: #666;
+      --accent: #DCEF62;
+      --bg: #F9F8D9;
     }
 
     * {
@@ -23,7 +22,6 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: var(--bg);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -32,34 +30,138 @@
       padding: 20px;
       color: var(--text-main);
       user-select: none;
+      background: var(--bg);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
 
+    /* Animated background elements */
+    .bg-element {
+      position: absolute;
+      border-radius: 50%;
+      mix-blend-mode: multiply;
+      filter: blur(80px);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .bg-element-1 {
+      width: 288px;
+      height: 288px;
+      background: var(--accent);
+      top: 80px;
+      left: 40px;
+      animation: pulse 8s ease-in-out infinite;
+    }
+
+    .bg-element-2 {
+      width: 288px;
+      height: 288px;
+      background: var(--accent);
+      bottom: 80px;
+      right: 40px;
+      animation: pulse 8s ease-in-out infinite;
+      animation-delay: 1s;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(1.05);
+      }
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
+      background: white;
+      border-radius: 48px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
       padding: 3rem;
-      max-width: 800px;
+      max-width: 1200px;
       width: 100%;
+      max-height: 85vh;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      animation: slideUp 0.6s ease-out;
+      position: relative;
+      z-index: 10;
+      animation: fadeIn 0.8s ease-out;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow-y: auto;
+      gap: 1.5rem;
     }
 
-    h1 {
-      font-size: 2.5rem;
+    /* Scrollbar styling */
+    .container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .container::-webkit-scrollbar-track {
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+
+    .container::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 10px;
+    }
+
+    .container::-webkit-scrollbar-thumb:hover {
+      background: #ccdb5f;
+    }
+
+    /* Header Section */
+    .header {
+      margin-bottom: 0;
+      animation: slideUp 0.8s ease-out;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .sparkle-icon {
+      width: 32px;
+      height: 32px;
+      color: var(--accent);
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .brand h1 {
+      font-size: 3rem;
       font-weight: 700;
-      margin-bottom: 0.5rem;
+      margin: 0;
       letter-spacing: -1px;
+      color: var(--text-main);
+    }
+
+    .brand .skill {
+      color: #DCEF62;
+      font-weight: 700;
     }
 
     .tagline {
       text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      letter-spacing: 3px;
+      font-size: 0.75rem;
+      font-weight: 700;
       color: var(--accent);
       margin-bottom: 1.5rem;
     }
@@ -72,164 +174,466 @@
       line-height: 1.6;
     }
 
+    /* Role Cards Grid */
     .role-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
       margin-bottom: 2.5rem;
+      width: 100%;
     }
 
     .role-card {
-      background: var(--card-bg);
-      border: 2px solid transparent;
-      border-radius: 16px;
-      padding: 2rem;
+      position: relative;
+      background: #f9fafb;
+      border: 3px solid #e5e7eb;
+      border-radius: 32px;
+      padding: 2.5rem 1.5rem;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      animation: slideUp 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .role-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .role-card:nth-child(2) {
+      animation-delay: 0.2s;
     }
 
     .role-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+      border-color: #d1d5db;
     }
 
     .role-card.selected {
-      border-color: var(--accent);
-      background: #fbfae6;
-      /* light lime tint */
-      transform: translateY(-5px);
+      border-color: transparent;
+      background: #f0fdf4;
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     }
 
-    .role-card[data-role="user"].selected {
-      border-color: #000;
-      background: #fbfae6;
-      /* light lime tint */
+    .role-card[data-role="learner"].selected {
+      background: linear-gradient(135deg, #ecf0ff, #dbeafe);
     }
 
-    .icon-wrapper {
+    .role-card[data-role="admin"].selected {
+      background: linear-gradient(135deg, #fce7f3, #f3e8ff);
+    }
+
+    /* Selection Checkmark */
+    .selection-indicator {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 40px;
+      height: 40px;
+      background: #10b981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .role-card.selected .selection-indicator {
+      opacity: 1;
+      transform: scale(1);
+      animation: scaleIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes scaleIn {
+      0% {
+        transform: scale(0) rotate(-180deg);
+      }
+      100% {
+        transform: scale(1) rotate(0);
+      }
+    }
+
+    .selection-indicator svg {
+      width: 24px;
+      height: 24px;
+      color: white;
+      stroke-width: 3;
+    }
+
+    /* Icon Container */
+    .icon-container {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .role-card[data-role="learner"] .icon-container {
+      background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    }
+
+    .role-card[data-role="admin"] .icon-container {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+    }
+
+    .role-card:hover .icon-container,
+    .role-card.selected .icon-container {
+      transform: scale(1.1) rotate(6deg);
+    }
+
+    .icon-container i {
       font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: var(--text-muted);
-      transition: color 0.3s;
+      color: white;
     }
 
-    .role-card:hover .icon-wrapper,
-    .role-card.selected .icon-wrapper {
+    /* Card Content */
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
       color: var(--text-main);
     }
 
-    .role-card[data-role="admin"] .icon-wrapper {
-      color: var(--accent);
+    .card-description {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      line-height: 1.5;
     }
 
-    .role-card[data-role="user"] .icon-wrapper {
-      color: #888;
+    /* Highlight Bar */
+    .highlight-bar {
+      height: 4px;
+      border-radius: 2px;
+      margin-top: 1rem;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
-    /* Default */
-    .role-card[data-role="user"].selected .icon-wrapper {
-      color: #000;
+    .role-card[data-role="learner"] .highlight-bar {
+      background: linear-gradient(90deg, #3b82f6, #06b6d4);
     }
 
-    .role-title {
-      font-size: 1.25rem;
-      font-weight: 600;
+    .role-card[data-role="admin"] .highlight-bar {
+      background: linear-gradient(90deg, #a855f7, #ec4899);
     }
 
-    .btn-start {
-      background: #1A1A1A;
-      color: white;
+    .role-card.selected .highlight-bar {
+      transform: scaleX(1);
+    }
+
+    /* Info Section */
+    .info-toggle {
+      width: 100%;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: none;
       border: none;
-      padding: 1rem 3rem;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s;
+      padding: 0.75rem 0;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
       font-family: inherit;
+      font-weight: 500;
     }
 
-    .btn-start:hover {
-      transform: scale(1.02);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      background: #000;
+    .info-toggle:hover {
+      color: var(--text-main);
     }
 
-    .btn-start:disabled {
-      opacity: 0.5;
+    .info-toggle i {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s;
+    }
+
+    .info-toggle.active i {
+      transform: rotate(180deg);
+    }
+
+    .info-panel {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      margin-bottom: 1.5rem;
+    }
+
+    .info-panel.active {
+      max-height: 300px;
+      opacity: 1;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .info-content {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: left;
+    }
+
+    .info-content p {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin: 0 0 0.75rem 0;
+      line-height: 1.6;
+    }
+
+    .info-content p:last-child {
+      margin-bottom: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .info-content strong {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Continue Button */
+    .btn-continue {
+      width: 100%;
+      padding: 1.125rem 2rem;
+      border-radius: 14px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #374151, #1f2937);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-continue:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(135deg, #1f2937, #111827);
+    }
+
+    .btn-continue:active:not(:disabled) {
+      transform: translateY(-1px) scale(1);
+    }
+
+    .btn-continue:disabled {
+      opacity: 0.6;
       cursor: not-allowed;
-      transform: none;
+      background: linear-gradient(135deg, #d1d5db, #9ca3af);
     }
 
+    .btn-continue i {
+      transition: transform 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .btn-continue:hover:not(:disabled) i {
+      transform: translateX(4px);
+    }
+
+    /* Footer Text */
+    .footer-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+    }
+
+    /* Animations */
     @keyframes slideUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1.5rem;
+      }
+
+      .brand h1 {
+        font-size: 2rem;
+      }
+
+      .role-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .bg-element-1,
+      .bg-element-2 {
+        width: 200px;
+        height: 200px;
       }
     }
   </style>
 </head>
 
 <body>
+  <!-- Animated Background Elements -->
+  <div class="bg-element bg-element-1"></div>
+  <div class="bg-element bg-element-2"></div>
 
+  <!-- Main Container -->
   <div class="container">
-    <h1>SkillSprint</h1>
-    <div class="tagline">Learn • Track • Excel</div>
-    <p class="description">Select your workspace to continue properly.</p>
+    <!-- Header Section -->
+    <div class="header">
+      <div class="brand">
+        <i class="fa-solid fa-sparkles sparkle-icon"></i>
+        <h1><span class="skill">Skill</span>Sprint</h1>
+      </div>
+      <p class="tagline">Learn • Track • Excel</p>
+      <p class="description">How would you like to use SkillSprint?</p>
+    </div>
 
+    <!-- Role Selection Cards -->
     <div class="role-grid">
-      <div class="role-card" data-role="user" onclick="selectRole('user')">
-        <div class="icon-wrapper"><i class="fa-solid fa-user-astronaut"></i></div>
-        <div class="role-title">Learner / User</div>
+      <!-- Learner Card -->
+      <div class="role-card" data-role="learner" onclick="selectRole('learner')">
+        <div class="selection-indicator">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div class="icon-container">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <h3 class="card-title">Learner / User</h3>
+        <p class="card-description">Track your learning progress and access courses</p>
+        <div class="highlight-bar"></div>
       </div>
 
+      <!-- Admin Card -->
       <div class="role-card" data-role="admin" onclick="selectRole('admin')">
-        <div class="icon-wrapper"><i class="fa-solid fa-user-shield"></i></div>
-        <div class="role-title">Administrator</div>
+        <div class="selection-indicator">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div class="icon-container">
+          <i class="fa-solid fa-shield"></i>
+        </div>
+        <h3 class="card-title">Administrator</h3>
+        <p class="card-description">Manage courses, users, and analytics</p>
+        <div class="highlight-bar"></div>
       </div>
     </div>
 
-    <button class="btn-start" id="startBtn" onclick="proceed()">Continue <i class="fa-solid fa-arrow-right"
-        style="margin-left:8px;"></i></button>
+    <!-- Info Toggle Button -->
+    <button class="info-toggle" id="infoToggle" onclick="toggleInfo()">
+      <i class="fa-solid fa-circle-info"></i>
+      What's the difference?
+    </button>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="infoPanel">
+      <div class="info-content">
+        <p><strong>Learners</strong> can access courses, track progress, earn certificates, and manage their learning journey.</p>
+        <p><strong>Administrators</strong> can create courses, manage users, view analytics, and configure platform settings.</p>
+      </div>
+    </div>
+
+    <!-- Continue Button -->
+    <button class="btn-continue" id="continueBtn" onclick="proceed()" disabled>
+      Continue
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+
+    <!-- Footer Text -->
+    <p class="footer-text">By continuing, you agree to our Terms of Service and Privacy Policy</p>
   </div>
 
   <script>
     let selectedRole = null;
-    const cards = document.querySelectorAll('.role-card');
-    const btn = document.getElementById('startBtn');
 
     function selectRole(role) {
       selectedRole = role;
-      cards.forEach(c => {
-        c.classList.remove('selected');
-        if (c.dataset.role === role) c.classList.add('selected');
+      
+      // Update card selection states
+      document.querySelectorAll('.role-card').forEach(card => {
+        card.classList.remove('selected');
+        if (card.dataset.role === role) {
+          card.classList.add('selected');
+        }
       });
+
+      // Enable continue button
+      document.getElementById('continueBtn').disabled = false;
+    }
+
+    function toggleInfo() {
+      const panel = document.getElementById('infoPanel');
+      const toggle = document.getElementById('infoToggle');
+      
+      panel.classList.toggle('active');
+      toggle.classList.toggle('active');
     }
 
     function proceed() {
       if (!selectedRole) {
-        // Gentle shake animation or visual cue
-        const container = document.querySelector('.container');
-        container.style.animation = 'none';
-        container.offsetHeight; /* trigger reflow */
-        container.style.animation = 'slideUp 0.1s ease-in-out 3'; // rapid shake
-
-        // Since CSS shake keyframes aren't defined, alert for now
-        alert("Please select a role to continue.");
+        alert('Please select a role to continue.');
         return;
       }
 
-      if (selectedRole === 'user') {
-        window.location.href = 'login.html';
-      } else {
-        window.location.href = 'admin-login.html';
-      }
+      // Add transition effect
+      const container = document.querySelector('.container');
+      container.style.animation = 'none';
+      setTimeout(() => {
+        container.style.animation = 'fadeIn 0.3s ease-out reverse';
+        
+        setTimeout(() => {
+          if (selectedRole === 'learner') {
+            window.location.href = 'login.html';
+          } else {
+            window.location.href = 'admin-login.html';
+          }
+        }, 300);
+      }, 10);
     }
   </script>
 
