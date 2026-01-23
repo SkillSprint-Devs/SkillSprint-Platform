@@ -11,9 +11,13 @@
 
   // Determine Socket URL dynamically
   const SOCKET_IO_BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000' ? 'http://localhost:5000' : '';
+  const token = localStorage.getItem('token');
 
-
-  const socket = io(SOCKET_IO_BACKEND_URL, { transports: ["websocket"], reconnection: true });
+  const socket = io(SOCKET_IO_BACKEND_URL, { 
+    transports: ["websocket"], 
+    reconnection: true,
+    auth: { token }
+  });
 
 
   const boardId = window.BOARD_ID || null;

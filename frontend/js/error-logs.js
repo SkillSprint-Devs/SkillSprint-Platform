@@ -367,14 +367,42 @@ function setupFilters() {
 
 function setupRealTimeUpdates() {
     const token = localStorage.getItem("token");
+    if (!token) {
+        console.warn("No token available for Socket.IO connection");
+        return;
+    }
     const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
         ? 'http://localhost:5000'
         : '';
     socket = io(SOCKET_URL, {
-        auth: { token }
+        auth: { token: token },
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 5
     });
 
-    socket.on("connect", () => console.log("Real-time error monitoring connected"));
+    socket.on("connect", () => {
+        console.log("Real-time error monitoring connected");
+        if (typeof showToast === 'function') {
+            showToast("Connected to error monitoring", "success");
+        }
+    });
+
+    socket.on("disconnect", (reason) => {
+        console.warn("Socket disconnected:", reason);
+    });
+
+    socket.on("connect_error", (error) => {
+        console.error("Socket connection error:", error);
+        if (typeof showToast === 'function') {
+            showToast("Connection error: " + error.message, "error");
+        }
+    });
+
+    socket.on("error", (error) => {
+        console.error("Socket error:", error);
+    });
 
     socket.on("error:new", (data) => {
         if (typeof showToast === 'function') {
