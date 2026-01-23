@@ -120,6 +120,7 @@ function joinSession() {
     });
 
     socket.on("live:statusChanged", (status) => {
+        console.log("[RUNTIME-DEBUG] Socket Event: live:statusChanged ->", status);
         document.getElementById("sessionStatus").textContent = status;
         if (status === 'live') {
             document.getElementById("startSessionBtn").style.display = "none";
@@ -325,43 +326,62 @@ function setupEventListeners() {
             return;
         }
 
-        if (confirm("Are you sure you want to end this session? This will deduct credits and close the room.")) {
-            const btn = document.getElementById("endSessionBtn");
-            const originalHtml = btn.innerHTML;
 
-            try {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                if (typeof showToast === 'function') showToast("Ending session and processing credits...", "info");
+        // Use the custom confirm function with callbacks
+        window.confirm(
+            "Are you sure you want to end this session? This will deduct credits and close the room.",
+            async () => {
+                // onConfirm callback
+                console.log("[DEBUG] User clicked OK on custom confirm");
+                const btn = document.getElementById("endSessionBtn");
+                console.log("[DEBUG] Button element:", btn);
 
-                const res = await fetch(`${API_BASE}/live-sessions/end-session`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ sessionId })
-                });
-
-                if (res.ok) {
-                    console.log("[LIVE] Session ended successfully via API");
-                    if (typeof showToast === 'function') showToast("Session ended successfully", "success");
-                    // Socket listener will handle the redirect for EVERYONE (including mentor) to keep it in sync
-                } else {
-                    const err = await res.json();
-                    console.error("[LIVE] API End Session Error:", err.message);
-                    if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
+                if (!btn) {
+                    console.error("[DEBUG] CRITICAL: endSessionBtn not found in DOM!");
+                    return;
                 }
-            } catch (err) {
-                console.error("[LIVE] End session API error:", err);
-                if (typeof showToast === 'function') showToast("Network error. Retrying via socket...", "warning");
-                // Fallback to socket if API fails
-                socket.emit("live:endSession", { sessionId });
-                setTimeout(() => window.location.href = "dashboard.html", 3000);
+
+                const originalHtml = btn.innerHTML;
+
+                try {
+                    console.log("[DEBUG] Starting try block");
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    console.log("[RUNTIME-DEBUG] Sending end-session fetch to API...");
+                    if (typeof showToast === 'function') showToast("Ending session and processing credits...", "info");
+
+                    const res = await fetch(`${API_BASE}/live-sessions/end-session`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ sessionId })
+                    });
+
+                    console.log("[RUNTIME-DEBUG] End-session API response status:", res.status);
+                    if (res.ok) {
+                        console.log("[RUNTIME-DEBUG] Session ended successfully via API. Waiting for socket confirmation...");
+                        // Socket listener will handle the redirect
+                    } else {
+                        const err = await res.json();
+                        console.error("[RUNTIME-DEBUG] API End Session Error:", err.message);
+                        if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                } catch (err) {
+                    console.error("[RUNTIME-DEBUG] End session API fetch error:", err);
+                    if (typeof showToast === 'function') showToast("Network error. Ending via socket...", "warning");
+                    // Fallback to socket if API fails
+                    socket.emit("live:endSession", { sessionId });
+                }
+            },
+            () => {
+                // onCancel callback
+                console.log("[DEBUG] User clicked CANCEL on custom confirm");
             }
-        }
+        );
     });
 
     // Tool switching

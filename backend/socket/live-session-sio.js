@@ -1,6 +1,7 @@
 import LiveSession from "../models/liveSession.js";
 import WalletService from "../utils/walletService.js";
 import User from "../models/user.js";
+import SessionService from "../services/sessionService.js";
 
 const liveSessionSocket = (io) => {
     const sessionRooms = new Map(); // sessionId -> { chat: [], whiteboard: [] }
@@ -38,7 +39,16 @@ const liveSessionSocket = (io) => {
                     return socket.emit("live:error", "Session hasn't started yet. Please wait for the mentor.");
                 }
 
-                if (now < new Date(startTime.getTime() - 10 * 60000)) { // 10 mins buffer
+                // 2. Strict Credit Check for Join
+                if (!isMentor) {
+                    const required = Math.floor(session.durationMinutes * 0.4);
+                    const hasCredits = await WalletService.hasEnoughCredits(userId, required);
+                    if (!hasCredits) {
+                        return socket.emit("live:error", "Insufficient credits. You need at least " + required + " minutes of credit to join.");
+                    }
+                }
+
+                if (now < new Date(startTime.getTime() - 15 * 60000)) { // 15 mins buffer
                     return socket.emit("live:error", "Too early to join. Please wait.");
                 }
 
@@ -154,45 +164,15 @@ const liveSessionSocket = (io) => {
         socket.on("live:endSession", async ({ sessionId }) => {
             try {
                 const session = await LiveSession.findById(sessionId);
-                if (session.status === "ended" || session.status === "completed") {
-                    console.log(`[SOCKET] End session skipped: session ${sessionId} already processed.`);
-                    return;
-                }
+                if (!session) return;
 
                 if (session.mentorId.toString() !== userId.toString()) {
-                    console.warn(`[SOCKET] Unauthorized end attempt by ${userId} for session ${sessionId}. Expected mentor ${session.mentorId}`);
+                    console.warn(`[SOCKET] Unauthorized end attempt by ${userId} for session ${sessionId}`);
                     return socket.emit("live:error", "Only the mentor can end the session.");
                 }
 
-                console.log(`[SOCKET] End session confirmed for ${sessionId}.`);
-
-                session.status = "ended";
-                session.endedAt = new Date();
-                await session.save();
-
-                const duration = session.durationMinutes;
-                for (const learnerId of session.acceptedUserIds) {
-                    try {
-                        await WalletService.spendCredits(learnerId, session._id, session.sessionName, duration, "Mentor");
-                    } catch (e) {
-                        console.error(`Failed to deduct credits for ${learnerId}:`, e.message);
-                    }
-                }
-                await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
-
-                io.to(sessionId).emit("live:statusChanged", "ended");
-
-                // Notify all participants to update dashboard
-                const allParticipants = [...session.acceptedUserIds, session.mentorId];
-                allParticipants.forEach(pid => {
-                    io.to(pid.toString()).emit("notification", {
-                        type: "session_update",
-                        message: `Session "${session.sessionName}" has ended`
-                    });
-                });
-
-                sessionRooms.delete(sessionId);
-                console.log(`[SOCKET] Session ${sessionId} ended successfully.`);
+                await SessionService.terminateSession(sessionId, io);
+                console.log(`[SOCKET] Session ${sessionId} ended successfully via SessionService.`);
             } catch (e) {
                 console.error("[SOCKET] Error ending session:", e);
                 socket.emit("live:error", "Failed to end session: " + e.message);

@@ -74,41 +74,48 @@ document.head.appendChild(toastStyle);
 
 
 window.confirm = function (message, onConfirm, onCancel) {
-
+  // Remove any existing modal
   document.querySelector(".confirm-modal")?.remove();
 
+  // If callbacks are provided, use async callback mode
+  if (onConfirm || onCancel) {
+    const modal = document.createElement("div");
+    modal.className = "confirm-modal";
 
-  const modal = document.createElement("div");
-  modal.className = "confirm-modal";
-
-  modal.innerHTML = `
-    <div class="confirm-box">
-      <p>${message}</p>
-      <div class="confirm-actions">
-        <button class="confirm-yes">Yes</button>
-        <button class="confirm-no">No</button>
+    modal.innerHTML = `
+      <div class="confirm-box">
+        <p>${message}</p>
+        <div class="confirm-actions">
+          <button class="confirm-yes">Yes</button>
+          <button class="confirm-no">No</button>
+        </div>
       </div>
-    </div>
-  `;
+    `;
 
-  document.body.appendChild(modal);
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add("show"));
 
+    modal.querySelector(".confirm-yes").onclick = () => {
+      modal.classList.remove("show");
+      setTimeout(() => modal.remove(), 300);
+      if (onConfirm) onConfirm();
+    };
 
-  requestAnimationFrame(() => modal.classList.add("show"));
+    modal.querySelector(".confirm-no").onclick = () => {
+      modal.classList.remove("show");
+      setTimeout(() => modal.remove(), 300);
+      if (onCancel) onCancel();
+    };
 
+    return; // Don't return a value for callback mode
+  }
 
-  modal.querySelector(".confirm-yes").onclick = () => {
-    modal.classList.remove("show");
-    setTimeout(() => modal.remove(), 300);
-    if (onConfirm) onConfirm();
-  };
-
-  modal.querySelector(".confirm-no").onclick = () => {
-    modal.classList.remove("show");
-    setTimeout(() => modal.remove(), 300);
-    if (onCancel) onCancel();
-  };
+  // Otherwise, use native browser confirm for backwards compatibility
+  return window.nativeConfirm(message);
 };
+
+// Store the native confirm before overriding
+window.nativeConfirm = window.confirm;
 
 
 const confirmStyle = document.createElement("style");
