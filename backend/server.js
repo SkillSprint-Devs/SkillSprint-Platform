@@ -135,7 +135,10 @@ io.use((socket, next) => {
         console.warn("Socket auth failed:", err.message);
         return next(new Error("Invalid token"));
       }
-      socket.data.user = decoded;
+      socket.data.user = {
+        id: decoded.id || decoded._id || decoded.userId,
+        role: decoded.role
+      };
       socket.data.joinedBoards = new Set();
       return next();
     });

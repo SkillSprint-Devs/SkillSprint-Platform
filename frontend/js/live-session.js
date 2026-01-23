@@ -126,8 +126,14 @@ function joinSession() {
             if (window.isMentor) document.getElementById("endSessionBtn").style.display = "block";
             startTimer();
         } else if (status === 'ended' || status === 'completed') {
+            console.log("[LIVE] Session ended status received via socket");
             if (typeof showToast === 'function') showToast("Session ended by Mentor", "info");
-            setTimeout(() => window.location.href = "dashboard.html", 2000);
+            // Give user time to see toast before redirect
+            setTimeout(() => {
+                if (window.location.pathname.includes("livevideo.html")) {
+                    window.location.href = "dashboard.html";
+                }
+            }, 2000);
         }
     });
 
@@ -338,11 +344,12 @@ function setupEventListeners() {
                 });
 
                 if (res.ok) {
-                    console.log("[LIVE] Session ended via API");
+                    console.log("[LIVE] Session ended successfully via API");
                     if (typeof showToast === 'function') showToast("Session ended successfully", "success");
-                    setTimeout(() => window.location.href = "dashboard.html", 1500);
+                    // Socket listener will handle the redirect for EVERYONE (including mentor) to keep it in sync
                 } else {
                     const err = await res.json();
+                    console.error("[LIVE] API End Session Error:", err.message);
                     if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
