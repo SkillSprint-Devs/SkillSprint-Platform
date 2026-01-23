@@ -233,6 +233,9 @@ function renderErrors(errors) {
         // Status Badge class
         const statusClass = `status-${(error.status || 'NEW').toLowerCase().replace('_', '-')}`;
 
+        // Determine if error is resolved
+        const isResolved = error.status === 'RESOLVED' || error.resolved === true;
+
         row.innerHTML = `
             <td><input type="checkbox" class="error-checkbox" value="${error._id}"></td>
             <td><span class="severity-badge severity-${error.severity.toLowerCase()}">${error.severity}</span></td>
@@ -242,10 +245,10 @@ function renderErrors(errors) {
             <td title="${error.userAgent || ''}">${userInfo}</td>
             <td title="${screenInfo}">${screenInfo.length > 30 ? screenInfo.substring(0, 27) + '...' : screenInfo}</td>
             <td>${new Date(error.timestamp).toLocaleString()}</td>
-            <td>
-                <button class="action-btn view-btn" onclick="viewDetails('${error._id}')"><i class="fa-solid fa-eye"></i></button>
-                ${(error.status !== 'RESOLVED' && !error.resolved) ? `<button class="action-btn resolve-btn" onclick="resolveError('${error._id}')"><i class="fa-solid fa-check"></i></button>` : ''}
-                <button class="action-btn delete-btn" onclick="deleteError('${error._id}')"><i class="fa-solid fa-trash"></i></button>
+            <td style="min-width: 120px;">
+                <button class="action-btn view-btn" onclick="viewDetails('${error._id}')" title="View Details"><i class="fa-solid fa-eye"></i></button>
+                ${!isResolved ? `<button class="action-btn resolve-btn" onclick="resolveError('${error._id}')" title="Mark Resolved"><i class="fa-solid fa-check"></i></button>` : ''}
+                <button class="action-btn delete-btn" onclick="deleteError('${error._id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
         tbody.appendChild(row);
@@ -512,16 +515,29 @@ async function resolveError(errorId) {
     try {
         const res = await fetch(`${API_BASE}/errors/${errorId}/resolve`, {
             method: "PATCH",
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
         });
 
-        if (!res.ok) throw new Error("Failed to resolve error");
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || "Failed to resolve error");
+        }
 
         if (typeof showToast === 'function') showToast("Error marked as resolved", "success");
+        
+        // Close modal if open
+        const modal = document.getElementById("detailModal");
+        if (modal && modal.classList.contains("active")) {
+            closeModal();
+        }
+        
         loadErrors();
     } catch (err) {
-        console.error(err);
-        if (typeof showToast === 'function') showToast("Failed to resolve error", "error");
+        console.error("Resolve error:", err);
+        if (typeof showToast === 'function') showToast(err.message || "Failed to resolve error", "error");
     }
 }
 
@@ -536,13 +552,23 @@ async function deleteError(errorId) {
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        if (!res.ok) throw new Error("Failed to delete error");
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || "Failed to delete error");
+        }
 
         if (typeof showToast === 'function') showToast("Error log deleted", "success");
+        
+        // Close modal if open
+        const modal = document.getElementById("detailModal");
+        if (modal && modal.classList.contains("active")) {
+            closeModal();
+        }
+        
         loadErrors();
     } catch (err) {
-        console.error(err);
-        if (typeof showToast === 'function') showToast("Failed to delete error", "error");
+        console.error("Delete error:", err);
+        if (typeof showToast === 'function') showToast(err.message || "Failed to delete error", "error");
     }
 }
 
@@ -718,7 +744,10 @@ function updateBulkActionsBar() {
 
 async function handleBulkAction(action) {
     const selected = Array.from(document.querySelectorAll(".error-checkbox:checked")).map(cb => cb.value);
-    if (selected.length === 0) return;
+    if (selected.length === 0) {
+        if (typeof showToast === 'function') showToast("Please select at least one error", "info");
+        return;
+    }
 
     const confirmMsg = action === 'delete'
         ? `Are you sure you want to delete ${selected.length} logs?`
@@ -737,16 +766,21 @@ async function handleBulkAction(action) {
             body: JSON.stringify({ action, errorIds: selected })
         });
 
-        if (!res.ok) throw new Error("Bulk action failed");
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || "Bulk action failed");
+        }
 
         const data = await res.json();
         if (typeof showToast === 'function') showToast(data.message, "success");
 
-        // Refresh
+        // Clear selections and refresh
+        document.getElementById("selectAllErrors").checked = false;
+        document.querySelectorAll(".error-checkbox").forEach(cb => cb.checked = false);
         loadErrors();
     } catch (err) {
-        console.error(err);
-        if (typeof showToast === 'function') showToast("Bulk action failed", "error");
+        console.error("Bulk action error:", err);
+        if (typeof showToast === 'function') showToast(err.message || "Bulk action failed", "error");
     }
 }
 
