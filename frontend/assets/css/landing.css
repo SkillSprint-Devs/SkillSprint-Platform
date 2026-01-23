@@ -1,13 +1,13 @@
-/* Landing Page Design System */
 :root {
-  --lp-bg: #0A0A0A;
-  --lp-card-bg: #161616;
-  --lp-accent: #DCEF62; /* Lime */
-  --lp-text-primary: #FFFFFF;
-  --lp-text-secondary: #A1A1AA;
-  --lp-border: rgba(255, 255, 255, 0.1);
-  --lp-gradient-1: rgba(220, 239, 98, 0.05); /* Lime subtle glow */
-  --lp-gradient-2: rgba(140, 82, 255, 0.05); /* Purple subtle glow */
+  --lp-bg: #F9F8D9;
+  --lp-card-bg: #ffffff;
+  --lp-accent: #DCEF62;
+  /* Keep lime as brand accent */
+  --lp-text-primary: #1A1A1A;
+  --lp-text-secondary: #666666;
+  --lp-border: rgba(0, 0, 0, 0.08);
+  --lp-gradient-1: rgba(220, 239, 98, 0.2);
+  --lp-gradient-2: rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -53,6 +53,7 @@ body {
   letter-spacing: -1px;
   background: linear-gradient(to right, #fff, #a1a1aa);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 1rem;
 }
@@ -66,10 +67,25 @@ body {
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(10px); }
-  30% { opacity: 1; transform: translateY(0); }
-  70% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-10px); }
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
 }
 
 /* Main Layout */
@@ -144,7 +160,7 @@ nav {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background: 
+  background:
     radial-gradient(circle at 20% 30%, var(--lp-gradient-1) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, var(--lp-gradient-2) 0%, transparent 50%);
   filter: blur(80px);
@@ -153,8 +169,13 @@ nav {
 }
 
 @keyframes drift {
-  from { transform: translate(-50%, -50%) scale(1); }
-  to { transform: translate(-45%, -55%) scale(1.1); }
+  from {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    transform: translate(-45%, -55%) scale(1.1);
+  }
 }
 
 .hero h1 {
@@ -203,9 +224,20 @@ nav {
 }
 
 @keyframes pulse-dot {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.5; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Bento Grid */
@@ -243,8 +275,13 @@ nav {
 }
 
 /* Custom Spans for Bento */
-.col-2 { grid-column: span 2; }
-.row-2 { grid-row: span 2; }
+.col-2 {
+  grid-column: span 2;
+}
+
+.row-2 {
+  grid-row: span 2;
+}
 
 /* Momentum Card Specifics */
 .momentum-graph {
@@ -281,7 +318,10 @@ nav {
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -295,14 +335,26 @@ nav {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
   }
-  .col-2 { grid-column: span 1; }
-  .hero h1 { font-size: 3.5rem; }
+
+  .col-2 {
+    grid-column: span 1;
+  }
+
+  .hero h1 {
+    font-size: 3.5rem;
+  }
 }
 
 @media (max-width: 640px) {
   .bento-grid {
     grid-template-columns: 1fr;
   }
-  .hero h1 { font-size: 2.5rem; }
-  .nav-links { display: none; }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .nav-links {
+    display: none;
+  }
 }

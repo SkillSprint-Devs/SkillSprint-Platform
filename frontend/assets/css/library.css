@@ -6,12 +6,12 @@ body {
 }
 
 .library-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+  width: 100%;
+  padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-height: 100vh;
 }
 
 .library-top-nav {

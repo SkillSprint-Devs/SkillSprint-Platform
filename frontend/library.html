@@ -20,13 +20,15 @@
   <div class="library-container">
     <header class="library-top-nav">
       <div class="nav-left">
-        <a href="dashboard.html" class="back-btn" title="Back to Dashboard"><i class="fa-solid fa-arrow-left"></i></a>
+        <button class="back-btn" onclick="location.href='dashboard.html'" title="Back to Dashboard">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
         <div class="logo">SkillSprint <span>Library</span></div>
       </div>
 
       <div class="search-bar">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="librarySearch" placeholder="Search resources, notes, recordings..." />
+        <input type="text" id="librarySearch" placeholder="Search resources, recordings..." />
       </div>
 
       <div class="top-actions">
@@ -128,6 +130,7 @@
   <!-- JS -->
   <script src="js/toast.js"></script>
   <script src="js/library.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 
 </html>
