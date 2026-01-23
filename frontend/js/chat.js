@@ -170,7 +170,15 @@ async function loadConversations() {
         const res = await fetch(`${API_URL}/chat/conversations/recent`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const data = await res.json();
+        let data = await res.json();
+
+        // Sort by newest message first
+        data.sort((a, b) => {
+            const dateA = a.lastMessage ? new Date(a.lastMessage.createdAt) : 0;
+            const dateB = b.lastMessage ? new Date(b.lastMessage.createdAt) : 0;
+            return dateB - dateA;
+        });
+
         const list = document.getElementById('conversationsList');
         list.innerHTML = '';
 
