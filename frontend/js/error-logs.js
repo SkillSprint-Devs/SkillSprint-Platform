@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 1. Session Repair: If token exists but user is missing/empty, try to fetch user profile
     if (token && (!user || !user.email)) {
-        console.warn("⚠️ Token found but user data missing. FORCEFULLY REPAIRING SESSION...");
+        console.warn("[SESSION REPAIR] Token found but user data missing. Attempting to repair session...");
 
         // Fetch user profile from API to repair session
         fetch(`${API_BASE}/auth/profile`, {
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return res.json();
             })
             .then(userData => {
-                console.log("✅ Session repaired!", userData);
+                console.log("[SESSION REPAIR] Session repaired successfully!", userData);
                 localStorage.setItem("user", JSON.stringify(userData));
                 window.location.reload();
             })
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token || !user.email) {
         document.body.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background-color:#f8d7da; color:#721c24;">
-                <h1 style="margin-bottom:20px;">⚠️ Access Denied: Not Logged In</h1>
+                <h1 style="margin-bottom:20px;"><i class="fa-solid fa-triangle-exclamation" style="color:#f57c00;"></i> Access Denied: Not Logged In</h1>
                 <p style="font-size:1.2rem; margin-bottom:20px;">We could not find your session data in this browser.</p>
                 <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px; border:1px solid #f5c6cb; max-width:500px;">
                     <strong>Debug Info:</strong>

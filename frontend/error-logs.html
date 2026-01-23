@@ -138,7 +138,10 @@
             cursor: pointer;
             font-size: 0.8rem;
             font-weight: 600;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .view-btn {
@@ -147,17 +150,18 @@
         }
 
         .resolve-btn {
-            background: #4caf50;
+            background: #66bb6a;
             color: #fff;
         }
 
         .delete-btn {
-            background: #f44336;
+            background: #ef5350;
             color: #fff;
         }
 
         .action-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .pagination {

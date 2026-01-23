@@ -149,6 +149,9 @@ io.use((socket, next) => {
 
 const onlineUsers = new Map(); // userId -> Set<socketId>
 
+// Expose onlineUsers to routes for admin dashboard
+app.set('onlineUsers', onlineUsers);
+
 io.on("connection", (socket) => {
   const user = socket.data.user || {};
   const userId = user.id || user._id || null;

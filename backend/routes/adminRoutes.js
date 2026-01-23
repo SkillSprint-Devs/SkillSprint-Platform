@@ -1,8 +1,8 @@
 import express from "express";
 import User from "../models/user.js";
-import Board from "../models/board.js";
-import ActivityLog from "../models/activityLog.js"; // Assuming this exists per file list
-// import PairProgramming from "../models/pair-programming.js"; // Optional if needed
+import LiveSession from "../models/liveSession.js";
+import ActivityLog from "../models/activityLog.js";
+import PairProgramming from "../models/pair-programming.js";
 
 const router = express.Router();
 
@@ -11,34 +11,23 @@ router.get("/stats", async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
 
-        // Simulate/Count Online Users
-        // Option A: If we had a global 'online' flag or using the socket map from server (complex to share state here without separate store).
-        // Option B: Count users updated/active in last 15 mins.
-        // Let's use a simple approximation: Users with 'isOnline' true (if exists) or just mock it slightly based on active boards.
-        // Note: server.js maintains 'onlineUsers' Map. Sharing that directly to routes is tricky without attaching to app/req.
-        // For now, let's roughly estimate 'Active Sessions' using Board.
+        // ✅ FIX 1: Get REAL online users count from socket connections
+        const onlineUsersMap = req.app.get('onlineUsers');
+        const onlineUsers = onlineUsersMap ? onlineUsersMap.size : 0;
 
-        // Count boards that have activeUsers > 0
-        const activeSessions = await Board.countDocuments({ activeUsers: { $not: { $size: 0 } } });
+        // ✅ FIX 2: Count LIVE SESSIONS (not boards) with status = "live"
+        const activeSessions = await LiveSession.countDocuments({ status: "live" });
 
-        // For online users, since we can't easily access the socket.io 'onlineUsers' map from this isolated route file 
-        // without passing it through middleware (which we haven't done in server.js yet), 
-        // allows just return a placeholder or a 'Last Active < 15min' count if database has lastLogin.
-        // Let's rely on 'activeSessions' * 2 (avg pairing) + random factor or just 'totalUsers' / 10 for demo if no real data.
-        // BETTER: Count users active in last hour if fields exist.
-        // For this iteration, I will return 0 for onlineUsers if I can't calculate it, or maybe just activeSessions * 2.
-        // actually, let's try to see if we can get it. 
-        // Let's just return activeSessions count and total users context reliably.
-
-        // Mocking online users for now until we link socket state or DB last_active
-        const onlineUsers = activeSessions * 2 + Math.floor(Math.random() * 5);
+        // BONUS: Add projects count for future dashboard enhancement
+        const totalProjects = await PairProgramming.countDocuments();
 
         res.json({
             success: true,
             stats: {
                 totalUsers,
-                onlineUsers: onlineUsers || 0,
-                activeSessions
+                onlineUsers,
+                activeSessions,
+                totalProjects
             }
         });
     } catch (err) {
@@ -92,6 +81,113 @@ router.get("/users-preview", async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+
+// GET /api/admin/health
+// ✅ FIX 3: Real system health monitoring
+router.get("/health", async (req, res) => {
+    try {
+        const health = {
+            status: "healthy",
+            timestamp: new Date(),
+            checks: {}
+        };
+
+        // 1. Database Connection Check
+        const mongoose = (await import("mongoose")).default;
+        const dbState = mongoose.connection.readyState;
+        const dbStatus = {
+            0: "disconnected",
+            1: "connected",
+            2: "connecting",
+            3: "disconnecting"
+        };
+
+        health.checks.database = {
+            status: dbState === 1 ? "healthy" : "unhealthy",
+            state: dbStatus[dbState] || "unknown",
+            healthy: dbState === 1
+        };
+
+        // 2. Error Rate Check (last hour)
+        const ErrorLog = (await import("../models/ErrorLog.js")).default;
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const recentErrors = await ErrorLog.countDocuments({
+            timestamp: { $gte: oneHourAgo },
+            severity: { $in: ["High", "Critical"] }
+        });
+
+        health.checks.errorRate = {
+            status: recentErrors < 10 ? "healthy" : recentErrors < 50 ? "warning" : "critical",
+            count: recentErrors,
+            period: "last_hour",
+            healthy: recentErrors < 10
+        };
+
+        // 3. Memory Usage Check
+        const memUsage = process.memoryUsage();
+        const memUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+        const memTotalMB = Math.round(memUsage.heapTotal / 1024 / 1024);
+        const memPercent = Math.round((memUsage.heapUsed / memUsage.heapTotal) * 100);
+
+        health.checks.memory = {
+            status: memPercent < 80 ? "healthy" : memPercent < 90 ? "warning" : "critical",
+            usedMB: memUsedMB,
+            totalMB: memTotalMB,
+            percentage: memPercent,
+            healthy: memPercent < 80
+        };
+
+        // 4. Uptime Check
+        const uptimeSeconds = Math.floor(process.uptime());
+        health.checks.uptime = {
+            status: "healthy",
+            seconds: uptimeSeconds,
+            formatted: formatUptime(uptimeSeconds),
+            healthy: true
+        };
+
+        // Overall Health Status
+        const allHealthy = Object.values(health.checks).every(check => check.healthy);
+        const anyWarning = Object.values(health.checks).some(check => check.status === "warning");
+        const anyCritical = Object.values(health.checks).some(check => check.status === "critical");
+
+        if (anyCritical) {
+            health.status = "critical";
+        } else if (anyWarning) {
+            health.status = "degraded";
+        } else if (allHealthy) {
+            health.status = "healthy";
+        } else {
+            health.status = "unknown";
+        }
+
+        res.json({ success: true, health });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            health: {
+                status: "error",
+                message: err.message
+            }
+        });
+    }
+});
+
+// Helper function to format uptime
+function formatUptime(seconds) {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (secs > 0 || parts.length === 0) parts.push(`${secs}s`);
+
+    return parts.join(' ');
+}
 
 // POST /api/admin/make-admin
 // Temporary endpoint to grant admin privileges
