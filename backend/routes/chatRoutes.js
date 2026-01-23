@@ -22,8 +22,8 @@ router.get("/users/search", verifyToken, async (req, res) => {
                 { email: { $regex: query, $options: "i" } }
             ]
         })
-        .select("name email profile_image role")
-        .limit(10);
+            .select("name email profile_image role")
+            .limit(10);
 
         res.json(users);
     } catch {
@@ -97,9 +97,42 @@ router.delete("/delete/:messageId", verifyToken, async (req, res) => {
         }
 
         await Chat.findByIdAndDelete(messageId);
+
+        const io = req.app.get("io");
+        if (io) io.emit("message_deleted", messageId);
+
         res.json({ success: true, _id: messageId });
     } catch {
         res.status(500).json({ message: "Delete error" });
+    }
+});
+
+// Edit Message
+router.put("/:messageId", verifyToken, async (req, res) => {
+    try {
+        const { messageId } = req.params;
+        const { content } = req.body;
+        const userId = req.user.id;
+
+        if (!content) return res.status(400).json({ message: "Content required" });
+
+        const message = await Chat.findById(messageId);
+        if (!message) return res.status(404).json({ message: "Not found" });
+
+        if (message.sender.toString() !== userId) {
+            return res.status(403).json({ message: "Not allowed" });
+        }
+
+        message.content = content;
+        message.isEdited = true;
+        await message.save();
+
+        const io = req.app.get("io");
+        if (io) io.emit("message_edited", { _id: messageId, content });
+
+        res.json(message);
+    } catch {
+        res.status(500).json({ message: "Edit error" });
     }
 });
 

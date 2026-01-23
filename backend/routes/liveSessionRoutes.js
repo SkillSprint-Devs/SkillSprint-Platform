@@ -233,7 +233,7 @@ router.get("/my-schedule", verifyToken, async (req, res) => {
         if (showAll) {
             // No status filter
         } else if (isHistory) {
-            query.status = { $in: ['completed', 'cancelled'] };
+            query.status = { $in: ['ended', 'cancelled'] };
         } else {
             query.status = { $in: ['scheduled', 'live'] };
         }
