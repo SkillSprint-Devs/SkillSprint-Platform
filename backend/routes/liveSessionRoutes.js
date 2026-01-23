@@ -60,6 +60,36 @@ async function checkConflict(userId, startDateTime, durationMinutes) {
 }
 
 /**
+ * Helper: Sync session status based on current time
+ */
+async function syncSessionStatus(session) {
+    if (session.status === 'ended' || session.status === 'cancelled') return session;
+
+    const now = new Date();
+    const start = new Date(session.startTime || session.scheduledDateTime);
+    const end = new Date(session.endTime || (start.getTime() + session.durationMinutes * 60000));
+
+    let updatedStatus = session.status;
+
+    if (now < start) {
+        updatedStatus = "scheduled";
+    } else if (now >= start && now <= end) {
+        updatedStatus = "live";
+    } else if (now > end) {
+        updatedStatus = "ended";
+    }
+
+    if (updatedStatus !== session.status) {
+        session.status = updatedStatus;
+        if (updatedStatus === 'ended' && !session.endedAt) {
+            session.endedAt = now;
+        }
+        await session.save();
+    }
+    return session;
+}
+
+/**
  * GET — Get pending invites for user
  */
 router.get("/pending-invites", verifyToken, async (req, res) => {
@@ -112,6 +142,9 @@ router.post("/create", verifyToken, async (req, res) => {
             return res.status(403).json({ message: "Wallet not found or error" });
         }
 
+        const start = new Date(scheduledDateTime);
+        const end = new Date(start.getTime() + durationMinutes * 60000);
+
         // 3. Create Session
         const session = new LiveSession({
             sessionName,
@@ -120,6 +153,8 @@ router.post("/create", verifyToken, async (req, res) => {
             durationMinutes,
             maxParticipants: invitedUserIds ? invitedUserIds.length : 0,
             scheduledDateTime,
+            startTime: start,
+            endTime: end,
             invitedUserIds,
             status: "scheduled"
         });
@@ -207,6 +242,11 @@ router.get("/my-schedule", verifyToken, async (req, res) => {
             .populate("mentorId", "name profile_image")
             .sort({ scheduledDateTime: (isHistory || showAll) ? -1 : 1 });
 
+        // Sync statuses before returning
+        for (let s of sessions) {
+            await syncSessionStatus(s);
+        }
+
         res.json(sessions);
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch schedule" });
@@ -262,6 +302,49 @@ router.post("/respond-invite", verifyToken, async (req, res) => {
 });
 
 /**
+ * POST — End a session (Mentor only)
+ */
+router.post("/end-session", verifyToken, async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+        const userId = req.user.id;
+
+        const session = await LiveSession.findById(sessionId);
+        if (!session) return res.status(404).json({ message: "Session not found" });
+
+        if (session.mentorId.toString() !== userId) {
+            return res.status(403).json({ message: "Only mentors can end sessions" });
+        }
+
+        session.status = "ended";
+        session.endedAt = new Date();
+        await session.save();
+
+        // Trigger Wallet Logic (usually handled in socket but adding here for reliability)
+        const duration = session.durationMinutes;
+        for (const learnerId of session.acceptedUserIds) {
+            try {
+                await WalletService.spendCredits(learnerId, session._id, session.sessionName, duration, "Mentor");
+            } catch (e) {
+                console.error(`Failed to deduct credits for ${learnerId}:`, e.message);
+            }
+        }
+        await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
+
+        // Emit socket event if needed (we'll also keep it in live-session-sio.js)
+        const io = req.app.get("io");
+        if (io) {
+            io.to(sessionId).emit("live:statusChanged", "ended");
+        }
+
+        res.json({ message: "Session ended successfully", success: true });
+    } catch (err) {
+        console.error("End session error:", err);
+        res.status(500).json({ message: "Failed to end session" });
+    }
+});
+
+/**
  * DELETE — Cancel or Remove session from dashboard
  */
 router.delete("/:id", verifyToken, async (req, res) => {
@@ -272,11 +355,8 @@ router.delete("/:id", verifyToken, async (req, res) => {
         const userId = req.user.id;
 
         if (session.mentorId.toString() === userId) {
-            // Mentor cancels/deletes the whole thing if not already completed
-            if (session.status === 'completed') {
-                // If completed, just hide it? 
-                // For now, let's keep it in history but remove from active query.
-                // We'll just delete for simplicity if requested.
+            // Mentor cancels/deletes the whole thing if not already ended
+            if (session.status === 'ended' || session.status === 'cancelled') {
                 await LiveSession.findByIdAndDelete(req.params.id);
                 return res.json({ message: "Session deleted from history" });
             }

@@ -147,6 +147,33 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
+
+        /* Delete Button Styles */
+        .delete-history-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.2s;
+            opacity: 0;
+        }
+
+        .history-card:hover .delete-history-btn {
+            opacity: 1;
+        }
+
+        .delete-history-btn:hover {
+            color: #ef5350;
+            transform: scale(1.1);
+        }
+
+        .history-card {
+            position: relative;
+        }
     </style>
 </head>
 
@@ -263,7 +290,11 @@
 
                 const card = document.createElement("div");
                 card.className = "history-card";
+                card.id = `session-${s._id}`;
                 card.innerHTML = `
+                    <button class="delete-history-btn" onclick="deleteSession('${s._id}')" title="Delete Session Permanently">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                     <div class="session-info">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
                             <span class="role-badge role-${roleLabel.toLowerCase()}">${roleLabel}</span>
@@ -282,8 +313,8 @@
                             <span style="font-size: 0.75rem;">${isMentor ? (s.invitedUserIds?.length || 0) + ' Mentees' : 'with ' + (s.mentorId?.name || 'Mentor')}</span>
                             ${(s.status === 'scheduled' || s.status === 'live') ?
                         `<button class="join-history-btn ${s.status === 'live' ? 'live' : ''}" onclick="location.href='livevideo.html?sessionId=${s._id}'">
-                                    ${s.status === 'live' ? '<i class="fa-solid fa-circle"></i> Join' : 'Open'}
-                                 </button>` : ''}
+                                     ${s.status === 'live' ? '<i class="fa-solid fa-circle"></i> Join' : 'Open'}
+                                  </button>` : ''}
                         </div>
                     </div>
                 `;
@@ -300,6 +331,36 @@
                 filtered = window.allHistory.filter(s => (s.mentorId?._id || s.mentorId) !== userId);
             }
             renderHistory(filtered);
+        }
+
+        async function deleteSession(id) {
+            if (!confirm("Are you sure you want to delete this session permanently from history?")) return;
+
+            const token = localStorage.getItem("token");
+            try {
+                const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    if (typeof showToast === 'function') showToast("Session deleted", "success");
+                    // Remove from DOM
+                    const el = document.getElementById(`session-${id}`);
+                    if (el) el.remove();
+                    // Update local history
+                    window.allHistory = window.allHistory.filter(s => s._id !== id);
+                    if (window.allHistory.length === 0) {
+                        document.getElementById("emptyHistory").style.display = "block";
+                    }
+                } else {
+                    const err = await res.json();
+                    if (typeof showToast === 'function') showToast(err.message || "Failed to delete", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                if (typeof showToast === 'function') showToast("Connection error", "error");
+            }
         }
     </script>
 </body>
