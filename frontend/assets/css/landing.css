@@ -22,6 +22,49 @@ body {
   color: var(--lp-text-primary);
   overflow-x: hidden;
   line-height: 1.5;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Animated background elements */
+.bg-element {
+  position: fixed;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-element-1 {
+  width: 288px;
+  height: 288px;
+  background: var(--lp-accent);
+  top: 80px;
+  left: 40px;
+  animation: pulse 8s ease-in-out infinite;
+}
+
+.bg-element-2 {
+  width: 288px;
+  height: 288px;
+  background: var(--lp-accent);
+  bottom: 80px;
+  right: 40px;
+  animation: pulse 8s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
 }
 
 /* Splash Screen */
@@ -51,7 +94,7 @@ body {
   font-size: 3rem;
   font-weight: 700;
   letter-spacing: -1px;
-  background: linear-gradient(to right, #fff, #a1a1aa);
+  background: linear-gradient(90deg, #DCEF62 0%, #1A1A1A 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -88,10 +131,33 @@ body {
   }
 }
 
+@keyframes gradientShift {
+  0% {
+    background: linear-gradient(90deg, #DCEF62 0%, #1A1A1A 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  50% {
+    background: linear-gradient(90deg, #1A1A1A 0%, #DCEF62 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  100% {
+    background: linear-gradient(90deg, #DCEF62 0%, #1A1A1A 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
 /* Main Layout */
 #landing-page {
   opacity: 0;
   transition: opacity 1s ease-in;
+  position: relative;
+  z-index: 1;
 }
 
 #landing-page.visible {
@@ -111,6 +177,13 @@ nav {
   align-items: center;
   padding: 24px 0;
   border-bottom: 1px solid var(--lp-border);
+}
+
+.logo-wrapper {
+  background: linear-gradient(90deg, #DCEF62 0%, #1A1A1A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .nav-links {
