@@ -1,42 +1,62 @@
 import express from "express";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import ErrorLog from "../models/ErrorLog.js";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
 /**
  * POST /api/errors/log
- * Frontend error submission endpoint
+ * Frontend error submission endpoint (Public but captures user if logged in)
  */
-router.post("/log", verifyToken, async (req, res) => {
+router.post("/log", async (req, res) => {
     try {
-        const { errorMessage, fileName, lineNumber, columnNumber, stackTrace, screenName } = req.body;
+        const {
+            errorMessage, fileName, lineNumber, columnNumber, stackTrace, screenName,
+            severity, userAgent, environment, requestUrl, requestMethod, sessionId
+        } = req.body;
 
-        const userId = req.user.id;
-        const userEmail = req.user.email;
+        // Try to get user from token if it exists
+        let userId = null;
+        let userEmail = 'Guest';
+
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.split(' ')[1];
+                const secret = process.env.JWT_SECRET || process.env.TOKEN_SECRET;
+                if (secret) {
+                    const decoded = jwt.verify(token, secret);
+                    userId = decoded.id || decoded._id || decoded.userId;
+                    userEmail = decoded.email || 'Authenticated User';
+                }
+            } catch (e) {
+                // Ignore token errors for logging (expired token, etc.)
+            }
+        }
 
         // Mask sensitive data
-        const maskedMessage = maskSensitiveData(errorMessage);
-        const maskedStack = maskSensitiveData(stackTrace);
+        const maskedMessage = maskSensitiveData(errorMessage || 'Unknown Frontend Error');
+        const maskedStack = maskSensitiveData(stackTrace || '');
 
         const errorLog = await ErrorLog.create({
             errorMessage: maskedMessage,
             errorType: 'Frontend',
             severity: severity || 'Medium',
             status: 'NEW',
-            userId,
-            userEmail,
-            screenName,
-            fileName,
-            lineNumber,
+            userId: userId || null,
+            userEmail: userEmail,
+            screenName: screenName || 'Unknown',
+            fileName: fileName || '',
+            lineNumber: lineNumber || 0,
             columnNumber: columnNumber || 0,
             stackTrace: maskedStack,
-            userAgent: userAgent || req.headers['user-agent'],
+            userAgent: userAgent || req.headers['user-agent'] || 'Unknown',
             environment: environment || process.env.NODE_ENV || 'Development',
-            requestUrl,
+            requestUrl: requestUrl || req.headers.referer || '',
             requestMethod: requestMethod || 'GET',
-            ipAddress: req.ip || req.headers['x-forwarded-for'],
-            sessionId: req.body.sessionId || null
+            ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
+            sessionId: sessionId || null
         });
 
         // Emit real-time notification
@@ -46,7 +66,7 @@ router.post("/log", verifyToken, async (req, res) => {
                 id: errorLog._id,
                 message: maskedMessage,
                 type: 'Frontend',
-                severity: 'Medium',
+                severity: errorLog.severity || 'Medium',
                 timestamp: errorLog.timestamp,
                 userEmail
             });
@@ -54,8 +74,8 @@ router.post("/log", verifyToken, async (req, res) => {
 
         res.status(201).json({ message: "Error logged successfully", id: errorLog._id });
     } catch (err) {
-        console.error("Error logging failed:", err);
-        res.status(500).json({ message: "Failed to log error" });
+        console.error("[ERROR LOGGING FAIL]", err);
+        res.status(500).json({ message: "Internal Server Error in Logging Endpoint" });
     }
 });
 
