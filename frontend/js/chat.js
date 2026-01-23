@@ -354,8 +354,9 @@ window.handleDelete = function (id) {
         console.error("[CHAT] Cannot delete: Missing Message ID");
         return;
     }
-    if (!confirm("Are you sure you want to delete this message?")) return;
-    window.deleteMessage(id);
+    confirm("Are you sure you want to delete this message?", () => {
+        window.deleteMessage(id);
+    });
 };
 
 window.deleteMessage = async function (id) {
@@ -382,11 +383,11 @@ window.deleteMessage = async function (id) {
 window.handleEdit = function (id, btnElement) {
     const bubble = document.getElementById(`msg-${id}`);
     const content = bubble ? bubble.querySelector('.msg-content').textContent : "";
-    
+
     if (!bubble) {
         console.error("[CHAT] Edit failed: Bubble element not found for ID:", id);
     }
-    
+
     window.openEditModal(id, content);
     if (btnElement) {
         const actions = btnElement.closest('.msg-actions');

@@ -508,68 +508,68 @@ function closeModal() {
 }
 
 async function resolveError(errorId) {
-    if (!confirm("Mark this error as resolved?")) return;
+    confirm("Mark this error as resolved?", async () => {
+        const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(`${API_BASE}/errors/${errorId}/resolve`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
 
-    try {
-        const res = await fetch(`${API_BASE}/errors/${errorId}/resolve`, {
-            method: "PATCH",
-            headers: { 
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json"
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.message || "Failed to resolve error");
             }
-        });
 
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.message || "Failed to resolve error");
-        }
+            if (typeof showToast === 'function') showToast("Error marked as resolved", "success");
 
-        if (typeof showToast === 'function') showToast("Error marked as resolved", "success");
-        
-        // Close modal if open
-        const modal = document.getElementById("detailModal");
-        if (modal && modal.classList.contains("active")) {
-            closeModal();
+            // Close modal if open
+            const modal = document.getElementById("detailModal");
+            if (modal && modal.classList.contains("active")) {
+                closeModal();
+            }
+
+            loadErrors();
+        } catch (err) {
+            console.error("Resolve error:", err);
+            if (typeof showToast === 'function') showToast(err.message || "Failed to resolve error", "error");
         }
-        
-        loadErrors();
-    } catch (err) {
-        console.error("Resolve error:", err);
-        if (typeof showToast === 'function') showToast(err.message || "Failed to resolve error", "error");
-    }
+    });
 }
 
 async function deleteError(errorId) {
-    if (!confirm("Permanently delete this error log?")) return;
+    confirm("Permanently delete this error log?", async () => {
+        const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(`${API_BASE}/errors/${errorId}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-    try {
-        const res = await fetch(`${API_BASE}/errors/${errorId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` }
-        });
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.message || "Failed to delete error");
+            }
 
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.message || "Failed to delete error");
+            if (typeof showToast === 'function') showToast("Error log deleted", "success");
+
+            // Close modal if open
+            const modal = document.getElementById("detailModal");
+            if (modal && modal.classList.contains("active")) {
+                closeModal();
+            }
+
+            loadErrors();
+        } catch (err) {
+            console.error("Delete error:", err);
+            if (typeof showToast === 'function') showToast(err.message || "Failed to delete error", "error");
         }
-
-        if (typeof showToast === 'function') showToast("Error log deleted", "success");
-        
-        // Close modal if open
-        const modal = document.getElementById("detailModal");
-        if (modal && modal.classList.contains("active")) {
-            closeModal();
-        }
-        
-        loadErrors();
-    } catch (err) {
-        console.error("Delete error:", err);
-        if (typeof showToast === 'function') showToast(err.message || "Failed to delete error", "error");
-    }
+    });
 }
 
 function copyToClipboard(text) {
@@ -753,35 +753,35 @@ async function handleBulkAction(action) {
         ? `Are you sure you want to delete ${selected.length} logs?`
         : `Mark ${selected.length} errors as resolved?`;
 
-    if (!confirm(confirmMsg)) return;
+    confirm(confirmMsg, async () => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(`${API_BASE}/errors/bulk-action`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ action, errorIds: selected })
+            });
 
-    const token = localStorage.getItem("token");
-    try {
-        const res = await fetch(`${API_BASE}/errors/bulk-action`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ action, errorIds: selected })
-        });
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.message || "Bulk action failed");
+            }
 
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.message || "Bulk action failed");
+            const data = await res.json();
+            if (typeof showToast === 'function') showToast(data.message, "success");
+
+            // Clear selections and refresh
+            document.getElementById("selectAllErrors").checked = false;
+            document.querySelectorAll(".error-checkbox").forEach(cb => cb.checked = false);
+            loadErrors();
+        } catch (err) {
+            console.error("Bulk action error:", err);
+            if (typeof showToast === 'function') showToast(err.message || "Bulk action failed", "error");
         }
-
-        const data = await res.json();
-        if (typeof showToast === 'function') showToast(data.message, "success");
-
-        // Clear selections and refresh
-        document.getElementById("selectAllErrors").checked = false;
-        document.querySelectorAll(".error-checkbox").forEach(cb => cb.checked = false);
-        loadErrors();
-    } catch (err) {
-        console.error("Bulk action error:", err);
-        if (typeof showToast === 'function') showToast(err.message || "Bulk action failed", "error");
-    }
+    });
 }
 
 // Socket.io Real-time Updates

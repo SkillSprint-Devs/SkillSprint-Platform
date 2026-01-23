@@ -48,11 +48,14 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   font-family: "Poppins", sans-serif;
   background-color: var(--base-bg);
   color: var(--text-dark);
   line-height: 1.6;
+  height: auto !important;
+  overflow: visible !important;
 }
 
 button {
@@ -442,6 +445,26 @@ input {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding-right: 0.5rem;
+}
+
+/* Scrollbar styling for task list */
+.all-tasks-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.all-tasks-list::-webkit-scrollbar-track {
+  background: var(--base-bg);
+  border-radius: 10px;
+}
+
+.all-tasks-list::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 10px;
+}
+
+.all-tasks-list::-webkit-scrollbar-thumb:hover {
+  background: #cbe84d;
 }
 
 /* ===== TASK CARDS ===== */

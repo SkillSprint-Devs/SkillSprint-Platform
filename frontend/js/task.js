@@ -434,25 +434,25 @@ async function updateTask(id, updates) {
 }
 
 window.deleteTask = async function (id) {
-  if (!confirm('Are you sure you want to delete this task?')) return;
+  confirm('Are you sure you want to delete this task?', async () => {
+    try {
+      const res = await fetch(`${API_BASE}/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      if (!res.ok) throw new Error('Delete failed');
 
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: 'DELETE',
-      headers: authHeaders()
-    });
-    if (!res.ok) throw new Error('Delete failed');
-
-    allTasks = allTasks.filter(t => t._id !== id);
-    tasks = tasks.filter(t => t._id !== id);
-    updateStats();
-    renderCalendar();
-    renderAllTasks(currentFilter);
-    showToast('Task deleted successfully', 'success');
-  } catch (err) {
-    console.error(err);
-    showToast('Delete failed', 'error');
-  }
+      allTasks = allTasks.filter(t => t._id !== id);
+      tasks = tasks.filter(t => t._id !== id);
+      updateStats();
+      renderCalendar();
+      renderAllTasks(currentFilter);
+      showToast('Task deleted successfully', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Delete failed', 'error');
+    }
+  });
 };
 
 // FORM HANDLERS

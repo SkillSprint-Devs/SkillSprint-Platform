@@ -73,28 +73,32 @@ document.head.appendChild(toastStyle);
 
 
 
+// Store native confirm
+const nativeConfirm = window.confirm;
+
+// Custom confirm - always uses styled modal
 window.confirm = function (message, onConfirm, onCancel) {
   // Remove any existing modal
   document.querySelector(".confirm-modal")?.remove();
 
-  // If callbacks are provided, use async callback mode
-  if (onConfirm || onCancel) {
-    const modal = document.createElement("div");
-    modal.className = "confirm-modal";
+  const modal = document.createElement("div");
+  modal.className = "confirm-modal";
 
-    modal.innerHTML = `
-      <div class="confirm-box">
-        <p>${message}</p>
-        <div class="confirm-actions">
-          <button class="confirm-yes">Yes</button>
-          <button class="confirm-no">No</button>
-        </div>
+  modal.innerHTML = `
+    <div class="confirm-box">
+      <p>${message}</p>
+      <div class="confirm-actions">
+        <button class="confirm-yes">Yes</button>
+        <button class="confirm-no">No</button>
       </div>
-    `;
+    </div>
+  `;
 
-    document.body.appendChild(modal);
-    requestAnimationFrame(() => modal.classList.add("show"));
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add("show"));
 
+  // Callback mode (for async usage like in live-session.js)
+  if (onConfirm || onCancel) {
     modal.querySelector(".confirm-yes").onclick = () => {
       modal.classList.remove("show");
       setTimeout(() => modal.remove(), 300);
@@ -107,15 +111,14 @@ window.confirm = function (message, onConfirm, onCancel) {
       if (onCancel) onCancel();
     };
 
-    return; // Don't return a value for callback mode
+    return;
   }
 
-  // Otherwise, use native browser confirm for backwards compatibility
-  return window.nativeConfirm(message);
+  // Synchronous mode fallback - use native confirm for now
+  // (We can't truly block in JavaScript without freezing the browser)
+  modal.remove();
+  return nativeConfirm(message);
 };
-
-// Store the native confirm before overriding
-window.nativeConfirm = window.confirm;
 
 
 const confirmStyle = document.createElement("style");
@@ -127,7 +130,7 @@ confirmStyle.innerHTML = `
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.5);
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 99999;
@@ -149,6 +152,8 @@ confirmStyle.innerHTML = `
 .confirm-box p {
   margin-bottom: 1rem;
   font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 .confirm-actions {
   display: flex;
@@ -156,23 +161,28 @@ confirmStyle.innerHTML = `
   justify-content: center;
 }
 .confirm-actions button {
-  padding: 8px 20px;
+  padding: 10px 24px;
   border: none;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s;
+  font-size: 0.9rem;
 }
 .confirm-yes {
-  background: #28a745;
-  color: #fff;
+  background: #DCEF62;
+  color: #1A1A1A;
 }
 .confirm-no {
-  background: #dc3545;
+  background: #1A1A1A;
   color: #fff;
 }
 .confirm-actions button:hover {
-  opacity: 0.9;
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+.confirm-actions button:active {
+  transform: translateY(0);
 }
 @keyframes popIn {
   from { transform: scale(0.9); opacity: 0; }
@@ -180,4 +190,3 @@ confirmStyle.innerHTML = `
 }
 `;
 document.head.appendChild(confirmStyle);
-
