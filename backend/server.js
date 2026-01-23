@@ -311,7 +311,7 @@ io.on("connection", (socket) => {
 });
 
 // ROUTES 
-app.get("/api/status", (req, res) => res.json({ status: "ok", version: "1.2.0" }));
+app.get("/api/status", (req, res) => res.json({ status: "ok", version: "1.2.0", debug_time: new Date().toISOString() }));
 
 // TEST ROUTE: Trigger an error to test DB persistence
 app.get("/api/test-error-log", (req, res) => {

@@ -62,6 +62,11 @@ const liveSessionSchema = new mongoose.Schema({
     },
 });
 
+// Indices for performance on status sync lookups
+liveSessionSchema.index({ status: 1, scheduledDateTime: 1 });
+liveSessionSchema.index({ mentorId: 1, status: 1 });
+liveSessionSchema.index({ acceptedUserIds: 1, status: 1 });
+
 const LiveSession = mongoose.model("LiveSession", liveSessionSchema);
 
 export default LiveSession;

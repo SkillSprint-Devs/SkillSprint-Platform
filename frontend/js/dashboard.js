@@ -517,7 +517,15 @@ function setupSocket(token) {
 
   socket.on("connect", () => console.log("Socket connected"));
   socket.on("notification", (n) => {
+    console.log("[RUNTIME-DEBUG] Dashboard Socket Notification Received:", n);
     if (typeof showToast === 'function') showToast(n.message || "New Notification", "info");
+
+    // Global session refresh trigger
+    if (n.type === 'session_update') {
+      console.log("[RUNTIME-DEBUG] type === 'session_update' detected. Calling loadSchedule()...");
+      loadSchedule();
+    }
+
     loadNotifications(); // Refresh list
     if (typeof loadPendingInvites === 'function') loadPendingInvites();
     if (typeof loadSchedule === 'function') loadSchedule();

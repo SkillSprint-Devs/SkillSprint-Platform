@@ -6,6 +6,7 @@ import User from "../models/user.js";
 import Notification from "../models/notification.js";
 import { sendInviteEmail } from "../utils/mailService.js";
 import { updateStreak } from "../utils/streakHelper.js";
+import SessionService from "../services/sessionService.js";
 
 const router = express.Router();
 console.log("LiveSessionRoutes initialized");
@@ -59,34 +60,9 @@ async function checkConflict(userId, startDateTime, durationMinutes) {
     return false;
 }
 
-/**
- * Helper: Sync session status based on current time
- */
+// Note: Deprecated. Use SessionService.syncStatus instead.
 async function syncSessionStatus(session) {
-    if (session.status === 'ended' || session.status === 'cancelled') return session;
-
-    const now = new Date();
-    const start = new Date(session.startTime || session.scheduledDateTime);
-    const end = new Date(session.endTime || (start.getTime() + session.durationMinutes * 60000));
-
-    let updatedStatus = session.status;
-
-    if (now < start) {
-        updatedStatus = "scheduled";
-    } else if (now >= start && now <= end) {
-        updatedStatus = "live";
-    } else if (now > end) {
-        updatedStatus = "ended";
-    }
-
-    if (updatedStatus !== session.status) {
-        session.status = updatedStatus;
-        if (updatedStatus === 'ended' && !session.endedAt) {
-            session.endedAt = now;
-        }
-        await session.save();
-    }
-    return session;
+    return SessionService.syncStatus(session);
 }
 
 /**
@@ -173,31 +149,34 @@ router.post("/create", verifyToken, async (req, res) => {
                 const required = Math.floor(durationMinutes * 0.4);
                 const hasCredits = await WalletService.hasEnoughCredits(inviteeId, required);
 
-                if (hasCredits) {
-                    // DB Notification
-                    await Notification.create({
-                        user_id: inviteeId,
-                        type: "invite",
-                        title: "New Session Invitation",
-                        message: `You are invited to "${sessionName}" by ${mentor.name}.`,
-                        link: `live-session.html?sessionId=${session._id}`
-                    });
+                if (!hasCredits) {
+                    console.log(`[LIVE SESSIONS] Skipping invite for ${inviteeId}: Insufficient credits`);
+                    continue;
+                }
 
-                    // Email
-                    await sendInviteEmail(invitee.email, {
-                        sessionName,
-                        mentorName: mentor.name,
-                        scheduledDateTime,
-                        sessionId: session._id
-                    });
+                // DB Notification
+                await Notification.create({
+                    user_id: inviteeId,
+                    type: "invite",
+                    title: "New Session Invitation",
+                    message: `You are invited to "${sessionName}" by ${mentor.name}.`,
+                    link: `live-session.html?sessionId=${session._id}`
+                });
 
-                    // Socket emit
-                    const io = req.app.get("io");
-                    if (io) {
-                        io.to(inviteeId.toString()).emit("notification", {
-                            message: `New Invite: ${sessionName} by ${mentor.name}`
-                        });
-                    }
+                // Email
+                await sendInviteEmail(invitee.email, {
+                    sessionName,
+                    mentorName: mentor.name,
+                    scheduledDateTime,
+                    sessionId: session._id
+                });
+
+                // Socket emit
+                const io = req.app.get("io");
+                if (io) {
+                    io.to(inviteeId.toString()).emit("notification", {
+                        message: `New Invite: ${sessionName} by ${mentor.name}`
+                    });
                 }
             }
         }
@@ -206,7 +185,6 @@ router.post("/create", verifyToken, async (req, res) => {
         await updateStreak(mentorId);
 
         res.status(201).json({ message: "Session created successfully", session });
-
     } catch (error) {
         console.error("Session creation error:", error);
         res.status(500).json({ message: "Server Error" });
@@ -243,8 +221,9 @@ router.get("/my-schedule", verifyToken, async (req, res) => {
             .sort({ scheduledDateTime: (isHistory || showAll) ? -1 : 1 });
 
         // Sync statuses before returning
+        const io = req.app.get("io");
         for (let s of sessions) {
-            await syncSessionStatus(s);
+            await SessionService.syncStatus(s, io);
         }
 
         res.json(sessions);
@@ -271,6 +250,16 @@ router.post("/respond-invite", verifyToken, async (req, res) => {
         }
 
         if (action === 'accept') {
+            // Mandatory Credit Check before accepting
+            const required = Math.floor(session.durationMinutes * 0.4);
+            const hasCredits = await WalletService.hasEnoughCredits(userId, required);
+            if (!hasCredits) {
+                return res.status(403).json({
+                    message: `Insufficient credits. You need at least ${required} minutes of credit to accept this invitation.`,
+                    success: false
+                });
+            }
+
             // Conflict check for mentee
             const hasConflict = await checkConflict(userId, session.scheduledDateTime, session.durationMinutes);
             if (hasConflict) {
@@ -308,6 +297,7 @@ router.post("/end-session", verifyToken, async (req, res) => {
     try {
         const { sessionId } = req.body;
         const userId = req.user.id;
+        console.log(`[RUNTIME-DEBUG] API POST /end-session hit. Session: ${sessionId}, User: ${userId}`);
 
         const session = await LiveSession.findById(sessionId);
         if (!session) return res.status(404).json({ message: "Session not found" });
@@ -322,38 +312,14 @@ router.post("/end-session", verifyToken, async (req, res) => {
 
         console.log(`[API] End Session confirmed for ${sessionId}. Status: ${session.status}`);
 
-        session.status = "ended";
-        session.endedAt = new Date();
-        await session.save();
-
-        // Trigger Wallet Logic
-        const duration = session.durationMinutes;
-        const processedLearners = [];
-
-        for (const learnerId of session.acceptedUserIds) {
-            if (!learnerId) continue;
-            try {
-                await WalletService.spendCredits(learnerId, session._id, session.sessionName, duration, "Mentor");
-                processedLearners.push(learnerId);
-            } catch (e) {
-                console.error(`[API] Credit deduction failed for ${learnerId}:`, e.message);
-            }
-        }
-
-        try {
-            await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
-            console.log(`[API] Credits processed: Mentor earned, ${processedLearners.length} Learners deducted.`);
-        } catch (e) {
-            console.error(`[API] Mentor credit reward failed:`, e.message);
-        }
-
-        // Emit socket event if needed (we'll also keep it in live-session-sio.js)
         const io = req.app.get("io");
-        if (io) {
-            io.to(sessionId).emit("live:statusChanged", "ended");
-        }
+        const result = await SessionService.terminateSession(sessionId, io);
 
-        res.json({ message: "Session ended successfully", success: true });
+        if (result.success) {
+            res.json({ message: "Session ended successfully", success: true });
+        } else {
+            res.status(500).json({ message: result.message || "Failed to end session" });
+        }
     } catch (err) {
         console.error("End session error:", err);
         res.status(500).json({ message: "Failed to end session" });
@@ -371,16 +337,29 @@ router.delete("/:id", verifyToken, async (req, res) => {
         const userId = req.user.id;
 
         if (session.mentorId.toString() === userId) {
-            // Mentor cancels/deletes the whole thing if not already ended
-            if (session.status === 'ended' || session.status === 'cancelled') {
+            // Mentor cancels/deletes
+            if (session.status === 'scheduled' || session.status === 'cancelled') {
+                // If scheduled, it becomes cancelled. If cancelled, it can be deleted.
+                if (session.status === 'scheduled') {
+                    session.status = "cancelled";
+                    await session.save();
+                    return res.json({ message: "Session cancelled" });
+                } else {
+                    await LiveSession.findByIdAndDelete(req.params.id);
+                    return res.json({ message: "Session deleted from history" });
+                }
+            } else if (session.status === 'ended' || session.status === 'completed') {
+                // Ended sessions can be deleted from history
                 await LiveSession.findByIdAndDelete(req.params.id);
                 return res.json({ message: "Session deleted from history" });
+            } else {
+                // Session is LIVE. Prevent deletion to force Credit Processing.
+                return res.status(403).json({
+                    message: "Cannot delete a live session. Please end the session first to ensure credits are processed."
+                });
             }
-            session.status = "cancelled";
-            await session.save();
-            return res.json({ message: "Session cancelled" });
         } else {
-            // Mentee removes themselves from invited/accepted lists
+            // Mentee removes themselves
             session.invitedUserIds = session.invitedUserIds.filter(id => id.toString() !== userId);
             session.acceptedUserIds = session.acceptedUserIds.filter(id => id.toString() !== userId);
             await session.save();
