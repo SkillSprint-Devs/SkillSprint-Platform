@@ -1,215 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillSprint | Welcome</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-<style>
-  :root {
-    --bg: #F9F8D9;
-    --card-bg: #FFFFFF;
-    --accent: #DCEF62;
-    --highlight: #8C52FF;
-    --text-main: #1A1A1A;
-    --text-muted: #666;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillSprint | Welcome</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #F9F8D9;
+      --card-bg: #FFFFFF;
+      --accent: #DCEF62;
+      --text-main: #1A1A1A;
+      --text-muted: #666;
+    }
 
-  * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: var(--bg);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 20px;
-    color: var(--text-main);
-          user-select: none;
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 20px;
+      color: var(--text-main);
+      user-select: none;
 
-  }
+    }
 
-  .container {
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(20px);
-    border-radius: 24px;
-    padding: 3rem;
-    max-width: 800px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-    border: 1px solid rgba(255,255,255,0.8);
-    animation: slideUp 0.6s ease-out;
-  }
+    .container {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      animation: slideUp 0.6s ease-out;
+    }
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    letter-spacing: -1px;
-  }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1px;
+    }
 
-  .tagline {
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--highlight);
-    margin-bottom: 1.5rem;
-  }
+    .tagline {
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
 
-  .description {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    max-width: 500px;
-    margin: 0 auto 2.5rem;
-    line-height: 1.6;
-  }
+    .description {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
 
-  .role-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
-  }
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
 
-  .role-card {
-    background: var(--card-bg);
-    border: 2px solid transparent;
-    border-radius: 16px;
-    padding: 2rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
+    .role-card {
+      background: var(--card-bg);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      padding: 2rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
 
-  .role-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-  }
+    .role-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
 
-  .role-card.selected {
-    border-color: var(--highlight);
-    background: #f8f4ff; /* very light purple tint */
-    transform: translateY(-5px);
-  }
+    .role-card.selected {
+      border-color: var(--accent);
+      background: #fbfae6;
+      /* light lime tint */
+      transform: translateY(-5px);
+    }
 
-  .role-card[data-role="user"].selected {
-    border-color: #000;
-    background: #fbfae6; /* light lime tint */
-  }
+    .role-card[data-role="user"].selected {
+      border-color: #000;
+      background: #fbfae6;
+      /* light lime tint */
+    }
 
-  .icon-wrapper {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-muted);
-    transition: color 0.3s;
-  }
+    .icon-wrapper {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      transition: color 0.3s;
+    }
 
-  .role-card:hover .icon-wrapper,
-  .role-card.selected .icon-wrapper {
-    color: var(--text-main);
-  }
-  
-  .role-card[data-role="admin"] .icon-wrapper { color: var(--highlight); }
-  .role-card[data-role="user"] .icon-wrapper { color: #888; } /* Default */
-  .role-card[data-role="user"].selected .icon-wrapper { color: #000; }
+    .role-card:hover .icon-wrapper,
+    .role-card.selected .icon-wrapper {
+      color: var(--text-main);
+    }
 
-  .role-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
+    .role-card[data-role="admin"] .icon-wrapper {
+      color: var(--accent);
+    }
 
-  .btn-start {
-    background: #1A1A1A;
-    color: white;
-    border: none;
-    padding: 1rem 3rem;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-family: inherit;
-  }
+    .role-card[data-role="user"] .icon-wrapper {
+      color: #888;
+    }
 
-  .btn-start:hover {
-    transform: scale(1.02);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    background: #000;
-  }
+    /* Default */
+    .role-card[data-role="user"].selected .icon-wrapper {
+      color: #000;
+    }
 
-  .btn-start:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+    .role-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
 
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
+    .btn-start {
+      background: #1A1A1A;
+      color: white;
+      border: none;
+      padding: 1rem 3rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    .btn-start:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      background: #000;
+    }
+
+    .btn-start:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="container">
-  <h1>SkillSprint</h1>
-  <div class="tagline">Learn • Track • Excel</div>
-  <p class="description">Select your workspace to continue properly.</p>
+  <div class="container">
+    <h1>SkillSprint</h1>
+    <div class="tagline">Learn • Track • Excel</div>
+    <p class="description">Select your workspace to continue properly.</p>
 
-  <div class="role-grid">
-    <div class="role-card" data-role="user" onclick="selectRole('user')">
-      <div class="icon-wrapper"><i class="fa-solid fa-user-astronaut"></i></div>
-      <div class="role-title">Learner / User</div>
+    <div class="role-grid">
+      <div class="role-card" data-role="user" onclick="selectRole('user')">
+        <div class="icon-wrapper"><i class="fa-solid fa-user-astronaut"></i></div>
+        <div class="role-title">Learner / User</div>
+      </div>
+
+      <div class="role-card" data-role="admin" onclick="selectRole('admin')">
+        <div class="icon-wrapper"><i class="fa-solid fa-user-shield"></i></div>
+        <div class="role-title">Administrator</div>
+      </div>
     </div>
-    
-    <div class="role-card" data-role="admin" onclick="selectRole('admin')">
-      <div class="icon-wrapper"><i class="fa-solid fa-user-shield"></i></div>
-      <div class="role-title">Administrator</div>
-    </div>
+
+    <button class="btn-start" id="startBtn" onclick="proceed()">Continue <i class="fa-solid fa-arrow-right"
+        style="margin-left:8px;"></i></button>
   </div>
 
-  <button class="btn-start" id="startBtn" onclick="proceed()">Continue <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i></button>
-</div>
+  <script>
+    let selectedRole = null;
+    const cards = document.querySelectorAll('.role-card');
+    const btn = document.getElementById('startBtn');
 
-<script>
-  let selectedRole = null;
-  const cards = document.querySelectorAll('.role-card');
-  const btn = document.getElementById('startBtn');
-
-  function selectRole(role) {
-    selectedRole = role;
-    cards.forEach(c => {
-      c.classList.remove('selected');
-      if(c.dataset.role === role) c.classList.add('selected');
-    });
-  }
-
-  function proceed() {
-    if(!selectedRole) {
-      // Gentle shake animation or visual cue
-      const container = document.querySelector('.container');
-      container.style.animation = 'none';
-      container.offsetHeight; /* trigger reflow */
-      container.style.animation = 'slideUp 0.1s ease-in-out 3'; // rapid shake
-      
-      // Since CSS shake keyframes aren't defined, alert for now
-      alert("Please select a role to continue.");
-      return;
+    function selectRole(role) {
+      selectedRole = role;
+      cards.forEach(c => {
+        c.classList.remove('selected');
+        if (c.dataset.role === role) c.classList.add('selected');
+      });
     }
-    
-    if (selectedRole === 'user') {
-      window.location.href = 'login.html';
-    } else {
-      window.location.href = 'admin-login.html';
+
+    function proceed() {
+      if (!selectedRole) {
+        // Gentle shake animation or visual cue
+        const container = document.querySelector('.container');
+        container.style.animation = 'none';
+        container.offsetHeight; /* trigger reflow */
+        container.style.animation = 'slideUp 0.1s ease-in-out 3'; // rapid shake
+
+        // Since CSS shake keyframes aren't defined, alert for now
+        alert("Please select a role to continue.");
+        return;
+      }
+
+      if (selectedRole === 'user') {
+        window.location.href = 'login.html';
+      } else {
+        window.location.href = 'admin-login.html';
+      }
     }
-  }
-</script>
+  </script>
 
 </body>
+
 </html>

@@ -3,7 +3,7 @@
   // Parse board ID from URL query string
   // Join via Token Logic
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
+  const token = urlParams.get('token') || urlParams.get('join');
   const boardId = urlParams.get('id');
 
   // If token is present and no boardId, try to join
@@ -97,6 +97,8 @@
 
       // Save global data for share/invite usage
       window.currentBoardData = data.data;
+      window.currentStrokes = [...(data.data.strokes || [])];
+      window.currentShapes = [...(data.data.shapes || [])];
 
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       const ownerId = data.data.owner?._id || data.data.owner;

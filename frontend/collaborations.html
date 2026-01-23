@@ -73,8 +73,8 @@
     }
 
     .back-btn:hover {
-      background: var(--highlight, #8C52FF);
-      color: var(--text-light, #fff);
+      background: var(--sidebar-bg, #1A1A1A);
+      color: var(--accent, #DCEF62);
       transform: translateX(-3px);
     }
 
@@ -163,7 +163,7 @@
       left: 0;
       right: 0;
       height: 6px;
-      background: linear-gradient(90deg, var(--accent, #DCEF62), var(--highlight, #8C52FF));
+      background: var(--accent, #DCEF62);
       opacity: 0.8;
     }
 
@@ -305,6 +305,21 @@
         display: none;
       }
     }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ff4d4d;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+      font-size: 1rem;
+    }
+
+    .delete-btn:hover {
+      background: rgba(255, 77, 77, 0.1);
+    }
   </style>
 </head>
 
@@ -372,7 +387,7 @@
           container.appendChild(
             createCard(board, () => {
               window.location.href = `board.html?id=${board._id}`;
-            }, isOwner)
+            }, isOwner, 'board')
           );
         });
 
@@ -409,7 +424,7 @@
           container.appendChild(
             createCard(project, () => {
               window.location.href = `pair-programming.html?id=${project._id}`;
-            }, isOwner)
+            }, isOwner, 'pair')
           );
         });
 
@@ -420,7 +435,7 @@
     }
 
     /* ====================== CARD UI ====================== */
-    function createCard(item, onClick, isOwner) {
+    function createCard(item, onClick, isOwner, type) {
       const div = document.createElement("div");
       div.className = "collab-card";
 
@@ -431,16 +446,14 @@
       const roleText = isOwner ? 'Owner' : 'Member';
       const roleClass = isOwner ? 'role-owner' : 'role-member';
 
-      // Calculate member count (default to 1 inclusive of owner if undefined, or length of members array)
+      // Calculate member count
       const members = item.members || [];
       const memberCount = members.length || 1;
 
       div.innerHTML = `
         <div class="card-header">
            <h3 class="card-title">${item.name}</h3>
-           <!-- Optional Icon based on type or just a placeholder? 
-                Let's use a generic 'workspaces' icon or similar if we imported material icons.
-                But for now, clean header is enough. -->
+           ${isOwner ? `<button class="delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
         </div>
         
         <div class="card-body">
@@ -455,14 +468,46 @@
         <div class="card-footer">
            <span class="role-badge ${roleClass}">${roleText}</span>
            <span class="members-count" title="${memberCount} members">
-              <!-- Simple text or icon -->
               ${memberCount} Members
            </span>
         </div>
       `;
 
       div.onclick = onClick;
+
+      if (isOwner) {
+        const delBtn = div.querySelector('.delete-btn');
+        if (delBtn) {
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`)) {
+              deleteItem(item._id, type);
+            }
+          };
+        }
+      }
       return div;
+    }
+
+
+    async function deleteItem(id, type) {
+      const endpoint = type === 'board' ? 'board' : 'pair-programming';
+      try {
+        const res = await fetch(`${window.API_BASE}/${endpoint}/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const data = await res.json();
+        if (data.success || res.ok) {
+          alert("Deleted successfully");
+          location.reload();
+        } else {
+          alert("Delete failed: " + (data.message || "Unknown error"));
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Error deleting item");
+      }
     }
 
     /* ====================== SEARCH FILTER ====================== */

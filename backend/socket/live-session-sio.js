@@ -12,7 +12,11 @@ const liveSessionSocket = (io) => {
         socket.on("live:join", async ({ sessionId }) => {
             try {
                 const session = await LiveSession.findById(sessionId);
-                if (!session) return socket.emit("live:error", "Session not found");
+                if (!session) {
+                    console.warn(`[SOCKET] Session not found: ${sessionId}`);
+                    return socket.emit("live:error", "Session not found");
+                }
+                console.log(`[SOCKET] User ${userId} joining session ${sessionId}. Mentor is ${session.mentorId}`);
 
                 // 1. Time Validation
                 const now = new Date();
@@ -98,13 +102,13 @@ const liveSessionSocket = (io) => {
             io.to(sessionId).emit("live:chat", chatMsg);
         });
 
-        socket.on("live:whiteboard", async ({ sessionId, data }) => {
+        socket.on("live:whiteboard", async ({ sessionId, draw }) => {
             const session = await LiveSession.findById(sessionId);
             if (!session || session.mentorId.toString() !== userId.toString()) return;
 
             if (!sessionRooms.has(sessionId)) return;
-            sessionRooms.get(sessionId).whiteboard.push(data);
-            socket.to(sessionId).emit("live:whiteboard", data);
+            sessionRooms.get(sessionId).whiteboard.push(draw);
+            socket.to(sessionId).emit("live:whiteboard", draw);
         });
 
         socket.on("live:whiteboardClear", async ({ sessionId }) => {
@@ -129,6 +133,16 @@ const liveSessionSocket = (io) => {
                 session.status = "live";
                 await session.save();
                 io.to(sessionId).emit("live:statusChanged", "live");
+
+                // Notify all participants to update dashboard
+                const participants = [...session.acceptedUserIds, session.mentorId];
+                participants.forEach(pid => {
+                    io.to(pid.toString()).emit("notification", {
+                        type: "session_update",
+                        message: `Session "${session.sessionName}" is now LIVE`
+                    });
+                });
+
             } catch (e) {
                 console.error(e);
             }
@@ -137,7 +151,15 @@ const liveSessionSocket = (io) => {
         socket.on("live:endSession", async ({ sessionId }) => {
             try {
                 const session = await LiveSession.findById(sessionId);
-                if (session.mentorId.toString() !== userId.toString()) return;
+                if (!session) {
+                    console.warn(`[SOCKET] End session failed: Session ${sessionId} not found`);
+                    return socket.emit("live:error", "Session not found");
+                }
+                console.log(`[SOCKET] End request for ${sessionId} from ${userId}. MentorID is ${session.mentorId}`);
+                if (session.mentorId.toString() !== userId.toString()) {
+                    console.warn(`[SOCKET] Unauthorized end attempt by ${userId} for session ${sessionId}. Expected mentor ${session.mentorId}`);
+                    return socket.emit("live:error", "Only the mentor can end the session.");
+                }
 
                 session.status = "completed";
                 await session.save();
@@ -153,9 +175,21 @@ const liveSessionSocket = (io) => {
                 await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
 
                 io.to(sessionId).emit("live:statusChanged", "completed");
+
+                // Notify all participants to update dashboard
+                const allParticipants = [...session.acceptedUserIds, session.mentorId];
+                allParticipants.forEach(pid => {
+                    io.to(pid.toString()).emit("notification", {
+                        type: "session_update",
+                        message: `Session "${session.sessionName}" has ended`
+                    });
+                });
+
                 sessionRooms.delete(sessionId);
+                console.log(`[SOCKET] Session ${sessionId} ended successfully.`);
             } catch (e) {
-                console.error(e);
+                console.error("[SOCKET] Error ending session:", e);
+                socket.emit("live:error", "Failed to end session: " + e.message);
             }
         });
 

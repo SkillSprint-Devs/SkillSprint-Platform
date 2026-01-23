@@ -8,9 +8,13 @@ let socket;
 document.addEventListener("DOMContentLoaded", () => {
     // Access Rule: Any logged in user can view error logs (no specific role check required)
 
+    // 0. Priority: Check adminUser first (from Admin Portal)
+    const adminUserStr = localStorage.getItem("adminUser");
     const userStr = localStorage.getItem("user");
     const token = localStorage.getItem("token");
-    const user = userStr ? JSON.parse(userStr) : {};
+
+    // If adminUser exists, we use that as the primary session
+    const user = adminUserStr ? JSON.parse(adminUserStr) : (userStr ? JSON.parse(userStr) : {});
 
     console.log("=== ERROR LOGS DEBUG ===");
     console.log("User email:", user.email);
@@ -47,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <li>Database connection issue</li>
                         </ul>
                         <br><br>
-                        <button onclick="localStorage.clear(); window.location.href='login.html'" style="padding:10px 20px;">Clear Session & Login</button>
+                        <button onclick="localStorage.clear(); window.location.href='admin-login.html'" style="padding:10px 20px;">Clear Session & Login</button>
                     </div>
                 `;
                 // localStorage.removeItem("token");
@@ -95,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadErrors() {
     const token = localStorage.getItem("token");
     if (!token) {
-        window.location.href = "login.html";
+        window.location.href = "admin-login.html";
         return;
     }
 
@@ -115,7 +119,7 @@ async function loadErrors() {
         if (!res.ok) {
             if (res.status === 401 || res.status === 403) {
                 localStorage.clear();
-                window.location.href = "login.html";
+                window.location.href = "admin-login.html";
                 return;
             }
             throw new Error(`HTTP ${res.status}`);

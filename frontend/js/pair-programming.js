@@ -37,7 +37,7 @@ let boardId = null;
 // Join via Token Logic
 (async () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const joinToken = urlParams.get('join');
+  const joinToken = urlParams.get('join') || urlParams.get('token');
   if (joinToken) {
     try {
       const t = localStorage.getItem('token');
@@ -115,10 +115,12 @@ export async function apiCall(endpoint, method = "GET", body = null) {
     throw new Error("Invalid session state: Board ID is missing. Please refresh.");
   }
 
+  let response;
   try {
     response = await fetch(API_BASE + endpoint, options);
   } catch (err) {
-    throw new Error("Network error — server unreachable");
+    console.error("Fetch failed:", err);
+    throw new Error(`Network error — ${err.message || "server unreachable"}`);
   }
 
   const parseJSON = async () => {
@@ -638,23 +640,27 @@ export function renderComments() {
       fileName = fileMap[comment.fileId] || "Unknown File";
     }
 
-    const userName = comment.authorId?.name || "User";
+    const userAvatar = comment.authorId?.profile_image || comment.authorId?.avatarUrl || 'assets/images/user-avatar.png';
+    const userName = comment.authorId?.name || comment.authorName || "User";
     const dateStr = new Date(comment.createdAt).toLocaleString();
-    const lineInfo = comment.line != null ? ` • <span style="font-weight:bold;color:var(--highlight)">Line ${comment.line + 1}</span>` : "";
+    const lineInfo = comment.line != null ? ` • <span style="font-weight:bold;color:var(--accent)">Line ${comment.line + 1}</span>` : "";
     const fileInfo = fileName ? ` • <span>${fileName}</span>` : "";
 
     el.innerHTML = `
       <div style="font-size:12px;color:var(--text-light);display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span><strong>${userName}</strong>${fileInfo}${lineInfo}</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+           <img src="${userAvatar}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;" />
+           <span><strong>${userName}</strong>${fileInfo}${lineInfo}</span>
+        </div>
         <span style="font-size:10px;opacity:0.7">${dateStr}</span>
       </div>
-      <div style="line-height:1.4; color:var(--text-dark)">${comment.text}</div>
+      <div style="line-height:1.4; color:var(--text-dark); padding-left:32px;">${comment.text}</div>
     `;
     list.appendChild(el);
 
     // Click to jump to line
     if (comment.line != null && comment._fileId) {
-      el.style.borderLeft = "3px solid var(--highlight)";
+      el.style.borderLeft = "3px solid var(--accent)";
       el.style.cursor = "pointer";
       el.title = "Jump to code";
       el.onclick = () => {
@@ -790,7 +796,14 @@ export async function loadBoardMembers() {
   state.board.members.forEach(member => {
     const avatar = document.createElement("div");
     avatar.className = "avatar";
-    avatar.textContent = member.name?.substring(0, 2).toUpperCase() || "??";
+    const imgUrl = member.profile_image || member.avatarUrl;
+    if (imgUrl) {
+      avatar.innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />`;
+      avatar.style.background = "none";
+    } else {
+      avatar.textContent = member.name?.substring(0, 2).toUpperCase() || "??";
+      avatar.style.background = member.colorTag || "var(--accent)";
+    }
     avatar.title = member.name || "User";
     mCont.appendChild(avatar);
   });
@@ -967,7 +980,7 @@ document.getElementById("inviteSearch").addEventListener("input", async (e) => {
   if (query.length < 2) return;
 
   try {
-    const res = await apiCall(`/users/search?query=${console.log(query) || query}`, "GET"); // Assuming endpoint added to backend
+    const res = await apiCall(`/users/search?query=${query}`, "GET");
     // Since we put the route in pair-programmingRoutes for simplicity as /users/search inside /api/pair-programming prefix?
     // Wait, the route I added was in pair-programmingRoutes.js which is mounted at /api/pair-programming.
     // So the URL is /api/pair-programming/users/search. Yes.
@@ -1180,8 +1193,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.addEventListener("mousemove", (e) => {
     if (!cursorThrottle && boardId) {
       cursorThrottle = true;
-      emitCursorUpdate(boardId, { x: e.clientX, y: e.clientY });
-      setTimeout(() => { cursorThrottle = false; }, 100); // 10fps for PP is sufficient
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      emitCursorUpdate(boardId, { x: e.clientX, y: e.clientY }, user.colorTag || "#DCEF62");
+      setTimeout(() => { cursorThrottle = false; }, 100);
     }
   });
 });

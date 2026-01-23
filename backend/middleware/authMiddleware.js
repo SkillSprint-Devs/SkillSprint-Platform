@@ -9,12 +9,13 @@ export const verifyToken = (req, res, next) => {
   }
 
   try {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  // If token payload has user id under _id, assign to id:
-  req.user = {
-    id: decoded.id || decoded._id || decoded.userId  // whatever key your token uses
-  };
-  next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // If token payload has user id under _id, assign to id:
+    req.user = {
+      id: decoded.id || decoded._id || decoded.userId,
+      role: decoded.role
+    };
+    next();
   } catch (error) {
     res.status(401).json({ message: "Invalid or expired token." });
   }

@@ -1,4 +1,5 @@
 import cron from 'node-cron';
+import mongoose from 'mongoose';
 import Task from '../models/task.js';
 import Notification from '../models/notification.js';
 import Reminder from '../models/reminder.js';
@@ -10,6 +11,10 @@ import Reminder from '../models/reminder.js';
 export function initTaskScheduler(io) {
     // Run every day at 9:00 AM
     cron.schedule('0 9 * * *', async () => {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('⏰ Scheduler: Skipping task reminder because MongoDB is not connected.');
+            return;
+        }
         console.log('⏰ Running task reminder scheduler...');
 
         try {
@@ -75,6 +80,9 @@ export function initTaskScheduler(io) {
 
     // Run every minute to check for reminders due in ~10 mins
     cron.schedule('* * * * *', async () => {
+        if (mongoose.connection.readyState !== 1) {
+            return; // Silently skip minute checks if DB is down
+        }
         try {
             const now = new Date();
             // Calculate target time: 10 minutes from now
