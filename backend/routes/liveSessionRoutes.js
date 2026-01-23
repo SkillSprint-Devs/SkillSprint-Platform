@@ -312,24 +312,40 @@ router.post("/end-session", verifyToken, async (req, res) => {
         const session = await LiveSession.findById(sessionId);
         if (!session) return res.status(404).json({ message: "Session not found" });
 
+        if (session.status === "ended" || session.status === "completed") {
+            return res.json({ message: "Session already ended", success: true });
+        }
+
         if (session.mentorId.toString() !== userId) {
             return res.status(403).json({ message: "Only mentors can end sessions" });
         }
+
+        console.log(`[API] End Session confirmed for ${sessionId}. Status: ${session.status}`);
 
         session.status = "ended";
         session.endedAt = new Date();
         await session.save();
 
-        // Trigger Wallet Logic (usually handled in socket but adding here for reliability)
+        // Trigger Wallet Logic
         const duration = session.durationMinutes;
+        const processedLearners = [];
+
         for (const learnerId of session.acceptedUserIds) {
+            if (!learnerId) continue;
             try {
                 await WalletService.spendCredits(learnerId, session._id, session.sessionName, duration, "Mentor");
+                processedLearners.push(learnerId);
             } catch (e) {
-                console.error(`Failed to deduct credits for ${learnerId}:`, e.message);
+                console.error(`[API] Credit deduction failed for ${learnerId}:`, e.message);
             }
         }
-        await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
+
+        try {
+            await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
+            console.log(`[API] Credits processed: Mentor earned, ${processedLearners.length} Learners deducted.`);
+        } catch (e) {
+            console.error(`[API] Mentor credit reward failed:`, e.message);
+        }
 
         // Emit socket event if needed (we'll also keep it in live-session-sio.js)
         const io = req.app.get("io");
