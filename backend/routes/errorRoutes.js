@@ -290,6 +290,7 @@ router.patch("/:id/resolve", verifyToken, async (req, res) => {
         const error = await ErrorLog.findByIdAndUpdate(
             req.params.id,
             {
+                status: 'RESOLVED',
                 resolved: true,
                 resolvedBy: req.user.id,
                 resolvedAt: new Date()
