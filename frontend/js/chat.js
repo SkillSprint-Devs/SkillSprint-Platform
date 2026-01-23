@@ -46,6 +46,25 @@ socket.on('message_deleted', (messageId) => {
     loadConversations();
 });
 
+socket.on('message_edited', ({ _id, content }) => {
+    const bubble = document.getElementById(`msg-${_id}`);
+    if (bubble) {
+        const contentEl = bubble.querySelector('.msg-content');
+        if (contentEl) contentEl.innerHTML = linkify(escapeHtml(content));
+
+        // Add "Edited" indicator if not exists
+        if (!bubble.querySelector('.edited-label')) {
+            const label = document.createElement('small');
+            label.className = 'edited-label text-muted';
+            label.style.fontSize = '0.65rem';
+            label.style.marginLeft = '5px';
+            label.textContent = '(Edited)';
+            bubble.querySelector('.message-time').after(label);
+        }
+    }
+    loadConversations();
+});
+
 socket.on('user_typing', ({ senderId }) => {
     if (currentChatUserId === senderId) {
         document.getElementById('typingIndicator').textContent = 'typing...';
@@ -78,8 +97,12 @@ socket.on('messages_read', ({ readerId }) => {
 function markMessagesAsRead() {
     const bubbles = document.querySelectorAll('.message-bubble.message-sent .message-status');
     bubbles.forEach(el => {
-        el.innerHTML = '<span class="status-tick double-tick"><i class="fa-solid fa-check-double"></i></span>';
-        el.title = "Read";
+        el.innerHTML = `
+            <span class="status-tick double-tick">
+                <i class="fa-solid fa-check-double"></i>
+            </span>
+        `;
+        el.title = "Seen";
     });
 }
 // ... existing code ...
@@ -199,7 +222,7 @@ async function loadConversations() {
                 <img src="${userDetails.avatarUrl || 'https://ui-avatars.com/api/?name=' + userDetails.name}" class="user-avatar">
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 text-truncate" style="max-width: 140px;">${userDetails.name}</h6>
+                        <h6 class="mb-0 text-truncate chat-name" style="max-width: 140px;">${userDetails.name}</h6>
                         <small class="text-muted" style="font-size: 0.7rem;">
                             ${conv.lastMessage ? new Date(conv.lastMessage.createdAt).toLocaleDateString() : ''}
                         </small>
@@ -273,29 +296,38 @@ function appendMessage(msg) {
     const bubble = document.createElement('div');
     bubble.className = `message-bubble ${isMe ? 'message-sent' : 'message-received'}`;
 
-    if (msg._id) bubble.id = `msg-${msg._id}`;
+    const msgId = msg._id || msg.id;
+    if (msgId) bubble.id = `msg-${msgId}`;
 
     let actionsHtml = '';
-    if (isMe && msg._id) {
+    if (isMe && msgId) {
         actionsHtml = `
             <div class="msg-actions">
                 <span class="action-btn edit-btn" title="Edit" onclick="window.handleEdit('${msg._id}')">
                     <i class="fa-solid fa-pen"></i>
                 </span>
-                <span class="action-btn text-danger delete-btn" title="Delete" onclick="window.handleDelete('${msg._id}')">
+                <span class="action-btn text-danger delete-btn" title="Delete" onclick="window.handleDelete('${msgId}')">
                     <i class="fa-solid fa-trash"></i>
                 </span>
             </div>
         `;
     }
 
-    const statusHtml = isMe ? '<div class="message-status">Delivered</div>' : '';
+    const isRead = msg.read === true;
+    const statusHtml = isMe ? `
+        <div class="message-status" title="${isRead ? 'Seen' : 'Sent'}">
+            <span class="status-tick ${isRead ? 'double-tick' : 'single-tick'}">
+                <i class="fa-solid ${isRead ? 'fa-check-double' : 'fa-check'}"></i>
+            </span>
+        </div>
+    ` : '';
 
     bubble.innerHTML = `
         ${actionsHtml}
         <div class="msg-content">${linkify(escapeHtml(msg.content))}</div>
         <span class="message-time">${timeStr}</span>
-        ${isMe ? '<div class="message-status">Delivered</div>' : ''}
+        ${msg.isEdited ? '<small class="edited-label text-muted" style="font-size:0.65rem; margin-top:2px; display:block;">(Edited)</small>' : ''}
+        ${statusHtml}
     `;
 
     if (isMe) {
@@ -317,18 +349,49 @@ document.addEventListener('click', (e) => {
 
 // Explicit Global Handlers
 window.handleDelete = function (id) {
+    console.log("[CHAT] handleDelete triggered for ID:", id);
     if (!id || id === 'undefined') {
         console.error("[CHAT] Cannot delete: Missing Message ID");
         return;
     }
-    if (!confirm("Delete this message?")) return;
-    deleteMessage(id);
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    window.deleteMessage(id);
 };
 
-window.handleEdit = function (id) {
+window.deleteMessage = async function (id) {
+    try {
+        const res = await fetch(`${API_URL}/chat/delete/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const bubble = document.getElementById(`msg-${id}`);
+            if (bubble) bubble.remove();
+            socket.emit('delete_message', { messageId: id, recipientId: currentChatUserId });
+            loadConversations();
+        } else {
+            const err = await res.json();
+            console.error("[CHAT] Delete failed:", err.message);
+            alert("Failed to delete message: " + (err.message || "Unknown error"));
+        }
+    } catch (err) {
+        console.error("[CHAT] Delete error:", err);
+    }
+};
+
+window.handleEdit = function (id, btnElement) {
     const bubble = document.getElementById(`msg-${id}`);
     const content = bubble ? bubble.querySelector('.msg-content').textContent : "";
-    openEditModal(id, content);
+    
+    if (!bubble) {
+        console.error("[CHAT] Edit failed: Bubble element not found for ID:", id);
+    }
+    
+    window.openEditModal(id, content);
+    if (btnElement) {
+        const actions = btnElement.closest('.msg-actions');
+        if (actions) actions.classList.remove('show');
+    }
 };
 
 async function deleteMessage(id) {
@@ -420,11 +483,59 @@ window.submitEdit = async function () {
         });
         if (res.ok) {
             const bubble = document.getElementById(`msg-${editMsgId}`);
-            if (bubble) bubble.querySelector('.msg-content').textContent = newContent;
+            if (bubble) {
+                const contentEl = bubble.querySelector('.msg-content');
+                if (contentEl) contentEl.innerHTML = linkify(escapeHtml(newContent));
+
+                if (!bubble.querySelector('.edited-label')) {
+                    const label = document.createElement('small');
+                    label.className = 'edited-label text-muted';
+                    label.style.fontSize = '0.65rem';
+                    label.style.marginTop = '2px';
+                    label.style.display = 'block';
+                    label.textContent = '(Edited)';
+                    bubble.querySelector('.message-time').after(label);
+                }
+            }
             editModal.classList.remove('open');
+            loadConversations();
         }
     } catch (err) { console.error(err); }
 };
+
+// --- Modal Listeners ---
+function setupModalListeners() {
+    const closeBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    const modal = document.getElementById('editModal');
+
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            console.log("[CHAT] Closing modal via X");
+            modal.classList.remove('open');
+        };
+    }
+    if (cancelBtn) {
+        cancelBtn.onclick = () => {
+            console.log("[CHAT] Closing modal via Cancel");
+            modal.classList.remove('open');
+        };
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('open');
+        }
+    });
+}
+
+// Call setup
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupModalListeners);
+} else {
+    setupModalListeners();
+}
 
 
 function logout() {

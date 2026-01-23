@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Collaborations – SkillSprint</title>
   <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
     /* ===================== BASE ===================== */
@@ -307,18 +308,28 @@
     }
 
     .delete-btn {
-      background: none;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 77, 77, 0.1);
       border: none;
       color: #ff4d4d;
       cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: background 0.2s;
-      font-size: 1rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      font-size: 1.1rem;
+      z-index: 10;
     }
 
     .delete-btn:hover {
-      background: rgba(255, 77, 77, 0.1);
+      background: #ff4d4d;
+      color: #fff;
+      transform: rotate(90deg) scale(1.1);
     }
   </style>
 </head>
@@ -451,9 +462,9 @@
       const memberCount = members.length || 1;
 
       div.innerHTML = `
+        ${isOwner ? `<button class="delete-btn" title="Delete"><i class="fa-solid fa-xmark"></i></button>` : ''}
         <div class="card-header">
            <h3 class="card-title">${item.name}</h3>
-           ${isOwner ? `<button class="delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
         </div>
         
         <div class="card-body">
@@ -480,9 +491,9 @@
         if (delBtn) {
           delBtn.onclick = (e) => {
             e.stopPropagation();
-            if (confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`)) {
+            confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`, () => {
               deleteItem(item._id, type);
-            }
+            });
           };
         }
       }
@@ -499,14 +510,14 @@
         });
         const data = await res.json();
         if (data.success || res.ok) {
-          alert("Deleted successfully");
-          location.reload();
+          showToast("Project deleted successfully", "success");
+          setTimeout(() => location.reload(), 1500);
         } else {
-          alert("Delete failed: " + (data.message || "Unknown error"));
+          showToast(data.message || "Failed to delete item", "error");
         }
       } catch (e) {
         console.error(e);
-        alert("Error deleting item");
+        showToast("Error deleting project", "error");
       }
     }
 
@@ -541,6 +552,7 @@
       }
     }
   </script>
+  <script src="js/toast.js"></script>
 </body>
 
 </html>
