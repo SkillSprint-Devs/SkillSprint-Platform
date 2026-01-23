@@ -602,3 +602,32 @@ body {
     background: #f0f0f0;
     color: #333;
 }
+
+/* Message Status Ticks */
+.message-status {
+    font-size: 0.7rem;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2px;
+}
+
+.status-tick {
+    font-size: 0.8rem;
+    margin-left: 2px;
+}
+
+.single-tick {
+    color: #ccc;
+}
+
+.double-tick {
+    color: #4caf50;
+    /* Green for read */
+}
+
+/* Fix mobile responsiveness for ticks */
+@media (max-width: 768px) {
+    .status-tick {
+        font-size: 0.7rem;
+    }
+}

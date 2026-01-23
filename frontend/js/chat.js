@@ -68,10 +68,30 @@ socket.on('user:online', (userId) => {
     if (currentChatUserId === userId) updateUserStatus(userId);
 });
 
+// Messages Read Event
+socket.on('messages_read', ({ readerId }) => {
+    if (currentChatUserId === readerId) {
+        markMessagesAsRead();
+    }
+});
+
+function markMessagesAsRead() {
+    const bubbles = document.querySelectorAll('.message-bubble.message-sent .message-status');
+    bubbles.forEach(el => {
+        el.innerHTML = '<span class="status-tick double-tick"><i class="fa-solid fa-check-double"></i></span>';
+        el.title = "Read";
+    });
+}
+// ... existing code ...
+
 socket.on('user:offline', (userId) => {
     onlineUsers.delete(userId);
     if (currentChatUserId === userId) updateUserStatus(userId);
 });
+
+// ...
+
+
 
 function updateUserStatus(userId) {
     const statusEl = document.getElementById('userStatus');
@@ -313,7 +333,14 @@ function appendMessage(msg, isMe) {
         `;
     }
 
-    const statusHtml = isMe ? '<div class="message-status">Delivered</div>' : '';
+    const isRead = msg.read === true;
+    const statusHtml = isMe
+        ? `<div class="message-status" title="${isRead ? 'Read' : 'Delivered'}">
+             <span class="status-tick ${isRead ? 'double-tick' : 'single-tick'}">
+               <i class="fa-solid ${isRead ? 'fa-check-double' : 'fa-check'}"></i>
+             </span>
+           </div>`
+        : '';
 
     bubble.innerHTML = `
         ${actionsHtml}
