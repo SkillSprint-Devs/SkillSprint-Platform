@@ -305,6 +305,21 @@
         display: none;
       }
     }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ff4d4d;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+      font-size: 1rem;
+    }
+
+    .delete-btn:hover {
+      background: rgba(255, 77, 77, 0.1);
+    }
   </style>
 </head>
 
@@ -431,16 +446,14 @@
       const roleText = isOwner ? 'Owner' : 'Member';
       const roleClass = isOwner ? 'role-owner' : 'role-member';
 
-      // Calculate member count (default to 1 inclusive of owner if undefined, or length of members array)
+      // Calculate member count
       const members = item.members || [];
       const memberCount = members.length || 1;
 
       div.innerHTML = `
         <div class="card-header">
            <h3 class="card-title">${item.name}</h3>
-           <!-- Optional Icon based on type or just a placeholder? 
-                Let's use a generic 'workspaces' icon or similar if we imported material icons.
-                But for now, clean header is enough. -->
+           ${isOwner ? `<button class="delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
         </div>
         
         <div class="card-body">
@@ -455,14 +468,60 @@
         <div class="card-footer">
            <span class="role-badge ${roleClass}">${roleText}</span>
            <span class="members-count" title="${memberCount} members">
-              <!-- Simple text or icon -->
               ${memberCount} Members
            </span>
         </div>
       `;
 
       div.onclick = onClick;
+
+      if (isOwner) {
+        const delBtn = div.querySelector('.delete-btn');
+        if (delBtn) {
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`)) {
+              if (item.strokes || item.shapes !== undefined) {
+                // It's a board (heuristic: boards have strokes/shapes or we can pass a type arg) 
+                // Better to check which list it came from, but here we are inside createCard.
+                // Let's rely on a type argument passed to createCard or infer from properties.
+                // Pair projects have 'files' usually? Boards have 'strokes'.
+                if (item.strokes !== undefined || item.shapes !== undefined || item.thumbnail !== undefined) {
+                  deleteItem(item._id, 'board');
+                } else {
+                  deleteItem(item._id, 'pair');
+                }
+              } else {
+                // Fallback or explicit type passing is better. 
+                // But we can check if it has file structure or Board properties.
+                // Let's pass 'type' to createCard.
+                // But wait, createCard is called from loadWhiteboards and loadPairProgramming.
+              }
+            }
+          };
+        }
+      }
       return div;
+    }
+
+    async function deleteItem(id, type) {
+      const endpoint = type === 'board' ? 'board' : 'pair-programming';
+      try {
+        const res = await fetch(`${window.API_BASE}/${endpoint}/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const data = await res.json();
+        if (data.success || res.ok) {
+          alert("Deleted successfully");
+          location.reload();
+        } else {
+          alert("Delete failed: " + (data.message || "Unknown error"));
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Error deleting item");
+      }
     }
 
     /* ====================== SEARCH FILTER ====================== */

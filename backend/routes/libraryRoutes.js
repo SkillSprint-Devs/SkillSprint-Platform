@@ -82,7 +82,7 @@ router.get("/", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id;
         const items = await Library.find({
-            $or: [{ user_id: userId }, { visibility: "Public" }],
+            user_id: userId
         }).sort({ date_added: -1 });
 
         res.json({ success: true, data: items });

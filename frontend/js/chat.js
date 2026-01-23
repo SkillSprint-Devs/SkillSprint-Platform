@@ -352,7 +352,12 @@ window.handleDelete = function (id) {
         alert("Error: Missing Message ID");
         return;
     }
-    deleteMessage(id);
+    if (typeof window.deleteMessage === 'function') {
+        window.deleteMessage(id);
+    } else {
+        console.error("deleteMessage function not found");
+        alert("Error: Delete function missing");
+    }
 };
 
 window.handleEdit = function (id, btnElement) {

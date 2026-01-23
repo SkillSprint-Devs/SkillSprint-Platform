@@ -187,6 +187,11 @@ router.get("/:userId", verifyToken, async (req, res) => {
             { $set: { read: true } }
         );
 
+        const io = req.app.get("io");
+        if (io) {
+            io.to(userId).emit("messages_read", { readerId: myId });
+        }
+
         const messages = await Chat.find(query).sort({ createdAt: 1 });
         res.json(messages);
     } catch (err) {

@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -25,7 +26,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css" />
 
 </head>
 
@@ -34,8 +36,12 @@
     <!-- TOP NAV -->
     <header class="top-nav">
       <div class="left">
+        <button class="btn-icon" onclick="window.history.back()"
+          style="margin-right: 12px; font-size: 1.2rem; color: var(--text-primary);"><i
+            class="fa-solid fa-arrow-left"></i></button>
         <!-- Mobile Sidebar Toggle -->
-        <button id="sidebarToggle" class="btn-icon mobile-only" style="display:none; margin-right: 8px;"><i class="fa-solid fa-bars"></i></button>
+        <button id="sidebarToggle" class="btn-icon mobile-only" style="display:none; margin-right: 8px;"><i
+            class="fa-solid fa-bars"></i></button>
         <div class="logo">SkillSprint</div>
         <div class="project-name">/SkillSprint / PairProject</div>
       </div>
@@ -63,8 +69,10 @@
         <div class="explorer-header">
           <div>Explorer</div>
           <div style="display: flex; gap: 8px;">
-            <button id="addFileBtn" class="btn-icon" title="New File"><i class="fa-solid fa-file-circle-plus"></i></button>
-            <button id="addFolderBtn" class="btn-icon" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
+            <button id="addFileBtn" class="btn-icon" title="New File"><i
+                class="fa-solid fa-file-circle-plus"></i></button>
+            <button id="addFolderBtn" class="btn-icon" title="New Folder"><i
+                class="fa-solid fa-folder-plus"></i></button>
             <!-- <button class="dots" title="More options"><i class="fa-solid fa-ellipsis"></i></button> -->
           </div>
         </div>
@@ -95,7 +103,8 @@
             <div id="terminalOutput"></div>
             <div class="terminal-input-line">
               <span class="terminal-prompt">$</span>
-              <input type="text" id="terminalInput" class="terminal-input" placeholder="Type command or view output..." />
+              <input type="text" id="terminalInput" class="terminal-input"
+                placeholder="Type command or view output..." />
             </div>
           </div>
         </div>
@@ -123,10 +132,10 @@
 
     <!-- Context Menu -->
     <ul id="contextMenu" class="context-menu hidden">
-        <li data-action="new-file">New File</li>
-        <li data-action="new-folder">New Folder</li>
-        <li data-action="rename">Rename</li>
-        <li data-action="delete">Delete</li>
+      <li data-action="new-file">New File</li>
+      <li data-action="new-folder">New Folder</li>
+      <li data-action="rename">Rename</li>
+      <li data-action="delete">Delete</li>
     </ul>
 
     <!-- Invite Modal -->
@@ -134,8 +143,9 @@
       <div class="input-box invite-box" style="width: 400px; max-width: 90%;">
         <h3>Invite to Collaborate</h3>
         <input type="text" id="inviteSearch" placeholder="Search users by name..." style="margin-bottom: 10px;" />
-        
-        <div id="inviteUserList" class="user-list" style="max-height: 200px; overflow-y: auto; text-align: left; margin-bottom: 15px; border: 1px solid #eee; border-radius: 6px;">
+
+        <div id="inviteUserList" class="user-list"
+          style="max-height: 200px; overflow-y: auto; text-align: left; margin-bottom: 15px; border: 1px solid #eee; border-radius: 6px;">
           <!-- Users will populate here -->
         </div>
 
@@ -145,13 +155,13 @@
             <option value="viewer">Request: View Only</option>
             <option value="editor" selected>Request: Can Edit Files</option>
             <!-- Mapping 'editor' to Run/Edit for simplicity in backend logic, but UI shows specific text -->
-            <option value="editor">Request: Can Run/Execute Code Check</option> 
+            <option value="editor">Request: Can Run/Execute Code Check</option>
           </select>
         </div>
 
         <div class="input-actions">
-           <button id="sendInviteBtn" class="btn-ok">Send Invite</button>
-           <button class="btn-cancel btn-close-invite">Cancel</button>
+          <button id="sendInviteBtn" class="btn-ok">Send Invite</button>
+          <button class="btn-cancel btn-close-invite">Cancel</button>
         </div>
       </div>
     </div>
@@ -160,23 +170,26 @@
     <div id="shareModal" class="input-modal">
       <div class="input-box share-box" style="width: 400px; max-width: 90%;">
         <h3>Share Public Link</h3>
-        
+
         <div style="text-align: left; margin-bottom: 15px;">
-           <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px;">Link Permission:</label>
-           <select id="sharePermission" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-             <option value="viewer">View Only</option>
-             <option value="editor">Can Edit & Run Code</option>
-           </select>
-           <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Anyone with this link will have the selected permissions.</p>
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px;">Link
+            Permission:</label>
+          <select id="sharePermission" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+            <option value="viewer">View Only</option>
+            <option value="editor">Can Edit & Run Code</option>
+          </select>
+          <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Anyone with this link will have the selected
+            permissions.</p>
         </div>
 
         <div style="display: flex; gap: 8px;">
-          <input type="text" id="shareLinkInput" readonly value="https://..." style="background: #f9f9f9; color: #555;" />
+          <input type="text" id="shareLinkInput" readonly value="https://..."
+            style="background: #f9f9f9; color: #555;" />
           <button id="copyShareLinkBtn" class="btn accent">Copy</button>
         </div>
 
         <div class="input-actions" style="margin-top: 15px;">
-           <button class="btn-cancel btn-close-share">Close</button>
+          <button class="btn-cancel btn-close-share">Close</button>
         </div>
       </div>
     </div>
@@ -186,19 +199,22 @@
       <div class="input-box help-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
           <h2 style="margin:0; font-size:1.4rem;">Pair Programming Guide</h2>
-          <button class="btn-close-help" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">&times;</button>
+          <button class="btn-close-help"
+            style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">&times;</button>
         </div>
-        
+
         <div class="help-content" style="text-align:left; max-height:60vh; overflow-y:auto; padding-right:10px;">
           <p>Welcome to the <strong>SkillSprint Pair Programming</strong> environment!</p>
-          
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-rocket" style="margin-right:8px;"></i>1. How to Start</h3>
+
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i
+              class="fa-solid fa-rocket" style="margin-right:8px;"></i>1. How to Start</h3>
           <ul style="padding-left:20px; margin:10px 0;">
             <li><strong>Open a Workspace:</strong> Select a board from the Dashboard or Library.</li>
             <li><strong>Invite Peers:</strong> Use the "Invite" or "Share" buttons top-right.</li>
           </ul>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-file-code" style="margin-right:8px;"></i>2. Files & Naming</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i
+              class="fa-solid fa-file-code" style="margin-right:8px;"></i>2. Files & Naming</h3>
           <p>You <strong>MUST</strong> use correct extensions for features to work:</p>
           <ul style="padding-left:20px; margin:10px 0;">
             <li><code>.js</code> - JavaScript (Runs with Node.js)</li>
@@ -207,13 +223,16 @@
             <li><code>.html</code> / <code>.css</code> - Syntax highlighting only</li>
           </ul>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-laptop-code" style="margin-right:8px;"></i>3. Using the Editor</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i
+              class="fa-solid fa-laptop-code" style="margin-right:8px;"></i>3. Using the Editor</h3>
           <ul style="padding-left:20px; margin:10px 0;">
             <li><strong>Edit:</strong> Click a file to open. Tabs let you switch files.</li>
-            <li><strong>Save:</strong> Press <code>Ctrl+S</code> or click Save. <strong>Always save before running!</strong></li>
+            <li><strong>Save:</strong> Press <code>Ctrl+S</code> or click Save. <strong>Always save before
+                running!</strong></li>
           </ul>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-play" style="margin-right:8px;"></i>4. Running Code</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i
+              class="fa-solid fa-play" style="margin-right:8px;"></i>4. Running Code</h3>
           <p>To execute JS, Python, or PHP:</p>
           <ol style="padding-left:20px; margin:10px 0;">
             <li>Select the file.</li>
@@ -223,11 +242,12 @@
           </ol>
           <p><em>(Max execution time: 5 seconds)</em></p>
 
-          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Limitations</h3>
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i
+              class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Limitations</h3>
           <ul style="padding-left:20px; margin:10px 0;">
-             <li>No internet access for code execution.</li>
-             <li>No installing external packages.</li>
-             <li>Secure sandbox environment.</li>
+            <li>No internet access for code execution.</li>
+            <li>No installing external packages.</li>
+            <li>Secure sandbox environment.</li>
           </ul>
         </div>
 
@@ -239,8 +259,8 @@
 
 
     <!-- Floating button to open comments -->
-     <button id="toggleComments" class="fab"><i class="fa-solid fa-comment"></i></button> 
-    
+    <button id="toggleComments" class="fab"><i class="fa-solid fa-comment"></i></button>
+
   </div>
 
   <!-- Page JS -->
@@ -248,6 +268,7 @@
   <script src="js/pair-programming.js?v=2" type="module"></script>
   <!-- <script src="js/pair-programming-sio.js" type="module"></script>
   <script src="js/toast.js" type="module"></script> -->
-  
+
 </body>
+
 </html>
