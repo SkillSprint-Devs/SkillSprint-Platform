@@ -9,23 +9,25 @@ window.removeTask = async (id) => {
     console.error("[DASHBOARD] Cannot remove task: ID is undefined");
     return;
   }
-  if (!confirm("Are you sure you want to remove this task?")) return;
-  const token = localStorage.getItem("token");
-  try {
-    console.log("[DASHBOARD] Removing task:", id);
-    const res = await fetch(`${API_BASE}/tasks/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) {
-      if (typeof showToast === 'function') showToast("Task removed", "success");
-      loadDashboard();
-    } else {
-      const err = await res.json();
-      console.error("[DASHBOARD] Task removal failed:", err.message);
-      if (typeof showToast === 'function') showToast(err.message || "Failed to remove task", "error");
-    }
-  } catch (err) { console.error("[DASHBOARD] Task removal error:", err); }
+
+  confirm("Are you sure you want to remove this task?", async () => {
+    const token = localStorage.getItem("token");
+    try {
+      console.log("[DASHBOARD] Removing task:", id);
+      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        if (typeof showToast === 'function') showToast("Task removed", "success");
+        loadDashboard();
+      } else {
+        const err = await res.json();
+        console.error("[DASHBOARD] Task removal failed:", err.message);
+        if (typeof showToast === 'function') showToast(err.message || "Failed to remove task", "error");
+      }
+    } catch (err) { console.error("[DASHBOARD] Task removal error:", err); }
+  });
 };
 
 window.removeSession = async (id) => {
@@ -33,32 +35,34 @@ window.removeSession = async (id) => {
     console.error("[DASHBOARD] Cannot remove session: ID is undefined");
     return;
   }
-  if (!confirm("Remove this session from your dashboard?")) return;
-  const token = localStorage.getItem("token");
-  try {
-    console.log("[DASHBOARD] Removing session:", id);
-    const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) {
-      if (typeof showToast === 'function') showToast("Session removed", "info");
-      loadSchedule();
-    } else {
-      const err = await res.json();
-      console.error("[DASHBOARD] Session removal failed:", err.message);
-      if (typeof showToast === 'function') showToast(err.message || "Failed to remove session", "error");
 
-      // Fallback: hid card if 404 (already deleted)
-      if (res.status === 404) {
-        const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
-        if (card) card.remove();
+  confirm("Remove this session from your dashboard?", async () => {
+    const token = localStorage.getItem("token");
+    try {
+      console.log("[DASHBOARD] Removing session:", id);
+      const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        if (typeof showToast === 'function') showToast("Session removed", "info");
+        loadSchedule();
+      } else {
+        const err = await res.json();
+        console.error("[DASHBOARD] Session removal failed:", err.message);
+        if (typeof showToast === 'function') showToast(err.message || "Failed to remove session", "error");
+
+        // Fallback: hide card if 404 (already deleted)
+        if (res.status === 404) {
+          const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
+          if (card) card.remove();
+        }
       }
+    } catch (err) {
+      console.error("[DASHBOARD] Session removal error:", err);
+      if (typeof showToast === 'function') showToast("Connection Error", "error");
     }
-  } catch (err) {
-    console.error("[DASHBOARD] Session removal error:", err);
-    if (typeof showToast === 'function') showToast("Connection Error", "error");
-  }
+  });
 };
 
 // SIDEBAR TOGGLE
