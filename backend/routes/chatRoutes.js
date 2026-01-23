@@ -70,7 +70,8 @@ router.get("/conversations/recent", verifyToken, async (req, res) => {
 });
 
 //  DELETE Message 
-router.delete("/delete/:messageId", verifyToken, async (req, res) => {
+router.delete("/delete/:Id", verifyToken, async (req, res) => {
+    // console.log(" DELETE /delete/:messageId API HIT");
     try {
         const { messageId } = req.params;
         const userId = req.user.id;
