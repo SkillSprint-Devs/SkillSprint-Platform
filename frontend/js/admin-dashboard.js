@@ -27,6 +27,65 @@ async function fetchStats() {
     }
 }
 
+async function fetchHealth() {
+    try {
+        const res = await fetch(`${API_BASE}/health`);
+        const data = await res.json();
+
+        if (data.success && data.health) {
+            const health = data.health;
+
+            // Update system status indicator and text
+            const statusIndicator = document.getElementById("systemStatusIndicator");
+            const statusText = document.getElementById("systemStatusText");
+
+            if (statusIndicator && statusText) {
+                // Set color based on status
+                const statusColors = {
+                    'healthy': 'var(--success)',
+                    'degraded': 'var(--warning)',
+                    'critical': '#f44336',
+                    'error': '#f44336'
+                };
+
+                const statusLabels = {
+                    'healthy': 'System Healthy',
+                    'degraded': 'System Degraded',
+                    'critical': 'System Critical',
+                    'error': 'System Error'
+                };
+
+                statusIndicator.style.background = statusColors[health.status] || 'var(--text-muted)';
+                statusText.textContent = statusLabels[health.status] || 'Unknown';
+            }
+
+            // Update memory usage
+            const memoryUsageEl = document.getElementById("memoryUsage");
+            const memoryStatusEl = document.getElementById("memoryStatus");
+
+            if (memoryUsageEl && memoryStatusEl && health.checks?.memory) {
+                const mem = health.checks.memory;
+                memoryUsageEl.textContent = `${mem.percentage}%`;
+
+                // Set status color
+                const memColors = {
+                    'healthy': 'var(--success)',
+                    'warning': 'var(--warning)',
+                    'critical': '#f44336'
+                };
+
+                memoryStatusEl.style.color = memColors[mem.status] || 'var(--success)';
+                memoryStatusEl.textContent = `${mem.usedMB}MB / ${mem.totalMB}MB`;
+            }
+        }
+    } catch (err) {
+        console.error("Failed to fetch health:", err);
+        // Show error state
+        const statusText = document.getElementById("systemStatusText");
+        if (statusText) statusText.textContent = "Health Check Failed";
+    }
+}
+
 async function fetchActivity() {
     try {
         const res = await fetch(`${API_BASE}/activity`);
@@ -109,12 +168,14 @@ function init() {
     }
 
     fetchStats();
+    fetchHealth();
     fetchActivity();
     fetchUsersPreview();
 
     // Auto-refresh every 30s
     setInterval(() => {
         fetchStats();
+        fetchHealth();
         fetchActivity();
         fetchUsersPreview();
     }, 30000);
