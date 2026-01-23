@@ -130,6 +130,7 @@ router.get("/:userId", verifyToken, async (req, res) => {
             { $set: { read: true } }
         );
 
+<<<<<<< HEAD
         const messages = await Chat.find({
             $or: [
                 { sender: myId, recipient: userId },
@@ -137,6 +138,14 @@ router.get("/:userId", verifyToken, async (req, res) => {
             ]
         }).sort({ createdAt: 1 });
 
+=======
+        const io = req.app.get("io");
+        if (io) {
+            io.to(userId).emit("messages_read", { readerId: myId });
+        }
+
+        const messages = await Chat.find(query).sort({ createdAt: 1 });
+>>>>>>> 66f6437518eb22afd041b74777b92b69af24965a
         res.json(messages);
     } catch (err) {
         res.status(500).json({ message: "History error" });

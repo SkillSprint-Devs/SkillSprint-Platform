@@ -249,105 +249,155 @@
     </style>
 </head>
 
-<body>
-    <div class="error-logs-container">
-        <h1><i class="fa-solid fa-bug"></i> Error Logs & Bug Monitor</h1>
+<!-- Sidebar -->
+<aside class="admin-sidebar">
+    <div class="sidebar-header">
+        <i class="fa-solid fa-bolt" style="margin-right: 10px; color: var(--admin-accent);"></i> SkillSprint
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-item" onclick="window.location.href='admin-dashboard.html'">
+            <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-users"></i> Users
+        </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-chalkboard-user"></i> Sessions
+        </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-server"></i> System Logs
+        </div>
+        <div class="nav-item active">
+            <i class="fa-solid fa-bug"></i> Error Logs
+        </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-gears"></i> Settings
+        </div>
+    </nav>
+    <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+        <button class="btn" style="width: 100%; background: rgba(255,255,255,0.1); color: white;"
+            onclick="window.location.href='admin-login.html'">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+    </div>
+</aside>
 
-        <!-- Filters -->
-        <div class="filters-bar">
-            <div class="filter-group">
-                <label>Error Type</label>
-                <select id="filterType">
-                    <option value="">All Types</option>
-                    <option value="Frontend">Frontend</option>
-                    <option value="Backend">Backend</option>
-                    <option value="API">API</option>
-                    <option value="Database">Database</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label>Severity</label>
-                <select id="filterSeverity">
-                    <option value="">All Severities</option>
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                    <option value="Critical">Critical</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label>Status</label>
-                <select id="filterResolved">
-                    <option value="">All</option>
-                    <option value="false">Unresolved</option>
-                    <option value="true">Resolved</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label>Start Date</label>
-                <input type="date" id="filterStartDate">
-            </div>
-
-            <div class="filter-group">
-                <label>End Date</label>
-                <input type="date" id="filterEndDate">
-            </div>
-
-            <div class="filter-group search-bar">
-                <label>Search</label>
-                <input type="text" id="searchInput" placeholder="Search error message, file name, or screen...">
+<!-- Main Content -->
+<main class="admin-main">
+    <header class="admin-header">
+        <h2 class="text-xl">Error Monitoring</h2>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <div
+                    style="width: 32px; height: 32px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="font-bold">Admin</span>
             </div>
         </div>
+    </header>
 
-        <!-- Error Table -->
-        <div class="error-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Severity</th>
-                        <th>Type</th>
-                        <th>Error Message</th>
-                        <th>User</th>
-                        <th>Screen</th>
-                        <th>Timestamp</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="errorTableBody">
-                    <!-- Errors injected here -->
-                </tbody>
-            </table>
-        </div>
+    <div class="admin-content">
+        <div class="error-logs-container">
+            <h1><i class="fa-solid fa-bug"></i> Error Logs & Bug Monitor</h1>
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <button id="prevPage" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
-            <span id="pageInfo">Page 1 of 1</span>
-            <button id="nextPage" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+            <!-- Filters -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>Error Type</label>
+                    <select id="filterType">
+                        <option value="">All Types</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="Backend">Backend</option>
+                        <option value="API">API</option>
+                        <option value="Database">Database</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Severity</label>
+                    <select id="filterSeverity">
+                        <option value="">All Severities</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filterResolved">
+                        <option value="">All</option>
+                        <option value="false">Unresolved</option>
+                        <option value="true">Resolved</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Start Date</label>
+                    <input type="date" id="filterStartDate">
+                </div>
+
+                <div class="filter-group">
+                    <label>End Date</label>
+                    <input type="date" id="filterEndDate">
+                </div>
+
+                <div class="filter-group search-bar">
+                    <label>Search</label>
+                    <input type="text" id="searchInput" placeholder="Search error message, file name, or screen...">
+                </div>
+            </div>
+
+            <!-- Error Table -->
+            <div class="error-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Type</th>
+                            <th>Error Message</th>
+                            <th>User</th>
+                            <th>Screen</th>
+                            <th>Timestamp</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="errorTableBody">
+                        <!-- Errors injected here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button id="prevPage" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button id="nextPage" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+            </div>
         </div>
     </div>
+</main>
 
-    <!-- Detail Modal -->
-    <div class="modal" id="detailModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Error Details</h2>
-                <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-times"></i></button>
-            </div>
-            <div id="modalBody">
-                <!-- Details injected here -->
-            </div>
+<!-- Detail Modal -->
+<div class="modal" id="detailModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Error Details</h2>
+            <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div id="modalBody">
+            <!-- Details injected here -->
         </div>
     </div>
+</div>
 
-    <div id="toast-container"></div>
+<div id="toast-container"></div>
 
-    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
-    <script src="js/toast.js"></script>
-    <script src="js/error-logs.js"></script>
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/error-logs.js"></script>
 </body>
 
 </html>

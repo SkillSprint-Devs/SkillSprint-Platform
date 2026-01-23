@@ -44,27 +44,28 @@ console.error = (...args) => {
   // 1. Output to terminal as usual
   originalConsoleError.apply(console, args);
 
-  // 2. Persist to Database (Fire-and-forget)
+  // 2. Persist to Database - ONLY IF CONNECTED (readyState 1)
   try {
     const errorMessage = args.map(arg => {
       if (arg instanceof Error) return arg.stack || arg.message;
-      if (typeof arg === 'object') return JSON.stringify(arg);
+      if (typeof arg === 'object') {
+        try { return JSON.stringify(arg); } catch (e) { return "[Object]"; }
+      }
       return String(arg);
     }).join(' ');
 
-    // Basic filtering to avoid logging harmless warnings if needed
-
-    ErrorLog.create({
-      errorMessage: errorMessage.substring(0, 5000), // Truncate if too long
-      errorType: 'Backend', // Use a valid enum value
-      severity: 'Critical', // Assume console.error implies something important
-      stackTrace: new Error().stack, // Capture where console.error was called
-      environment: process.env.NODE_ENV || 'Development',
-      timestamp: new Date()
-    }).catch(err => {
-      // Prevent infinite loops if DB connection fails
-      process.stdout.write(`[Interceptor] DB Log Failed: ${err.message}\n`);
-    });
+    if (mongoose.connection.readyState === 1) {
+      ErrorLog.create({
+        errorMessage: errorMessage.substring(0, 5000),
+        errorType: 'Backend',
+        severity: 'Critical',
+        stackTrace: new Error().stack,
+        environment: process.env.NODE_ENV || 'Development',
+        timestamp: new Date()
+      }).catch(err => {
+        process.stdout.write(`[Interceptor] DB Log Failed: ${err.message}\n`);
+      });
+    }
   } catch (interceptErr) {
     process.stdout.write(`[Interceptor] Logic Failed: ${interceptErr.message}\n`);
   }
@@ -92,8 +93,12 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // DATABASE CONNECTION 
+mongoose.set('bufferCommands', false);
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  })
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((err) => console.error("MongoDB Connection Failed:", err));
 
@@ -180,7 +185,7 @@ io.on("connection", (socket) => {
       try {
         await Board.findByIdAndUpdate(
           boardId,
-          { $addToSet: { activeUsers: mongoose.Types.ObjectId(userId) } },
+          { $addToSet: { activeUsers: new mongoose.Types.ObjectId(userId) } },
           { new: true }
         );
       } catch (e) {

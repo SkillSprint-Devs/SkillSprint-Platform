@@ -145,20 +145,21 @@ body {
 .user-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px;
-    margin-bottom: 4px;
-    border-radius: 10px;
+    gap: 15px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 1px solid transparent;
 }
 
 .user-item:hover {
-    background: #f5f5f5;
-}
-
-.user-item {
-    position: relative;
+    background: #f8fafc;
+    border-color: #f1f5f9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
 .chat-badge {
@@ -177,11 +178,16 @@ body {
 
 .user-item.active {
     background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(220, 239, 98, 0.3);
 }
 
-.user-item.active .chat-name,
+.user-item.active .chat-name {
+    color: #000;
+}
+
 .user-item.active .last-msg {
-    color: var(--text-dark);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 .user-avatar {
@@ -198,21 +204,22 @@ body {
 }
 
 .chat-name {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    color: var(--text-dark);
-    /* Dark text */
+    color: #1e293b;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 2px;
 }
 
 .last-msg {
-    font-size: 0.75rem;
-    color: #777;
+    font-size: 0.8rem;
+    color: #64748b;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.2;
 }
 
 /* Utility Classes */
@@ -594,4 +601,33 @@ body {
 .btn-cancel {
     background: #f0f0f0;
     color: #333;
+}
+
+/* Message Status Ticks */
+.message-status {
+    font-size: 0.7rem;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2px;
+}
+
+.status-tick {
+    font-size: 0.8rem;
+    margin-left: 2px;
+}
+
+.single-tick {
+    color: #ccc;
+}
+
+.double-tick {
+    color: #4caf50;
+    /* Green for read */
+}
+
+/* Fix mobile responsiveness for ticks */
+@media (max-width: 768px) {
+    .status-tick {
+        font-size: 0.7rem;
+    }
 }

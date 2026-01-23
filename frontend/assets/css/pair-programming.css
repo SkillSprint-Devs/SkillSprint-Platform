@@ -7,7 +7,6 @@
   --text-light: #555555;
   /* Better readability */
   --muted: #bfbfbf;
-  --highlight: #8C52FF;
   --border-color: rgba(0, 0, 0, 0.08);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -283,11 +282,11 @@ html,
 .file-tree .active-file {
   background: rgba(0, 0, 0, 0.06);
   font-weight: 600;
-  color: var(--highlight);
+  color: var(--accent);
 }
 
 .file-tree .active-file i {
-  color: var(--highlight);
+  color: var(--accent);
 }
 
 /* --- Center Code Area --- */
@@ -359,7 +358,7 @@ html,
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--highlight);
+  background: var(--accent);
   border-radius: 2px 2px 0 0;
 }
 
@@ -550,7 +549,7 @@ html,
 }
 
 .comments-input input:focus {
-  border-color: var(--highlight);
+  border-color: var(--accent);
 }
 
 /* Floating Action Button (Comments Toggle) */
@@ -561,7 +560,7 @@ html,
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--highlight);
+  background: var(--accent);
   color: white;
   border: none;
   font-size: 20px;
@@ -638,8 +637,8 @@ html,
 
 .input-box input:focus,
 .input-box select:focus {
-  border-color: var(--highlight);
-  box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(220, 239, 98, 0.1);
 }
 
 .input-actions {
@@ -650,8 +649,8 @@ html,
 }
 
 .btn-ok {
-  background: var(--highlight);
-  color: white;
+  background: var(--accent);
+  color: #000;
   padding: 10px 20px;
   border: none;
   border-radius: var(--radius-md);
@@ -686,7 +685,7 @@ html,
 }
 
 .help-content h3 {
-  color: var(--highlight);
+  color: var(--accent);
 }
 
 
@@ -700,13 +699,12 @@ html,
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --muted: #bfbfbf;
-  --highlight: #8C52FF;
-  /* Use highlight as the main accent in dark mode if desired, or keep accent separate */
+  /* Use accent as the main accent in dark mode */
   --accent: #DCEF62;
 
   /* Dark Mode Overrides */
-  --primary-btn-bg: var(--highlight);
-  --primary-btn-text: #fff;
+  --primary-btn-bg: var(--accent);
+  --primary-btn-text: #000;
 }
 
 .dark body,
@@ -784,7 +782,7 @@ html,
 
 #contextMenu li:hover {
   background: #f5f5f5;
-  color: var(--highlight);
+  color: var(--accent);
 }
 
 .dark #contextMenu {
@@ -874,7 +872,7 @@ html,
 
 /* Comment Bubble (Gutter Marker) */
 .comment-marker {
-  color: var(--highlight);
+  color: var(--accent);
   font-size: 14px;
   cursor: pointer;
   background: white;
@@ -905,22 +903,22 @@ html,
 }
 
 .dark .highlight-line {
-  background: rgba(140, 82, 255, 0.25) !important;
-  /* highlight opacity */
+  background: rgba(220, 239, 98, 0.25) !important;
+  /* accent opacity */
 }
 
 /* Dark Mode Button Overrides (Issue 4) */
 .dark .btn.accent,
 .dark .btn.accent:hover {
-  background: var(--highlight);
-  color: white;
-  box-shadow: 0 4px 10px rgba(140, 82, 255, 0.4);
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 4px 10px rgba(220, 239, 98, 0.4);
 }
 
 .dark .terminal-prompt {
-  color: var(--highlight);
+  color: var(--accent);
 }
 
 .dark .comments-input input:focus {
-  border-color: var(--highlight);
+  border-color: var(--accent);
 }

@@ -12,7 +12,6 @@
 
   /* Optional tones */
   --muted: #bfbfbf;
-  --highlight: #8C52FF;
 
   /* UI Components */
   --card-bg: #FFFFFF;
@@ -312,8 +311,8 @@ input {
 }
 
 #addSubTaskBtn:hover {
-  background: var(--highlight);
-  color: var(--text-light);
+  background: var(--accent);
+  color: var(--text-dark);
   transform: scale(1.05);
 }
 
@@ -500,7 +499,7 @@ input {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--highlight), var(--accent));
+  background: var(--accent);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
@@ -561,8 +560,8 @@ input {
 }
 
 .st-chip.done .st-check {
-  background: var(--highlight);
-  border-color: var(--highlight);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .st-chip.done .st-check::after {
@@ -692,7 +691,7 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--highlight);
+  color: var(--accent);
 }
 
 .calendar-grid {
@@ -738,8 +737,8 @@ input {
 }
 
 .date-cell.active {
-  background: var(--highlight);
-  color: var(--text-light);
+  background: var(--accent);
+  color: var(--sidebar-bg);
   font-weight: 700;
 }
 
@@ -833,7 +832,7 @@ input {
   display: block;
   font-size: 2rem;
   font-weight: 700;
-  color: var(--highlight);
+  color: var(--accent);
   margin-bottom: 0.25rem;
 }
 

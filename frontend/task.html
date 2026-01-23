@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,159 +8,158 @@
 
   <!-- Google Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
-  <!-- CSS files -->
-  <link rel="stylesheet" href="assets/css/variables.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/task.css">
 </head>
+
 <body>
-  <!-- TOP NAV -->
-  <header class="top-nav">
-    <div class="nav-left">
-      <button class="back-arrow" onclick="history.back()">
-        <span class="material-icons">arrow_back</span>
-      </button>
-      <h1 class="logo">SkillSprint</h1>
-    </div>
-    <div class="nav-right">
-      <div class="search-container">
-        <span class="material-icons search-icon">search</span>
-        <input class="search-bar" placeholder="Search tasks..." id="searchInput" />
+
+  <body>
+    <header class="task-top-nav">
+      <div class="nav-left">
+        <button class="back-arrow" onclick="location.href='dashboard.html'">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <h1 class="logo">SkillSprint</h1>
       </div>
-      <button class="notif">
-        <span class="material-icons">notifications</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- MAIN -->
-  <main class="main-wrapper">
-    <!-- LEFT -->
-    <section class="left-main">
-      <!-- Create Task Section -->
-      <div class="create-task-section">
-        <div class="create-header">
-          <h3>Create New Task</h3>
-          <button class="btn-reset" id="resetBtn">
-            <span class="material-icons">refresh</span>
-          </button>
-        </div>
-
-        <div class="create-form-grid">
-          <div class="form-group fg-title">
-            <label for="taskTitle">Title</label>
-            <input type="text" id="taskTitle" placeholder="What needs to be done?" />
-          </div>
-          
-          <div class="form-group fg-priority">
-            <label for="taskPriority">Priority</label>
-            <div class="priority-options" id="priorityOptions">
-              <button class="p-btn p-low selected" data-value="low">Low</button>
-              <button class="p-btn p-medium" data-value="medium">Medium</button>
-              <button class="p-btn p-high" data-value="high">High</button>
-            </div>
-            <input type="hidden" id="taskPriority" value="low" />
-          </div>
-
-          <div class="form-group fg-desc">
-            <label for="taskDesc">Description</label>
-            <input type="text" id="taskDesc" placeholder="Add details..." />
-          </div>
-
-          <div class="form-group fg-date">
-            <label for="taskDue">Due Date</label>
-            <input type="date" id="taskDue" />
-          </div>
-
-          <div class="form-group fg-subtasks">
-            <label>Sub-tasks</label>
-            <div class="subtask-input-wrapper">
-              <input type="text" id="subTaskInput" placeholder="Add a sub-task..." />
-              <button id="addSubTaskBtn"><span class="material-icons">add</span></button>
-            </div>
-            <ul id="newSubTaskList" class="mini-subtask-list"></ul>
-          </div>
-        </div>
-
-        <div class="create-actions">
-          <button class="btn-create" id="createBtn">
-            <span class="material-icons">add_task</span> Create Task
-          </button>
+      <div class="nav-right">
+        <div class="search-container">
+          <span class="material-icons search-icon">search</span>
+          <input class="search-bar" placeholder="Search tasks..." id="searchInput" />
         </div>
       </div>
+    </header>
 
-      <!-- All Tasks Section -->
-      <div class="all-tasks-section">
-        <div class="section-header">
-          <h3>
-            <span class="material-icons">assignment</span>
-            My Tasks
-          </h3>
-          <div class="filter-tabs">
-            <button class="filter-tab active" data-filter="all">All</button>
-            <button class="filter-tab" data-filter="open">Open</button>
-            <button class="filter-tab" data-filter="in_progress">In Progress</button>
-            <button class="filter-tab" data-filter="completed">Completed</button>
+    <main class="main-wrapper">
+      <!-- LEFT -->
+      <section class="left-main">
+        <!-- Create Task Section -->
+        <div class="create-task-section">
+          <div class="create-header">
+            <h3>Create New Task</h3>
+            <button class="btn-reset" id="resetBtn">
+              <span class="material-icons">refresh</span>
+            </button>
           </div>
-        </div>
-        <div class="all-tasks-list" id="allTasksList">
-          <!-- Tasks will be rendered here -->
-        </div>
-      </div>
-    </section>
 
-    <!-- RIGHT SIDEBAR -->
-    <aside class="right-sidebar">
-      <div class="right-panel-card">
-        <!-- CALENDAR SECTION -->
-        <div class="calendar-section">
-          <div class="calendar-header">
-            <div class="month-controls">
-              <button class="month-btn" id="prevMonth">
-                <span class="material-icons">chevron_left</span>
-              </button>
-              <div class="month-label" id="monthLabel">Month Year</div>
-              <button class="month-btn" id="nextMonth">
-                <span class="material-icons">chevron_right</span>
-              </button>
+          <div class="create-form-grid">
+            <div class="form-group fg-title">
+              <label for="taskTitle">Title</label>
+              <input type="text" id="taskTitle" placeholder="What needs to be done?" />
             </div>
-            <div class="today-badge">
-              <span class="material-icons">today</span>
-            </div>
-          </div>
-          <div class="calendar-grid" id="calendarGrid"></div>
-          <div class="mini-task-list" id="taskListContainer"></div>
-        </div>
 
-        <div class="panel-divider"></div>
+            <div class="form-group fg-priority">
+              <label for="taskPriority">Priority</label>
+              <div class="priority-options" id="priorityOptions">
+                <button class="p-btn p-low selected" data-value="low">Low</button>
+                <button class="p-btn p-medium" data-value="medium">Medium</button>
+                <button class="p-btn p-high" data-value="high">High</button>
+              </div>
+              <input type="hidden" id="taskPriority" value="low" />
+            </div>
 
-        <!-- PROGRESS SECTION -->
-        <div class="progress-section">
-          <h4><span class="material-icons">insights</span> Overview</h4>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-num" id="statTotal">0</span>
-              <span class="stat-lbl">Total</span>
+            <div class="form-group fg-desc">
+              <label for="taskDesc">Description</label>
+              <input type="text" id="taskDesc" placeholder="Add details..." />
             </div>
-            <div class="stat-item">
-              <span class="stat-num" id="statCompleted">0</span>
-              <span class="stat-lbl">Done</span>
+
+            <div class="form-group fg-date">
+              <label for="taskDue">Due Date</label>
+              <input type="date" id="taskDue" />
             </div>
-            <div class="stat-item">
-              <span class="stat-num" id="statInProgress">0</span>
-              <span class="stat-lbl">Active</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-num" id="statWaiting">0</span>
-              <span class="stat-lbl">Todo</span>
+
+            <div class="form-group fg-subtasks">
+              <label>Sub-tasks</label>
+              <div class="subtask-input-wrapper">
+                <input type="text" id="subTaskInput" placeholder="Add a sub-task..." />
+                <button id="addSubTaskBtn"><span class="material-icons">add</span></button>
+              </div>
+              <ul id="newSubTaskList" class="mini-subtask-list"></ul>
             </div>
           </div>
+
+          <div class="create-actions">
+            <button class="btn-create" id="createBtn">
+              <span class="material-icons">add_task</span> Create Task
+            </button>
+          </div>
         </div>
-      </div>
-    </aside>
-  </main>
-  <!-- JavaScript files -->
-  <script src="js/toast.js"></script>
-  <script src="js/task.js"></script>
-</body>
+
+        <!-- All Tasks Section -->
+        <div class="all-tasks-section">
+          <div class="section-header">
+            <h3>
+              <span class="material-icons">assignment</span>
+              My Tasks
+            </h3>
+            <div class="filter-tabs">
+              <button class="filter-tab active" data-filter="all">All</button>
+              <button class="filter-tab" data-filter="open">Open</button>
+              <button class="filter-tab" data-filter="in_progress">In Progress</button>
+              <button class="filter-tab" data-filter="completed">Completed</button>
+            </div>
+          </div>
+          <div class="all-tasks-list" id="allTasksList">
+            <!-- Tasks will be rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT SIDEBAR -->
+      <aside class="right-sidebar">
+        <div class="right-panel-card">
+          <!-- CALENDAR SECTION -->
+          <div class="calendar-section">
+            <div class="calendar-header">
+              <div class="month-controls">
+                <button class="month-btn" id="prevMonth">
+                  <span class="material-icons">chevron_left</span>
+                </button>
+                <div class="month-label" id="monthLabel">Month Year</div>
+                <button class="month-btn" id="nextMonth">
+                  <span class="material-icons">chevron_right</span>
+                </button>
+              </div>
+              <div class="today-badge">
+                <span class="material-icons">today</span>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="mini-task-list" id="taskListContainer"></div>
+          </div>
+
+          <div class="panel-divider"></div>
+
+          <!-- PROGRESS SECTION -->
+          <div class="progress-section">
+            <h4><span class="material-icons">insights</span> Overview</h4>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-num" id="statTotal">0</span>
+                <span class="stat-lbl">Total</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num" id="statCompleted">0</span>
+                <span class="stat-lbl">Done</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num" id="statInProgress">0</span>
+                <span class="stat-lbl">Active</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num" id="statWaiting">0</span>
+                <span class="stat-lbl">Todo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+    <!-- JavaScript files -->
+    <script src="js/toast.js"></script>
+    <script src="js/task.js"></script>
+  </body>
+
 </html>

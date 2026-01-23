@@ -68,10 +68,30 @@ socket.on('user:online', (userId) => {
     if (currentChatUserId === userId) updateUserStatus(userId);
 });
 
+// Messages Read Event
+socket.on('messages_read', ({ readerId }) => {
+    if (currentChatUserId === readerId) {
+        markMessagesAsRead();
+    }
+});
+
+function markMessagesAsRead() {
+    const bubbles = document.querySelectorAll('.message-bubble.message-sent .message-status');
+    bubbles.forEach(el => {
+        el.innerHTML = '<span class="status-tick double-tick"><i class="fa-solid fa-check-double"></i></span>';
+        el.title = "Read";
+    });
+}
+// ... existing code ...
+
 socket.on('user:offline', (userId) => {
     onlineUsers.delete(userId);
     if (currentChatUserId === userId) updateUserStatus(userId);
 });
+
+// ...
+
+
 
 function updateUserStatus(userId) {
     const statusEl = document.getElementById('userStatus');
@@ -149,7 +169,15 @@ async function loadConversations() {
         const res = await fetch(`${API_URL}/chat/conversations/recent`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const data = await res.json();
+        let data = await res.json();
+
+        // Sort by newest message first
+        data.sort((a, b) => {
+            const dateA = a.lastMessage ? new Date(a.lastMessage.createdAt) : 0;
+            const dateB = b.lastMessage ? new Date(b.lastMessage.createdAt) : 0;
+            return dateB - dateA;
+        });
+
         const list = document.getElementById('conversationsList');
         list.innerHTML = '';
 
@@ -220,6 +248,19 @@ async function openChat(otherUser) {
     }
 }
 
+function escapeHtml(s) {
+    if (!s) return "";
+    return s.replace(/[&<>"'`]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' })[m]);
+}
+
+function linkify(text) {
+    if (!text) return "";
+    const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlPattern, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-link">${url}</a>`;
+    });
+}
+
 function appendMessage(msg) {
     const historyContainer = document.getElementById('chatHistory');
     const myId = user._id;
@@ -249,9 +290,11 @@ function appendMessage(msg) {
         `;
     }
 
+    const statusHtml = isMe ? '<div class="message-status">Delivered</div>' : '';
+
     bubble.innerHTML = `
         ${actionsHtml}
-        <div class="msg-content">${msg.content}</div>
+        <div class="msg-content">${linkify(escapeHtml(msg.content))}</div>
         <span class="message-time">${timeStr}</span>
         ${isMe ? '<div class="message-status">Delivered</div>' : ''}
     `;
@@ -273,35 +316,13 @@ document.addEventListener('click', (e) => {
     }
 });
 
-window.deleteMessage = async function (id) {
-    console.log(id);
-    
-    try {
-        // Delete logic
-        const res = await fetch(`${API_URL}/chat/delete/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            const bubble = document.getElementById(`msg-${id}`);
-            if (bubble) bubble.remove();
-            
-            //  Socket emit so the other person's screen updates instantly
-            socket.emit('delete_message', { messageId: id, recipientId: currentChatUserId });
-            loadConversations();
-        } else {
-            const d = await res.json();
-            alert(`Delete Failed: ${d.message}`);
-        }
-    } catch (err) { console.error(err); }
-};
-
-window.handleDelete = function(event, id) {
-    event.stopPropagation(); // ab safe
-    if (!id || id === 'undefined') return alert("Error: Missing Message ID");
-    if (confirm("Delete this message?")) {
-        window.deleteMessage(id);
+// Explicit Global Handlers
+window.handleDelete = function (id) {
+    if (!id || id === 'undefined') {
+        alert("Error: Missing Message ID");
+        return;
     }
+    deleteMessage(id);
 };
 
 window.handleEdit = function (id, btnElement) {

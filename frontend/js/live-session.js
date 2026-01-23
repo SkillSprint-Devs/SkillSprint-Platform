@@ -18,6 +18,17 @@ let lastX = 0;
 let lastY = 0;
 let canvas, ctx;
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function linkify(text) {
+    const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlPattern, '<a href="$1" target="_blank" style="color: #DCEF62; text-decoration: underline;">$1</a>');
+}
+
 const iceConfig = {
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
 };
@@ -64,10 +75,14 @@ function joinSession() {
 
         const isMentor = data.isMentor;
         window.isMentor = isMentor; // Global for checks
+        console.log("[LIVE] Session Init. Is Mentor:", isMentor, "Session ID:", sessionId);
 
         if (isMentor) {
             if (data.status === 'scheduled') {
                 document.getElementById("startSessionBtn").style.display = "block";
+            }
+            if (data.status === 'live' || data.status === 'scheduled') {
+                document.getElementById("endSessionBtn").style.display = "block";
             }
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Mentor)";
         } else {
@@ -105,6 +120,7 @@ function joinSession() {
         document.getElementById("sessionStatus").textContent = status;
         if (status === 'live') {
             document.getElementById("startSessionBtn").style.display = "none";
+            if (window.isMentor) document.getElementById("endSessionBtn").style.display = "block";
             startTimer();
         } else if (status === 'completed') {
             if (typeof showToast === 'function') showToast("Session ended by Mentor", "info");
@@ -168,26 +184,56 @@ function setupCanvas() {
         canvas.height = rect.height;
     };
     window.addEventListener("resize", resize);
+    window.triggerWhiteboardResize = resize;
     resize();
 
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
     canvas.addEventListener('mousedown', (e) => {
+        if (!window.isMentor) return;
+        console.log("[WHITEBOARD] Mousedown at", getCoords(e));
         isDrawing = true;
         [lastX, lastY] = getCoords(e);
     });
 
+    canvas.addEventListener('touchstart', (e) => {
+        if (!window.isMentor) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        isDrawing = true;
+        [lastX, lastY] = getCoords(touch);
+    }, { passive: false });
+
     canvas.addEventListener('mousemove', (e) => {
-        if (!isDrawing) return;
-        const [x, y] = getCoords(e);
+        if (!isDrawing || !window.isMentor) return;
+        const [currX, currY] = getCoords(e);
         const drawData = {
             x0: lastX, y0: lastY,
-            x1: x, y1: y,
+            x1: currX, y1: currY,
             color: currentTool === 'eraser' ? '#ffffff' : document.getElementById("whiteboardColor").value,
             width: currentTool === 'eraser' ? 20 : 2
         };
         drawOnCanvas(drawData);
         socket.emit("live:whiteboard", { sessionId, draw: drawData });
-        [lastX, lastY] = [x, y];
+        [lastX, lastY] = [currX, currY];
     });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (!isDrawing || !window.isMentor) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const [currX, currY] = getCoords(touch);
+        const drawData = {
+            x0: lastX, y0: lastY,
+            x1: currX, y1: currY,
+            color: currentTool === 'eraser' ? '#ffffff' : document.getElementById("whiteboardColor").value,
+            width: currentTool === 'eraser' ? 20 : 2
+        };
+        drawOnCanvas(drawData);
+        socket.emit("live:whiteboard", { sessionId, draw: drawData });
+        [lastX, lastY] = [currX, currY];
+    }, { passive: false });
 
     canvas.addEventListener('mouseup', () => isDrawing = false);
     canvas.addEventListener('mouseout', () => isDrawing = false);
@@ -200,20 +246,29 @@ function getCoords(e) {
 }
 
 function drawOnCanvas(draw) {
+    if (!ctx) {
+        console.error("[WHITEBOARD] Drawing failed: No canvas context found.");
+        return;
+    }
+    console.log("[WHITEBOARD] Drawing stroke:", draw);
     // Auto-show whiteboard for mentees when mentor draws
     const container = document.getElementById("whiteboardContainer");
-    if (container.style.display === "none") {
+    if (container && container.style.display === "none") {
         container.style.display = "block";
         document.getElementById("toggleWhiteboard")?.classList.add("active");
+        if (typeof window.triggerWhiteboardResize === 'function') {
+            window.triggerWhiteboardResize();
+        }
     }
 
     const { x0, y0, x1, y1, color, width } = draw;
     ctx.beginPath();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.moveTo(x0, y0);
     ctx.lineTo(x1, y1);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.lineCap = 'round';
+    ctx.strokeStyle = color || '#000000';
+    ctx.lineWidth = width || 2;
     ctx.stroke();
     ctx.closePath();
 }
@@ -239,6 +294,10 @@ function setupEventListeners() {
         const isVisible = container.style.display !== "none";
         container.style.display = isVisible ? "none" : "block";
         document.getElementById("toggleWhiteboard").classList.toggle("active", !isVisible);
+
+        if (!isVisible && typeof window.triggerWhiteboardResize === 'function') {
+            window.triggerWhiteboardResize();
+        }
     });
 
     document.getElementById("clearBoard").addEventListener("click", () => {
@@ -250,8 +309,24 @@ function setupEventListeners() {
     });
 
     document.getElementById("endSessionBtn").addEventListener("click", () => {
-        if (confirm("End session and settle credits?")) {
+        console.log("[LIVE] End Session clicked. SessionID:", sessionId);
+        if (!sessionId) {
+            console.error("[LIVE] Cannot end session: sessionId is missing from URL");
+            if (typeof showToast === 'function') showToast("Error: Session ID missing", "error");
+            return;
+        }
+
+        // Use a custom modal or standard confirm
+        if (confirm("Are you sure you want to end this session? This will deduct credits and close the room.")) {
+            console.log("[LIVE] Emitting live:endSession for", sessionId);
             socket.emit("live:endSession", { sessionId });
+
+            // Fallback UI update if socket doesn't respond immediately
+            setTimeout(() => {
+                if (document.getElementById("sessionStatus").textContent !== 'completed') {
+                    // alert("Session end signal sent...");
+                }
+            }, 3000);
         }
     });
 
@@ -306,7 +381,8 @@ function appendChatMessage({ user, message, timestamp }) {
     const isSelf = user.id === getMyId();
     const div = document.createElement("div");
     div.className = `message ${isSelf ? 'self' : 'other'}`;
-    div.innerHTML = `<strong>${isSelf ? 'You' : user.name}</strong><br>${message}`;
+    const safeContent = linkify(escapeHtml(message));
+    div.innerHTML = `<strong>${isSelf ? 'You' : user.name}</strong><br>${safeContent}`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
 }

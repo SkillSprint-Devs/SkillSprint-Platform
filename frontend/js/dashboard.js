@@ -3,6 +3,56 @@ const API_BASE = (window.location.hostname === 'localhost' || window.location.ho
   ? 'http://localhost:5000/api'
   : '/api';
 
+// --- Card Removal Handlers (Define early) ---
+window.removeTask = async (id) => {
+  if (!id || id === 'undefined') {
+    console.error("[DASHBOARD] Cannot remove task: ID is undefined");
+    return;
+  }
+  if (!confirm("Are you sure you want to remove this task?")) return;
+  const token = localStorage.getItem("token");
+  try {
+    console.log("[DASHBOARD] Removing task:", id);
+    const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Task removed", "success");
+      loadDashboard();
+    } else {
+      const err = await res.json();
+      console.error("[DASHBOARD] Task removal failed:", err.message);
+      if (typeof showToast === 'function') showToast(err.message || "Failed to remove task", "error");
+    }
+  } catch (err) { console.error("[DASHBOARD] Task removal error:", err); }
+};
+
+window.removeSession = async (id) => {
+  if (!id || id === 'undefined') {
+    console.error("[DASHBOARD] Cannot remove session: ID is undefined");
+    return;
+  }
+  if (!confirm("Remove this session from your dashboard?")) return;
+  const token = localStorage.getItem("token");
+  try {
+    console.log("[DASHBOARD] Removing session:", id);
+    const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Session removed", "info");
+      loadSchedule();
+    } else {
+      const err = await res.json();
+      console.warn("[DASHBOARD] Session removal API returned error, hiding locally:", err.message);
+      const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
+      if (card) card.remove();
+    }
+  } catch (err) { console.error("[DASHBOARD] Session removal error:", err); }
+};
+
 // SIDEBAR TOGGLE
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleSidebar");
@@ -143,14 +193,22 @@ function renderTasks(tasks) {
 
   taskList.innerHTML = "";
 
-  if (!tasks || tasks.length === 0) {
+  // User Feature: Auto-remove 100% completed tasks from dashboard view
+  const activeTasks = tasks.filter(t => {
+    const totalSub = t.subTasks ? t.subTasks.length : 0;
+    const doneSub = t.subTasks ? t.subTasks.filter(s => s.completed).length : 0;
+    const pct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
+    return pct < 100;
+  });
+
+  if (activeTasks.length === 0) {
     taskList.innerHTML = `<div class="empty-state" style="padding:10px; color:#999;">No active tasks.</div>`;
     return;
   }
 
   const template = document.getElementById("taskCardTemplate");
 
-  tasks.forEach(t => {
+  activeTasks.forEach(t => {
     // Calc subtask progress
     const totalSub = t.subTasks ? t.subTasks.length : 0;
     const doneSub = t.subTasks ? t.subTasks.filter(s => s.completed).length : 0;
@@ -160,7 +218,11 @@ function renderTasks(tasks) {
     div.className = 'task-card';
     div.onclick = () => location.href = "task.html";
 
+    const itemID = t._id || t.id;
     div.innerHTML = `
+      <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeTask('${itemID}')" title="Remove from Dashboard">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
       <div class="task-left">
         <div class="task-card-header">
           <div class="color-dot" style="background: ${t.priority === 'high' ? '#ef5350' : t.priority === 'medium' ? '#ffb300' : '#4caf50'}"></div>
@@ -479,6 +541,9 @@ function renderSessions(sessions) {
     return;
   }
 
+  // Sort by latest/newest first as requested by user
+  sessions.sort((a, b) => new Date(b.scheduledDateTime) - new Date(a.scheduledDateTime));
+
   sessions.forEach(s => {
     const date = new Date(s.scheduledDateTime);
     const day = date.getDate();
@@ -488,7 +553,11 @@ function renderSessions(sessions) {
     div.className = 'session-card';
     if (s.status === 'live') div.classList.add('live-now');
 
+    const itemID = s._id || s.id;
     div.innerHTML = `
+            <button class="remove-card-btn" onclick="event.stopPropagation(); window.removeSession('${itemID}')" title="Remove from Dashboard">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
             <div class="session-left">
                 <div class="session-time-badge">
                     <span class="session-day">${day}</span>
