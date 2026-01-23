@@ -332,8 +332,11 @@ function setupEventListeners() {
 
                 if (res.ok) {
                     console.log("[LIVE] Session ended via API");
+                    alert("Session ended successfully. Redirecting...");
+                    window.location.href = "dashboard.html";
                 } else {
                     const err = await res.json();
+                    alert("Failed to end session: " + (err.message || "Unknown error"));
                     if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
                 }
             } catch (err) {

@@ -49,16 +49,18 @@
 
       #floatingCreateMenu {
         position: fixed;
-        bottom: 80px;
-        right: 20px;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
         display: none;
         flex-direction: column;
         gap: 10px;
         background: #222;
-        border-radius: 8px;
-        padding: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         z-index: 10001;
+        width: max-content;
       }
       #floatingCreateMenu button {
         background: #DCEF62;
@@ -247,9 +249,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          const joinUrl = `${window.location.origin}/pair-programming.html?join=${data.data.shareLinks[data.data.shareLinks.length - 1].token}`;
-          prompt("Copy this invite link:", joinUrl);
-          pairModal.style.display = "none";
+          window.location.href = `pair-programming.html?id=${data.data._id}`;
         }
       } catch (err) { console.error(err); }
       finally { submitPairBtn.disabled = false; submitPairBtn.textContent = "Create Project"; }
