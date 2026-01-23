@@ -133,6 +133,16 @@ const liveSessionSocket = (io) => {
                 session.status = "live";
                 await session.save();
                 io.to(sessionId).emit("live:statusChanged", "live");
+
+                // Notify all participants to update dashboard
+                const participants = [...session.acceptedUserIds, session.mentorId];
+                participants.forEach(pid => {
+                    io.to(pid.toString()).emit("notification", {
+                        type: "session_update",
+                        message: `Session "${session.sessionName}" is now LIVE`
+                    });
+                });
+
             } catch (e) {
                 console.error(e);
             }
@@ -165,6 +175,16 @@ const liveSessionSocket = (io) => {
                 await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
 
                 io.to(sessionId).emit("live:statusChanged", "completed");
+
+                // Notify all participants to update dashboard
+                const allParticipants = [...session.acceptedUserIds, session.mentorId];
+                allParticipants.forEach(pid => {
+                    io.to(pid.toString()).emit("notification", {
+                        type: "session_update",
+                        message: `Session "${session.sessionName}" has ended`
+                    });
+                });
+
                 sessionRooms.delete(sessionId);
                 console.log(`[SOCKET] Session ${sessionId} ended successfully.`);
             } catch (e) {

@@ -19,151 +19,99 @@
 </head>
 
 <body>
-
-    <div class="dashboard-container">
-        <!-- APP SIDEBAR -->
-        <aside class="sidebar" id="sidebar">
-            <div>
-                <div class="sidebar-header">
-                    <div class="logo">SkillSprint</div>
-                    <button class="toggle-sidebar-btn" id="toggleSidebar">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </button>
+    <div class="chat-container">
+        <!-- SIDEBAR -->
+        <aside class="chat-sidebar" id="chatSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="icon-btn" title="Back to Dashboard" style="margin-bottom:10px;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <!-- My Profile -->
+                <div class="my-profile">
+                    <img id="myAvatar" src="" alt="Me">
+                    <h6 id="myName">Loading...</h6>
                 </div>
 
-                <nav class="menu">
-                    <a href="dashboard.html">
-                        <i class="fa-solid fa-table-columns"></i>
-                        <span class="label">Dashboard</span>
-                    </a>
-                    <a href="task.html">
-                        <i class="fa-solid fa-list-check"></i>
-                        <span class="label">Tasks</span>
-                    </a>
-                    <a href="posting.html">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span class="label">Feed</span>
-                    </a>
-                    <a href="quiz.html">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        <span class="label">Quiz</span>
-                    </a>
-                    <a href="library.html">
-                        <i class="fa-solid fa-book"></i>
-                        <span class="label">Library</span>
-                    </a>
-                    <a href="achievements.html">
-                        <i class="fa-solid fa-trophy"></i>
-                        <span class="label">Achievements</span>
-                    </a>
-                    <a href="history.html">
-                        <i class="fa-solid fa-history"></i>
-                        <span class="label">History</span>
-                    </a>
-                </nav>
+                <!-- Search -->
+                <div class="search-wrapper">
+                    <input type="text" id="userSearchInput" class="search-input" placeholder="Search users...">
+                    <div id="searchResults" class="search-results-area"></div>
+                </div>
             </div>
 
-            <div class="ai-guide" id="aiGuide">
-                <p>Your AI Guide</p>
-                <button type="button">Open Chat</button>
+            <!-- Conversation List -->
+            <div id="conversationsList">
+                <div class="no-chat-placeholder" style="height:auto; margin-top:20px; font-size: 0.8rem;">
+                    Loading chats...
+                </div>
             </div>
         </aside>
 
-        <div class="chat-container">
-            <!-- SIDEBAR -->
-            <aside class="chat-sidebar" id="chatSidebar">
-                <div class="sidebar-header">
-                    <a href="dashboard.html" class="icon-btn" title="Back to Dashboard" style="margin-bottom:10px;">
+        <!-- MAIN CHAT AREA -->
+        <main class="chat-main" id="chatArea">
+
+            <!-- Placeholder State -->
+            <div id="noChatSelected" class="no-chat-placeholder">
+                <div class="no-chat-icon"><i class="fa-regular fa-comments"></i></div>
+                <h4>Your Messages</h4>
+                <p>Select a chat to start messaging</p>
+            </div>
+
+            <!-- Active Chat View -->
+            <div id="activeChatView" style="display: none; height: 100%; flex-direction: column;">
+
+                <!-- Header -->
+                <header class="chat-header">
+                    <button class="icon-btn mobile-back-btn" id="mobileBackBtn"
+                        style="margin-right: 10px; display: none;">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
-                    <!-- My Profile -->
-                    <div class="my-profile">
-                        <img id="myAvatar" src="" alt="Me">
-                        <h6 id="myName">Loading...</h6>
-                    </div>
-
-                    <!-- Search -->
-                    <div class="search-wrapper">
-                        <input type="text" id="userSearchInput" class="search-input" placeholder="Search users...">
-                        <div id="searchResults" class="search-results-area"></div>
-                    </div>
-                </div>
-
-                <!-- Conversation List -->
-                <div id="conversationsList">
-                    <div class="no-chat-placeholder" style="height:auto; margin-top:20px; font-size: 0.8rem;">
-                        Loading chats...
-                    </div>
-                </div>
-            </aside>
-
-            <!-- MAIN CHAT AREA -->
-            <main class="chat-main" id="chatArea">
-
-                <!-- Placeholder State -->
-                <div id="noChatSelected" class="no-chat-placeholder">
-                    <div class="no-chat-icon"><i class="fa-regular fa-comments"></i></div>
-                    <h4>Your Messages</h4>
-                    <p>Select a chat to start messaging</p>
-                </div>
-
-                <!-- Active Chat View -->
-                <div id="activeChatView" style="display: none; height: 100%; flex-direction: column;">
-
-                    <!-- Header -->
-                    <header class="chat-header">
-                        <button class="icon-btn mobile-back-btn" id="mobileBackBtn"
-                            style="margin-right: 10px; display: none;">
-                            <i class="fa-solid fa-arrow-left"></i>
-                        </button>
-                        <div class="header-user">
-                            <img id="chatHeaderAvatar" src="" alt="User">
-                            <div>
-                                <h6 id="chatHeaderName">User</h6>
-                                <div id="userStatus" class="user-status"></div>
-                                <span id="typingIndicator" class="typing-indicator"></span>
-                            </div>
+                    </button>
+                    <div class="header-user">
+                        <img id="chatHeaderAvatar" src="" alt="User">
+                        <div>
+                            <h6 id="chatHeaderName">User</h6>
+                            <div id="userStatus" class="user-status"></div>
+                            <span id="typingIndicator" class="typing-indicator"></span>
                         </div>
-                    </header>
-
-                    <!-- History -->
-                    <div class="chat-history" id="chatHistory"></div>
-
-                    <!-- Input Area -->
-                    <div class="chat-input-area">
-                        <form id="messageForm" class="chat-input-wrapper">
-                            <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
-                            <button type="submit" class="btn-send" title="Send">
-                                <i class="fa-solid fa-paper-plane"></i>
-                            </button>
-                        </form>
                     </div>
-                </div>
+                </header>
 
-            </main>
-        </div>
+                <!-- History -->
+                <div class="chat-history" id="chatHistory"></div>
 
-        <!-- CUSTOM EDIT MODAL -->
-        <div id="editModal" class="edit-modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5>Edit Message</h5>
-                    <button class="close-modal" id="closeModalBtn">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <textarea id="editMessageContent"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-modal btn-cancel" id="cancelEditBtn">Cancel</button>
-                    <button class="btn-modal btn-save" onclick="submitEdit()">Save</button>
+                <!-- Input Area -->
+                <div class="chat-input-area">
+                    <form id="messageForm" class="chat-input-wrapper">
+                        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
+                        <button type="submit" class="btn-send" title="Send">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
-        </div>
 
+        </main>
     </div>
+
+    <!-- CUSTOM EDIT MODAL -->
+    <div id="editModal" class="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Edit Message</h5>
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="editMessageContent"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-cancel" id="cancelEditBtn">Cancel</button>
+                <button class="btn-modal btn-save" onclick="submitEdit()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/toast.js"></script>
     <script src="js/chat.js"></script>
-    <script src="js/dashboard.js"></script>
 </body>
 
 </html>

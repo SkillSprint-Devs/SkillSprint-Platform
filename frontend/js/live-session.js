@@ -315,9 +315,18 @@ function setupEventListeners() {
             if (typeof showToast === 'function') showToast("Error: Session ID missing", "error");
             return;
         }
-        if (confirm("End session and settle credits?")) {
+
+        // Use a custom modal or standard confirm
+        if (confirm("Are you sure you want to end this session? This will deduct credits and close the room.")) {
             console.log("[LIVE] Emitting live:endSession for", sessionId);
             socket.emit("live:endSession", { sessionId });
+
+            // Fallback UI update if socket doesn't respond immediately
+            setTimeout(() => {
+                if (document.getElementById("sessionStatus").textContent !== 'completed') {
+                    // alert("Session end signal sent...");
+                }
+            }, 3000);
         }
     });
 
