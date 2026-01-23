@@ -22,16 +22,21 @@ router.post("/log", verifyToken, async (req, res) => {
         const errorLog = await ErrorLog.create({
             errorMessage: maskedMessage,
             errorType: 'Frontend',
-            severity: 'Medium', // Frontend errors default to Medium
+            severity: severity || 'Medium',
+            status: 'NEW',
             userId,
             userEmail,
             screenName,
             fileName,
             lineNumber,
-            columnNumber,
+            columnNumber: columnNumber || 0,
             stackTrace: maskedStack,
-            userAgent: req.headers['user-agent'],
-            environment: process.env.NODE_ENV || 'Development'
+            userAgent: userAgent || req.headers['user-agent'],
+            environment: environment || process.env.NODE_ENV || 'Development',
+            requestUrl,
+            requestMethod: requestMethod || 'GET',
+            ipAddress: req.ip || req.headers['x-forwarded-for'],
+            sessionId: req.body.sessionId || null
         });
 
         // Emit real-time notification
@@ -71,11 +76,14 @@ router.get("/", verifyToken, async (req, res) => {
             limit = 20,
             errorType,
             severity,
+            status,
             resolved,
             userId,
             startDate,
             endDate,
-            search
+            search,
+            sortBy = 'timestamp',
+            sortOrder = 'desc'
         } = req.query;
 
         // Build query
@@ -83,7 +91,10 @@ router.get("/", verifyToken, async (req, res) => {
 
         if (errorType) query.errorType = errorType;
         if (severity) query.severity = severity;
-        if (resolved !== undefined) query.resolved = resolved === 'true';
+        if (status) query.status = status;
+        if (resolved !== undefined) {
+            query.status = resolved === 'true' ? 'RESOLVED' : 'NEW';
+        }
         if (userId) query.userId = userId;
 
         if (startDate || endDate) {
@@ -102,14 +113,18 @@ router.get("/", verifyToken, async (req, res) => {
 
         const skip = (page - 1) * limit;
 
+        // Build sort object
+        const sort = {};
+        sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
         const [errors, total] = await Promise.all([
             ErrorLog.find(query)
                 .populate('userId', 'name email')
                 .populate('resolvedBy', 'name')
-                .sort({ timestamp: -1 })
+                .sort(sort)
                 .skip(skip)
                 .limit(parseInt(limit))
-                .select('-stackTrace'), // Don't send full stack by default
+                .select('-stackTrace'),
             ErrorLog.countDocuments(query)
         ]);
 
@@ -125,6 +140,92 @@ router.get("/", verifyToken, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Failed to fetch errors" });
+    }
+});
+
+import { groupErrors } from "../utils/errorGrouping.js";
+
+// ... existing code ...
+
+/**
+ * GET /api/errors/grouped
+ * Get errors grouped by message/source
+ * Admin only
+ */
+router.get("/grouped", verifyToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+            return res.status(403).json({ message: "Admin access required" });
+        }
+
+        const query = {};
+        // Add optional filtering for grouping
+        if (req.query.severity) query.severity = req.query.severity;
+        if (req.query.errorType) query.errorType = req.query.errorType;
+        if (req.query.status) query.status = req.query.status;
+
+        // Fetch last 1000 errors for grouping
+        const errors = await ErrorLog.find(query)
+            .sort({ timestamp: -1 })
+            .limit(1000);
+
+        const grouped = groupErrors(errors);
+        res.json(grouped);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to group errors" });
+    }
+});
+
+/**
+ * GET /api/errors/stats
+ * Get error statistics for analytics dashboard
+ * Admin only
+ */
+router.get("/stats", verifyToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: "Admin access required" });
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const [
+            totalToday,
+            criticalCount,
+            highCount,
+            mediumCount,
+            lowCount,
+            resolvedToday,
+            totalUnresolved
+        ] = await Promise.all([
+            ErrorLog.countDocuments({ timestamp: { $gte: today } }),
+            ErrorLog.countDocuments({ severity: 'Critical', status: { $ne: 'RESOLVED' } }),
+            ErrorLog.countDocuments({ severity: 'High', status: { $ne: 'RESOLVED' } }),
+            ErrorLog.countDocuments({ severity: 'Medium', status: { $ne: 'RESOLVED' } }),
+            ErrorLog.countDocuments({ severity: 'Low', status: { $ne: 'RESOLVED' } }),
+            ErrorLog.countDocuments({ status: 'RESOLVED', resolvedAt: { $gte: today } }),
+            ErrorLog.countDocuments({ status: { $ne: 'RESOLVED' } })
+        ]);
+
+        const resolutionRate = (resolvedToday + totalUnresolved) > 0
+            ? Math.round((resolvedToday / (resolvedToday + totalUnresolved)) * 100)
+            : 100;
+
+        res.json({
+            totalToday,
+            criticalCount,
+            highCount,
+            mediumCount,
+            lowCount,
+            resolvedToday,
+            totalUnresolved,
+            resolutionRate
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to fetch error stats" });
     }
 });
 
@@ -184,6 +285,46 @@ router.patch("/:id/resolve", verifyToken, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Failed to resolve error" });
+    }
+});
+
+/**
+ * POST /api/errors/bulk-action
+ * Perform actions on multiple error logs
+ * Admin only
+ */
+router.post("/bulk-action", verifyToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: "Admin access required" });
+        }
+
+        const { action, errorIds } = req.body;
+
+        if (!errorIds || !Array.isArray(errorIds) || errorIds.length === 0) {
+            return res.status(400).json({ message: "No error IDs provided" });
+        }
+
+        if (action === 'resolve') {
+            await ErrorLog.updateMany(
+                { _id: { $in: errorIds } },
+                {
+                    status: 'RESOLVED',
+                    resolved: true,
+                    resolvedBy: req.user.id,
+                    resolvedAt: new Date()
+                }
+            );
+            return res.json({ message: `${errorIds.length} errors marked as resolved` });
+        } else if (action === 'delete') {
+            await ErrorLog.deleteMany({ _id: { $in: errorIds } });
+            return res.json({ message: `${errorIds.length} error logs deleted` });
+        } else {
+            return res.status(400).json({ message: "Invalid action" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Bulk action failed" });
     }
 });
 

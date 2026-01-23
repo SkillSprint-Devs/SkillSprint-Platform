@@ -272,20 +272,19 @@ function appendMessage(msg) {
 
     const bubble = document.createElement('div');
     bubble.className = `message-bubble ${isMe ? 'message-sent' : 'message-received'}`;
-    
+
     if (msg._id) bubble.id = `msg-${msg._id}`;
 
     let actionsHtml = '';
     if (isMe && msg._id) {
         actionsHtml = `
             <div class="msg-actions">
-                <span class="action-btn edit-btn" title="Edit" onclick="window.handleEdit('${msg._id}', this)">
+                <span class="action-btn edit-btn" title="Edit" onclick="window.handleEdit('${msg._id}')">
                     <i class="fa-solid fa-pen"></i>
                 </span>
-               <span class="action-btn text-danger delete-btn" title="Delete" 
-      onclick="window.handleDelete(event, '${msg._id}')">
-    <i class="fa-solid fa-trash"></i>
-</span>
+                <span class="action-btn text-danger delete-btn" title="Delete" onclick="window.handleDelete('${msg._id}')">
+                    <i class="fa-solid fa-trash"></i>
+                </span>
             </div>
         `;
     }
@@ -319,18 +318,39 @@ document.addEventListener('click', (e) => {
 // Explicit Global Handlers
 window.handleDelete = function (id) {
     if (!id || id === 'undefined') {
-        alert("Error: Missing Message ID");
+        console.error("[CHAT] Cannot delete: Missing Message ID");
         return;
     }
+    if (!confirm("Delete this message?")) return;
     deleteMessage(id);
 };
 
-window.handleEdit = function (id, btnElement) {
+window.handleEdit = function (id) {
     const bubble = document.getElementById(`msg-${id}`);
     const content = bubble ? bubble.querySelector('.msg-content').textContent : "";
     openEditModal(id, content);
-    if (btnElement) btnElement.closest('.msg-actions').classList.remove('show');
 };
+
+async function deleteMessage(id) {
+    try {
+        const res = await fetch(`${API_URL}/chat/delete/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const bubble = document.getElementById(`msg-${id}`);
+            if (bubble) bubble.remove();
+            socket.emit('delete_message', { messageId: id, recipientId: currentChatUserId });
+            loadConversations();
+        } else {
+            const err = await res.json();
+            console.error("[CHAT] Delete failed:", err.message);
+            alert("Failed to delete message: " + (err.message || "Unknown error"));
+        }
+    } catch (err) {
+        console.error("[CHAT] Delete error:", err);
+    }
+}
 
 function scrollToBottom() {
     const historyContainer = document.getElementById('chatHistory');

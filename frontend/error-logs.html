@@ -12,245 +12,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="assets/css/variables.css" />
     <link rel="stylesheet" href="assets/css/admin.css" />
-    <style>
-        .error-logs-container {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .filters-bar {
-            background: #fff;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .filter-group label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #666;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            padding: 0.6rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .search-bar {
-            grid-column: span 2;
-        }
-
-        .search-bar input {
-            width: 100%;
-        }
-
-        .error-table {
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .error-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .error-table th {
-            background: var(--sidebar-bg);
-            color: #fff;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .error-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .error-table tr:hover {
-            background: #f9f9f9;
-        }
-
-        .severity-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .severity-low {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .severity-medium {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .severity-high {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .severity-critical {
-            background: #1A1A1A;
-            color: var(--accent);
-        }
-
-        .type-badge {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-
-        .error-message {
-            max-width: 400px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .view-btn {
-            background: var(--accent);
-            color: #1A1A1A;
-        }
-
-        .resolve-btn {
-            background: #66bb6a;
-            color: #fff;
-        }
-
-        .delete-btn {
-            background: #ef5350;
-            color: #fff;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .pagination button {
-            padding: 0.5rem 1rem;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #fff;
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 800px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .detail-row {
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .detail-row label {
-            font-weight: 600;
-            color: #666;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .stack-trace {
-            background: #1A1A1A;
-            color: var(--accent);
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            overflow-x: auto;
-            white-space: pre-wrap;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/error-logs.css" />
 </head>
 
 <!-- Sidebar -->
@@ -305,6 +67,112 @@
         <div class="error-logs-container">
             <h1><i class="fa-solid fa-bug"></i> Error Logs & Bug Monitor</h1>
 
+            <!-- Analytics Dashboard -->
+            <div class="error-stats-panel"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="stat-card-small">
+                    <div class="stat-icon" style="background: #e3f2fd; color: #1976d2;">
+                        <i class="fa-solid fa-bug"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; font-weight: 600;">Total
+                            Today</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #333;" id="statsToday">--</div>
+                    </div>
+                </div>
+
+                <div class="stat-card-small">
+                    <div class="stat-icon" style="background: #1A1A1A; color: var(--accent);">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; font-weight: 600;">
+                            Critical</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #333;" id="statsCritical">--</div>
+                    </div>
+                </div>
+
+                <div class="stat-card-small">
+                    <div class="stat-icon" style="background: #ffebee; color: #c62828;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; font-weight: 600;">High
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #333;" id="statsHigh">--</div>
+                    </div>
+                </div>
+
+                <div class="stat-card-small">
+                    <div class="stat-icon" style="background: #e8f5e9; color: #2e7d32;">
+                        <i class="fa-solid fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; font-weight: 600;">
+                            Resolved Today</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #2e7d32;" id="statsResolved">--</div>
+                    </div>
+                </div>
+
+                <div class="stat-card-small">
+                    <div class="stat-icon" style="background: #f3e5f5; color: #7b1fa2;">
+                        <i class="fa-solid fa-percent"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; font-weight: 600;">
+                            Resolution Rate</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #7b1fa2;" id="statsRate">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                <div class="view-toggle" style="display: flex; background: #eee; padding: 4px; border-radius: 8px;">
+                    <button class="view-btn-toggle active" data-view="list"
+                        style="padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">List
+                        View</button>
+                    <button class="view-btn-toggle" data-view="grouped"
+                        style="padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; background: transparent; color: #666;">Grouped
+                        View</button>
+                </div>
+            </div>
+
+            <!-- Quick Date Filters -->
+            <div
+                style="background: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #666;">Quick Filters:</span>
+                        <button class="quick-filter-btn active" data-range="all"
+                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: var(--accent); color: #1A1A1A; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">All
+                            Time</button>
+                        <button class="quick-filter-btn" data-range="today"
+                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">Today</button>
+                        <button class="quick-filter-btn" data-range="7days"
+                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">Last
+                            7 Days</button>
+                        <button class="quick-filter-btn" data-range="30days"
+                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">Last
+                            30 Days</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="activeDateRange" style="font-size: 0.8rem; color: #666;">Showing: All time</span>
+                        <button id="clearFilters"
+                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #fff; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
+                            <i class="fa-solid fa-filter-circle-xmark"></i> Clear Filters
+                            <span id="filterCount"
+                                style="background: var(--accent); color: #1A1A1A; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.7rem; display: none;">0</span>
+                        </button>
+                        <button id="exportCsvBtn"
+                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #fff; color: #2e7d32; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
+                            <i class="fa-solid fa-file-csv"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Filters -->
             <div class="filters-bar">
                 <div class="filter-group">
@@ -352,6 +220,28 @@
                     <label>Search</label>
                     <input type="text" id="searchInput" placeholder="Search error message, file name, or screen...">
                 </div>
+
+                <div class="filter-group" style="justify-content: flex-end;">
+                    <button id="applyFiltersBtn" class="action-btn view-btn"
+                        style="width: 100%; height: 40px; justify-content: center;">
+                        <i class="fa-solid fa-filter"></i> Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bulk Actions Bar -->
+            <div id="bulkActionsBar"
+                style="display: none; background: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span id="selectedCount" style="font-size: 0.9rem; font-weight: 600; color: #333;">0 items
+                        selected</span>
+                    <button id="bulkResolveBtn" class="action-btn resolve-btn"><i class="fa-solid fa-check-double"></i>
+                        Resolve Selected</button>
+                    <button id="bulkDeleteBtn" class="action-btn delete-btn"><i class="fa-solid fa-trash-can"></i>
+                        Delete Selected</button>
+                </div>
+                <button id="cancelSelectionBtn"
+                    style="background: none; border: none; color: #666; cursor: pointer; font-size: 0.85rem;">Cancel</button>
             </div>
 
             <!-- Error Table -->
@@ -359,12 +249,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Severity</th>
-                            <th>Type</th>
+                            <th style="width: 40px;"><input type="checkbox" id="selectAllErrors"></th>
+                            <th class="sortable" data-sort="severity">Severity <i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable" data-sort="status">Status <i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable" data-sort="errorType">Type <i class="fa-solid fa-sort"></i></th>
                             <th>Error Message</th>
-                            <th>User</th>
-                            <th>Screen</th>
-                            <th>Timestamp</th>
+                            <th>User Context</th>
+                            <th>Screen/URL</th>
+                            <th class="sortable" data-sort="timestamp">Timestamp <i class="fa-solid fa-sort"></i></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -376,9 +268,24 @@
 
             <!-- Pagination -->
             <div class="pagination">
-                <button id="prevPage" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
-                <span id="pageInfo">Page 1 of 1</span>
-                <button id="nextPage" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                <div class="pagination-info-detailed">
+                    <span id="paginationDetails">Showing 0-0 of 0 errors</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label style="font-size: 0.85rem; color: #666;">Page Size:</label>
+                        <select id="pageSizeSelect"
+                            style="padding: 0.4rem; border-radius: 6px; border: 1px solid #ddd;">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <button id="prevPage" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                    <span id="pageInfo">Page 1 of 1</span>
+                    <button id="nextPage" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
             </div>
         </div>
     </div>
@@ -401,6 +308,8 @@
 
 <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 <script src="js/toast.js"></script>
+<script src="js/error-quick-filters.js"></script>
+<script src="js/error-tracking.js"></script>
 <script src="js/error-logs.js"></script>
 </body>
 

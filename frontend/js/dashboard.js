@@ -46,11 +46,19 @@ window.removeSession = async (id) => {
       loadSchedule();
     } else {
       const err = await res.json();
-      console.warn("[DASHBOARD] Session removal API returned error, hiding locally:", err.message);
-      const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
-      if (card) card.remove();
+      console.error("[DASHBOARD] Session removal failed:", err.message);
+      if (typeof showToast === 'function') showToast(err.message || "Failed to remove session", "error");
+
+      // Fallback: hid card if 404 (already deleted)
+      if (res.status === 404) {
+        const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
+        if (card) card.remove();
+      }
     }
-  } catch (err) { console.error("[DASHBOARD] Session removal error:", err); }
+  } catch (err) {
+    console.error("[DASHBOARD] Session removal error:", err);
+    if (typeof showToast === 'function') showToast("Connection Error", "error");
+  }
 };
 
 // SIDEBAR TOGGLE
