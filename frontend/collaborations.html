@@ -387,7 +387,7 @@
           container.appendChild(
             createCard(board, () => {
               window.location.href = `board.html?id=${board._id}`;
-            }, isOwner)
+            }, isOwner, 'board')
           );
         });
 
@@ -424,7 +424,7 @@
           container.appendChild(
             createCard(project, () => {
               window.location.href = `pair-programming.html?id=${project._id}`;
-            }, isOwner)
+            }, isOwner, 'pair')
           );
         });
 
@@ -435,7 +435,7 @@
     }
 
     /* ====================== CARD UI ====================== */
-    function createCard(item, onClick, isOwner) {
+    function createCard(item, onClick, isOwner, type) {
       const div = document.createElement("div");
       div.className = "collab-card";
 
@@ -481,28 +481,14 @@
           delBtn.onclick = (e) => {
             e.stopPropagation();
             if (confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`)) {
-              if (item.strokes || item.shapes !== undefined) {
-                // It's a board (heuristic: boards have strokes/shapes or we can pass a type arg) 
-                // Better to check which list it came from, but here we are inside createCard.
-                // Let's rely on a type argument passed to createCard or infer from properties.
-                // Pair projects have 'files' usually? Boards have 'strokes'.
-                if (item.strokes !== undefined || item.shapes !== undefined || item.thumbnail !== undefined) {
-                  deleteItem(item._id, 'board');
-                } else {
-                  deleteItem(item._id, 'pair');
-                }
-              } else {
-                // Fallback or explicit type passing is better. 
-                // But we can check if it has file structure or Board properties.
-                // Let's pass 'type' to createCard.
-                // But wait, createCard is called from loadWhiteboards and loadPairProgramming.
-              }
+              deleteItem(item._id, type);
             }
           };
         }
       }
       return div;
     }
+
 
     async function deleteItem(id, type) {
       const endpoint = type === 'board' ? 'board' : 'pair-programming';
