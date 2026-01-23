@@ -2,120 +2,55 @@ import express from "express";
 import Chat from "../models/chat.js";
 import Notification from "../models/notification.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
-
-const router = express.Router();
 import User from "../models/user.js";
 import mongoose from "mongoose";
 import { updateStreak } from "../utils/streakHelper.js";
 
-// Search users to start a chat with
+const router = express.Router();
+
+// Search Users
 router.get("/users/search", verifyToken, async (req, res) => {
     try {
         const { query } = req.query;
         const myId = req.user.id;
-
         if (!query) return res.json([]);
 
-        // Find users matching name/email, excluding self
         const users = await User.find({
-            $and: [
-                { _id: { $ne: myId } },
-                {
-                    $or: [
-                        { name: { $regex: query, $options: "i" } },
-                        { email: { $regex: query, $options: "i" } },
-                    ]
-                }
+            _id: { $ne: myId },
+            $or: [
+                { name: { $regex: query, $options: "i" } },
+                { email: { $regex: query, $options: "i" } }
             ]
-        }).select("name email profile_image role").limit(10);
+        })
+        .select("name email profile_image role")
+        .limit(10);
 
         res.json(users);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error searching users", error: err.message });
+    } catch {
+        res.status(500).json({ message: "Search error" });
     }
 });
 
-// Send a message
-router.post("/send", verifyToken, async (req, res) => {
-    try {
-        const { recipientId, content } = req.body;
-        const senderId = req.user.id;
-
-        if (!recipientId || !content) {
-            return res.status(400).json({ message: "Recipient and content are required." });
-        }
-        const newMessage = new Chat({
-            sender: senderId,
-            recipient: recipientId,
-            content,
-        });
-
-        await newMessage.save();
-
-        // Create notification for recipient
-        try {
-            const sender = await User.findById(senderId).select("name");
-            const notification = new Notification({
-                user_id: recipientId,
-                title: "New Message",
-                message: `${sender?.name || 'Someone'} sent you a message`,
-                type: "chat",
-                link: `/chat/${senderId}`,
-            });
-            await notification.save();
-
-            // Emit real-time notification via Socket.IO
-            const io = req.app.get("io");
-            if (io) {
-                io.to(recipientId.toString()).emit("notification", notification);
-                io.to(recipientId.toString()).emit("receive_message", newMessage);
-            }
-        } catch (notifErr) {
-            console.error("Failed to create chat notification:", notifErr);
-            // Don't fail the message send if notification fails
-        }
-
-        // Update Streak Activity
-        await updateStreak(senderId);
-
-        res.status(201).json(newMessage);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error sending message", error: err.message });
-    }
-});
-
-// Get recent conversations (users involved in chats)
+// Recent Conversations
 router.get("/conversations/recent", verifyToken, async (req, res) => {
     try {
         const myId = new mongoose.Types.ObjectId(req.user.id);
 
-        // combine to find unique users interacted with
         const conversations = await Chat.aggregate([
-            {
-                $match: {
-                    $or: [{ sender: myId }, { recipient: myId }] // Find messages where I am the sender or receiver
-                }
-            },
-            {
-                $sort: { createdAt: -1 }
-            },
+            { $match: { $or: [{ sender: myId }, { recipient: myId }] } },
+            { $sort: { createdAt: -1 } },
             {
                 $group: {
                     _id: {
-                        $cond: {
-                            if: { $eq: ["$sender", myId] },
-                            // If I sent the message, group by the recipient
-                            then: "$recipient",
-                            // If I received the message, group by the sender
-                            else: "$sender"
-                        }
+                        $cond: [
+                            { $eq: ["$sender", myId] },
+                            "$recipient",
+                            "$sender"
+                        ]
                     },
                     lastMessage: { $first: "$$ROOT" }
                 }
             },
-
             {
                 $lookup: {
                     from: "users",
@@ -124,142 +59,109 @@ router.get("/conversations/recent", verifyToken, async (req, res) => {
                     as: "userDetails"
                 }
             },
-            {
-                $unwind: "$userDetails"
-            },
-            {
-                $project: {
-                    _id: 1,
-                    lastMessage: 1,
-                    "userDetails._id": 1,
-                    "userDetails.name": 1,
-                    "userDetails.email": 1,
-                    "userDetails.avatarUrl": 1,
-                    "userDetails.profile_image": 1
-                }
-            }
+            { $unwind: "$userDetails" }
         ]);
 
-
-
-        // Populate unread counts
-        const results = await Promise.all(conversations.map(async (c) => {
-            const chatUserId = c.userDetails._id;
-            const unreadCount = await Chat.countDocuments({
-                sender: chatUserId,
-                sender: chatUserId,
-                recipient: myId,
-                read: { $ne: true }
-            });
-            return { ...c, unreadCount };
-        }));
+        const results = await Promise.all(
+            conversations.map(async (c) => {
+                const unreadCount = await Chat.countDocuments({
+                    sender: c.userDetails._id,
+                    recipient: myId,
+                    read: false
+                });
+                return { ...c, unreadCount };
+            })
+        );
 
         res.json(results);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error fetching conversations", error: err.message });
+    } catch {
+        res.status(500).json({ message: "Fetch error" });
     }
 });
 
-// Get chat history with a specific user
+// Delete Message
+router.delete("/delete/:messageId", verifyToken, async (req, res) => {
+    try {
+        const { messageId } = req.params;
+        const userId = req.user.id;
+
+        if (!mongoose.Types.ObjectId.isValid(messageId)) {
+            return res.status(400).json({ message: "Invalid ID" });
+        }
+
+        const message = await Chat.findById(messageId);
+        if (!message) return res.status(404).json({ message: "Not found" });
+
+        if (message.sender.toString() !== userId) {
+            return res.status(403).json({ message: "Not allowed" });
+        }
+
+        await Chat.findByIdAndDelete(messageId);
+        res.json({ success: true, _id: messageId });
+    } catch {
+        res.status(500).json({ message: "Delete error" });
+    }
+});
+
+// Send Message
+router.post("/send", verifyToken, async (req, res) => {
+    try {
+        const { recipientId, content } = req.body;
+        const senderId = req.user.id;
+
+        if (!recipientId || !content) {
+            return res.status(400).json({ message: "Missing fields" });
+        }
+
+        const newMessage = new Chat({
+            sender: senderId,
+            recipient: recipientId,
+            content
+        });
+
+        await newMessage.save();
+
+        const io = req.app.get("io");
+        if (io) io.to(recipientId).emit("receive_message", newMessage);
+
+        await updateStreak(senderId);
+        res.status(201).json(newMessage);
+    } catch {
+        res.status(500).json({ message: "Send error" });
+    }
+});
+
+// Chat History (FIXED)
 router.get("/:userId", verifyToken, async (req, res) => {
     try {
         const { userId } = req.params;
         const myId = req.user.id;
 
-        // Validation for ObjectId
-        if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(myId)) {
-            return res.status(400).json({ message: "Invalid user ID" });
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: "Invalid User ID" });
         }
 
-        const query = {
-            $or: [
-                { sender: myId, recipient: userId },
-                { sender: userId, recipient: myId },
-                { sender: new mongoose.Types.ObjectId(myId), recipient: new mongoose.Types.ObjectId(userId) },
-                { sender: new mongoose.Types.ObjectId(userId), recipient: new mongoose.Types.ObjectId(myId) }
-            ]
-        };
-
-        // Mark as read
+        // mark messages as read
         await Chat.updateMany(
             { sender: userId, recipient: myId, read: false },
             { $set: { read: true } }
         );
 
+        // fetch chat history
+        const messages = await Chat.find({
+            $or: [
+                { sender: myId, recipient: userId },
+                { sender: userId, recipient: myId }
+            ]
+        }).sort({ createdAt: 1 });
+
         const io = req.app.get("io");
-        if (io) {
-            io.to(userId).emit("messages_read", { readerId: myId });
-        }
+        if (io) io.to(userId).emit("messages_read", { readerId: myId });
 
-        const messages = await Chat.find(query).sort({ createdAt: 1 });
         res.json(messages);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error fetching messages", error: err.message });
+    } catch {
+        res.status(500).json({ message: "History error" });
     }
 });
-
-
-// Edit a message (within 30 mins)
-router.put("/:messageId", verifyToken, async (req, res) => {
-    try {
-        const { messageId } = req.params;
-        const { content } = req.body;
-        const userId = req.user.id;
-
-        const message = await Chat.findById(messageId);
-        if (!message) {
-            return res.status(404).json({ message: "Message not found" });
-        }
-
-        if (message.sender.toString() !== userId) {
-            return res.status(403).json({ message: "You can only edit your own messages" });
-        }
-
-        const timeDiff = (Date.now() - new Date(message.createdAt).getTime()) / 60000; // in minutes
-        if (timeDiff > 30) {
-            return res.status(400).json({ message: "You can only edit messages within 30 minutes of sending." });
-        }
-
-        message.content = content;
-        await message.save();
-
-        res.json(message);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error editing message", error: err.message });
-    }
-});
-
-// Delete a message
-// Delete a message (unique route path)
-router.delete("/delete/:messageId", verifyToken, async (req, res) => {
-    try {
-        const { messageId } = req.params;
-        const userId = req.user.id;
-        console.log(`Backend: DELETE request for message ${messageId} from user ${userId}`);
-
-        const message = await Chat.findById(messageId);
-        if (!message) {
-            console.error(`Backend: Message ${messageId} NOT FOUND.`);
-            return res.status(404).json({ message: "Message not found" });
-        }
-
-        if (message.sender.toString() !== userId) {
-            console.error(`Backend: Permission denied. User ${userId} tried to delete message ${messageId} belonging to ${message.sender}`);
-            return res.status(403).json({ message: "You can only delete your own messages" });
-        }
-
-        await message.deleteOne();
-        console.log(`Backend: Message ${messageId} deleted successfully.`);
-
-        res.json({ message: "Message deleted successfully", _id: messageId });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error deleting message", error: err.message });
-    }
-});
-
 
 export default router;

@@ -16,28 +16,30 @@ const liveSessionSocket = (io) => {
                     console.warn(`[SOCKET] Session not found: ${sessionId}`);
                     return socket.emit("live:error", "Session not found");
                 }
-                console.log(`[SOCKET] User ${userId} joining session ${sessionId}. Mentor is ${session.mentorId}`);
 
-                // 1. Time Validation
-                const now = new Date();
-                const startTime = new Date(session.scheduledDateTime);
-                const endTime = new Date(startTime.getTime() + session.durationMinutes * 60000);
-
-                // Early check (5 mins early allow)
-                if (now < new Date(startTime.getTime() - 5 * 60000)) {
-                    return socket.emit("live:error", "Session hasn't started yet. Please wait.");
-                }
-                // Late check
-                if (now > endTime && session.status !== 'live') {
-                    return socket.emit("live:error", "This session has already ended.");
-                }
-
-                // 2. Auth check
+                // 1. Source of Truth Status Check
                 const isMentor = session.mentorId.toString() === userId.toString();
                 const isInvited = session.invitedUserIds.some(id => id.toString() === userId.toString());
 
                 if (!isMentor && !isInvited) {
                     return socket.emit("live:error", "Not authorized to join this session");
+                }
+
+                // Time Validation
+                const now = new Date();
+                const startTime = new Date(session.startTime || session.scheduledDateTime);
+                const endTime = new Date(session.endTime || (startTime.getTime() + session.durationMinutes * 60000));
+
+                if (session.status === 'ended' || session.status === 'cancelled') {
+                    return socket.emit("live:error", "This session has already ended or been cancelled.");
+                }
+
+                if (!isMentor && session.status !== 'live') {
+                    return socket.emit("live:error", "Session hasn't started yet. Please wait for the mentor.");
+                }
+
+                if (now < new Date(startTime.getTime() - 10 * 60000)) { // 10 mins buffer
+                    return socket.emit("live:error", "Too early to join. Please wait.");
                 }
 
                 socket.join(sessionId);
@@ -161,7 +163,8 @@ const liveSessionSocket = (io) => {
                     return socket.emit("live:error", "Only the mentor can end the session.");
                 }
 
-                session.status = "completed";
+                session.status = "ended";
+                session.endedAt = new Date();
                 await session.save();
 
                 const duration = session.durationMinutes;
@@ -174,7 +177,7 @@ const liveSessionSocket = (io) => {
                 }
                 await WalletService.earnCredits(session.mentorId, session._id, session.sessionName, duration);
 
-                io.to(sessionId).emit("live:statusChanged", "completed");
+                io.to(sessionId).emit("live:statusChanged", "ended");
 
                 // Notify all participants to update dashboard
                 const allParticipants = [...session.acceptedUserIds, session.mentorId];
