@@ -8,15 +8,19 @@ function setupQuickFilters() {
 
             // Remove active class from all
             document.querySelectorAll('.quick-filter-btn').forEach(b => {
-                b.style.background = '#fff';
-                b.style.color = '#333';
+                b.style.background = 'var(--admin-accent)';
+                b.style.color = '#fff';
+                b.style.opacity = '1';
                 b.classList.remove('active');
+                b.style.boxShadow = 'none';
             });
 
             // Add active class to clicked button
             e.target.classList.add('active');
-            e.target.style.background = 'var(--accent)';
-            e.target.style.color = '#1A1A1A';
+            e.target.style.background = 'var(--admin-accent)';
+            e.target.style.color = '#fff';
+            e.target.style.boxShadow = '0 0 15px var(--admin-accent-glow)';
+            e.target.style.border = '1px solid #fff'; // White border for active
 
             const now = new Date();
             let startDate, endDate, rangeText;
@@ -80,17 +84,19 @@ function setupQuickFilters() {
 
         // Reset quick filter buttons
         document.querySelectorAll('.quick-filter-btn').forEach(b => {
-            b.style.background = '#fff';
-            b.style.color = '#333';
+            b.style.background = 'var(--admin-accent)';
+            b.style.color = '#fff';
             b.classList.remove('active');
+            b.style.boxShadow = 'none';
+            b.style.border = '1px solid #ddd';
         });
 
         // Activate "All Time" button
         const allTimeBtn = document.querySelector('.quick-filter-btn[data-range="all"]');
         if (allTimeBtn) {
             allTimeBtn.classList.add('active');
-            allTimeBtn.style.background = 'var(--accent)';
-            allTimeBtn.style.color = '#1A1A1A';
+            allTimeBtn.style.boxShadow = '0 0 15px var(--admin-accent-glow)';
+            allTimeBtn.style.border = '1px solid #fff';
         }
 
         // Update active range text

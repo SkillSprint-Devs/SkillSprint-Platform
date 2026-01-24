@@ -428,7 +428,7 @@
       color: var(--text-main);
     }
 
-    /* Continue Button */
+    /* Continue Button - Landing style */
     .btn-continue {
       width: 100%;
       padding: 1.125rem 2rem;
@@ -443,19 +443,51 @@
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      background: linear-gradient(#c4d93f 100%, #e6f0a1 0%, #c4d93f 100%);
-      color: white;
+      background: var(--accent);
+      /* Default / User */
+      color: var(--text-dark);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Landing page ripple effect container */
+    .btn-continue::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-continue:hover:not(:disabled)::before {
+      width: 300%;
+      padding-top: 300%;
+    }
+
+    .btn-continue.admin-theme {
+      background: var(--admin-accent);
+      color: white;
+      box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
     }
 
     .btn-continue:hover:not(:disabled) {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-      background: linear-gradient(#c4d93f 100%, #e6f0a1 0%, #c4d93f 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-continue.admin-theme:hover:not(:disabled) {
+      box-shadow: 0 12px 24px rgba(109, 40, 217, 0.4);
+      filter: brightness(1.1);
     }
 
     .btn-continue:active:not(:disabled) {
-      transform: translateY(-1px) scale(1);
+      transform: translateY(-1px);
     }
 
     .btn-continue:disabled {
@@ -532,31 +564,37 @@
     /* Responsive */
     @media (max-width: 768px) {
       .container {
-        padding: 2rem 1.5rem;
-        max-height: 95vh;
+        padding: 2rem 1.25rem;
+        max-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        overflow-y: auto;
+      }
+
+      .header {
+        margin-top: 3.5rem;
+        /* Space for fixed back button */
+      }
+
+      .back-btn {
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.8);
       }
 
       .brand h1 {
-        font-size: 2.5rem;
-      }
-
-      .sparkle-icon {
-        font-size: 1.5rem;
+        font-size: 2.2rem;
       }
 
       .role-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.25rem;
       }
 
       .bg-element-1,
       .bg-element-2 {
-        width: 200px;
-        height: 200px;
-      }
-
-      .description {
-        font-size: 1rem;
+        display: none;
+        /* Perf on mobile */
       }
     }
   </style>
@@ -665,8 +703,14 @@
         }
       });
 
-      // Enable continue button
-      document.getElementById('continueBtn').disabled = false;
+      // Enable and color continue button
+      const continueBtn = document.getElementById('continueBtn');
+      continueBtn.disabled = false;
+      if (role === 'admin') {
+        continueBtn.classList.add('admin-theme');
+      } else {
+        continueBtn.classList.remove('admin-theme');
+      }
     }
 
     function toggleInfo() {

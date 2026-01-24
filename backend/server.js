@@ -54,20 +54,23 @@ console.error = (...args) => {
 
     if (mongoose.connection.readyState === 1) {
       // Don't try to log "connection closed" errors into the DB (prevents infinite loops/noise)
-      if (errorMessage.includes('connection <monitor> closed') || errorMessage.includes('MongoServerSelectionError')) {
+      if (errorMessage.includes('connection <monitor> closed') ||
+        errorMessage.includes('MongoServerSelectionError') ||
+        errorMessage.includes('[Interceptor]')) {
         return;
       }
 
+      // Use the model directly to avoid recursive calls if possible
       ErrorLog.create({
         errorMessage: errorMessage.substring(0, 5000),
         errorType: 'Backend',
         severity: 'Critical',
-        stackTrace: new Error().stack,
+        stackTrace: new Error().stack?.substring(0, 2000),
         environment: process.env.NODE_ENV || 'Development',
         status: 'NEW'
-      }).catch(err => {
-        // Silently fail to stdout to avoid recursive console.error calls
-        process.stdout.write(`[Interceptor] DB Logic Bypass (DB is likely down)\n`);
+      }).catch(_ => {
+        // Silently fail using the lowest level output possible
+        process.stderr.write(`[Interceptor] Storage Failed\n`);
       });
     }
   } catch (interceptErr) {
