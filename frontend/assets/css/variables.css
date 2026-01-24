@@ -9,6 +9,12 @@
   --text-muted: #666666;
   --card-bg: #ffffff;
 
+  /* Admin Branding */
+  --admin-accent: #6d28d9;
+  /* Sophisticated Deep Purple */
+  --admin-accent-glow: rgba(109, 40, 217, 0.2);
+  --admin-bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+
   /* Status Colors */
   --success: #4caf50;
   --warning: #ffb300;

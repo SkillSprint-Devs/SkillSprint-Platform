@@ -144,8 +144,8 @@
 }
 
 .severity-critical {
-    background: #1A1A1A;
-    color: var(--accent);
+    background: #1e1b4b;
+    color: var(--admin-accent);
 }
 
 .status-new {
@@ -251,8 +251,14 @@
 }
 
 .view-btn {
-    background: var(--accent);
-    color: #1A1A1A;
+    background: var(--admin-accent);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.view-btn:hover {
+    box-shadow: 0 4px 12px var(--admin-accent-glow);
 }
 
 .resolve-btn {
@@ -384,15 +390,15 @@
 }
 
 .stack-trace {
-    background: #1A1A1A;
-    color: var(--accent);
+    background: #111;
+    color: #e5e7eb;
     padding: 1.5rem;
     border-radius: 12px;
     font-family: 'Fira Code', 'Courier New', monospace;
     font-size: 0.8rem;
     overflow-x: auto;
     white-space: pre-wrap;
-    border: 1px solid #333;
+    border: 1px solid rgba(109, 40, 217, 0.2);
 }
 
 /* Stats Cards */

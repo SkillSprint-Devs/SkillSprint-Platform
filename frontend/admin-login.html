@@ -4,144 +4,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Login | SkillSprint</title>
+  <title>Admin Portal | SkillSprint</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="assets/css/variables.css" />
-
-  <style>
-    /* ===== General Layout ===== */
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background-color: var(--base-bg);
-      color: var(--text-dark);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    .auth-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-    }
-
-    .auth-card {
-      background: var(--text-light);
-      padding: 2.5rem 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 480px;
-    }
-
-    .auth-card .admin-icon {
-      font-size: 3rem;
-      color: var(--admin-accent);
-      margin-bottom: 1rem;
-    }
-
-    .auth-card h1 {
-      color: var(--admin-accent);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .auth-card h2 {
-      margin-bottom: 0.5rem;
-      color: var(--text-dark);
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 1.8rem;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
-      font-size: 0.95rem;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: var(--admin-accent);
-      box-shadow: 0 0 0 3px rgba(220, 239, 98, 0.1);
-    }
-
-    .btn-primary {
-      width: 100%;
-      background: var(--admin-accent);
-      color: var(--text-light);
-      border: none;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      opacity: 0.9;
-    }
-
-    .switch-text {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-    }
-
-    .switch-text a {
-      color: var(--muted);
-      text-decoration: none;
-      transition: 0.2s;
-    }
-
-    .switch-text a:hover {
-      color: var(--text-dark);
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/admin-auth.css" />
 </head>
 
 <body>
+  <!-- Animated Background Elements -->
+  <div class="admin-bg-blob blob-1"></div>
+  <div class="admin-bg-blob blob-2"></div>
+
   <div class="auth-container">
     <div class="auth-card">
-      <div class="admin-icon">
+      <div class="admin-icon-wrapper">
         <i class="fa-solid fa-user-shield"></i>
       </div>
       <h1>Admin Portal</h1>
-      <h2>Secure Access</h2>
-      <p class="subtitle">Enter your credentials to manage the platform.</p>
+      <h2>Secure Infrastructure Control</h2>
 
       <form id="adminLoginForm">
-        <input type="email" id="email" placeholder="Admin Email" required />
-        <input type="password" id="password" placeholder="Password" required />
-        <button type="submit" id="loginBtn" class="btn-primary">Login Securely</button>
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Admin Email" required />
+          <i class="fa-solid fa-envelope"></i>
+        </div>
+
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Password" required />
+          <i class="fa-solid fa-lock"></i>
+        </div>
+
+        <button type="submit" id="loginBtn" class="btn-primary">
+          <i class="fa-solid fa-shield-halved"></i> Authorize Access
+        </button>
       </form>
 
       <div class="switch-text">
-        <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+        <a href="index.html">
+          <i class="fa-solid fa-house"></i> Return to Terminal
+        </a>
       </div>
     </div>
   </div>
@@ -157,6 +62,7 @@
         : '/api';
 
       const adminLoginForm = document.getElementById("adminLoginForm");
+      const loginBtn = document.getElementById("loginBtn");
 
       // HARD-CODED ADMIN (demo only)
       const HARDCODED_ADMIN = {
@@ -169,11 +75,16 @@
       adminLoginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
+        // Visual feedback
+        loginBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+        loginBtn.disabled = true;
+
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value.trim();
 
         if (!email || !password) {
-          showToast("Please fill both fields!", "error");
+          showToast("Credentials required for authorization", "error");
+          resetButton();
           return;
         }
 
@@ -185,7 +96,7 @@
           localStorage.setItem("token", "admin-demo-token");
           localStorage.setItem("adminUser", JSON.stringify(HARDCODED_ADMIN));
 
-          showToast("Admin login successful!", "success", 2000, () => {
+          showToast("Authorization Granted. Welcome, Administrator.", "success", 2000, () => {
             window.location.href = "admin-dashboard.html";
           });
           return;
@@ -202,29 +113,37 @@
           const data = await res.json();
 
           if (!res.ok) {
-            showToast(data.message || "Invalid login credentials.", "error");
+            showToast(data.message || "Invalid security credentials.", "error");
+            resetButton();
             return;
           }
 
           if (data.user.role !== "admin") {
             showToast(
-              "Access Denied: You do not have administrator privileges.",
+              "Access Denied: Insufficient clearance level.",
               "error"
             );
+            resetButton();
             return;
           }
 
           localStorage.setItem("token", data.token);
           localStorage.setItem("adminUser", JSON.stringify(data.user));
 
-          showToast("Admin login successful!", "success", 2000, () => {
+          showToast("Authorization Granted. Initializing Dashboard...", "success", 2000, () => {
             window.location.href = "admin-dashboard.html";
           });
         } catch (err) {
           console.error("Login error:", err);
-          showToast("Server error. Please try again later.", "error");
+          showToast("Network intrusion or server timeout detected.", "error");
+          resetButton();
         }
       });
+
+      function resetButton() {
+        loginBtn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Authorize Access';
+        loginBtn.disabled = false;
+      }
     });
   </script>
 

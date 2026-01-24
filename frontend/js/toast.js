@@ -10,15 +10,16 @@ function showToast(message, type = "info", duration = 2500, callback = null) {
   const existing = document.querySelector(".toast");
   if (existing) existing.remove();
 
+  // Detect admin context
+  const isAdminPage = window.location.pathname.includes('admin') || window.location.pathname.includes('error-logs');
+
   const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
+  toast.className = `toast ${type} ${isAdminPage ? 'admin-theme' : ''}`;
   toast.textContent = message;
   toast.style.zIndex = "100000"; // Ensure it's above everything
   document.body.appendChild(toast);
 
-
   requestAnimationFrame(() => toast.classList.add("show"));
-
 
   setTimeout(() => {
     toast.classList.remove("show");
@@ -70,6 +71,16 @@ toastStyle.innerHTML = `
 .toast.info {
   background-color: #007bff;
 }
+.toast.admin-theme {
+  border-bottom: 3px solid #6d28d9;
+  box-shadow: 0 8px 24px rgba(109, 40, 217, 0.3);
+}
+.toast.success.admin-theme {
+  background-color: #6d28d9;
+}
+.toast.error.admin-theme {
+  background-color: #4c1d95;
+}
 `;
 document.head.appendChild(toastStyle);
 
@@ -86,8 +97,11 @@ window.confirm = function (message, onConfirm, onCancel) {
   const modal = document.createElement("div");
   modal.className = "confirm-modal";
 
+  // Detect admin context
+  const isAdminPage = window.location.pathname.includes('admin') || window.location.pathname.includes('error-logs');
+
   modal.innerHTML = `
-    <div class="confirm-box">
+    <div class="confirm-box ${isAdminPage ? 'admin-theme' : ''}">
       <p>${message}</p>
       <div class="confirm-actions">
         <button class="confirm-yes">Yes</button>
@@ -188,6 +202,22 @@ confirmStyle.innerHTML = `
 }
 .confirm-actions button:active {
   transform: translateY(0);
+}
+.confirm-box.admin-theme {
+  border: 1px solid rgba(109, 40, 217, 0.3);
+  background: #111;
+  color: #fff;
+}
+.confirm-box.admin-theme .confirm-yes {
+  background: #6d28d9;
+  color: #fff;
+}
+.confirm-box.admin-theme .confirm-no {
+  background: #1e1b4b;
+  color: #94a3b8;
+}
+.confirm-box.admin-theme .confirm-yes:hover {
+  box-shadow: 0 0 15px rgba(109, 40, 217, 0.5);
 }
 @keyframes popIn {
   from { transform: scale(0.9); opacity: 0; }
