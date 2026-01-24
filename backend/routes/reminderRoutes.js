@@ -24,6 +24,7 @@ router.post("/", verifyToken, async (req, res) => {
     try {
         const { text, dueDate, dueTime } = req.body;
         if (!text) return res.status(400).json({ message: "Text is required" });
+        if (!dueTime) return res.status(400).json({ message: "Time is required for reminders" });
 
         const reminder = new Reminder({
             user_id: req.user.id,
@@ -35,6 +36,7 @@ router.post("/", verifyToken, async (req, res) => {
         await reminder.save();
 
         // Create notification for reminder creation
+        const io = req.app.get("io");
         try {
             const notification = new Notification({
                 user_id: req.user.id,
@@ -45,9 +47,9 @@ router.post("/", verifyToken, async (req, res) => {
             });
             await notification.save();
 
-            const io = req.app.get("io");
             if (io) {
                 io.to(req.user.id.toString()).emit("notification", notification);
+                io.to(req.user.id.toString()).emit("reminder_created", reminder);
             }
         } catch (notifErr) {
             console.error("Failed to create reminder notification:", notifErr);
@@ -71,6 +73,12 @@ router.patch("/:id", verifyToken, async (req, res) => {
         );
 
         if (!reminder) return res.status(404).json({ message: "Reminder not found" });
+
+        const io = req.app.get("io");
+        if (io) {
+            io.to(req.user.id.toString()).emit("reminder_updated", reminder);
+        }
+
         res.json(reminder);
     } catch (err) {
         res.status(500).json({ message: "Server error" });
@@ -93,6 +101,12 @@ router.delete("/:id", verifyToken, async (req, res) => {
         }
 
         console.log(`Reminder ${req.params.id} deleted successfully`);
+
+        const io = req.app.get("io");
+        if (io) {
+            io.to(req.user.id.toString()).emit("reminder_deleted", { reminderId: req.params.id });
+        }
+
         res.json({ message: "Reminder deleted" });
     } catch (err) {
         console.error("Delete reminder error:", err);

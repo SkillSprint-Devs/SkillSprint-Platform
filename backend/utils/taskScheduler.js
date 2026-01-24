@@ -78,77 +78,73 @@ export function initTaskScheduler(io) {
         }
     });
 
-    // Run every minute to check for reminders due in ~10 mins
+    // Run every minute to check for reminders
     cron.schedule('* * * * *', async () => {
         if (mongoose.connection.readyState !== 1) {
             return; // Silently skip minute checks if DB is down
         }
         try {
             const now = new Date();
-            // Calculate target time: 10 minutes from now
-            // We'll broaden the window slightly (e.g., 10-11 mins) to avoid skipping
-            const tenMinsLater = new Date(now.getTime() + 10 * 60000);
+            const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-            const hours = tenMinsLater.getHours();
-            const minutes = tenMinsLater.getMinutes();
-            // Format HH:MM (24h)
-            const targetTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-
-            // Also need to check if dueDate is TODAY (ignoring time component of Date object if stored)
-            // But our Reminder model has `dueDate` (Date) and `dueTime` (String).
-            // We assume `dueTime` is the primary trigger for the daily alert.
-            // We match reminders where:
-            // 1. is_done is false
-            // 2. notified is false
-            // 3. dueTime matches targetTime
-            // 4. dueDate is today (or null/undefined, effectively daily? Assume explicit date required for now)
+            const fiveMinsLater = new Date(now.getTime() + 5 * 60000);
+            const fiveMinHHMM = `${String(fiveMinsLater.getHours()).padStart(2, '0')}:${String(fiveMinsLater.getMinutes()).padStart(2, '0')}`;
 
             // Create start/end of today for date comparison
             const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const todayEnd = new Date(todayStart);
             todayEnd.setDate(todayEnd.getDate() + 1);
 
-            const reminders = await Reminder.find({
+            const remindersToNotify = await Reminder.find({
                 is_done: false,
-                notified: false,
-                dueTime: targetTime,
-                dueDate: {
-                    $gte: todayStart,
-                    $lt: todayEnd
-                }
+                dueDate: { $gte: todayStart, $lt: todayEnd }
             });
 
-            if (reminders.length > 0) {
-                console.log(`Found ${reminders.length} reminders due in 10 mins at ${targetTime}`);
+            if (remindersToNotify.length > 0) {
+                console.log(`[Scheduler] Checking ${remindersToNotify.length} pending reminders for today. Now: ${currentHHMM}, 5m: ${fiveMinHHMM}`);
+            }
 
-                for (const r of reminders) {
-                    // Create Notification
-                    const notif = new Notification({
-                        user_id: r.user_id,
-                        title: "Reminder Due Soon",
-                        message: `In 10 mins: ${r.text}`,
-                        type: "reminder",
-                        link: "/dashboard"
-                    });
-                    await notif.save();
+            // 1. Check for reminders due in 5 minutes
+            const fiveMinReminders = remindersToNotify.filter(r =>
+                !r.notified5MinBefore && r.dueTime === fiveMinHHMM
+            );
 
-                    // Emit Socket
-                    if (io) {
-                        io.to(r.user_id.toString()).emit('notification', notif);
-                    }
+            for (const r of fiveMinReminders) {
+                console.log(`[Scheduler] Triggering 5-min warning for: ${r.text}`);
+                const notif = new Notification({
+                    user_id: r.user_id,
+                    title: "Reminder in 5 mins",
+                    message: `In 5 mins: ${r.text}`,
+                    type: "reminder",
+                    link: "/dashboard"
+                });
+                await notif.save();
+                if (io) io.to(r.user_id.toString()).emit('notification', notif);
+                r.notified5MinBefore = true;
+                await r.save();
+            }
 
-                    // Mark as notified
-                    r.notified = true;
-                    await r.save();
-                }
+            // 2. Check for reminders due NOW
+            const nowReminders = remindersToNotify.filter(r =>
+                !r.notifiedAtTime && r.dueTime === currentHHMM
+            );
+
+            for (const r of nowReminders) {
+                console.log(`[Scheduler] Triggering exact-time reminder for: ${r.text}`);
+                const notif = new Notification({
+                    user_id: r.user_id,
+                    title: "Reminder Now",
+                    message: `Starting now: ${r.text}`,
+                    type: "reminder",
+                    link: "/dashboard"
+                });
+                await notif.save();
+                if (io) io.to(r.user_id.toString()).emit('notification', notif);
+                r.notifiedAtTime = true;
+                await r.save();
             }
         } catch (err) {
-            // Handle DB connection issues gracefully without flooding logs
-            if (err.name === 'MongoServerSelectionError' || err.name === 'MongoNetworkError' || err.message.includes('closed')) {
-                process.stdout.write(`Scheduler: Database connection blip (skipping this minute)\n`);
-            } else {
-                console.error("Error in minute-reminder-scheduler:", err);
-            }
+            console.error("Error in minute-reminder-scheduler:", err);
         }
     });
 

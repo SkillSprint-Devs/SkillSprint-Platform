@@ -123,3 +123,14 @@ function initNavbar(config = {}) {
 
 // Global expose
 window.initNavbar = initNavbar;
+
+// Automatically inject global notification handler if not present
+(function () {
+    if (window.location.pathname.includes('login.html') || window.location.pathname.includes('signup.html')) return;
+    if (document.querySelector('script[src*="notifications-global.js"]')) return;
+
+    const s = document.createElement('script');
+    s.src = 'js/notifications-global.js';
+    s.async = true;
+    document.body.appendChild(s);
+})();

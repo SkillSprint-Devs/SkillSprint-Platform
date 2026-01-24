@@ -30,6 +30,7 @@ router.post("/", verifyToken, async (req, res) => {
     });
 
     // Create notification for task creation
+    const io = req.app.get("io");
     try {
       const notification = new Notification({
         user_id: req.user.id,
@@ -40,9 +41,10 @@ router.post("/", verifyToken, async (req, res) => {
       });
       await notification.save();
 
-      const io = req.app.get("io");
       if (io) {
         io.to(req.user.id.toString()).emit("notification", notification);
+        // Granular event for dashboard optimization
+        io.to(req.user.id.toString()).emit("task_created", task);
       }
     } catch (notifErr) {
       console.error("Failed to create task notification:", notifErr);
@@ -137,6 +139,14 @@ router.put("/:id", verifyToken, async (req, res) => {
 
     if (!task) return res.status(404).json({ message: "Task not found" });
 
+    const io = req.app.get("io");
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    // Emit granular update
+    if (io) {
+      io.to(req.user.id.toString()).emit("task_updated", task);
+    }
+
     // Create notification for task update (only for status changes)
     if (updates.status) {
       try {
@@ -154,7 +164,6 @@ router.put("/:id", verifyToken, async (req, res) => {
         });
         await notification.save();
 
-        const io = req.app.get("io");
         if (io) {
           io.to(req.user.id.toString()).emit("notification", notification);
         }
@@ -188,6 +197,12 @@ router.delete("/:id", verifyToken, async (req, res) => {
 
     await task.deleteOne();
     console.log(`Task ${req.params.id} deleted successfully`);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(req.user.id.toString()).emit("task_deleted", { taskId: req.params.id });
+    }
+
     res.json({ message: "Task deleted successfully" });
   } catch (err) {
     console.error("Delete task error:", err);

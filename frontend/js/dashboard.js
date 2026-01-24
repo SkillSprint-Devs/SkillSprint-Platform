@@ -3,66 +3,89 @@ const API_BASE = (window.location.hostname === 'localhost' || window.location.ho
   ? 'http://localhost:5000/api'
   : '/api';
 
-// --- Card Removal Handlers (Define early) ---
-window.removeTask = async (id) => {
-  if (!id || id === 'undefined') {
-    console.error("[DASHBOARD] Cannot remove task: ID is undefined");
-    return;
-  }
+// --- STATE MANAGEMENT ---
+window.dashboardState = {
+  tasks: [],
+  sessions: [],
+  reminders: [],
+  notifications: [],
+  user: null
+};
 
-  confirm("Are you sure you want to remove this task?", async () => {
+// --- Card Removal Handlers (Refactored to be non-blocking where possible) ---
+window.removeTask = async (id) => {
+  if (!id || id === 'undefined') return;
+
+  const confirmed = typeof showCustomConfirm === 'function'
+    ? await showCustomConfirm("Are you sure you want to remove this task?")
+    : confirm("Are you sure you want to remove this task?");
+
+  if (confirmed) {
     const token = localStorage.getItem("token");
     try {
-      console.log("[DASHBOARD] Removing task:", id);
       const res = await fetch(`${API_BASE}/tasks/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
         if (typeof showToast === 'function') showToast("Task removed", "success");
-        loadDashboard();
+        // Socket listener will handle DOM removal
       } else {
         const err = await res.json();
-        console.error("[DASHBOARD] Task removal failed:", err.message);
         if (typeof showToast === 'function') showToast(err.message || "Failed to remove task", "error");
       }
     } catch (err) { console.error("[DASHBOARD] Task removal error:", err); }
-  });
+  }
+};
+
+window.clearAllNotifications = async () => {
+  const confirmed = typeof showCustomConfirm === 'function'
+    ? await showCustomConfirm("Clear all notifications?")
+    : confirm("Clear all notifications?");
+
+  if (!confirmed) return;
+
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API_BASE}/notifications`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast("Notifications cleared", "success");
+      loadNotifications();
+    }
+  } catch (err) { console.error("Clear all failed:", err); }
 };
 
 window.removeSession = async (id) => {
-  if (!id || id === 'undefined') {
-    console.error("[DASHBOARD] Cannot remove session: ID is undefined");
-    return;
-  }
+  if (!id || id === 'undefined') return;
 
-  confirm("Remove this session from your dashboard?", async () => {
+  const confirmed = typeof showCustomConfirm === 'function'
+    ? await showCustomConfirm("Remove this session from your dashboard?")
+    : confirm("Remove this session from your dashboard?");
+
+  if (confirmed) {
     const token = localStorage.getItem("token");
     try {
-      console.log("[DASHBOARD] Removing session:", id);
       const res = await fetch(`${API_BASE}/live-sessions/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
         if (typeof showToast === 'function') showToast("Session removed", "info");
+        // Socket listener will handle refreshing schedule
         loadSchedule();
       } else {
         const err = await res.json();
-        console.error("[DASHBOARD] Session removal failed:", err.message);
         if (typeof showToast === 'function') showToast(err.message || "Failed to remove session", "error");
-
-        // Fallback: hide card if 404 (already deleted)
         if (res.status === 404) {
           const card = document.querySelector(`.session-card [onclick*='${id}']`)?.closest('.session-card');
           if (card) card.remove();
         }
       }
-    } catch (err) {
-      console.error("[DASHBOARD] Session removal error:", err);
-      if (typeof showToast === 'function') showToast("Connection Error", "error");
-    }
-  });
+    } catch (err) { console.error("[DASHBOARD] Session removal error:", err); }
+  }
 };
 
 // SIDEBAR TOGGLE
@@ -136,13 +159,10 @@ async function loadDashboard() {
     }
 
     // Tasks and Notifications
-    window.currentDashboardData = data; // Cache for search filtering
+    window.dashboardState.tasks = data.tasks;
     renderTasks(data.tasks);
     if (document.getElementById("notifList")) loadNotifications();
     if (document.getElementById("reminderList")) loadReminders();
-
-    // Socket.IO for Realtime
-    if (window.io) setupSocket(token);
 
   } catch (err) {
     console.error("Dashboard load error:", err);
@@ -263,6 +283,13 @@ async function loadNotifications() {
 
     const notifications = await res.json();
     renderNotifications(notifications);
+
+    // Update red dot (badge)
+    const hasUnread = notifications.some(n => !n.is_read);
+    const badge = document.querySelector(".notif-badge");
+    if (badge) {
+      badge.style.display = hasUnread ? "block" : "none";
+    }
   } catch (err) {
     console.error("Load notifs error:", err);
   }
@@ -317,10 +344,6 @@ window.deleteNotification = async (id) => {
     if (res.ok) {
       if (typeof showToast === 'function') showToast("Notification dismissed", "success");
       loadNotifications();
-    } else {
-      // Fallback for local simulation if API missing
-      console.warn("Notification delete API failed, hiding locally");
-      loadNotifications(); // Depending on implementation could filter locally
     }
   } catch (e) { console.error(e); }
 }
@@ -391,8 +414,12 @@ async function addReminder() {
     if (typeof showToast === 'function') showToast("Please enter a reminder", "info");
     return;
   }
+  if (!dueTime) {
+    if (typeof showToast === 'function') showToast("Please set a time for the reminder", "warning");
+    return;
+  }
 
-  // Default to TODAY if no date picker exists in this quick-add form
+  // Default to TODAY if no date picker exists.
   const dueDate = new Date();
 
   const token = localStorage.getItem("token");
@@ -479,10 +506,10 @@ if (dashboardSearch) {
 }
 
 function filterDashboard(term) {
-  if (!window.currentDashboardData) return;
+  if (!window.dashboardState || !window.dashboardState.tasks) return;
 
   // Filter Tasks
-  const filteredTasks = window.currentDashboardData.tasks.filter(t =>
+  const filteredTasks = window.dashboardState.tasks.filter(t =>
     t.title.toLowerCase().includes(term) ||
     (t.description && t.description.toLowerCase().includes(term))
   );
@@ -502,29 +529,73 @@ function filterDashboard(term) {
   });
 }
 
-// Socket
+// --- SOCKET SINGLETON ---
+let dashboardSocket = null;
 function setupSocket(token) {
+  if (dashboardSocket) return; // Prevent duplicate connections
+
   const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
     ? 'http://localhost:5000'
     : '';
-  const socket = io(SOCKET_URL, {
-    auth: { token }
+
+  dashboardSocket = io(SOCKET_URL, {
+    auth: { token },
+    reconnection: true
   });
 
-  socket.on("connect", () => console.log("Socket connected"));
-  socket.on("notification", (n) => {
-    console.log("[RUNTIME-DEBUG] Dashboard Socket Notification Received:", n);
+  dashboardSocket.on("connect", () => console.log("[DASHBOARD] Socket connected"));
+
+  dashboardSocket.on("notification", (n) => {
+    console.log("[DASHBOARD] Notification Received:", n);
     if (typeof showToast === 'function') showToast(n.message || "New Notification", "info");
 
-    // Global session refresh trigger
-    if (n.type === 'session_update') {
-      console.log("[RUNTIME-DEBUG] type === 'session_update' detected. Calling loadSchedule()...");
-      loadSchedule();
-    }
+    if (n.type === 'session_update') loadSchedule();
+    loadNotifications();
+  });
 
-    loadNotifications(); // Refresh list
-    if (typeof loadPendingInvites === 'function') loadPendingInvites();
-    if (typeof loadSchedule === 'function') loadSchedule();
+  // Granular Task Events
+  dashboardSocket.on("task_created", (task) => {
+    console.log("[DASHBOARD] Task Created:", task._id);
+    window.dashboardState.tasks.unshift(task);
+    renderTasks(window.dashboardState.tasks);
+  });
+
+  dashboardSocket.on("task_updated", (task) => {
+    console.log("[DASHBOARD] Task Updated:", task._id);
+    const idx = window.dashboardState.tasks.findIndex(t => (t._id || t.id) === (task._id || task.id));
+    if (idx !== -1) {
+      window.dashboardState.tasks[idx] = task;
+      renderTasks(window.dashboardState.tasks);
+    }
+  });
+
+  dashboardSocket.on("task_deleted", ({ taskId }) => {
+    console.log("[DASHBOARD] Task Deleted:", taskId);
+    window.dashboardState.tasks = window.dashboardState.tasks.filter(t => (t._id || t.id) !== taskId);
+    renderTasks(window.dashboardState.tasks);
+  });
+
+  // Granular Reminder Events
+  dashboardSocket.on("reminder_created", (reminder) => {
+    console.log("[DASHBOARD] Reminder Created:", reminder._id);
+    loadReminders(); // Reminders are simpler to reload for now as they are small
+  });
+
+  dashboardSocket.on("reminder_updated", (reminder) => {
+    console.log("[DASHBOARD] Reminder Updated:", reminder._id);
+    const item = document.querySelector(`.reminder-item[data-reminder-id="${reminder._id}"]`);
+    if (item) {
+      const isDone = reminder.is_done;
+      item.className = `reminder-item ${isDone ? 'completed' : ''}`;
+      const checkbox = item.querySelector('.reminder-checkbox');
+      if (checkbox) checkbox.className = `reminder-checkbox ${isDone ? 'checked' : ''}`;
+    }
+  });
+
+  dashboardSocket.on("reminder_deleted", ({ reminderId }) => {
+    console.log("[DASHBOARD] Reminder Deleted:", reminderId);
+    const item = document.querySelector(`.reminder-item[data-reminder-id="${reminderId}"]`);
+    if (item) item.remove();
   });
 }
 
@@ -700,10 +771,16 @@ async function respondInvite(sessionId, action) {
 
 // Init
 document.addEventListener("DOMContentLoaded", () => {
+  const token = localStorage.getItem("token");
+  if (token && window.io) setupSocket(token);
+
   // Only auto-load if on actual dashboard page (checks for a unique dashboard ID)
   if (document.getElementById("taskList") || document.getElementById("streakProgressBar")) {
     loadDashboard();
     loadSchedule();
     loadPendingInvites();
   }
+
+  // Clear All Listener
+  document.getElementById("clearAllNotifsBtn")?.addEventListener("click", window.clearAllNotifications);
 });

@@ -21,7 +21,11 @@ const reminderSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  notified: {
+  notified5MinBefore: {
+    type: Boolean,
+    default: false
+  },
+  notifiedAtTime: {
     type: Boolean,
     default: false
   },
