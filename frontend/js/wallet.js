@@ -86,7 +86,7 @@ function renderHistory(transactions) {
             <td>
                 <div class="session-info">
                     <strong>${t.sessionName || "N/A"}</strong>
-                    <span class="session-id">ID: ${t.sessionId ? t.sessionId.substring(0, 8) : '---'}</span>
+                    <span class="session-id">ID: ${t.sessionId ? (typeof t.sessionId === 'string' ? t.sessionId.substring(0, 8) : (t.sessionId._id ? t.sessionId._id.substring(0, 8) : '---')) : '---'}</span>
                 </div>
             </td>
             <td><span class="role-text">${t.role || 'System'}</span></td>

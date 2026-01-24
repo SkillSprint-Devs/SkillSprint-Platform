@@ -784,30 +784,7 @@ async function handleBulkAction(action) {
     });
 }
 
-// Socket.io Real-time Updates
-function setupRealTimeUpdates() {
-    const socket = io();
-
-    socket.on("connect", () => {
-        console.log("Connected to Socket.io for Real-time Error Monitoring");
-    });
-
-    socket.on("error:new", (newError) => {
-        if (typeof showToast === 'function') {
-            showToast(`New ${newError.severity} Error: ${newError.message.substring(0, 50)}...`, "warning");
-        }
-
-        // Refresh stats and errors if in list view
-        fetchStats();
-        if (currentView === 'list' && currentPage === 1) {
-            loadErrors();
-        }
-    });
-
-    socket.on("disconnect", () => {
-        console.log("Disconnected from Socket.io");
-    });
-}
+// Socket.io Real-time Updates is already handled above.
 
 // Close modal on outside click
 document.getElementById("detailModal").addEventListener("click", (e) => {
