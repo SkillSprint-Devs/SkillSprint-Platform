@@ -709,6 +709,122 @@ router.get("/:id/comments", verifyToken, async (req, res) => {
   }
 });
 
+// Update comment
+router.put("/:boardId/comments/:commentId", verifyToken, async (req, res) => {
+  try {
+    const { text } = req.body;
+    const { boardId, commentId } = req.params;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ message: "Comment text is required" });
+    }
+
+    const board = await PairProgramming.findById(boardId);
+    if (!board) return res.status(404).json({ message: "Board not found" });
+
+    // Find comment in board-level comments or file-level comments
+    let comment = null;
+    let found = false;
+
+    // Check board-level comments
+    comment = board.comments.id(commentId);
+    if (comment) {
+      found = true;
+    } else {
+      // Check file-level comments
+      for (const folder of board.folders) {
+        for (const file of folder.files) {
+          comment = file.comments.id(commentId);
+          if (comment) {
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+    }
+
+    if (!found || !comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Check if user is the comment author
+    const commentAuthorId = comment.authorId?._id ? comment.authorId._id.toString() : comment.authorId.toString();
+    if (commentAuthorId !== req.user.id) {
+      return res.status(403).json({ message: "You can only edit your own comments" });
+    }
+
+    // Update comment
+    comment.text = text.trim();
+    comment.updatedAt = new Date();
+    await board.save();
+
+    const io = req.app.get("io");
+    emitBoard(io, boardId, "comment-updated", { commentId, text: comment.text });
+
+    res.json({ success: true, comment });
+  } catch (err) {
+    console.error("Error updating comment:", err);
+    res.status(500).json({ message: "Error updating comment", error: err.message });
+  }
+});
+
+// Delete comment
+router.delete("/:boardId/comments/:commentId", verifyToken, async (req, res) => {
+  try {
+    const { boardId, commentId } = req.params;
+
+    const board = await PairProgramming.findById(boardId);
+    if (!board) return res.status(404).json({ message: "Board not found" });
+
+    // Find and delete comment
+    let comment = null;
+    let found = false;
+
+    // Check board-level comments
+    comment = board.comments.id(commentId);
+    if (comment) {
+      const commentAuthorId = comment.authorId?._id ? comment.authorId._id.toString() : comment.authorId.toString();
+      if (commentAuthorId !== req.user.id && board.owner.toString() !== req.user.id) {
+        return res.status(403).json({ message: "You can only delete your own comments" });
+      }
+      comment.deleteOne();
+      found = true;
+    } else {
+      // Check file-level comments
+      for (const folder of board.folders) {
+        for (const file of folder.files) {
+          comment = file.comments.id(commentId);
+          if (comment) {
+            const commentAuthorId = comment.authorId?._id ? comment.authorId._id.toString() : comment.authorId.toString();
+            if (commentAuthorId !== req.user.id && board.owner.toString() !== req.user.id) {
+              return res.status(403).json({ message: "You can only delete your own comments" });
+            }
+            comment.deleteOne();
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+    }
+
+    if (!found) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    await board.save();
+
+    const io = req.app.get("io");
+    emitBoard(io, boardId, "comment-deleted", { commentId });
+
+    res.json({ success: true, message: "Comment deleted" });
+  } catch (err) {
+    console.error("Error deleting comment:", err);
+    res.status(500).json({ message: "Error deleting comment", error: err.message });
+  }
+});
+
 /* ---------------- RUN CODE (FIXED) ---------------- */
 
 router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, res) => {

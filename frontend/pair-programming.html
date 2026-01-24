@@ -14,8 +14,14 @@
   <!-- Your variables.css (already uploaded) -->
   <link rel="stylesheet" href="assets/css/variables.css?v=2">
 
+  <!-- Navbar CSS (Platform Standard) -->
+  <link rel="stylesheet" href="assets/css/navbar.css">
+
   <!-- Page CSS -->
   <link rel="stylesheet" href="assets/css/pair-programming.css?v=2">
+
+  <!-- Pair Programming Overrides -->
+  <link rel="stylesheet" href="assets/css/pair-programming-overrides.css">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -33,28 +39,55 @@
 
 <body>
   <div class="pp-wrapper">
-    <!-- TOP NAV -->
-    <header class="top-nav">
-      <div class="left">
-        <button class="btn-icon" onclick="window.history.back()"
-          style="margin-right: 12px; font-size: 1.2rem; color: var(--text-primary);"><i
-            class="fa-solid fa-arrow-left"></i></button>
-        <!-- Mobile Sidebar Toggle -->
-        <button id="sidebarToggle" class="btn-icon mobile-only" style="display:none; margin-right: 8px;"><i
-            class="fa-solid fa-bars"></i></button>
-        <div class="logo">SkillSprint</div>
-        <div class="project-name">/SkillSprint / PairProject</div>
-      </div>
+    <!-- NAVBAR (Platform Standard) -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <div class="navbar-top">
+          <div class="nav-left">
+            <a href="dashboard.html" class="brand brand-interactive"
+              onclick="event.preventDefault(); window.history.back();" title="Back to Dashboard">
+              <div class="brand-logo">
+                <i class="fa-solid fa-code icon-default"></i>
+                <i class="fa-solid fa-arrow-left icon-hover"></i>
+              </div>
+              <span class="brand-name">SkillSprint</span>
+            </a>
+            <div class="page-indicator">
+              <span class="status-dot"></span>
+              <span id="projectName">Pair Programming</span>
+            </div>
+          </div>
 
-      <div class="right">
-        <button id="inviteBtn" class="btn accent">Invite +</button>
-        <div class="members" id="membersContainer"></div>
-        <button id="shareBtn" class="btn">Share</button>
-        <button id="helpBtn" class="btn">Help</button>
-      </div>
-      <button id="themeToggle" class="btn small">Dark Mode</button>
+          <div class="nav-center">
+            <!-- Quick file switcher could go here -->
+          </div>
 
-    </header>
+          <div class="nav-right">
+            <!-- Session Status -->
+            <div class="session-status" id="sessionStatus">
+              <span class="status-dot"></span>
+              <span class="status-text">Live</span>
+            </div>
+
+            <!-- Collaboration Presence -->
+            <div class="collab-presence" id="collabPresence"></div>
+
+            <button id="inviteBtn" class="icon-btn" title="Invite Collaborators">
+              <i class="fa-solid fa-user-plus"></i>
+            </button>
+            <button id="shareBtn" class="icon-btn" title="Share Link">
+              <i class="fa-solid fa-share-nodes"></i>
+            </button>
+            <button id="helpBtn" class="icon-btn" title="Help">
+              <i class="fa-solid fa-circle-question"></i>
+            </button>
+            <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
 
     <!-- TABS -->
     <div class="tabs-bar" id="tabsBar">
@@ -140,27 +173,48 @@
 
     <!-- Invite Modal -->
     <div id="inviteModal" class="input-modal">
-      <div class="input-box invite-box" style="width: 400px; max-width: 90%;">
-        <h3>Invite to Collaborate</h3>
-        <input type="text" id="inviteSearch" placeholder="Search users by name..." style="margin-bottom: 10px;" />
+      <div class="input-box invite-box" style="width: 500px; max-width: 90%;">
+        <h3><i class="fa-solid fa-user-plus"></i> Invite Collaborator</h3>
 
-        <div id="inviteUserList" class="user-list"
-          style="max-height: 200px; overflow-y: auto; text-align: left; margin-bottom: 15px; border: 1px solid #eee; border-radius: 6px;">
-          <!-- Users will populate here -->
+        <div style="margin-bottom: 20px;">
+          <label
+            style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+            Search Users
+          </label>
+          <input type="text" id="inviteSearch" placeholder="Type name or email to search..."
+            style="margin-bottom: 0;" />
+          <p style="font-size: 11px; color: var(--text-light); margin: 6px 0 0 0;">
+            Search from your connections or all platform users
+          </p>
         </div>
 
-        <div style="text-align: left; margin-bottom: 15px;">
-          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px;">Permission:</label>
-          <select id="invitePermission" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-            <option value="viewer">Request: View Only</option>
-            <option value="editor" selected>Request: Can Edit Files</option>
-            <!-- Mapping 'editor' to Run/Edit for simplicity in backend logic, but UI shows specific text -->
-            <option value="editor">Request: Can Run/Execute Code Check</option>
+        <div id="inviteUserList" class="user-list"
+          style="max-height: 280px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #eee; border-radius: 8px; background: #f9f9f9;">
+          <div style="padding: 40px 20px; text-align: center; color: #999;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+            <p style="margin: 0; font-size: 13px;">Start typing to search users</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label
+            style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+            <i class="fa-solid fa-shield-halved"></i> Permission Level
+          </label>
+          <select id="invitePermission"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+            <option value="viewer">View Only - Can see code but not edit</option>
+            <option value="editor" selected>Can Edit - Full read/write access to files</option>
           </select>
+          <p style="font-size: 11px; color: var(--text-light); margin: 6px 0 0 0;">
+            You can change permissions later from the board settings
+          </p>
         </div>
 
         <div class="input-actions">
-          <button id="sendInviteBtn" class="btn-ok">Send Invite</button>
+          <button id="sendInviteBtn" class="btn-ok" disabled>
+            <i class="fa-solid fa-paper-plane"></i> Send Invite
+          </button>
           <button class="btn-cancel btn-close-invite">Cancel</button>
         </div>
       </div>
@@ -168,27 +222,46 @@
 
     <!-- Share Modal -->
     <div id="shareModal" class="input-modal">
-      <div class="input-box share-box" style="width: 400px; max-width: 90%;">
-        <h3>Share Public Link</h3>
+      <div class="input-box share-box" style="width: 500px; max-width: 90%;">
+        <h3><i class="fa-solid fa-share-nodes"></i> Share Board Link</h3>
 
-        <div style="text-align: left; margin-bottom: 15px;">
-          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px;">Link
-            Permission:</label>
-          <select id="sharePermission" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-            <option value="viewer">View Only</option>
-            <option value="editor">Can Edit & Run Code</option>
+        <div style="background: linear-gradient(135deg, rgba(220, 239, 98, 0.1) 0%, transparent 100%); 
+                    padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--accent);">
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-dark);">
+            <i class="fa-solid fa-info-circle" style="color: var(--accent);"></i>
+            <strong>Public Link Sharing:</strong> Anyone with this link can access the board with the selected
+            permissions.
+            The link never expires unless you regenerate it.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label
+            style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+            <i class="fa-solid fa-shield-halved"></i> Link Permission
+          </label>
+          <select id="sharePermission"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+            <option value="viewer">View Only - Read-only access to all files</option>
+            <option value="editor">Can Edit & Run - Full collaboration access</option>
           </select>
-          <p style="font-size: 0.75rem; color: #666; margin-top: 5px;">Anyone with this link will have the selected
-            permissions.</p>
         </div>
 
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="shareLinkInput" readonly value="https://..."
-            style="background: #f9f9f9; color: #555;" />
-          <button id="copyShareLinkBtn" class="btn accent">Copy</button>
+        <div style="margin-bottom: 20px;">
+          <label
+            style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+            Share Link
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="shareLinkInput" readonly value="Generating link..."
+              style="background: #f5f5f5; color: #333; font-family: monospace; font-size: 12px; flex: 1;" />
+            <button id="copyShareLinkBtn" class="btn accent" style="white-space: nowrap;">
+              <i class="fa-solid fa-copy"></i> Copy
+            </button>
+          </div>
         </div>
 
-        <div class="input-actions" style="margin-top: 15px;">
+        <div class="input-actions">
           <button class="btn-cancel btn-close-share">Close</button>
         </div>
       </div>

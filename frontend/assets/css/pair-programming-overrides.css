@@ -1,0 +1,332 @@
+/* Pair Programming Navbar Overrides */
+
+/* Remove bottom margin for flush layout */
+.pp-wrapper .navbar {
+    margin-bottom: 0;
+}
+
+/* Hide scrollbar to prevent extra space */
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+    display: none;
+}
+
+body,
+html {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Interactive Brand Logo - Hover to Back Arrow */
+.brand-interactive {
+    cursor: pointer;
+    position: relative;
+}
+
+.brand-interactive .brand-logo {
+    position: relative;
+    width: 36px;
+    height: 36px;
+}
+
+.brand-interactive .brand-logo i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-interactive .icon-default {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.brand-interactive .icon-hover {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-90deg) scale(0.8);
+}
+
+.brand-interactive:hover .icon-default {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(90deg) scale(0.8);
+}
+
+.brand-interactive:hover .icon-hover {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+}
+
+.brand-interactive:hover .brand-logo {
+    transform: rotate(-10deg) scale(1.1);
+    box-shadow: 0 0 30px rgba(220, 239, 98, 0.6);
+}
+
+/* Enhanced Explore Section */
+.explorer-header {
+    background: linear-gradient(135deg, rgba(220, 239, 98, 0.05) 0%, transparent 100%);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.file-tree-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.file-tree-empty i {
+    font-size: 48px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.file-tree-empty h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: var(--text-dark);
+}
+
+.file-tree-empty p {
+    font-size: 13px;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+}
+
+.file-tree-empty .btn {
+    margin-top: 8px;
+}
+
+/* File Type Icons */
+.file-tree .file i {
+    color: #666;
+}
+
+.file-tree .file[data-ext="js"] i,
+.file-tree .file[data-ext="jsx"] i {
+    color: #f7df1e;
+}
+
+.file-tree .file[data-ext="py"] i {
+    color: #3776ab;
+}
+
+.file-tree .file[data-ext="html"] i {
+    color: #e34c26;
+}
+
+.file-tree .file[data-ext="css"] i {
+    color: #264de4;
+}
+
+.file-tree .file[data-ext="json"] i {
+    color: #5a5a5a;
+}
+
+/* Enhanced Modals */
+.input-modal {
+    backdrop-filter: blur(8px);
+}
+
+.input-box {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-box h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--accent);
+}
+
+/* User List in Invite Modal */
+.user-list {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.user-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.user-list-item:hover {
+    background: white;
+    border-color: var(--accent);
+    transform: translateX(4px);
+}
+
+.user-list-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-list-item .user-info {
+    flex: 1;
+}
+
+.user-list-item .user-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-dark);
+}
+
+.user-list-item .user-email {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+/* Enhanced Comments Panel */
+.comments-header {
+    background: linear-gradient(135deg, rgba(220, 239, 98, 0.08) 0%, transparent 100%);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.comments-list {
+    background: #fafafa;
+}
+
+.comment {
+    position: relative;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.comment:hover {
+    border-left-color: var(--accent);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.comment-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.comment-author img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+.comment-line-badge {
+    background: var(--accent);
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 10px;
+}
+
+.comments-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.comments-empty i {
+    font-size: 56px;
+    color: var(--accent);
+    opacity: 0.2;
+    margin-bottom: 16px;
+}
+
+.comments-empty h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: var(--text-dark);
+}
+
+.comments-empty p {
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Inline Comment Markers */
+.comment-marker {
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.comment-marker:hover {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+}
+
+/* Comment Action Buttons */
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.comment:hover .comment-actions {
+    opacity: 1;
+}
+
+.comment-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 13px;
+}
+
+.comment-action-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-dark);
+}
+
+.comment-action-btn.delete-comment:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.comment-action-btn.edit-comment:hover {
+    background: rgba(220, 239, 98, 0.2);
+    color: var(--accent);
+}
+
+.comment-edit-input {
+    font-family: inherit;
+    resize: vertical;
+}

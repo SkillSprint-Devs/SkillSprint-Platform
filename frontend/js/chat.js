@@ -140,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Search Logic ---
-document.getElementById('userSearchInput').addEventListener('input', (e) => {
-    const query = e.target.value.trim();
+window.handleChatSearch = (query) => {
+    query = query.trim();
     clearTimeout(debounceTimer);
     if (query.length < 2) {
         document.getElementById('searchResults').style.display = 'none';
@@ -156,7 +156,7 @@ document.getElementById('userSearchInput').addEventListener('input', (e) => {
             renderSearchResults(users);
         } catch (err) { console.error(err); }
     }, 300);
-});
+};
 
 function renderSearchResults(users) {
     const container = document.getElementById('searchResults');
@@ -302,13 +302,13 @@ function appendMessage(msg) {
     let actionsHtml = '';
     if (isMe && msgId) {
         actionsHtml = `
-            <div class="msg-actions">
-                <span class="action-btn edit-btn" title="Edit" onclick="window.handleEdit('${msg._id}')">
-                    <i class="fa-solid fa-pen"></i>
-                </span>
-                <span class="action-btn text-danger delete-btn" title="Delete" onclick="window.handleDelete('${msgId}')">
+            <div class="message-actions">
+                <button class="msg-action-btn edit-msg" title="Edit message">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="msg-action-btn delete-msg" title="Delete message">
                     <i class="fa-solid fa-trash"></i>
-                </span>
+                </button>
             </div>
         `;
     }
@@ -323,21 +323,87 @@ function appendMessage(msg) {
     ` : '';
 
     bubble.innerHTML = `
-        ${actionsHtml}
+        <div class="message-header">
+            ${actionsHtml}
+        </div>
         <div class="msg-content">${linkify(escapeHtml(msg.content))}</div>
-        <span class="message-time">${timeStr}</span>
-        ${msg.isEdited ? '<small class="edited-label text-muted" style="font-size:0.65rem; margin-top:2px; display:block;">(Edited)</small>' : ''}
-        ${statusHtml}
+        <div class="message-info">
+            <span class="message-time">${timeStr}</span>
+            ${msg.isEdited ? '<small class="edited-label">(Edited)</small>' : ''}
+            ${statusHtml}
+        </div>
     `;
 
-    if (isMe) {
-        bubble.addEventListener('dblclick', (e) => {
+    // Action Handlers
+    if (isMe && msgId) {
+        const editBtn = bubble.querySelector('.edit-msg');
+        const deleteBtn = bubble.querySelector('.delete-msg');
+        const contentDiv = bubble.querySelector('.msg-content');
+
+        editBtn.onclick = (e) => {
             e.stopPropagation();
-            document.querySelectorAll('.msg-actions.show').forEach(el => el.classList.remove('show'));
-            const actions = bubble.querySelector('.msg-actions');
-            if (actions) actions.classList.toggle('show');
-        });
+            const currentContent = msg.content;
+
+            contentDiv.innerHTML = `
+                <textarea class="msg-edit-input">${currentContent}</textarea>
+                <div class="edit-actions">
+                    <button class="btn-msg-save">Save</button>
+                    <button class="btn-msg-cancel">Cancel</button>
+                </div>
+            `;
+
+            const saveBtn = contentDiv.querySelector('.btn-msg-save');
+            const cancelBtn = contentDiv.querySelector('.btn-msg-cancel');
+            const textarea = contentDiv.querySelector('.msg-edit-input');
+
+            saveBtn.onclick = async () => {
+                const newContent = textarea.value.trim();
+                if (!newContent) return;
+                try {
+                    const res = await fetch(`${API_URL}/chat/${msgId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ content: newContent })
+                    });
+                    if (res.ok) {
+                        msg.content = newContent;
+                        msg.isEdited = true;
+                        contentDiv.innerHTML = linkify(escapeHtml(newContent));
+                        if (!bubble.querySelector('.edited-label')) {
+                            bubble.querySelector('.message-time').insertAdjacentHTML('afterend', '<small class="edited-label">(Edited)</small>');
+                        }
+                        socket.emit('edit_message', { _id: msgId, content: newContent, recipientId: currentChatUserId });
+                        showToast("Message updated", "success");
+                    }
+                } catch (err) { console.error(err); }
+            };
+
+            cancelBtn.onclick = () => {
+                contentDiv.innerHTML = linkify(escapeHtml(currentContent));
+            };
+        };
+
+        deleteBtn.onclick = async (e) => {
+            e.stopPropagation();
+            if (await showCustomConfirm("Delete this message?")) {
+                try {
+                    const res = await fetch(`${API_URL}/chat/delete/${msgId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        bubble.remove();
+                        socket.emit('delete_message', { messageId: msgId, recipientId: currentChatUserId });
+                        showToast("Message deleted", "success");
+                    }
+                } catch (err) { console.error(err); }
+            }
+        };
     }
+
     historyContainer.appendChild(bubble);
 }
 
@@ -348,15 +414,15 @@ document.addEventListener('click', (e) => {
 });
 
 // Explicit Global Handlers
-window.handleDelete = function (id) {
+window.handleDelete = async function (id) {
     console.log("[CHAT] handleDelete triggered for ID:", id);
     if (!id || id === 'undefined') {
         console.error("[CHAT] Cannot delete: Missing Message ID");
         return;
     }
-    confirm("Are you sure you want to delete this message?", () => {
+    if (await showCustomConfirm("Are you sure you want to delete this message?")) {
         window.deleteMessage(id);
-    });
+    }
 };
 
 window.deleteMessage = async function (id) {
