@@ -447,14 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // DETERMINE CATEGORY
-        let type = "Other"; // Default
-        if (["docx", "pdf", "pptx", "txt"].includes(fileExt)) {
-            type = "Document";
-        } else if (fileExt === "mp4") {
-            type = "Recording";
-        } else if (["xl", "xlsx", "xls"].includes(fileExt)) {
-            type = "Other";
-        }
+        const type = document.getElementById("uploadCategory").value;
 
         // --- VALIDATION END ---
 
@@ -464,7 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", document.getElementById("uploadDesc").value);
-        formData.append("type", type); // Auto-assigned
+        formData.append("type", type);
         formData.append("visibility", document.getElementById("uploadVisibility").value);
         formData.append("file", file);
 

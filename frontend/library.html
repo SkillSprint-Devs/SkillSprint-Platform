@@ -71,6 +71,9 @@
     </main>
   </div>
 
+  <!-- Hidden trigger for Upload Modal to support various JS calls -->
+  <button id="openUploadModal" style="display: none;"></button>
+
   <!-- Upload Modal -->
   <div class="modal" id="uploadModal">
     <div class="modal-content">
@@ -89,7 +92,12 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <!-- Category is now automated based on file type -->
+            <label for="uploadCategory">Category</label>
+            <select id="uploadCategory" required>
+              <option value="Document">Document</option>
+              <option value="Recording">Board Recording</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="uploadVisibility">Visibility</label>
