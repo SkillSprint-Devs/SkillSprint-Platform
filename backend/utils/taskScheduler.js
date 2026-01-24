@@ -12,10 +12,10 @@ export function initTaskScheduler(io) {
     // Run every day at 9:00 AM
     cron.schedule('0 9 * * *', async () => {
         if (mongoose.connection.readyState !== 1) {
-            console.warn('⏰ Scheduler: Skipping task reminder because MongoDB is not connected.');
+            console.warn('Scheduler: Skipping task reminder because MongoDB is not connected.');
             return;
         }
-        console.log('⏰ Running task reminder scheduler...');
+        console.log('Running task reminder scheduler...');
 
         try {
             const now = new Date();
@@ -72,9 +72,9 @@ export function initTaskScheduler(io) {
                 }
             }
 
-            console.log(`✅ Task reminders sent: ${tasksDueToday.length} due today, ${overdueTasks.length} overdue`);
+            console.log(`Task reminders sent: ${tasksDueToday.length} due today, ${overdueTasks.length} overdue`);
         } catch (error) {
-            console.error('❌ Error in task reminder scheduler:', error);
+            console.error('Error in task reminder scheduler:', error);
         }
     });
 
@@ -119,7 +119,7 @@ export function initTaskScheduler(io) {
             });
 
             if (reminders.length > 0) {
-                console.log(`🔔 Found ${reminders.length} reminders due in 10 mins at ${targetTime}`);
+                console.log(`Found ${reminders.length} reminders due in 10 mins at ${targetTime}`);
 
                 for (const r of reminders) {
                     // Create Notification
@@ -145,13 +145,13 @@ export function initTaskScheduler(io) {
         } catch (err) {
             // Handle DB connection issues gracefully without flooding logs
             if (err.name === 'MongoServerSelectionError' || err.name === 'MongoNetworkError' || err.message.includes('closed')) {
-                process.stdout.write(`⏰ Scheduler: Database connection blip (skipping this minute)\n`);
+                process.stdout.write(`Scheduler: Database connection blip (skipping this minute)\n`);
             } else {
                 console.error("Error in minute-reminder-scheduler:", err);
             }
         }
     });
 
-    console.log('✅ Task reminder scheduler initialized (runs daily at 9:00 AM)');
-    console.log('✅ Minute reminder scheduler initialized');
+    console.log('Task reminder scheduler initialized (runs daily at 9:00 AM)');
+    console.log('Minute reminder scheduler initialized');
 }

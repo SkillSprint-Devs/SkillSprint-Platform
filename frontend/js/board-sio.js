@@ -2,7 +2,7 @@
 
 (function () {
   if (typeof io === "undefined") {
-    console.error("⚠️ Socket.IO client library missing. Include it before this file.");
+    console.error("Socket.IO client library missing. Include it before this file.");
     return;
   }
 
@@ -13,8 +13,8 @@
   const SOCKET_IO_BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000' ? 'http://localhost:5000' : '';
   const token = localStorage.getItem('token');
 
-  const socket = io(SOCKET_IO_BACKEND_URL, { 
-    transports: ["websocket"], 
+  const socket = io(SOCKET_IO_BACKEND_URL, {
+    transports: ["websocket"],
     reconnection: true,
     auth: { token }
   });
@@ -48,7 +48,7 @@
 
   // Receive active users list for presence
   socket.on("board:presence:update", (data) => {
-    console.log("👥 Board presence update:", data);
+    console.log("Board presence update:", data);
 
     const container = document.getElementById("activeUsers");
     if (!container) return;
@@ -121,7 +121,7 @@
 
   // Remote save triggered
   socket.on("board:autosave", (data) => {
-    console.log("💾 Autosave triggered remotely");
+    console.log("Autosave triggered remotely");
     if (window.saveBoardState) window.saveBoardState(data);
   });
 
@@ -129,35 +129,35 @@
   window.BoardSocket = {
     emitDraw: (drawData) => {
       if (!boardId || !currentUser) {
-        console.warn("⚠️ Cannot emit draw event: boardId or currentUser missing");
+        console.warn("Cannot emit draw event: boardId or currentUser missing");
         return;
       }
       socket.emit("board:draw", { boardId, userId: currentUser._id, ...drawData });
     },
     emitUndo: () => {
       if (!boardId) {
-        console.warn("⚠️ Cannot emit undo event: boardId missing");
+        console.warn("Cannot emit undo event: boardId missing");
         return;
       }
       socket.emit("board:undo", { boardId });
     },
     emitRedo: () => {
       if (!boardId) {
-        console.warn("⚠️ Cannot emit redo event: boardId missing");
+        console.warn("Cannot emit redo event: boardId missing");
         return;
       }
       socket.emit("board:redo", { boardId });
     },
     emitSticky: (stickyData) => {
       if (!boardId) {
-        console.warn("⚠️ Cannot emit sticky event: boardId missing");
+        console.warn("Cannot emit sticky event: boardId missing");
         return;
       }
       socket.emit("board:sticky", { boardId, ...stickyData });
     },
     emitSave: (data) => {
       if (!boardId) {
-        console.warn("⚠️ Cannot emit save event: boardId missing");
+        console.warn("Cannot emit save event: boardId missing");
         return;
       }
       socket.emit("board:autosave", { boardId, ...data });

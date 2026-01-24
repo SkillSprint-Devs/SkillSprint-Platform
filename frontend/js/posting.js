@@ -217,7 +217,7 @@ function buildPostNode(post) {
 
   if (currentUser && post.authorId && String(currentUser._id) === String(post.authorId._id || post.authorId)) {
     const menu = el("div", { class: "post-menu" });
-    const btn = el("button", { class: "menu-btn" }, ["⋮"]);
+    const btn = el("button", { class: "menu-btn" }, [":"]);
     const list = el("div", { class: "menu-list" });
     const eBtn = el("button", { class: "menu-item edit-btn" });
     eBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
@@ -258,7 +258,7 @@ function buildPostNode(post) {
   }
 
   const cDiv = el("div", { class: "post-comment-input" }, [
-    el("input", { type: "text", placeholder: "Write a comment…", "data-post-id": String(post._id) }),
+    el("input", { type: "text", placeholder: "Write a comment...", "data-post-id": String(post._id) }),
   ]);
   postWrap.appendChild(actions);
   postWrap.appendChild(cDiv);
@@ -440,7 +440,7 @@ async function toggleComments(node, postId) {
     return;
   }
 
-  panel = el("div", { class: "comments-panel" }, [el("div", { class: "loading" }, ["Loading comments…"])]);
+  panel = el("div", { class: "comments-panel" }, [el("div", { class: "loading" }, ["Loading comments..."])]);
   node.appendChild(panel);
   setTimeout(() => panel.classList.add("open"), 10);
 
@@ -841,7 +841,7 @@ async function openConnectionsPanel(type = "followers", userId = null) {
     if (!userId) return;
 
     connectionsPanelText.textContent = type === "followers" ? "Followers" : "Following";
-    connectionsPanelBody.innerHTML = "<div class='loading'>Loading…</div>";
+    connectionsPanelBody.innerHTML = "<div class='loading'>Loading...</div>";
     connectionsPanel.classList.add("open");
 
     const res = await fetch(`${FOLLOW_API_BASE}/${type}/${userId}`, { headers: authHeader });
@@ -926,7 +926,7 @@ if (closeChatPanel) closeChatPanel.onclick = () => chatPanel.classList.remove("o
 
 async function loadChatList() {
   try {
-    chatList.innerHTML = "<div class='loading'>Loading…</div>";
+    chatList.innerHTML = "<div class='loading'>Loading...</div>";
     // FETCH from correct CHAT API (sync with chat.js)
     const res = await fetch(`${API_BASE}/chat/conversations/recent`, { headers: authHeader });
 
@@ -951,7 +951,7 @@ async function loadChatList() {
         alt: u.name,
       });
 
-      const lastMsgText = c.lastMessage?.content || "Message…";
+      const lastMsgText = c.lastMessage?.content || "Message...";
       const truncatedMsg = lastMsgText.length > 20 ? lastMsgText.substring(0, 20) + "..." : lastMsgText;
 
       const info = el("div", { class: "chat-info" }, [

@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -10,73 +11,79 @@
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/board.css">
 </head>
+
 <body>
   <header class="top-bar">
     <div class="left-section">
-      <button id="btnBack" class="icon-btn" title="Back"><span class="material-icons-outlined">arrow_back</span></button>
+      <button id="btnBack" class="icon-btn" title="Back"><span
+          class="material-icons-outlined">arrow_back</span></button>
     </div>
 
     <div class="center-section">
-      <h3 id="boardTitle">SkillSprint • <span id="boardName">untitled</span>.smartboard</h3>
+      <h3 id="boardTitle">SkillSprint - <span id="boardName">untitled</span>.smartboard</h3>
     </div>
 
     <div class="right-section">
-      <button id="saveBtn" class="accent-btn" title="Save Board (Ctrl+S)"><span class="material-icons-outlined">save</span> Save</button>
-      <button id="inviteBtn" class="icon-btn" title="Invite User"><span class="material-icons-outlined">person_add_alt</span></button>
+      <button id="saveBtn" class="accent-btn" title="Save Board (Ctrl+S)"><span
+          class="material-icons-outlined">save</span> Save</button>
+      <button id="inviteBtn" class="icon-btn" title="Invite User"><span
+          class="material-icons-outlined">person_add_alt</span></button>
       <div id="activeUsers" class="active-users"></div>
       <div id="currentUserBadge" class="user-presence">
         <!-- Badge populated by JS -->
         <img id="currentUserAvatar" src="assets/images/user-avatar.png" alt="Me" class="user-avatar-stack" title="You">
       </div>
-      <button id="recordBtn" class="icon-btn" title="Record Board"><span class="material-icons-outlined">radio_button_checked</span></button>
-      <button id="shareBtn" class="accent-btn" title="Share (Public Link)"><span class="material-icons-outlined">ios_share</span> Share</button>
+      <button id="recordBtn" class="icon-btn" title="Record Board"><span
+          class="material-icons-outlined">radio_button_checked</span></button>
+      <button id="shareBtn" class="accent-btn" title="Share (Public Link)"><span
+          class="material-icons-outlined">ios_share</span> Share</button>
     </div>
   </header>
 
-<aside class="toolbox">
-  <button id="undoBtn" class="tool" title="Undo (Ctrl+Z)">
-    <span class="material-icons-outlined">undo</span>
-  </button>
-  <button id="redoBtn" class="tool" title="Redo (Ctrl+Y)">
-    <span class="material-icons-outlined">redo</span>
-  </button>
-  <div class="tool-divider"></div>
-  <button data-tool="pen" class="tool active" title="Pen Tool">
-    <span class="material-icons-outlined">draw</span>
-  </button>
-  <button data-tool="eraser" class="tool" title="Eraser Tool">
-    <span class="material-icons-outlined">cleaning_services</span>
-  </button>
-  <button data-tool="highlighter" class="tool" title="Highlighter">
-    <span class="material-icons-outlined">auto_fix_high</span>
-  </button>
-  <button data-tool="rectangle" class="tool" title="Rectangle Shape">
-    <span class="material-icons-outlined">rectangle</span>
-  </button>
-  <button data-tool="circle" class="tool" title="Circle Shape">
-    <span class="material-icons-outlined">panorama_fish_eye</span>
-  </button>
-  <button data-tool="text" class="tool" title="Text Box">
-    <span class="material-icons-outlined">title</span>
-  </button>
-  
-  <div class="color-picker-wrapper">
-    <input id="colorPicker" type="color" value="#000000" title="Select Color">
-    <span class="color-display"></span>
-  </div>
+  <aside class="toolbox">
+    <button id="undoBtn" class="tool" title="Undo (Ctrl+Z)">
+      <span class="material-icons-outlined">undo</span>
+    </button>
+    <button id="redoBtn" class="tool" title="Redo (Ctrl+Y)">
+      <span class="material-icons-outlined">redo</span>
+    </button>
+    <div class="tool-divider"></div>
+    <button data-tool="pen" class="tool active" title="Pen Tool">
+      <span class="material-icons-outlined">draw</span>
+    </button>
+    <button data-tool="eraser" class="tool" title="Eraser Tool">
+      <span class="material-icons-outlined">cleaning_services</span>
+    </button>
+    <button data-tool="highlighter" class="tool" title="Highlighter">
+      <span class="material-icons-outlined">auto_fix_high</span>
+    </button>
+    <button data-tool="rectangle" class="tool" title="Rectangle Shape">
+      <span class="material-icons-outlined">rectangle</span>
+    </button>
+    <button data-tool="circle" class="tool" title="Circle Shape">
+      <span class="material-icons-outlined">panorama_fish_eye</span>
+    </button>
+    <button data-tool="text" class="tool" title="Text Box">
+      <span class="material-icons-outlined">title</span>
+    </button>
 
-  <button id="commentToggle" data-tool="comment" class="tool" title="Discussion / Comments">
-    <span class="material-icons-outlined">forum</span>
-  </button>
-  <button id="stickyBtn" data-tool="sticky" class="tool" title="Add Sticky Note">
-    <span class="material-icons-outlined">sticky_note_2</span>
-  </button>
+    <div class="color-picker-wrapper">
+      <input id="colorPicker" type="color" value="#000000" title="Select Color">
+      <span class="color-display"></span>
+    </div>
+
+    <button id="commentToggle" data-tool="comment" class="tool" title="Discussion / Comments">
+      <span class="material-icons-outlined">forum</span>
+    </button>
+    <button id="stickyBtn" data-tool="sticky" class="tool" title="Add Sticky Note">
+      <span class="material-icons-outlined">sticky_note_2</span>
+    </button>
 
 
-  <div class="stroke-control">
-    <input id="strokeRange" type="range" min="1" max="60" value="4" title="Stroke Size">
-  </div>
-</aside>
+    <div class="stroke-control">
+      <input id="strokeRange" type="range" min="1" max="60" value="4" title="Stroke Size">
+    </div>
+  </aside>
 
 
   <main id="boardContainer">
@@ -101,7 +108,7 @@
       <h3>Invite to Board</h3>
       <input type="text" id="userSearchInput" class="full-width" placeholder="Search users by name or email...">
       <div id="userList" class="user-list"></div>
-      
+
       <label>Permission:</label>
       <select id="inviteRole" class="full-width">
         <option value="viewer">View Only</option>
@@ -120,14 +127,17 @@
     <div class="modal">
       <h3>Share Public Link</h3>
       <p style="font-size:14px; color:#666; margin:0;">Anyone with this link can access the board.</p>
-      
+
       <div class="radio-group" style="display:flex; gap:16px; margin: 8px 0;">
-        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="viewer" checked> View Only</label>
-        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="editor"> Can Edit</label>
+        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="viewer"
+            checked> View Only</label>
+        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="editor"> Can
+          Edit</label>
       </div>
 
       <div style="display:flex; gap:8px;">
-        <input type="text" id="shareLinkInput" class="full-width" readonly onclick="this.select()" placeholder="No link generated yet">
+        <input type="text" id="shareLinkInput" class="full-width" readonly onclick="this.select()"
+          placeholder="No link generated yet">
         <button id="copyShareLinkBtn" class="accent-btn">Copy</button>
       </div>
 
@@ -138,30 +148,28 @@
     </div>
   </div>
 
-  
-   <script> 
-window.BOARD_ID = (() => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('id') || null;
-})();
+
+  <script>
+    window.BOARD_ID = (() => {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id') || null;
+    })();
 
 
-window.CURRENT_USER = (() => {
-  try {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  } catch {
-    return null;
-  }
-})();
-</script>
+    window.CURRENT_USER = (() => {
+      try {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
+      } catch {
+        return null;
+      }
+    })();
+  </script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="js/board.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/board-sio.js"></script>
 
 </body>
+
 </html>
-
-
-

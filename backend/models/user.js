@@ -1,20 +1,20 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  // 🧍 BASIC INFO
+  // BASIC INFO
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password_hash: { type: String, required: true },
   profile_image: { type: String, default: "" },
   role: { type: String, enum: ["student", "mentor", "admin"], required: true },
 
-  // 💬 PERSONAL INFO
+  // PERSONAL INFO
   phone: { type: String, default: "" },
   location: { type: String, default: "" },           // e.g. "Remote – Pakistan"
   bio: { type: String, default: "" },                // short intro
   availability: { type: String, default: "available" }, // or "busy", "open to collab"
 
-  // 💼 PROFESSIONAL INFO
+  // PROFESSIONAL INFO
   designation: { type: String, default: "" },        // e.g. "Frontend Developer"
   skills: [{ type: String }],                        // ["React", "Node.js", "MongoDB"]
   experience: [
@@ -58,19 +58,19 @@ const userSchema = new mongoose.Schema({
   ],
   learning_goals: [{ type: String }],                // ["Mastering Cloud Architecture"]
 
-  // 🌐 SOCIAL LINKS
+  // SOCIAL LINKS
   github: { type: String, default: "" },
   linkedin: { type: String, default: "" },
   portfolio: { type: String, default: "" },
 
-  // 📅 META
+  // META
   created_at: { type: Date, default: Date.now },
 
-  // 🔐 OTP HANDLING
+  // OTP HANDLING
   otp: { type: String, default: null },
   otpExpires: { type: Date, default: null },
 
-  // 🫂 FOLLOW SYSTEM
+  // FOLLOW SYSTEM
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   followers_count: { type: Number, default: 0 },
@@ -80,7 +80,7 @@ const userSchema = new mongoose.Schema({
   avatarUrl: { type: String, default: "" },
   colorTag: { type: String, default: "" },
 
-  // 🔥 STREAKS
+  // STREAKS
   streakCount: { type: Number, default: 1 },
   lastActiveDate: { type: Date, default: Date.now },
   longestStreak: { type: Number, default: 1 },

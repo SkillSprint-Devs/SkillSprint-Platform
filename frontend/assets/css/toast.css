@@ -1,4 +1,4 @@
-/* 🔔 Compact Toast - Center Top */
+/* Compact Toast - Center Top */
 .toast {
   position: fixed;
   top: 25px;
@@ -20,22 +20,25 @@
   letter-spacing: 0.2px;
   line-height: 1.3;
 }
+
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
 .toast.success {
   background-color: #28a745;
 }
+
 .toast.error {
   background-color: #dc3545;
 }
+
 .toast.warning {
   background-color: #ffc107;
   color: #000;
 }
+
 .toast.info {
   background-color: #007bff;
 }
-
-

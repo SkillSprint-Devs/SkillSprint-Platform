@@ -77,7 +77,7 @@
     const token = localStorage.getItem('token');
 
     if (!token || token === "null" || token === "undefined") {
-      console.error("NO VALID TOKEN — cannot load board");
+      console.error("NO VALID TOKEN - cannot load board");
       return;
     }
 
@@ -802,7 +802,7 @@
         if (id) sticky.dataset.id = id;
 
         sticky.innerHTML = `<div class="sticky-header"><strong>Note</strong>
-              <button class="close-sticky" title="Delete" style="background:none;border:none;cursor:pointer">✕</button>
+              <button class="close-sticky" title="Delete" style="background:none;border:none;cursor:pointer">x</button>
             </div><textarea placeholder="Write...">${textContent}</textarea>`;
         wrapper.appendChild(sticky);
 
@@ -867,7 +867,7 @@
 
         box.innerHTML = `
           <div class="text-box-header">
-            <button class="close-text" title="Remove" style="z-index:10; pointer-events:auto;">✕</button>
+            <button class="close-text" title="Remove" style="z-index:10; pointer-events:auto;">x</button>
           </div>
           <textarea placeholder="Type...">${textContent}</textarea>
         `;

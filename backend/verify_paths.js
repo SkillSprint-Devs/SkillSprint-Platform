@@ -12,16 +12,16 @@ console.log("Resolved Frontend Path:", frontendPath);
 try {
     const index = path.join(frontendPath, "index.html");
     if (fs.existsSync(index)) {
-        console.log("✅ index.html found at:", index);
+        console.log("index.html found at:", index);
     } else {
-        console.error("❌ index.html NOT found at:", index);
+        console.error("index.html NOT found at:", index);
     }
 
     const getstarted = path.join(frontendPath, "getstarted.html");
     if (fs.existsSync(getstarted)) {
-        console.log("✅ getstarted.html found at:", getstarted);
+        console.log("getstarted.html found at:", getstarted);
     } else {
-        console.error("❌ getstarted.html NOT found at:", getstarted);
+        console.error("getstarted.html NOT found at:", getstarted);
     }
 } catch (error) {
     console.error("Error accessing files:", error);

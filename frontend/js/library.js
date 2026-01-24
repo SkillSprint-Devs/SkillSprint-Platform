@@ -23,7 +23,7 @@ window.deleteLibraryItem = async function (id) {
     }
 
     // Confirmation bypassed
-    // if (!confirm("⚠️ Are you sure you want to delete this file?")) return;
+    // if (!confirm("Are you sure you want to delete this file?")) return;
 
     const card = document.querySelector(`[data-item-id="${id}"]`);
     if (card) {

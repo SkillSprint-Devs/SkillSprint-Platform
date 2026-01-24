@@ -11,11 +11,11 @@ router.get("/stats", async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
 
-        // ✅ FIX 1: Get REAL online users count from socket connections
+        // FIX 1: Get REAL online users count from socket connections
         const onlineUsersMap = req.app.get('onlineUsers');
         const onlineUsers = onlineUsersMap ? onlineUsersMap.size : 0;
 
-        // ✅ FIX 2: Count LIVE SESSIONS (not boards) with status = "live"
+        // FIX 2: Count LIVE SESSIONS (not boards) with status = "live"
         const activeSessions = await LiveSession.countDocuments({ status: "live" });
 
         // BONUS: Add projects count for future dashboard enhancement
@@ -83,7 +83,7 @@ router.get("/users-preview", async (req, res) => {
 });
 
 // GET /api/admin/health
-// ✅ FIX 3: Real system health monitoring
+// FIX 3: Real system health monitoring
 router.get("/health", async (req, res) => {
     try {
         const health = {

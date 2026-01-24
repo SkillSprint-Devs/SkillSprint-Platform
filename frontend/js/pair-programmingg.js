@@ -31,7 +31,7 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 function showLineBubble(line) {
   const widget = document.createElement("div");
   widget.className = "line-bubble";
-  widget.textContent = "💬";
+  widget.textContent = "Chat";
   state.editor.addLineWidget(line - 1, widget, { above: false });
 }
 
@@ -119,7 +119,7 @@ function renderTabs() {
     t.textContent = tab;
 
     const close = document.createElement("span");
-    close.textContent = "✕";
+    close.textContent = "x";
     close.className = "close";
 
     close.addEventListener("click", (e) => {
@@ -494,12 +494,12 @@ function runCode() {
   const iframeWindow = iframe.contentWindow;
 
   // Override console.log inside iframe to capture logs
-  iframeWindow.console.log = function(...args) {
+  iframeWindow.console.log = function (...args) {
     outputEl.textContent += args.map(String).join(" ") + "\n";
   };
 
   // Override console.error to capture errors
-  iframeWindow.console.error = function(...args) {
+  iframeWindow.console.error = function (...args) {
     outputEl.textContent += "Error: " + args.map(String).join(" ") + "\n";
   };
 

@@ -132,7 +132,7 @@ export function initSocket(token, boardIdParam) {
       const header = document.getElementById("activeFilename");
       if (header) {
         const originalText = header.textContent;
-        header.textContent = originalText + " ✓";
+        header.textContent = originalText + " (Sync)";
         setTimeout(() => {
           header.textContent = originalText.replace(" *", "");
         }, 1500);
@@ -259,7 +259,7 @@ export function emitCursorUpdate(boardId, cursor, color) {
 
 export function emitContentUpdate(boardId, fileId, patch) {
   if (socket && socket.connected) {
-    console.log("📤 Emitting content update for file:", fileId);
+    console.log("Emitting content update for file:", fileId);
     socket.emit("content-update", { boardId, fileId, patch });
   }
 }
