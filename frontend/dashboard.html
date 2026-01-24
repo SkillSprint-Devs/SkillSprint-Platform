@@ -161,7 +161,9 @@
             </template>
 
             <div id="taskList" class="task-list">
-              <!-- Tasks injected here -->
+              <!-- Skeleton Loaders -->
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-card"></div>
             </div>
           </section>
 
@@ -201,7 +203,8 @@
             </template>
 
             <div id="sessionList" class="session-list">
-              <!-- Sessions injected here -->
+              <!-- Skeleton Loaders -->
+              <div class="skeleton skeleton-card"></div>
             </div>
           </section>
 
@@ -212,9 +215,21 @@
 
           <!-- Notifications Section (Now TOP) -->
           <div class="notifications-container">
-            <h3><i class="fa-solid fa-bell"></i> Notifications</h3>
+            <h3 style="display:flex; justify-content:space-between; align-items:center;">
+              <span>
+                <i class="fa-solid fa-bell" style="position:relative;">
+                  <span class="notif-badge"
+                    style="display:none; position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:var(--danger); border-radius:50%; border:1.5px solid #fff;"></span>
+                </i> Notifications
+              </span>
+              <button id="clearAllNotifsBtn"
+                style="background:none; border:none; color:var(--text-muted); font-size:0.75rem; cursor:pointer; font-weight:500; transition:var(--transition);">Clear
+                All</button>
+            </h3>
             <div id="notifList" class="notif-list">
-              <!-- Notifications injected here -->
+              <div class="skeleton-text" style="width:100%"></div>
+              <div class="skeleton-text" style="width:90%"></div>
+              <div class="skeleton-text" style="width:95%"></div>
             </div>
           </div>
 
@@ -233,7 +248,8 @@
             </div>
 
             <div class="reminder-list" id="reminderList">
-              <!-- Reminders injected here -->
+              <div class="skeleton-text" style="width:100%"></div>
+              <div class="skeleton-text" style="width:100%"></div>
             </div>
           </div>
 
@@ -250,6 +266,7 @@
   <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/notifications-global.js"></script>
   <script src="js/error-tracking.js"></script>
   <script src="js/bottomNav.js"></script>
 </body>

@@ -63,7 +63,28 @@ router.post("/", verifyToken, async (req, res) => {
     }
 });
 
-// DELETE a notification
+// DELETE all notifications for the user
+router.delete("/", verifyToken, async (req, res) => {
+    try {
+        await Notification.deleteMany({ user_id: req.user.id });
+        res.json({ message: "All notifications cleared" });
+    } catch (err) {
+        console.error("Error clearing notifications:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// GET unread count
+router.get("/unread-count", verifyToken, async (req, res) => {
+    try {
+        const count = await Notification.countDocuments({ user_id: req.user.id, is_read: false });
+        res.json({ count });
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// DELETE a notification (single)
 router.delete("/:id", verifyToken, async (req, res) => {
     try {
         const notification = await Notification.findById(req.params.id);
