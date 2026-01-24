@@ -77,17 +77,15 @@
 }
 
 .brand-logo {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     background: linear-gradient(135deg, #DCEF62 0%, #a8c945 100%);
     border-radius: 12px;
-    /* Increased rounding */
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
     color: #0a0a0a;
-    font-size: 16px;
+    font-size: 18px;
     box-shadow: 0 0 20px rgba(220, 239, 98, 0.4);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
@@ -95,16 +93,33 @@
 }
 
 .brand-logo i {
-    transition: transform 0.3s ease;
+    position: absolute;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.back-icon {
+    opacity: 0;
+    transform: translateX(10px) rotate(-90deg);
+}
+
+.context-icon {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
 }
 
 .brand:hover .brand-logo {
-    transform: rotate(-10deg) scale(1.1);
-    box-shadow: 0 0 30px rgba(220, 239, 98, 0.6);
+    transform: rotate(-12deg) scale(1.1);
+    box-shadow: 0 0 35px rgba(220, 239, 98, 0.6);
 }
 
-.brand:hover .brand-logo i {
-    transform: translateX(-2px);
+.brand:hover .context-icon {
+    opacity: 0;
+    transform: translateX(-10px) rotate(45deg);
+}
+
+.brand:hover .back-icon {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
 }
 
 .brand-name {

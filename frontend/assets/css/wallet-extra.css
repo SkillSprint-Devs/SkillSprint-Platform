@@ -1,6 +1,8 @@
 /* Wallet Standalone Styles */
 body {
   overflow-y: auto !important;
+  overflow-x: hidden !important;
+  /* Prevent horizontal scroll platform-wide */
 }
 
 .wallet-header {
@@ -50,7 +52,8 @@ body {
 .wallet-focused-container {
   width: 100%;
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 32px auto 0;
+  /* Standardized top margin */
   padding: 0 24px 3rem;
   min-height: calc(100vh - 120px);
   animation: fadeIn 0.5s ease-out;

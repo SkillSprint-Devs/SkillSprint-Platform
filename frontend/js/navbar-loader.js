@@ -6,6 +6,8 @@
 function initNavbar(config = {}) {
     const defaultOptions = {
         activePage: 'Library',
+        contextIcon: 'fa-book', // Default icon
+        backUrl: 'dashboard.html',
         showSearch: true,
         searchPlaceholder: 'Search resources, recordings, courses...',
         primaryAction: {
@@ -28,8 +30,11 @@ function initNavbar(config = {}) {
     <div class="navbar-container">
         <div class="navbar-top">
             <div class="nav-left">
-                <a href="dashboard.html" class="brand">
-                    <div class="brand-logo"><i class="fa-solid fa-arrow-left-long"></i></div>
+                <a href="${options.backUrl}" class="brand">
+                    <div class="brand-logo">
+                        <i class="fa-solid ${options.contextIcon} context-icon"></i>
+                        <i class="fa-solid fa-arrow-left-long back-icon"></i>
+                    </div>
                     <span class="brand-name">SkillSprint</span>
                 </a>
                 <div class="page-indicator">
