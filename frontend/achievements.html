@@ -213,4 +213,18 @@
   .back-btn:hover {
     background: #333;
   }
+
+  /* Hide scrollbar to prevent extra space */
+  body::-webkit-scrollbar,
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  body,
+  html {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
 </style>

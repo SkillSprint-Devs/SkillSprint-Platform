@@ -115,28 +115,30 @@ window.confirm = function (message, onConfirm, onCancel) {
 
   // Callback mode
   if (onConfirm || onCancel) {
-    console.log("[Confirm] Entering callback mode");
     modal.querySelector(".confirm-yes").onclick = () => {
-      console.log("[Confirm] Yes clicked");
       modal.classList.remove("show");
       setTimeout(() => modal.remove(), 300);
       if (onConfirm) onConfirm();
     };
 
     modal.querySelector(".confirm-no").onclick = () => {
-      console.log("[Confirm] No clicked");
       modal.classList.remove("show");
       setTimeout(() => modal.remove(), 300);
       if (onCancel) onCancel();
     };
-
     return;
   }
 
   // Synchronous mode fallback - use native confirm for now
-  // (We can't truly block in JavaScript without freezing the browser)
   modal.remove();
   return nativeConfirm(message);
+};
+
+// Global showCustomConfirm that returns a promise
+window.showCustomConfirm = function (message) {
+  return new Promise((resolve) => {
+    window.confirm(message, () => resolve(true), () => resolve(false));
+  });
 };
 
 
@@ -149,79 +151,93 @@ confirmStyle.innerHTML = `
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
   opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 99999;
+  transition: opacity 0.4s ease;
+  z-index: 999999;
 }
 .confirm-modal.show {
   opacity: 1;
 }
 .confirm-box {
-  background: #fff;
-  color: #222;
-  padding: 1.5rem;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #1a1a1a;
+  padding: 2.5rem 2rem;
+  border-radius: 28px;
   width: 90%;
-  max-width: 340px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.2);
+  max-width: 400px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.3);
   text-align: center;
-  animation: popIn 0.3s ease;
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.confirm-modal.show .confirm-box {
+  transform: scale(1) translateY(0);
 }
 .confirm-box p {
-  margin-bottom: 1rem;
-  font-weight: 500;
-  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  font-size: 1.2rem;
   line-height: 1.5;
+  color: #1a1a1a;
+  letter-spacing: -0.2px;
 }
 .confirm-actions {
   display: flex;
-  gap: 1rem;
+  gap: 1.2rem;
   justify-content: center;
 }
 .confirm-actions button {
-  padding: 10px 24px;
+  padding: 14px 32px;
   border: none;
-  border-radius: 6px;
-  font-weight: 600;
+  border-radius: 16px;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
-  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+  flex: 1;
 }
 .confirm-yes {
-  background: #DCEF62;
-  color: #1A1A1A;
+  background: var(--accent, #DCEF62);
+  color: #000;
+  box-shadow: 0 10px 25px rgba(220, 239, 98, 0.4);
 }
 .confirm-no {
-  background: #1A1A1A;
-  color: #fff;
+  background: rgba(0, 0, 0, 0.05);
+  color: #57606f;
 }
 .confirm-actions button:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
+  transform: translateY(-4px);
+  filter: brightness(1.05);
 }
-.confirm-actions button:active {
-  transform: translateY(0);
+.confirm-yes:hover {
+  box-shadow: 0 15px 35px rgba(220, 239, 98, 0.5);
+}
+.confirm-no:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
 }
 .confirm-box.admin-theme {
-  border: 1px solid rgba(109, 40, 217, 0.3);
-  background: #111;
+  background: rgba(18, 18, 18, 0.9);
   color: #fff;
+  border: 1px solid rgba(109, 40, 217, 0.3);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+.confirm-box.admin-theme p {
+  color: #f8fafc;
 }
 .confirm-box.admin-theme .confirm-yes {
   background: #6d28d9;
   color: #fff;
+  box-shadow: 0 10px 25px rgba(109, 40, 217, 0.4);
 }
 .confirm-box.admin-theme .confirm-no {
-  background: #1e1b4b;
+  background: rgba(255, 255, 255, 0.05);
   color: #94a3b8;
-}
-.confirm-box.admin-theme .confirm-yes:hover {
-  box-shadow: 0 0 15px rgba(109, 40, 217, 0.5);
-}
-@keyframes popIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
 }
 `;
 document.head.appendChild(confirmStyle);

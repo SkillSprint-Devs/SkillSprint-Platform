@@ -156,7 +156,11 @@ export async function loadBoard() {
       openFile(state.board.folders[0]._id, firstFile._id);
     }
 
-    document.querySelector(".project-name").textContent = `/ ${state.board.name}`;
+    // Update project name in navbar
+    const projectNameEl = document.getElementById("projectName");
+    if (projectNameEl) {
+      projectNameEl.textContent = state.board.name || "Pair Programming";
+    }
   } catch (err) {
     console.error("Error loading board:", err);
     showToast(err.message, "error");
@@ -169,6 +173,24 @@ export function renderFileTree() {
 
   if (!state.board || !state.board.folders) return;
 
+  // Check if board is empty
+  const hasFiles = state.board.folders.some(folder => folder.files && folder.files.length > 0);
+
+  if (!hasFiles && state.board.folders.length === 0) {
+    // Show empty state
+    container.innerHTML = `
+      <div class="file-tree-empty">
+        <i class="fa-solid fa-folder-open"></i>
+        <h3>No Files Yet</h3>
+        <p>Create your first file or folder to start collaborating</p>
+        <button class="btn accent" onclick="document.getElementById('addFileBtn').click()">
+          <i class="fa-solid fa-plus"></i> Create File
+        </button>
+      </div>
+    `;
+    return;
+  }
+
   const ul = document.createElement("ul");
   ul.style.padding = "0";
 
@@ -178,7 +200,7 @@ export function renderFileTree() {
 
     const folderRow = document.createElement("div");
     folderRow.className = "folder";
-    folderRow.textContent = folder.name;
+    folderRow.innerHTML = `<i class="fa-solid fa-folder"></i><span>${folder.name}</span>`;
     folderRow.setAttribute("data-folder-id", folder._id);
 
     const childContainer = document.createElement("div");
@@ -190,7 +212,26 @@ export function renderFileTree() {
 
       const fileRow = document.createElement("div");
       fileRow.className = "file";
-      fileRow.textContent = file.name;
+
+      // Detect file extension
+      const ext = file.name.split('.').pop().toLowerCase();
+      fileRow.setAttribute("data-ext", ext);
+
+      // Get appropriate icon
+      const iconMap = {
+        'js': 'fa-brands fa-js',
+        'jsx': 'fa-brands fa-react',
+        'py': 'fa-brands fa-python',
+        'html': 'fa-brands fa-html5',
+        'css': 'fa-brands fa-css3-alt',
+        'json': 'fa-solid fa-brackets-curly',
+        'md': 'fa-solid fa-file-lines',
+        'txt': 'fa-solid fa-file-lines'
+      };
+
+      const iconClass = iconMap[ext] || 'fa-solid fa-file-code';
+
+      fileRow.innerHTML = `<i class="${iconClass}"></i><span>${file.name}</span>`;
       fileRow.setAttribute("data-folder-id", folder._id);
       fileRow.setAttribute("data-file-id", file._id);
 
@@ -202,6 +243,9 @@ export function renderFileTree() {
 
     folderRow.addEventListener("click", () => {
       childContainer.classList.toggle("hidden");
+      const icon = folderRow.querySelector("i");
+      icon.classList.toggle("fa-folder");
+      icon.classList.toggle("fa-folder-open");
     });
 
     folderLi.appendChild(folderRow);
@@ -210,8 +254,6 @@ export function renderFileTree() {
   });
 
   container.appendChild(ul);
-  container.appendChild(ul);
-  // Remove nested event listener from here
 }
 
 let contextTargetFolderId = null;
@@ -352,7 +394,7 @@ export async function renameItem() {
 }
 
 export async function deleteItem() {
-  const confirmed = await confirmModal("Are you sure you want to delete this?");
+  const confirmed = await showCustomConfirm("Are you sure you want to delete this?");
   if (!confirmed) return;
 
   if (contextTargetFileId) {
@@ -625,7 +667,13 @@ export function renderComments() {
   allComments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   if (allComments.length === 0) {
-    list.innerHTML = '<div style="padding:16px; color:#888; text-align:center; font-style:italic;">No comments yet.</div>';
+    list.innerHTML = `
+      <div class="comments-empty">
+        <i class="fa-solid fa-comments"></i>
+        <h3>No Comments Yet</h3>
+        <p>Start a discussion by adding a comment below or clicking on a line number in the editor</p>
+      </div>
+    `;
     renderInlineMarkers();
     return;
   }
@@ -633,6 +681,7 @@ export function renderComments() {
   allComments.forEach(comment => {
     const el = document.createElement("div");
     el.className = "comment";
+    el.setAttribute("data-comment-id", comment._id);
 
     // Resolve file name if not already attached
     let fileName = comment._fileName;
@@ -643,27 +692,111 @@ export function renderComments() {
     const userAvatar = comment.authorId?.profile_image || comment.authorId?.avatarUrl || 'assets/images/user-avatar.png';
     const userName = comment.authorId?.name || comment.authorName || "User";
     const dateStr = new Date(comment.createdAt).toLocaleString();
-    const lineInfo = comment.line != null ? ` • <span style="font-weight:bold;color:var(--accent)">Line ${comment.line + 1}</span>` : "";
-    const fileInfo = fileName ? ` • <span>${fileName}</span>` : "";
+    const lineInfo = comment.line != null ? `<span class="comment-line-badge">Line ${comment.line + 1}</span>` : "";
+    const fileInfo = fileName ? `<span class="comment-meta-file">${fileName}</span>` : "";
+
+    // Check if current user is the comment author
+    const isAuthor = comment.authorId?._id === state.userId || comment.authorId === state.userId;
+    const actionButtons = isAuthor ? `
+      <div class="comment-actions">
+        <button class="comment-action-btn edit-comment" title="Edit comment">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="comment-action-btn delete-comment" title="Delete comment">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    ` : '';
 
     el.innerHTML = `
-      <div style="font-size:12px;color:var(--text-light);display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <div style="display:flex; align-items:center; gap:8px;">
-           <img src="${userAvatar}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;" />
-           <span><strong>${userName}</strong>${fileInfo}${lineInfo}</span>
+      <div class="comment-header">
+        <div class="comment-author">
+          <img src="${userAvatar}" alt="${userName}" />
+          <div>
+            <strong>${userName}</strong>
+            <div class="comment-meta">
+              ${fileInfo}
+              ${lineInfo}
+              <span>${dateStr}</span>
+            </div>
+          </div>
         </div>
-        <span style="font-size:10px;opacity:0.7">${dateStr}</span>
+        ${actionButtons}
       </div>
-      <div style="line-height:1.4; color:var(--text-dark); padding-left:32px;">${comment.text}</div>
+      <div class="comment-text" style="line-height:1.5; color:var(--text-dark); margin-top:8px; padding-left:40px;">${comment.text}</div>
     `;
     list.appendChild(el);
 
+    // Edit functionality
+    const editBtn = el.querySelector(".edit-comment");
+    if (editBtn) {
+      editBtn.onclick = (e) => {
+        e.stopPropagation();
+        const textDiv = el.querySelector(".comment-text");
+        const currentText = comment.text;
+
+        textDiv.innerHTML = `
+          <textarea class="comment-edit-input" style="width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 2px solid var(--accent); font-family: inherit; font-size: 14px;">${currentText}</textarea>
+          <div style="margin-top: 8px; display: flex; gap: 8px;">
+            <button class="btn small accent save-edit">Save</button>
+            <button class="btn small cancel-edit">Cancel</button>
+          </div>
+        `;
+
+        const saveBtn = textDiv.querySelector(".save-edit");
+        const cancelBtn = textDiv.querySelector(".cancel-edit");
+        const textarea = textDiv.querySelector(".comment-edit-input");
+
+        saveBtn.onclick = async () => {
+          const newText = textarea.value.trim();
+          if (!newText) {
+            showToast("Comment cannot be empty", "error");
+            return;
+          }
+
+          try {
+            await apiCall(`/${boardId}/comments/${comment._id}`, "PUT", { text: newText });
+            comment.text = newText;
+            textDiv.innerHTML = newText;
+            showToast("Comment updated", "success");
+          } catch (err) {
+            showToast(err.message, "error");
+          }
+        };
+
+        cancelBtn.onclick = () => {
+          textDiv.innerHTML = currentText;
+        };
+      };
+    }
+
+    // Delete functionality
+    const deleteBtn = el.querySelector(".delete-comment");
+    if (deleteBtn) {
+      deleteBtn.onclick = async (e) => {
+        e.stopPropagation();
+        if (!await showCustomConfirm("Are you sure you want to delete this comment?")) return;
+
+        try {
+          await apiCall(`/${boardId}/comments/${comment._id}`, "DELETE");
+          el.remove();
+          showToast("Comment deleted", "success");
+
+          // Remove from state
+          const index = allComments.indexOf(comment);
+          if (index > -1) allComments.splice(index, 1);
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      };
+    }
+
     // Click to jump to line
     if (comment.line != null && comment._fileId) {
-      el.style.borderLeft = "3px solid var(--accent)";
-      el.style.cursor = "pointer";
-      el.title = "Jump to code";
-      el.onclick = () => {
+      const textDiv = el.querySelector(".comment-text");
+      textDiv.style.cursor = "pointer";
+      textDiv.title = "Jump to code";
+      textDiv.onclick = () => {
         // Switch to file if not active
         if (state.active) {
           const [currentFolder, currentFile] = state.active.split("/");
@@ -788,26 +921,47 @@ export async function sendComment() {
 }
 
 export async function loadBoardMembers() {
-  const mCont = document.getElementById("membersContainer");
-  mCont.innerHTML = "";
+  const container = document.getElementById("collabPresence");
+  if (!container) return;
 
-  if (!state.board || !state.board.members) return;
+  container.innerHTML = "";
+  if (!state.board?.members) return;
 
   state.board.members.forEach(member => {
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
-    const imgUrl = member.profile_image || member.avatarUrl;
-    if (imgUrl) {
-      avatar.innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />`;
-      avatar.style.background = "none";
+    const avatar = document.createElement("img");
+    avatar.className = "collab-avatar active";
+    avatar.src = member.profile_image || member.avatarUrl || "assets/images/user-avatar.png";
+    avatar.alt = member.name;
+    avatar.title = `${member.name} (Active)`;
+    avatar.setAttribute("data-user-id", member._id);
+
+    // Set role if available
+    if (member._id === state.board.owner) {
+      avatar.setAttribute("data-role", "driver");
+      avatar.title = `${member.name} (Driver)`;
     } else {
-      avatar.textContent = member.name?.substring(0, 2).toUpperCase() || "??";
-      avatar.style.background = member.colorTag || "var(--accent)";
+      avatar.setAttribute("data-role", "navigator");
     }
-    avatar.title = member.name || "User";
-    mCont.appendChild(avatar);
+
+    container.appendChild(avatar);
   });
+
+  // Update project name in navbar
+  const projectNameEl = document.getElementById("projectName");
+  if (projectNameEl && state.board) {
+    projectNameEl.textContent = state.board.name || "Pair Programming";
+  }
 }
+
+// Listen for typing events from socket
+window.addEventListener("user-typing", (e) => {
+  const { userId, isTyping } = e.detail;
+  const avatar = document.querySelector(`.collab-avatar[data-user-id="${userId}"]`);
+  if (avatar) {
+    avatar.classList.toggle("typing", isTyping);
+  }
+});
+
 
 // Utilities
 export function detectMode(language) {
@@ -975,51 +1129,77 @@ let selectedUserId = null;
 document.getElementById("inviteSearch").addEventListener("input", async (e) => {
   const query = e.target.value.trim();
   const list = document.getElementById("inviteUserList");
-  list.innerHTML = "";
+  const sendBtn = document.getElementById("sendInviteBtn");
 
-  if (query.length < 2) return;
+  // Reset selection
+  selectedUserId = null;
+  sendBtn.disabled = true;
+
+  if (query.length < 2) {
+    list.innerHTML = `
+      <div style="padding: 40px 20px; text-align: center; color: #999;">
+        <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+        <p style="margin: 0; font-size: 13px;">Start typing to search users</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Show loading state
+  list.innerHTML = `
+    <div style="padding: 40px 20px; text-align: center; color: #999;">
+      <i class="fa-solid fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 12px; color: var(--accent);"></i>
+      <p style="margin: 0; font-size: 13px;">Searching...</p>
+    </div>
+  `;
 
   try {
     const res = await apiCall(`/users/search?query=${query}`, "GET");
-    // Since we put the route in pair-programmingRoutes for simplicity as /users/search inside /api/pair-programming prefix?
-    // Wait, the route I added was in pair-programmingRoutes.js which is mounted at /api/pair-programming.
-    // So the URL is /api/pair-programming/users/search. Yes.
+    const users = Array.isArray(res) ? res : (res.users || []);
 
-    // Actually typically search is generic, but I put it there.
-    // Let's verify route mount in server.js: app.use('/api/pair-programming', pairProgrammingRoutes); 
-    // Route in file: router.get("/users/search", ...)
-    // So URL: /api/pair-programming/users/search. Correct.
+    if (users.length === 0) {
+      list.innerHTML = `
+        <div style="padding: 40px 20px; text-align: center; color: #999;">
+          <i class="fa-solid fa-user-slash" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+          <p style="margin: 0; font-size: 13px;">No users found matching "${query}"</p>
+        </div>
+      `;
+      return;
+    }
 
-    // Correction: In pair-programmingRoutes replacement I replaced /users/search.
-    // Wait, I saw "router.get("/users/search"..."
-    // Yes.
-
-    // Correction 2: I used `apiCall` which prepends API_BASE.
-    // API_BASE = "http://127.0.0.1:5000/api/pair-programming";
-    // So calling `/users/search` works.
-
-    const users = Array.isArray(res) ? res : (res.users || []); // Safety
-
+    list.innerHTML = "";
     users.forEach(u => {
       const item = document.createElement("div");
       item.className = "user-list-item";
       item.innerHTML = `
-        <img src="${u.profile_image || 'assets/images/user-avatar.png'}" alt="av">
-        <div class="info">
-          <span class="name">${u.name}</span>
-          <span class="username">${u.email}</span>
+        <img src="${u.profile_image || 'assets/images/user-avatar.png'}" alt="${u.name}">
+        <div class="user-info">
+          <div class="user-name">${u.name}</div>
+          <div class="user-email">${u.email}</div>
         </div>
+        <i class="fa-solid fa-circle-check" style="color: var(--accent); font-size: 20px; opacity: 0;"></i>
       `;
       item.onclick = () => {
         // Deselect others
-        document.querySelectorAll(".user-list-item").forEach(el => el.classList.remove("selected"));
+        document.querySelectorAll(".user-list-item").forEach(el => {
+          el.classList.remove("selected");
+          el.querySelector("i").style.opacity = "0";
+        });
         item.classList.add("selected");
+        item.querySelector("i").style.opacity = "1";
         selectedUserId = u._id;
+        sendBtn.disabled = false;
       };
       list.appendChild(item);
     });
   } catch (err) {
     console.warn("Search error", err);
+    list.innerHTML = `
+      <div style="padding: 40px 20px; text-align: center; color: #ef4444;">
+        <i class="fa-solid fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 12px;"></i>
+        <p style="margin: 0; font-size: 13px;">Error searching users. Please try again.</p>
+      </div>
+    `;
   }
 });
 
@@ -1028,6 +1208,12 @@ document.getElementById("sendInviteBtn").onclick = async () => {
     showToast("Please select a user", "error");
     return;
   }
+
+  const sendBtn = document.getElementById("sendInviteBtn");
+  const originalText = sendBtn.innerHTML;
+  sendBtn.disabled = true;
+  sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
   const perm = document.getElementById("invitePermission").value;
   try {
     await apiCall(`/${boardId}/invite`, "POST", {
@@ -1035,9 +1221,22 @@ document.getElementById("sendInviteBtn").onclick = async () => {
       permission: perm
     });
     showToast("Invite sent successfully!", "success");
+
+    // Reset modal
+    document.getElementById("inviteSearch").value = "";
+    document.getElementById("inviteUserList").innerHTML = `
+      <div style="padding: 40px 20px; text-align: center; color: #999;">
+        <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+        <p style="margin: 0; font-size: 13px;">Start typing to search users</p>
+      </div>
+    `;
+    selectedUserId = null;
+
     closeInvite();
   } catch (err) {
     showToast(err.message, "error");
+    sendBtn.disabled = false;
+    sendBtn.innerHTML = originalText;
   }
 };
 

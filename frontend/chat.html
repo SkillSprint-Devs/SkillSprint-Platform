@@ -12,6 +12,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
     <link rel="stylesheet" href="assets/css/dashboard.css">
     <link rel="stylesheet" href="assets/css/chat.css">
 
@@ -20,24 +21,16 @@
 </head>
 
 <body>
+    <div id="navbar-placeholder"></div>
+
     <div class="chat-container">
         <!-- SIDEBAR -->
         <aside class="chat-sidebar" id="chatSidebar">
             <div class="sidebar-header">
-                <a href="dashboard.html" class="icon-btn" title="Back to Dashboard" style="margin-bottom:15px;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-
                 <!-- My Profile -->
                 <div class="my-profile">
                     <img id="myAvatar" src="" alt="Me">
                     <h6 id="myName">Loading...</h6>
-                </div>
-
-                <!-- Search (Below Profile) -->
-                <div class="search-wrapper" style="margin-bottom: 20px;">
-                    <input type="text" id="userSearchInput" class="search-input" placeholder="Search users...">
-                    <div id="searchResults" class="search-results-area"></div>
                 </div>
             </div>
 
@@ -47,6 +40,8 @@
                     Loading chats...
                 </div>
             </div>
+            <!-- Search Results Area (Still needed for dropdown) -->
+            <div id="searchResults" class="search-results-area"></div>
         </aside>
 
         <!-- MAIN CHAT AREA -->
@@ -113,6 +108,31 @@
     </div>
 
     <script src="js/toast.js"></script>
+    <script src="js/navbar-loader.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavbar({
+                activePage: 'Messages',
+                showSearch: true,
+                searchPlaceholder: 'Search users...',
+                search: {
+                    onInput: (val) => {
+                        if (window.handleChatSearch) window.handleChatSearch(val);
+                    }
+                },
+                primaryAction: {
+                    show: true,
+                    label: 'New Message',
+                    icon: 'fa-plus',
+                    onClick: () => {
+                        // Focus search to start new conversation
+                        const searchInput = document.querySelector('.navbar-search-input');
+                        if (searchInput) searchInput.focus();
+                    }
+                }
+            });
+        });
+    </script>
     <script src="js/chat.js"></script>
 </body>
 
