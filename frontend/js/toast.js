@@ -3,15 +3,17 @@ window.alert = function (msg) {
 };
 
 
-function showToast(message, type = "info", duration = 2500, callback = null) {
+window.showToast = showToast;
 
+function showToast(message, type = "info", duration = 2500, callback = null) {
+  console.log(`[Toast] ${type}: ${message}`);
   const existing = document.querySelector(".toast");
   if (existing) existing.remove();
-
 
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
   toast.textContent = message;
+  toast.style.zIndex = "100000"; // Ensure it's above everything
   document.body.appendChild(toast);
 
 
@@ -97,15 +99,18 @@ window.confirm = function (message, onConfirm, onCancel) {
   document.body.appendChild(modal);
   requestAnimationFrame(() => modal.classList.add("show"));
 
-  // Callback mode (for async usage like in live-session.js)
+  // Callback mode
   if (onConfirm || onCancel) {
+    console.log("[Confirm] Entering callback mode");
     modal.querySelector(".confirm-yes").onclick = () => {
+      console.log("[Confirm] Yes clicked");
       modal.classList.remove("show");
       setTimeout(() => modal.remove(), 300);
       if (onConfirm) onConfirm();
     };
 
     modal.querySelector(".confirm-no").onclick = () => {
+      console.log("[Confirm] No clicked");
       modal.classList.remove("show");
       setTimeout(() => modal.remove(), 300);
       if (onCancel) onCancel();

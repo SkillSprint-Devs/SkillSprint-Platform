@@ -7,11 +7,13 @@
         ? 'http://localhost:5000/api'
         : '/api';
 
-    const isReporting = false; // Move to top of logError scope
+    let isReporting = true; // Enabled
     let reportingCount = 0;
 
     function logError(errorData) {
-        if (reportingCount > 3) return; // Hard limit
+        if (!isReporting) return;
+        if (reportingCount >= 10) return; // Hard limit to prevent mail/log floods
+        reportingCount++;
 
         const userStr = localStorage.getItem("user");
         const token = localStorage.getItem("token");
