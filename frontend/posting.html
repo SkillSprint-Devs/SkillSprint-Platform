@@ -9,6 +9,7 @@
   <!-- Fonts & Core Styles -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/css/variables.css" />
+  <link rel="stylesheet" href="./assets/css/navbar.css" />
   <link rel="stylesheet" href="./assets/css/posting.css" />
 
 
@@ -19,27 +20,7 @@
 
 
 <body>
-  <!-- TOP NAV -->
-  <nav class="top-nav">
-    <div class="left">
-      <button id="btnBack" class="icon-btn" title="Back">
-        <span class="material-icons-outlined">arrow_back</span></button>
-      <span class="logo">SkillSprint</span>
-      <input id="searchInput" type="text" placeholder="Search people, skills..." class="search-input" />
-    </div>
-
-    <!-- Top icons removed -->
-
-    <div class="profile">
-      <div class="profile-info">
-        <span id="usernameTop">Guest</span>
-        <a href="profile.html" class="profile-link">Profile</a>
-      </div>
-      <a href="profile.html">
-        <img id="creatorAvatar" src="./assets/images/user-avatar.png" alt="User avatar" />
-      </a>
-    </div>
-  </nav>
+  <div id="navbar-placeholder"></div>
 
   <!-- MAIN GRID -->
   <main class="posting-container">
@@ -150,6 +131,36 @@
   <!-- Scripts -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="js/toast.js"></script>
+  <script src="js/navbar-loader.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar({
+        activePage: 'Feed',
+        searchPlaceholder: 'Search posts, members...',
+        primaryAction: {
+          show: true,
+          label: 'Create Post',
+          icon: 'fa-pen-to-square',
+          onClick: () => {
+            const text = document.getElementById('postText');
+            if (text) {
+              text.focus();
+              text.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        },
+        search: {
+          onInput: (val) => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+              searchInput.value = val;
+              searchInput.dispatchEvent(new Event('input'));
+            }
+          }
+        }
+      });
+    });
+  </script>
   <script type="module" src="js/posting-sio.js"></script>
   <script type="module" src="js/posting.js"></script>
 </body>

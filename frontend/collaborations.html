@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Collaborations – SkillSprint</title>
   <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/navbar.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
@@ -335,13 +336,9 @@
 </head>
 
 <body>
+  <div id="navbar-placeholder"></div>
+
   <div class="page-container">
-    <!-- ===================== TOPBAR ===================== -->
-    <div class="topbar">
-      <button class="back-btn" onclick="history.back()">←</button>
-      <div class="platform-name">SkillSprint</div>
-      <input type="text" id="searchInput" placeholder="Search..." class="search-box">
-    </div>
 
     <!-- WHITEBOARDS -->
     <div class="section-heading">Whiteboards</div>
@@ -553,6 +550,26 @@
     }
   </script>
   <script src="js/toast.js"></script>
+  <script src="js/navbar-loader.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar({
+        activePage: 'Collaborations',
+        searchPlaceholder: 'Search projects, whiteboards...',
+        primaryAction: { show: false },
+        search: {
+          onInput: (val) => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+              searchInput.value = val;
+              searchInput.dispatchEvent(new Event('input'));
+            }
+          }
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>
+```

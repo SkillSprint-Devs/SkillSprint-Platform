@@ -11,25 +11,13 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/navbar.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/task.css">
 </head>
 
 <body>
-  <header class="task-top-nav">
-    <div class="nav-left">
-      <button class="back-arrow" onclick="location.href='dashboard.html'">
-        <span class="material-icons">arrow_back</span>
-      </button>
-      <h1 class="logo">SkillSprint</h1>
-    </div>
-    <div class="nav-right">
-      <div class="search-container">
-        <span class="material-icons search-icon">search</span>
-        <input type="text" class="search-bar" placeholder="Search tasks..." id="searchInput" />
-      </div>
-    </div>
-  </header>
+  <div id="navbar-placeholder"></div>
 
   <main class="main-wrapper">
     <!-- LEFT -->
@@ -38,8 +26,8 @@
       <div class="create-task-section">
         <div class="create-header">
           <h3>Create New Task</h3>
-          <button class="btn-reset" id="resetBtn">
-            <span class="material-icons">refresh</span>
+          <button class="btn-reset" id="resetBtn" title="Reset Form">
+            <i class="fa-solid fa-rotate"></i>
           </button>
         </div>
 
@@ -81,7 +69,7 @@
 
         <div class="create-actions">
           <button class="btn-create" id="createBtn">
-            <span class="material-icons">add_task</span> Create Task
+            <i class="fa-solid fa-list-check"></i> Create Task
           </button>
         </div>
       </div>
@@ -90,7 +78,7 @@
       <div class="all-tasks-section">
         <div class="section-header">
           <h3>
-            <span class="material-icons">assignment</span>
+            <i class="fa-solid fa-clipboard-list"></i>
             My Tasks
           </h3>
           <div class="filter-tabs">
@@ -114,15 +102,15 @@
           <div class="calendar-header">
             <div class="month-controls">
               <button class="month-btn" id="prevMonth">
-                <span class="material-icons">chevron_left</span>
+                <i class="fa-solid fa-chevron-left"></i>
               </button>
               <div class="month-label" id="monthLabel">Month Year</div>
               <button class="month-btn" id="nextMonth">
-                <span class="material-icons">chevron_right</span>
+                <i class="fa-solid fa-chevron-right"></i>
               </button>
             </div>
             <div class="today-badge">
-              <span class="material-icons">today</span>
+              <i class="fa-solid fa-calendar-day"></i>
             </div>
           </div>
           <div class="calendar-grid" id="calendarGrid"></div>
@@ -133,7 +121,7 @@
 
         <!-- PROGRESS SECTION -->
         <div class="progress-section">
-          <h4><span class="material-icons">insights</span> Overview</h4>
+          <h4><i class="fa-solid fa-chart-line"></i> Overview</h4>
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-num" id="statTotal">0</span>
@@ -158,6 +146,38 @@
   </main>
   <!-- JavaScript files -->
   <script src="js/toast.js"></script>
+  <script src="js/navbar-loader.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar({
+        activePage: 'Tasks',
+        searchPlaceholder: 'Search tasks...',
+        primaryAction: {
+          show: true,
+          label: 'New Task',
+          icon: 'fa-plus',
+          onClick: () => {
+            const title = document.getElementById('taskTitle');
+            if (title) title.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        },
+        search: {
+          onInput: (val) => {
+            // Current search logic in task.js uses #searchInput. 
+            // I will update task.js to also check the navbar search or trigger the same logic.
+            const internalSearch = document.getElementById('searchInput'); // In case it still exists
+            if (internalSearch) {
+              internalSearch.value = val;
+              internalSearch.dispatchEvent(new Event('input'));
+            } else if (window.filterTasksGlobal) {
+              window.filterTasksGlobal(val);
+            }
+          }
+        }
+      });
+    });
+  </script>
   <script src="js/task.js"></script>
 </body>
 

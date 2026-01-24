@@ -71,19 +71,11 @@ const toggleBtn = document.getElementById("toggleSidebar");
 const aiGuide = document.getElementById("aiGuide");
 
 if (toggleBtn) {
-  // Initial state check
-  toggleBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
+  toggleBtn.innerHTML = 'S';
 
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("collapsed");
-    const isCollapsed = sidebar.classList.contains("collapsed");
-
-    // 1. Toggle Button Icon: Arrow <-> 'S'
-    if (isCollapsed) {
-      toggleBtn.innerHTML = "S";
-    } else {
-      toggleBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
-    }
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    const isCollapsed = sidebar.classList.contains('collapsed');
 
     // 2. AI Guide: Text <-> Bot Icon
     if (aiGuide) {
@@ -146,8 +138,8 @@ async function loadDashboard() {
     // Tasks and Notifications
     window.currentDashboardData = data; // Cache for search filtering
     renderTasks(data.tasks);
-    loadNotifications(); // Load from API
-    loadReminders();     // Load Reminders
+    if (document.getElementById("notifList")) loadNotifications();
+    if (document.getElementById("reminderList")) loadReminders();
 
     // Socket.IO for Realtime
     if (window.io) setupSocket(token);
@@ -708,7 +700,10 @@ async function respondInvite(sessionId, action) {
 
 // Init
 document.addEventListener("DOMContentLoaded", () => {
-  loadDashboard();
-  loadSchedule();
-  loadPendingInvites();
+  // Only auto-load if on actual dashboard page (checks for a unique dashboard ID)
+  if (document.getElementById("taskList") || document.getElementById("streakProgressBar")) {
+    loadDashboard();
+    loadSchedule();
+    loadPendingInvites();
+  }
 });

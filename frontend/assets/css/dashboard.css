@@ -60,7 +60,9 @@ body {
 
 .sidebar.collapsed {
   width: 80px;
-  padding: 1.5rem 0.8rem;
+  padding: 1.5rem 0;
+  /* Vertical padding only */
+  align-items: center;
 }
 
 .sidebar-header {
@@ -68,6 +70,11 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  width: 100%;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
 }
 
 .logo {
@@ -82,24 +89,26 @@ body {
 }
 
 .toggle-sidebar-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, var(--accent) 0%, #a8c945 100%);
   border: none;
-  color: var(--accent);
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  color: #0a0a0a;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition);
-  font-weight: 700;
-  /* For the 'S' */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(220, 239, 98, 0.3);
 }
 
 .toggle-sidebar-btn:hover {
-  background: var(--accent);
-  color: var(--sidebar-bg);
+  transform: rotate(-10deg) scale(1.1);
+  box-shadow: 0 6px 15px rgba(220, 239, 98, 0.5);
+  filter: brightness(1.1);
 }
 
 .menu {
@@ -121,18 +130,21 @@ body {
   font-weight: 500;
   font-size: 0.9rem;
   transition: var(--transition);
+  justify-content: flex-start;
 }
 
-.menu a:hover,
-.menu a.active {
-  background-color: rgba(220, 239, 98, 0.15);
-  color: var(--accent);
+.sidebar.collapsed .menu a {
+  justify-content: center;
+  padding: 10px 0;
+  width: 100%;
 }
 
 .menu a i {
-  font-size: 1.1rem;
-  width: 20px;
+  font-size: 1.25rem;
+  /* Slightly larger for better alignment */
+  width: 24px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .sidebar.collapsed .label {

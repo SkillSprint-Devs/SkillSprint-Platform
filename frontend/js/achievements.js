@@ -1,3 +1,5 @@
+let allAchievements = [];
+
 document.addEventListener("DOMContentLoaded", () => {
     fetchAchievements();
 });
@@ -21,7 +23,8 @@ async function fetchAchievements() {
         }
 
         const data = await response.json();
-        renderAchievements(data.achievements);
+        allAchievements = data.achievements;
+        renderAchievements(allAchievements);
     } catch (error) {
         console.error("Error fetching achievements:", error);
         showToast("Error loading achievements", "error");
@@ -99,3 +102,21 @@ function showToast(message, type = "info") {
         console.log(`Toast (${type}): ${message}`);
     }
 }
+// ============================================================
+// SEARCH FILTERING
+// ============================================================
+window.handleAchievementsSearch = function (term) {
+    const query = (term || "").toLowerCase().trim();
+    if (!query) {
+        renderAchievements(allAchievements);
+        return;
+    }
+
+    const filtered = allAchievements.filter(ach =>
+        (ach.title || "").toLowerCase().includes(query) ||
+        (ach.courseName || "").toLowerCase().includes(query) ||
+        (ach.description || "").toLowerCase().includes(query)
+    );
+
+    renderAchievements(filtered);
+};

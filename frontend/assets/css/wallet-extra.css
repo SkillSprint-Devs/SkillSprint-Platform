@@ -48,9 +48,11 @@ body {
 }
 
 .wallet-focused-container {
-  max-width: 1200px;
-  margin: 3rem auto;
-  padding: 0 2rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 3rem;
+  min-height: calc(100vh - 120px);
   animation: fadeIn 0.5s ease-out;
 }
 

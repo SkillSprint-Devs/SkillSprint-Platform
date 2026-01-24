@@ -31,20 +31,7 @@ body {
 /* ======================================================
    TOP NAVBAR
 ====================================================== */
-.top-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 58px;
-  background: var(--sidebar-bg);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-}
+/* Old fixed nav removed */
 
 
 /* Left Section */
@@ -144,9 +131,10 @@ body {
 ====================================================== */
 .left-sidebar {
   position: sticky;
-  top: 70px;
+  top: 104px;
+  /* Navbar height (72) + top margin (16) + breathing room */
   width: 240px;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 120px);
   background: var(--sidebar-bg);
   color: var(--text-light);
   border-radius: 18px;
@@ -384,12 +372,11 @@ body {
 .posting-container {
   display: grid;
   grid-template-columns: 250px 1fr 260px;
-  gap: 8px;
-  padding: 1rem;
-  overflow: hidden;
-  padding-top: 58px;
-  /* navbar height */
-  min-height: 100vh;
+  gap: 16px;
+  padding: 0 24px 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 120px);
   box-sizing: border-box;
 }
 

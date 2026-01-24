@@ -224,96 +224,14 @@ function renderAllTasks(filterType = 'all') {
 
   if (!filtered.length) {
     allTasksList.innerHTML = `<div class='empty-state'>
-      <span class="material-icons">inbox</span>
+      <i class="fa-solid fa-inbox"></i>
       <p>No tasks found</p>
     </div>`;
     return;
   }
 
   filtered.forEach(task => {
-    const el = document.createElement('div');
-    const priorityClass = `task-${(task.priority || 'medium').toLowerCase()}`;
-    el.className = `task-card ${priorityClass}`;
-
-    // Ensure subTasks exists and is an array
-    if (!task.subTasks) task.subTasks = [];
-
-    // Calculate progress
-    const totalSub = task.subTasks.length;
-    const doneSub = task.subTasks.filter(s => s.completed).length;
-    const pct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
-
-    // Build task card HTML
-    let cardHTML = `
-      <div class="task-card-header">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="task-checkbox ${task.status === 'completed' ? 'checked' : ''}" onclick="toggleTaskCompletion('${task._id}', '${task.status}')">
-             ${task.status === 'completed' ? '<span class="material-icons" style="font-size:14px;color:white;">check</span>' : ''}
-          </div>
-          <div class="task-title ${task.status === 'completed' ? 'completed-text' : ''}">${escapeHtml(task.title)}</div>
-        </div>
-        <button class="icon-action" onclick="deleteTask('${task._id}')" title="Delete">
-          <span class="material-icons">close</span>
-        </button>
-      </div>
-    `;
-
-    // Add description if exists
-    if (task.description) {
-      cardHTML += `<div class="task-desc">${escapeHtml(task.description)}</div>`;
-    }
-
-    // Add progress bar if there are subtasks
-    if (totalSub > 0) {
-      cardHTML += `
-        <div class="task-progress-wrapper" style="margin-top: 10px;">
-          <div class="progress-track">
-            <div class="progress-fill" style="width: ${pct}%"></div>
-          </div>
-          <div class="progress-text">${pct}%</div>
-        </div>
-      `;
-    }
-
-    // Add subtasks horizontally with checkboxes
-    if (totalSub > 0) {
-      console.log(`Rendering ${totalSub} subtasks for task ${task._id}`);
-      const subtaskChips = task.subTasks.map((st, i) => `
-        <div class="st-chip ${st.completed ? 'done' : ''}" onclick="event.stopPropagation(); toggleSubtask('${task._id}', ${i})">
-          <div class="st-check"></div>
-          <span class="st-label">${escapeHtml(st.title)}</span>
-        </div>
-      `).join('');
-
-      cardHTML += `<div class="subtasks-container" style="display: flex !important; flex-wrap: wrap !important; gap: 8px !important; margin-top: 12px !important; visibility: visible !important; opacity: 1 !important;">${subtaskChips}</div>`;
-    }
-
-    // Add footer with metadata and actions
-    cardHTML += `
-      <div class="task-footer" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
-        <div class="task-meta">
-          <div class="meta-item">
-            <span class="material-icons" style="font-size: 16px;">flag</span>
-            ${(task.priority || 'medium').toUpperCase()}
-          </div>
-          <div class="meta-item">
-            <span class="material-icons" style="font-size: 16px;">event</span>
-            ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No Date'}
-          </div>
-          ${totalSub > 0 ? `
-          <div class="meta-item">
-            <span class="material-icons" style="font-size: 16px;">checklist</span>
-            ${doneSub}/${totalSub}
-          </div>` : ''}
-        </div>
-        <button class="icon-action" onclick="event.stopPropagation(); populateFormForEditWrapper('${task._id}')" title="Edit">
-          <span class="material-icons">edit</span>
-        </button>
-      </div>
-    `;
-
-    el.innerHTML = cardHTML;
-    allTasksList.appendChild(el);
+    allTasksList.appendChild(createTaskCardElement(task));
   });
 }
 
@@ -478,7 +396,7 @@ async function onCreateClick() {
   if (editingId) {
     await updateTask(editingId, payload);
     editingId = null;
-    createBtn.innerHTML = '<span class="material-icons">add_task</span> Create Task';
+    createBtn.innerHTML = '<i class="fa-solid fa-list-check"></i> Create Task';
   } else {
     await createTask(payload);
   }
@@ -499,7 +417,7 @@ function populateFormForEdit(task) {
 
   currentSubtasks = task.subTasks ? [...task.subTasks] : [];
   renderSubtaskListUI();
-  createBtn.innerHTML = '<span class="material-icons">save</span> Save Changes';
+  createBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -522,7 +440,7 @@ function resetForm() {
     if (b.classList.contains('p-low')) b.classList.add('selected');
   });
 
-  createBtn.innerHTML = '<span class="material-icons">add_task</span> Create Task';
+  createBtn.innerHTML = '<i class="fa-solid fa-list-check"></i> Create Task';
 }
 
 function updateStats() {
@@ -555,8 +473,9 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
   tab.addEventListener('click', () => renderAllTasks(tab.dataset.filter));
 });
 
-searchInput.addEventListener('input', (e) => {
-  const q = e.target.value.trim().toLowerCase();
+// GLOBAL EXPOSE FOR NAVBAR
+window.filterTasksGlobal = function (query) {
+  const q = (query || '').trim().toLowerCase();
   if (!q) {
     renderAllTasks(currentFilter);
     return;
@@ -567,76 +486,97 @@ searchInput.addEventListener('input', (e) => {
     (t.description || '').toLowerCase().includes(q)
   );
 
+  renderFilteredTasksList(filtered);
+};
+
+function renderFilteredTasksList(filtered) {
   allTasksList.innerHTML = '';
   if (!filtered.length) {
     allTasksList.innerHTML = `<div class='empty-state'>
-      <span class="material-icons">search_off</span>
-      <p>No results found</p>
-    </div>`;
+          <i class="fa-solid fa-inbox"></i>
+          <p>No results found</p>
+        </div>`;
     return;
   }
 
   filtered.forEach(task => {
-    const el = document.createElement('div');
-    el.className = `task-card task-${task.priority || 'medium'}`;
+    // Reuse the logic from renderAllTasks but for the filtered list
+    // (Better to refactor renderAllTasks to take a list, but for now I'll implement to ensure fix)
+    allTasksList.appendChild(createTaskCardElement(task));
+  });
+}
 
-    // Ensure subTasks exists
-    if (!task.subTasks) task.subTasks = [];
+// HELPER TO CREATE CARD (Refactoring for consistency)
+function createTaskCardElement(task) {
+  const el = document.createElement('div');
+  const priorityClass = `task-${(task.priority || 'medium').toLowerCase()}`;
+  el.className = `task-card ${priorityClass}`;
 
-    const totalSub = task.subTasks.length;
-    const doneSub = task.subTasks.filter(s => s.completed).length;
-    const pct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
+  if (!task.subTasks) task.subTasks = [];
+  const totalSub = task.subTasks.length;
+  const doneSub = task.subTasks.filter(s => s.completed).length;
+  const pct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
 
-    let cardHTML = `
+  let cardHTML = `
       <div class="task-card-header">
-        <div class="task-title">${escapeHtml(task.title)}</div>
-        <button class="icon-action" onclick="deleteTask('${task._id}')">
-          <span class="material-icons">close</span>
+        <div style="display:flex;align-items:center;gap:12px;flex:1;">
+          <div class="task-checkbox ${task.status === 'completed' ? 'checked' : ''}" onclick="event.stopPropagation(); toggleTaskCompletion('${task._id}', '${task.status}')">
+             ${task.status === 'completed' ? '<i class="fa-solid fa-check" style="font-size:12px;color:white;"></i>' : ''}
+          </div>
+          <div class="task-title ${task.status === 'completed' ? 'completed-text' : ''}">${escapeHtml(task.title)}</div>
+        </div>
+        <button class="icon-action" onclick="event.stopPropagation(); deleteTask('${task._id}')" title="Delete">
+           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
     `;
 
-    if (task.description) {
-      cardHTML += `<div class="task-desc">${escapeHtml(task.description)}</div>`;
-    }
+  if (task.description) {
+    cardHTML += `<div class="task-desc">${escapeHtml(task.description)}</div>`;
+  }
 
-    if (totalSub > 0) {
-      cardHTML += `
+  // Always show Progress Bar if subtasks exist
+  if (totalSub > 0) {
+    cardHTML += `
         <div class="task-progress-wrapper">
           <div class="progress-track">
             <div class="progress-fill" style="width: ${pct}%"></div>
           </div>
           <div class="progress-text">${pct}%</div>
         </div>
-      `;
-
-      const subtaskChips = task.subTasks.map((st, i) => `
-        <div class="st-chip ${st.completed ? 'done' : ''}" onclick="toggleSubtask('${task._id}', ${i})">
-          <div class="st-check"></div>
-          <span class="st-label">${escapeHtml(st.title)}</span>
+        <div class="subtasks-container">
+           ${task.subTasks.map((st, i) => `
+             <div class="st-chip ${st.completed ? 'done' : ''}" onclick="event.stopPropagation(); toggleSubtask('${task._id}', ${i})">
+               <div class="st-check"></div>
+               <span class="st-label">${escapeHtml(st.title)}</span>
+             </div>
+           `).join('')}
         </div>
-      `).join('');
+      `;
+  }
 
-      cardHTML += `<div class="subtasks-container">${subtaskChips}</div>`;
-    }
-
-    cardHTML += `
+  cardHTML += `
       <div class="task-footer">
         <div class="task-meta">
-          <div class="meta-item"><span class="material-icons">flag</span> ${task.priority}</div>
-          <div class="meta-item"><span class="material-icons">event</span> ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No Date'}</div>
-          ${totalSub > 0 ? `<div class="meta-item"><span class="material-icons">checklist</span> ${doneSub}/${totalSub}</div>` : ''}
+          <div class="meta-item"><i class="fa-solid fa-flag"></i> ${(task.priority || 'medium').toUpperCase()}</div>
+          <div class="meta-item"><i class="fa-solid fa-calendar"></i> ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No Date'}</div>
+          ${totalSub > 0 ? `<div class="meta-item"><i class="fa-solid fa-list-check"></i> ${doneSub}/${totalSub}</div>` : ''}
         </div>
-        <button class="icon-action" onclick="populateFormForEditWrapper('${task._id}')">
-          <span class="material-icons">edit</span>
+        <button class="icon-action" onclick="event.stopPropagation(); populateFormForEditWrapper('${task._id}')" title="Edit">
+           <i class="fa-solid fa-pen-to-square"></i>
         </button>
       </div>
     `;
 
-    el.innerHTML = cardHTML;
-    allTasksList.appendChild(el);
+  el.innerHTML = cardHTML;
+  return el;
+}
+
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    window.filterTasksGlobal(e.target.value);
   });
-});
+}
 
 // INIT
 async function init() {
@@ -646,4 +586,6 @@ async function init() {
   renderAllTasks('all');
 }
 
-init();
+if (allTasksList) {
+  init();
+}
