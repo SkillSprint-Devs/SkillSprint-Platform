@@ -351,11 +351,20 @@ function renderQuestion() {
     } else {
         optionsList.innerHTML = q.options.map((opt, i) => {
             const selected = currentQuiz.userAnswers[currentQuestionIndex] === i;
-            const optText = typeof opt === 'string' ? opt : (opt?.text || 'Option ' + letters[i]);
+            let optText = typeof opt === 'string' ? opt : (opt?.text || 'Option ' + letters[i]);
+
+            // Escape HTML to prevent browser from interpreting tags (Fix for Case 1)
+            const escapedOptText = optText
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
             return `
           <div class="option-item ${selected ? 'selected' : ''}" data-index="${i}">
             <div class="option-letter">${letters[i]}</div>
-            <div class="option-text">${optText}</div>
+            <div class="option-text">${escapedOptText}</div>
           </div>
         `;
         }).join('');
@@ -375,6 +384,9 @@ function renderQuestion() {
 }
 
 function selectOption(index) {
+    // If already selected, do nothing (Fix for Case 2)
+    if (currentQuiz.userAnswers[currentQuestionIndex] === index) return;
+
     currentQuiz.userAnswers[currentQuestionIndex] = index;
     renderQuestion();
     renderQuestionDots();
