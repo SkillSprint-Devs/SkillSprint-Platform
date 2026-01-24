@@ -3,19 +3,59 @@
   --base-bg: #F9F8D9;
   --sidebar-bg: #1A1A1A;
   --accent: #DCEF62;
+  --accent-hover: #cbe050;
   --text-dark: #1A1A1A;
   --text-light: #FFFFFF;
+  --text-muted: #666666;
+  --card-bg: #ffffff;
 
-  /* Optional tones for later use */
-  --muted: #bfbfbf;
-  /* secondary accent, tweak if you prefer another */
-  --primary: var(--accent);
-  /* primary action color */
+  /* Status Colors */
+  --success: #4caf50;
+  --warning: #ffb300;
+  --danger: #ef5350;
+
+  /* UI Tokens */
+  --border-radius: 12px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 body {
   font-family: "Poppins", sans-serif;
   background-color: var(--base-bg);
   color: var(--text-dark);
+}
 
+/* Global Scrollbar Style */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-bg) transparent;
+}
+
+/* Webkit Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--sidebar-bg);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #333;
+}
+
+/* Ensure body doesn't jump */
+html,
+body {
+  scrollbar-gutter: stable;
 }

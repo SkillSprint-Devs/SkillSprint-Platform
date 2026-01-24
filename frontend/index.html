@@ -4,14 +4,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SkillSprint | Workspace for Developers</title>
+  <title>SkillSprint | Workspace for Technical Growth</title>
 
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
 </head>
 
 <body>
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress"></div>
+
   <!-- Animated Background Elements -->
   <div class="bg-element bg-element-1"></div>
   <div class="bg-element bg-element-2"></div>
@@ -20,97 +27,193 @@
   <div id="splash">
     <div class="splash-content">
       <h1 class="splash-logo">SkillSprint</h1>
-      <p class="splash-tagline">Momentum. Together.</p>
+      <p class="splash-tagline">MOMENTUM. TOGETHER.</p>
     </div>
   </div>
 
-  <!-- Landing Page -->
+  <!-- Main Landing Page -->
   <main id="landing-page">
     <div class="container">
+      <!-- Navigation -->
       <nav>
-        <div class="logo-wrapper">
-          <span style="font-weight: 700; font-size: 1.5rem;">SkillSprint</span>
-        </div>
+        <div class="logo-wrapper">SkillSprint</div>
         <div class="nav-links">
-          <a href="#">Live</a>
-          <a href="#">Community</a>
-          <a href="#">Activity</a>
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+          <a href="/login.html">Login</a>
         </div>
         <a href="getstarted.html" class="btn-workspace">Enter Workspace</a>
       </nav>
 
+      <!-- Hero Section -->
       <section class="hero">
         <div class="mesh-glow"></div>
-        <h1>Workspace for <br /> <span style="color: var(--lp-accent);">Deep Collaboration.</span></h1>
-        <p>The technical workspace where momentum is built through shared sessions, real-time refactoring, and fluid
-          participation.</p>
+        <h1>Where Developers<br>Build Momentum</h1>
+        <p>The technical workspace where focus meets collaboration. Join real-time sessions, refactor code together, and
+          accelerate your growth loop.</p>
+        <a href="signup.html" class="btn-workspace">Start Your First Sprint</a>
 
         <div class="action-tags">
           <div class="tag">
-            <div class="dot"></div> Live Now: 12 Sprints
+            <span class="dot"></span>
+            <span>Live Now: 12 Sprints</span>
           </div>
           <div class="tag">
-            <div class="dot"></div> Current Session: Node.js Refactor
+            <span class="dot"></span>
+            <span>Current: Node.js Refactor</span>
           </div>
           <div class="tag">
-            <div class="dot"></div> 42 Developers Coding
+            <span class="dot"></span>
+            <span>42+ Active Coders</span>
           </div>
         </div>
       </section>
 
-      <section class="bento-grid">
-        <div class="bento-item col-2">
-          <h3>Interactive Whiteboards</h3>
-          <p>Brainstorm architecture with real-time sync. Clean, fast, and technical.</p>
-          <div style="margin-top: 20px; color: var(--lp-accent); font-size: 2rem;">
-            <i class="fa-solid fa-chalkboard-user"></i>
-          </div>
-        </div>
-
+      <!-- Bento Grid -->
+      <section class="bento-grid" id="features">
+        <!-- Momentum Card -->
         <div class="bento-item row-2">
-          <h3>Momentum Tracking</h3>
-          <p>Growth through contribution, not just consumption.</p>
+          <h3>Track Momentum</h3>
+          <p>Real-time insights into your technical contribution and skill growth cycle.</p>
           <div class="momentum-graph">
-            <div class="bar" style="height: 40%;"></div>
-            <div class="bar alt" style="height: 70%;"></div>
-            <div class="bar" style="height: 50%;"></div>
-            <div class="bar alt" style="height: 90%;"></div>
-            <div class="bar" style="height: 60%;"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar alt"></div>
+            <div class="bar"></div>
+            <div class="bar alt"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
           </div>
           <div class="labels">
-            <span>Teaching Impact</span>
-            <span>Learning Impact</span>
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
           </div>
         </div>
 
-        <div class="bento-item">
-          <h3>Pair Programming</h3>
-          <p>Invite-based sessions with shared terminal and file explorer.</p>
-          <i class="fa-solid fa-code"
-            style="position: absolute; bottom: 20px; right: 20px; font-size: 2rem; opacity: 0.1;"></i>
-        </div>
-
-        <div class="bento-item">
-          <h3>Social Feed</h3>
-          <p>Connect with the momentum of the developer community.</p>
-          <i class="fa-solid fa-bolt"
-            style="position: absolute; bottom: 20px; right: 20px; font-size: 2rem; opacity: 0.1;"></i>
-        </div>
-
+        <!-- Active Users -->
         <div class="bento-item col-2">
-          <h3>Same Workspace. Different Moments.</h3>
-          <p>Host or Join. One dashboard, multiple ways to contribute to the cycle of learning.</p>
-          <div style="margin-top: 24px; display: flex; gap: 12px;">
-            <a href="signup.html" class="btn-workspace"
-              style="background: transparent; border: 1px solid var(--lp-accent); color: var(--lp-accent);">Host a
-              Sprint</a>
-            <a href="signup.html" class="btn-workspace">Join a Sprint</a>
-          </div>
+          <div class="feature-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
+          <h3>Platform Reach</h3>
+          <p class="stat-number" data-counter="4820">0</p>
+          <p>Developers growing every single day</p>
+        </div>
+
+        <!-- Collaboration -->
+        <div class="bento-item">
+          <div class="feature-icon"><i class="fa-solid fa-code-merge"></i></div>
+          <h3>Pair Programming</h3>
+          <p>Invite-based sessions with shared terminals and real-time syncing.</p>
+        </div>
+
+        <!-- File Sharing -->
+        <div class="bento-item">
+          <div class="feature-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+          <h3>Shared Library</h3>
+          <p>Organize and access technical documentations from anywhere.</p>
+        </div>
+
+        <!-- Task Management -->
+        <div class="bento-item col-2">
+          <div class="feature-icon"><i class="fa-solid fa-list-check"></i></div>
+          <h3>Technical Roadmaps</h3>
+          <p>Keep your learning sprints on track with developer-focused task management.</p>
+        </div>
+
+        <!-- Integration -->
+        <div class="bento-item">
+          <div class="feature-icon"><i class="fa-solid fa-plug-circle-bolt"></i></div>
+          <h3>Live Sessions</h3>
+          <p>Connect with mentors via video and interactive whiteboards.</p>
         </div>
       </section>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="about">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">SkillSprint</div>
+            <p class="footer-tagline">Building the momentum for the next generation of developers.</p>
+            <div class="social-links">
+              <a href="#" class="social-link" aria-label="Twitter">
+                <i class="fa-brands fa-x-twitter"></i>
+              </a>
+              <a href="#" class="social-link" aria-label="GitHub">
+                <i class="fa-brands fa-github"></i>
+              </a>
+              <a href="#" class="social-link" aria-label="LinkedIn">
+                <i class="fa-brands fa-linkedin-in"></i>
+              </a>
+              <a href="#" class="social-link" aria-label="Discord">
+                <i class="fa-brands fa-discord"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>Workspace</h4>
+            <ul class="footer-links">
+              <li><a href="getstarted.html">Dashboard</a></li>
+              <li><a href="signup.html">Join Sprint</a></li>
+              <li><a href="login.html">Developer Login</a></li>
+              <li><a href="admin-login.html">Admin Portal</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>Tools</h4>
+            <ul class="footer-links">
+              <li><a href="#">Smartboards</a></li>
+              <li><a href="#">Pair Editor</a></li>
+              <li><a href="#">Library</a></li>
+              <li><a href="#">Task Boards</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>Resources</h4>
+            <ul class="footer-links">
+              <li><a href="#">Documentation</a></li>
+              <li><a href="#">API Docs</a></li>
+              <li><a href="#">Community</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>Legal</h4>
+            <ul class="footer-links">
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+              <li><a href="#">Cookie Policy</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2024 SkillSprint. All technical systems operational.</p>
+          <div class="footer-badge">
+            <span class="status-dot"></span>
+            <span>Mainnet Operational</span>
+          </div>
+        </div>
+      </div>
+    </footer>
   </main>
 
+  <!-- Floating CTA -->
+  <div class="floating-cta">
+    <p>Ready to build technical momentum?</p>
+    <a href="signup.html" class="btn-workspace">Join SkillSprint</a>
+  </div>
+
+  <!-- Scripts -->
   <script src="js/error-tracking.js"></script>
   <script src="js/landing.js"></script>
 </body>
