@@ -22,33 +22,33 @@ if (!token || !currentUser?._id) {
 
   // --- CONNECTION HANDLING ---
   socket.on("connect", () => {
-    console.log("✅ Connected to Socket.io:", socket.id);
+    console.log("Connected to Socket.io:", socket.id);
     socket.emit("joinUserRoom", currentUser._id);
   });
 
   socket.io.on("reconnect", () => {
-    console.log("♻️ Reconnected to server, rejoining room...");
+    console.log("Reconnected to server, rejoining room...");
     socket.emit("joinUserRoom", currentUser._id);
   });
 
-  socket.on("disconnect", () => console.warn("⚠️ Socket disconnected"));
+  socket.on("disconnect", () => console.warn("Socket disconnected"));
 
   // ----------------- POSTS -----------------
   socket.on("postCreated", ({ post }) => {
     if (!post?._id) return;
     const exists = document.querySelector(`.feed-post[data-id="${post._id}"]`);
     if (exists) return;
-    console.log("🆕 New post received:", post);
+    console.log("New post received:", post);
     window.renderPost(post, { prepend: true });
   });
 
   socket.on("postUpdated", ({ post }) => {
-    console.log("✏️ Post updated:", post._id);
+    console.log("Post updated:", post._id);
     window.updatePostInDOM(post);
   });
 
   socket.on("postDeleted", ({ postId }) => {
-    console.log("🗑️ Post deleted:", postId);
+    console.log("Post deleted:", postId);
     const el = document.querySelector(`.feed-post[data-id="${postId}"]`);
     if (el) el.remove();
   });
@@ -154,7 +154,7 @@ if (!token || !currentUser?._id) {
   });
 
   socket.on("commentUpdated", ({ comment }) => {
-    // console.log("📝 Comment updated:", comment);
+    // console.log("Comment updated:", comment);
     // Find comment in DOM
     // We didn't set IDs on comment-items before, but we just added logic to do so in posting.js.
     // However, that only applies to newly fetched lists. What about existing ones?
@@ -167,7 +167,7 @@ if (!token || !currentUser?._id) {
   });
 
   socket.on("commentDeleted", ({ postId, commentId }) => {
-    // console.log("❌ Comment deleted:", commentId);
+    // console.log("Comment deleted:", commentId);
     const item = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
     if (item) {
       const postNode = item.closest(".feed-post");
@@ -214,7 +214,7 @@ if (!token || !currentUser?._id) {
 
   // ----------------- ERROR HANDLING -----------------
   socket.on("connect_error", (err) => {
-    console.error("❌ Socket.io connection error:", err.message);
+    console.error("Socket.io connection error:", err.message);
     if (err.message === "xhr poll error") {
       console.warn("Possible CORS or network issue. Check server status.");
     }

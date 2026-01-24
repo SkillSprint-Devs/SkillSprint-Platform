@@ -803,7 +803,7 @@ h3 {
 }
 
 .reminder-checkbox.checked::after {
-  content: '✓';
+  content: 'v';
   color: #fff;
   position: absolute;
   font-size: 10px;

@@ -449,9 +449,9 @@ function updateParticipants(participants) {
         const div = document.createElement("div");
         div.className = "participant-item";
 
-        let statusIcon = "🔴";
-        if (p.status === "Joined") statusIcon = "🟢";
-        if (p.status === "Waiting") statusIcon = "🟡";
+        let statusIcon = "[Offline]";
+        if (p.status === "Joined") statusIcon = "[Online]";
+        if (p.status === "Waiting") statusIcon = "[Waiting]";
 
         div.innerHTML = `
             <img src="${p.profile_image || 'assets/images/user-avatar.png'}" alt="${p.name}" class="p-avatar">

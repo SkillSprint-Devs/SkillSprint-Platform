@@ -110,7 +110,7 @@ router.get("/all", verifyToken, async (req, res) => {
 
 router.get("/:id", verifyToken, async (req, res) => {
   try {
-    console.log("📥 GET /:id - Fetching board:", req.params.id);
+    console.log("GET /:id - Fetching board:", req.params.id);
 
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid Board ID" });
@@ -713,7 +713,7 @@ router.get("/:id/comments", verifyToken, async (req, res) => {
 
 router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, res) => {
   try {
-    console.log("📥 POST /run - Executing code");
+    console.log("POST /run - Executing code");
 
     const { code, language } = req.body;
 
@@ -753,7 +753,7 @@ router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, r
     // FIXED: Use os.tmpdir() for cross-platform compatibility
     const tempFilePath = path.join(os.tmpdir(), `${tempId}.${fileExt}`);
 
-    console.log("📝 Writing temp file:", tempFilePath);
+    console.log("Writing temp file:", tempFilePath);
     fs.writeFileSync(tempFilePath, code);
 
     // Execute code
@@ -865,7 +865,7 @@ router.post(
 
       res.json({ success: true, data: { boardId: board._id } });
     } catch (err) {
-      console.error("❌ Error joining board:", err);
+      console.error("Error joining board:", err);
       res.status(500).json({ success: false, message: "Error joining board", error: err.message });
     }
   }

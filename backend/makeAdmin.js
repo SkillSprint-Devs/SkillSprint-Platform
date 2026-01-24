@@ -17,19 +17,19 @@ async function makeAdmin() {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
-        console.log("✅ Connected to MongoDB");
+        console.log("Connected to MongoDB");
 
         // Prompt for email
         rl.question("Enter the email address of the user to make admin: ", async (email) => {
             if (!email) {
-                console.log("❌ Email is required");
+                console.log("Email is required");
                 process.exit(1);
             }
 
             const user = await User.findOne({ email: email.trim() });
 
             if (!user) {
-                console.log(`❌ User with email "${email}" not found`);
+                console.log(`User with email "${email}" not found`);
                 process.exit(1);
             }
 
@@ -37,14 +37,14 @@ async function makeAdmin() {
             user.role = "admin";
             await user.save();
 
-            console.log(`✅ Success! User "${user.name}" (${user.email}) is now an admin`);
+            console.log(`Success! User "${user.name}" (${user.email}) is now an admin`);
             console.log(`   Role: ${user.role}`);
 
             process.exit(0);
         });
 
     } catch (err) {
-        console.error("❌ Error:", err.message);
+        console.error("Error:", err.message);
         process.exit(1);
     }
 }

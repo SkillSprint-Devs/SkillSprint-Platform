@@ -6,11 +6,11 @@ The system supports the following languages. "Execution" means the code can be r
 
 | Language | Extension(s) | Execution? | Highlighting? | Backend Key |
 | :--- | :--- | :--- | :--- | :--- |
-| **JavaScript** | `.js`, `.jsx` | ✅ Yes (Node.js) | ✅ Yes | `js` |
-| **Python** | `.py` | ✅ Yes (Python 3*) | ✅ Yes | `python` |
-| **PHP** | `.php` | ✅ Yes (PHP CLI) | ✅ Yes | `php` |
-| **HTML** | `.html` | ❌ No | ✅ Yes | `html` |
-| **CSS** | `.css` | ❌ No |  Yes | `css` |
+| **JavaScript** | `.js`, `.jsx` | Yes (Node.js) | Yes | `js` |
+| **Python** | `.py` | Yes (Python 3*) | Yes | `python` |
+| **PHP** | `.php` | Yes (PHP CLI) | Yes | `php` |
+| **HTML** | `.html` | No | Yes | `html` |
+| **CSS** | `.css` | No |  Yes | `css` |
 
 *Note: Python version depends on the host system's `python` command alias (likely Python 3).*
 

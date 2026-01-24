@@ -120,7 +120,7 @@ export async function apiCall(endpoint, method = "GET", body = null) {
     response = await fetch(API_BASE + endpoint, options);
   } catch (err) {
     console.error("Fetch failed:", err);
-    throw new Error(`Network error — ${err.message || "server unreachable"}`);
+    throw new Error(`Network error - ${err.message || "server unreachable"}`);
   }
 
   const parseJSON = async () => {
@@ -524,7 +524,7 @@ export async function syncContent() {
   const [folderId, fileId] = state.active.split("/");
   const content = state.editor.getValue();
 
-  console.log("🔄 Syncing content for file:", fileId);
+  console.log("Syncing content for file:", fileId);
   emitContentUpdate(boardId, fileId, { text: content });
 }
 
@@ -1130,7 +1130,7 @@ if (terminalInput) {
 
 // Initialization
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🚀 Initializing Pair Programming...");
+  console.log("Initializing Pair Programming...");
 
   const token = localStorage.getItem("token");
   const urlParams = new URLSearchParams(window.location.search);
@@ -1186,7 +1186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.documentElement.classList.add("dark");
   }
 
-  console.log("✅ Initialization complete");
+  console.log("Initialization complete");
 
   // Track cursor for real-time presence
   let cursorThrottle = false;

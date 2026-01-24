@@ -4,7 +4,7 @@ Welcome to the **SkillSprint Pair Programming** environment! This module allows 
 
 ---
 
-## 🚀 1. How to Start
+## 1. How to Start
 
 1.  **Open a Workspace**: 
     -   Navigate to the **Library** or **Dashboard**.
@@ -14,7 +14,7 @@ Welcome to the **SkillSprint Pair Programming** environment! This module allows 
 
 ---
 
-## 📝 2. Creating & Managing Files
+## 2. Creating & Managing Files
 
 ### **The File Tree**
 On the left side of the screen is your project structure.
@@ -33,7 +33,7 @@ To enable the correct features (colors and running), you **MUST** end your filen
 
 ---
 
-## 💻 3. Using the Editor
+## 3. Using the Editor
 
 ### **Editing**
 -   Click a file in the tree to open it.
@@ -47,7 +47,7 @@ To enable the correct features (colors and running), you **MUST** end your filen
 
 ---
 
-## ▶️ 4. How to Run Code
+## 4. How to Run Code
 
 You can execute **JavaScript**, **Python**, and **PHP** code directly in the browser.
 
@@ -62,7 +62,7 @@ You can execute **JavaScript**, **Python**, and **PHP** code directly in the bro
 
 ---
 
-## ⚠️ 5. Limitations
+## 5. Limitations
 
 -   **Supported Executable Languages**: Only JS (`.js`), Python (`.py`), and PHP (`.php`).
 -   **Non-Executable**: HTML, CSS, C++, Java, etc. cannot be "Run" in this environment.

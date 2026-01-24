@@ -118,7 +118,7 @@ async function fetchUsersPreview() {
                 tr.innerHTML = `
                    <td style="padding: 12px; font-weight: 500;">${u.name}</td>
                    <td style="padding: 12px;">${u.role || 'User'}</td>
-                   <td style="padding: 12px;"><span style="color: ${statusColor}; font-size: 0.8rem;">● ${statusText}</span></td>
+                   <td style="padding: 12px;"><span style="color: ${statusColor}; font-size: 0.8rem;">[Status] ${statusText}</span></td>
                    <td style="padding: 12px;">${new Date(u.createdAt).toLocaleDateString()}</td>
                  `;
                 usersTableBody.appendChild(tr);

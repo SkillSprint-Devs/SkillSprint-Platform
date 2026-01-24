@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 
 // --- Sub-schemas ---
 
-// 🗒️ Sticky Notes
+// Sticky Notes
 const StickySchema = new Schema({
   text: { type: String, default: "" },
   x: { type: Number, default: 0 },
@@ -18,7 +18,7 @@ const StickySchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-// 💬 Comments
+// Comments
 const CommentSchema = new Schema({
   text: { type: String, default: "" },
   authorId: { type: Schema.Types.ObjectId, ref: "User" },
@@ -27,7 +27,7 @@ const CommentSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-// ✏️ Strokes
+// Strokes
 const StrokeSchema = new Schema({
   tool: {
     type: String,
@@ -41,7 +41,7 @@ const StrokeSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// 🟢 Shapes
+// Shapes
 const ShapeSchema = new Schema({
   type: {
     type: String,
@@ -56,7 +56,7 @@ const ShapeSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// 🔔 Notifications
+// Notifications
 const NotificationSchema = new Schema({
   text: String,
   type: {
@@ -69,7 +69,7 @@ const NotificationSchema = new Schema({
   readBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
 
-// 🔤 Text Boxes
+// Text Boxes
 const TextBoxSchema = new Schema({
   text: { type: String, default: "" },
   x: { type: Number, default: 0 },
@@ -81,7 +81,7 @@ const TextBoxSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// 🎥 Recordings
+// Recordings
 const RecordingSchema = new Schema({
   fileUrl: String,
   createdAt: { type: Date, default: Date.now },
@@ -89,7 +89,7 @@ const RecordingSchema = new Schema({
   savedBy: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
-// --- 🧠 Main Board Schema ---
+// --- Main Board Schema ---
 const BoardSchema = new Schema(
   {
     name: { type: String, required: true },
