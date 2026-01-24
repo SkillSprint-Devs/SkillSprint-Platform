@@ -12,10 +12,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/navbar.css" />
   <link rel="stylesheet" href="assets/css/live-session.css" />
 </head>
 
 <body>
+  <div id="navbar-placeholder"></div>
+
   <div class="live-container">
 
     <!-- LEFT PANEL: CHAT -->
@@ -114,6 +117,23 @@
   <!-- JS -->
   <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
   <script src="js/toast.js"></script>
+  <script src="js/navbar-loader.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar({
+        activePage: 'Live Session',
+        showSearch: false,
+        primaryAction: {
+          label: 'End Session',
+          icon: 'fa-phone-slash',
+          onClick: () => {
+            const endBtn = document.getElementById('endSessionBtn');
+            if (endBtn) endBtn.click();
+          }
+        }
+      });
+    });
+  </script>
   <script src="js/live-session.js"></script>
 </body>
 

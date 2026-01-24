@@ -143,8 +143,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // --- SEARCH WIRING ---
+    window.handleLibrarySearch = (val) => {
+        if (searchInput) {
+            searchInput.value = val;
+            renderLibrary();
+        } else {
+            // Fallback for when the physical input is gone from sidebar but we have the term
+            renderLibraryWithTerm(val);
+        }
+    };
+
     // --- INITIALIZATION ---
-    fetchLibraryItems();
+    if (libraryGrid) {
+        fetchLibraryItems();
+    }
 
     // --- FETCHING ---
     async function fetchLibraryItems() {
@@ -177,27 +190,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- RENDERING ---
     function renderLibrary() {
+        renderLibraryWithTerm(searchInput ? searchInput.value : "");
+    }
+
+    function renderLibraryWithTerm(searchTerm = "") {
         // Expose for global delete function
         window.renderLibrary = renderLibrary;
 
-        const searchTerm = searchInput.value.toLowerCase();
+        const term = (searchTerm || "").toLowerCase();
 
         let filtered = libraryItems.filter(item => {
             const matchesCategory = currentCategory === "All" || item.type === currentCategory;
             const matchesVisibility = currentVisibility === "All" || item.visibility === currentVisibility;
-            const matchesSearch = item.title.toLowerCase().includes(searchTerm) ||
-                (item.description && item.description.toLowerCase().includes(searchTerm));
+            const matchesSearch = item.title.toLowerCase().includes(term) ||
+                (item.description && item.description.toLowerCase().includes(term));
             return matchesCategory && matchesVisibility && matchesSearch;
         });
 
-        console.log(`Rendering ${filtered.length} filtered items`);
+        console.log(`Rendering ${filtered.length} filtered items (term: "${term}")`);
+        if (!libraryGrid) return;
+
         libraryGrid.innerHTML = "";
 
         if (filtered.length === 0) {
-            emptyState.style.display = "block";
+            if (emptyState) emptyState.style.display = "block";
             libraryGrid.style.display = "none";
         } else {
-            emptyState.style.display = "none";
+            if (emptyState) emptyState.style.display = "none";
             libraryGrid.style.display = currentView === "grid" ? "grid" : "flex";
 
             filtered.forEach(item => {
@@ -334,7 +353,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Search
-    searchInput.addEventListener("input", renderLibrary);
+    if (searchInput) {
+        searchInput.addEventListener("input", renderLibrary);
+    }
 
     // View Toggles
     document.getElementById("gridViewBtn").addEventListener("click", () => {

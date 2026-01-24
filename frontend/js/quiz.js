@@ -584,3 +584,35 @@ function formatCourseName(course) {
     };
     return names[course] || course;
 }
+// ============================================================
+// SEARCH FILTERING
+// ============================================================
+window.handleCourseSearch = function (term) {
+    const query = (term || "").toLowerCase().trim();
+    const cards = document.querySelectorAll('.course-card');
+
+    cards.forEach(card => {
+        const name = card.querySelector('.course-name').textContent.toLowerCase();
+        if (name.includes(query)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Handle empty results if needed
+    const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+    const emptyMsg = document.getElementById('searchEmptyMsg');
+
+    if (visibleCards.length === 0 && query !== "") {
+        if (!emptyMsg) {
+            const msg = document.createElement('div');
+            msg.id = 'searchEmptyMsg';
+            msg.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);';
+            msg.innerHTML = '<i class="fa-solid fa-graduation-cap" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i> No courses found matching your search.';
+            coursesGrid.appendChild(msg);
+        }
+    } else if (emptyMsg) {
+        emptyMsg.remove();
+    }
+};

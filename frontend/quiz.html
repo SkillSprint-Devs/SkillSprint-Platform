@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,23 +9,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/navbar.css" />
   <link rel="stylesheet" href="assets/css/quiz.css" />
 </head>
+
 <body>
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
   </div>
 
+  <div id="navbar-placeholder"></div>
+
   <div class="quiz-container">
     <main class="quiz-main">
-      <!-- Header -->
-      <header class="quiz-header">
-        <h1><i class="fa-solid fa-graduation-cap"></i> Quiz & Certificates</h1>
-        <a href="dashboard.html" class="back-link">
-          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-        </a>
-      </header>
 
       <!-- COURSE SELECTION VIEW -->
       <section class="courses-view" id="coursesView">
@@ -82,9 +80,9 @@
           </div>
           <h2 class="results-title" id="resultsTitle">Congratulations!</h2>
           <p id="resultsMessage">You've passed the Basic level!</p>
-          
+
           <div class="results-score" id="resultsScore">85%</div>
-          
+
           <div class="results-stats">
             <div class="stat-item">
               <div class="stat-value correct" id="correctCount">12</div>
@@ -145,6 +143,32 @@
   </div>
 
   <script src="js/toast.js"></script>
+  <script src="js/navbar-loader.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar({
+        activePage: 'Quiz',
+        showSearch: true,
+        searchPlaceholder: 'Search courses...',
+        primaryAction: {
+          show: true,
+          label: 'Start Quiz',
+          icon: 'fa-play',
+          onClick: () => {
+            const activeCourse = document.querySelector('.course-card'); // Fallback logic
+            if (activeCourse) activeCourse.click();
+            else showToast("Please select a course to start!", "info");
+          }
+        },
+        search: {
+          onInput: (val) => {
+            if (window.handleCourseSearch) window.handleCourseSearch(val);
+          }
+        }
+      });
+    });
+  </script>
   <script src="js/quiz.js"></script>
 </body>
+
 </html>

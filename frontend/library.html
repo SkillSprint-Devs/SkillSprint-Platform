@@ -13,30 +13,14 @@
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/navbar.css" />
   <link rel="stylesheet" href="assets/css/library.css" />
 </head>
 
 <body>
+  <div id="navbar-placeholder"></div>
+
   <div class="library-container">
-    <header class="library-top-nav">
-      <div class="nav-left">
-        <button class="back-btn" onclick="location.href='dashboard.html'" title="Back to Dashboard">
-          <i class="fa-solid fa-arrow-left"></i>
-        </button>
-        <div class="logo">SkillSprint <span>Library</span></div>
-      </div>
-
-      <div class="search-bar">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="librarySearch" placeholder="Search resources, recordings..." />
-      </div>
-
-      <div class="top-actions">
-        <button class="upload-btn" id="openUploadModal">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Upload
-        </button>
-      </div>
-    </header>
 
     <main class="library-content-area">
 
@@ -129,6 +113,29 @@
 
   <!-- JS -->
   <script src="js/toast.js"></script>
+  <script src="js/navbar-loader.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar({
+        activePage: 'Library',
+        searchPlaceholder: 'Search recordings, documents...',
+        primaryAction: {
+          show: true,
+          label: 'Upload Resource',
+          icon: 'fa-cloud-arrow-up',
+          onClick: () => document.getElementById('openUploadModal').click()
+        },
+        search: {
+          onInput: (val) => {
+            // Integrate with existing library search
+            if (window.handleLibrarySearch) {
+              window.handleLibrarySearch(val);
+            }
+          }
+        }
+      });
+    });
+  </script>
   <script src="js/library.js"></script>
   <script src="js/dashboard.js"></script>
 </body>

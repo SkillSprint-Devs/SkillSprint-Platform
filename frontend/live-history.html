@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <!-- Styles -->
     <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/navbar.css" />
     <link rel="stylesheet" href="assets/css/wallet-extra.css" />
     <style>
         .history-card {
@@ -178,15 +179,7 @@
 </head>
 
 <body>
-    <header class="wallet-header">
-        <div class="header-content">
-            <a href="dashboard.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
-            <div class="logo">Live Session History</div>
-            <div class="profile" id="userProfile">
-                <img src="assets/images/user-avatar.png" alt="User" id="profileAvatar" />
-            </div>
-        </div>
-    </header>
+    <div id="navbar-placeholder"></div>
 
     <main class="wallet-focused-container">
         <div class="section-header"
@@ -362,6 +355,36 @@
                 }
             });
         }
+    </script>
+    <script src="js/toast.js"></script>
+    <script src="js/navbar-loader.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavbar({
+                activePage: 'Live Sessions',
+                searchPlaceholder: 'Search sessions...',
+                primaryAction: {
+                    show: true,
+                    label: 'Create Session',
+                    icon: 'fa-video',
+                    onClick: () => {
+                        showToast("Redirecting to session scheduler...", "info");
+                    }
+                },
+                search: {
+                    onInput: (val) => {
+                        // Implement session search filtering if needed
+                        if (window.renderHistory) {
+                            const filtered = (window.allHistory || []).filter(s =>
+                                s.sessionName.toLowerCase().includes(val.toLowerCase()) ||
+                                s.purpose.toLowerCase().includes(val.toLowerCase())
+                            );
+                            renderHistory(filtered);
+                        }
+                    }
+                }
+            });
+        });
     </script>
 </body>
 
