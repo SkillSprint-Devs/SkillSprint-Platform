@@ -757,15 +757,6 @@ h3 {
   padding-right: 4px;
 }
 
-.reminder-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.reminder-list::-webkit-scrollbar-thumb {
-  background: #ddd;
-  border-radius: 10px;
-}
-
 .reminder-item {
   display: flex;
   align-items: center;

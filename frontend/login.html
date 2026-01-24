@@ -9,25 +9,15 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
+  <link rel="stylesheet" href="assets/css/variables.css" />
   <style>
-    /* ===== Variables ===== */
-    :root {
-      --base-bg: #F9F8D9;
-      --sidebar-bg: #1A1A1A;
-      --accent: #DCEF62;
-      --text-dark: #1A1A1A;
-      --text-light: #FFFFFF;
-      --muted: #999999;
-      --border-light: #e0e0e0;
-    }
-
     /* ===== Animations ===== */
     @keyframes slideUp {
       from {
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -35,19 +25,25 @@
     }
 
     @keyframes bounce {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateY(0) scale(1);
       }
+
       50% {
         transform: translateY(-8px) scale(1.05);
       }
     }
 
     @keyframes pulse {
-      0%, 100% {
+
+      0%,
+      100% {
         opacity: 0.3;
         transform: scale(1);
       }
+
       50% {
         opacity: 0.1;
         transform: scale(1.2);
@@ -58,9 +54,11 @@
       0% {
         text-shadow: 0 0 10px rgba(220, 239, 98, 0.5);
       }
+
       50% {
         text-shadow: 0 0 20px rgba(220, 239, 98, 0.8);
       }
+
       100% {
         text-shadow: 0 0 10px rgba(220, 239, 98, 0.5);
       }
@@ -70,9 +68,11 @@
       0% {
         background-position: 0% 50%;
       }
+
       50% {
         background-position: 100% 50%;
       }
+
       100% {
         background-position: 0% 50%;
       }

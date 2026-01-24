@@ -143,7 +143,12 @@ export function initTaskScheduler(io) {
                 }
             }
         } catch (err) {
-            console.error("Error in minute-reminder-scheduler:", err);
+            // Handle DB connection issues gracefully without flooding logs
+            if (err.name === 'MongoServerSelectionError' || err.name === 'MongoNetworkError' || err.message.includes('closed')) {
+                process.stdout.write(`⏰ Scheduler: Database connection blip (skipping this minute)\n`);
+            } else {
+                console.error("Error in minute-reminder-scheduler:", err);
+            }
         }
     });
 

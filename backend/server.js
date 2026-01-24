@@ -53,6 +53,11 @@ console.error = (...args) => {
     }).join(' ');
 
     if (mongoose.connection.readyState === 1) {
+      // Don't try to log "connection closed" errors into the DB (prevents infinite loops/noise)
+      if (errorMessage.includes('connection <monitor> closed') || errorMessage.includes('MongoServerSelectionError')) {
+        return;
+      }
+
       ErrorLog.create({
         errorMessage: errorMessage.substring(0, 5000),
         errorType: 'Backend',
@@ -61,11 +66,12 @@ console.error = (...args) => {
         environment: process.env.NODE_ENV || 'Development',
         status: 'NEW'
       }).catch(err => {
-        process.stdout.write(`[Interceptor] DB Log Failed: ${err.message}\n`);
+        // Silently fail to stdout to avoid recursive console.error calls
+        process.stdout.write(`[Interceptor] DB Logic Bypass (DB is likely down)\n`);
       });
     }
   } catch (interceptErr) {
-    process.stdout.write(`[Interceptor] Logic Failed: ${interceptErr.message}\n`);
+    process.stdout.write(`[Interceptor] Global Crash: ${interceptErr.message}\n`);
   }
 };
 

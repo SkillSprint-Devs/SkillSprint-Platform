@@ -3,24 +3,6 @@ body {
   overflow-y: auto !important;
 }
 
-/* Custom Scrollbar for Wallet */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--sidebar-bg);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #333;
-}
-
 .wallet-header {
   background: var(--sidebar-bg);
   color: #fff;

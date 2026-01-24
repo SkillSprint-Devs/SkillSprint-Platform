@@ -448,25 +448,6 @@ input {
   padding-right: 0.5rem;
 }
 
-/* Scrollbar styling for task list */
-.all-tasks-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.all-tasks-list::-webkit-scrollbar-track {
-  background: var(--base-bg);
-  border-radius: 10px;
-}
-
-.all-tasks-list::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 10px;
-}
-
-.all-tasks-list::-webkit-scrollbar-thumb:hover {
-  background: #cbe84d;
-}
-
 /* ===== TASK CARDS ===== */
 .task-card {
   padding: 1.5rem;
@@ -943,26 +924,6 @@ input {
   .subtasks-container {
     flex-direction: column;
   }
-}
-
-/* ===== SCROLLBAR STYLING ===== */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--base-bg);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--muted);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-dark);
 }
 
 /* Task Checkbox */

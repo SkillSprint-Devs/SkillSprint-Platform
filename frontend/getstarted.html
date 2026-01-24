@@ -8,14 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/variables.css" />
   <style>
-    :root {
-      --text-main: #1A1A1A;
-      --text-muted: #666;
-      --accent: #DCEF62;
-      --bg: #F9F8D9;
-    }
-
     * {
       box-sizing: border-box;
     }
@@ -31,8 +25,8 @@
       color: var(--text-main);
       user-select: none;
       background: var(--bg);
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
+      /* Prevent double scrollbars */
       position: relative;
     }
 
@@ -66,10 +60,13 @@
     }
 
     @keyframes pulse {
-      0%, 100% {
+
+      0%,
+      100% {
         opacity: 0.3;
         transform: scale(1);
       }
+
       50% {
         opacity: 0.5;
         transform: scale(1.05);
@@ -92,17 +89,14 @@
       flex-direction: column;
       justify-content: flex-start;
       overflow-y: auto;
-      gap: 1.5rem;
-    }
-
-    /* Scrollbar styling */
-    .container::-webkit-scrollbar {
-      display: none;
-    }
-
-    .container {
+      gap: 1.25rem;
+      /* Hide scrollbar visibility but not functionality */
       -ms-overflow-style: none;
       scrollbar-width: none;
+    }
+
+    .container::-webkit-scrollbar {
+      display: none;
     }
 
     /* Header Section */
@@ -127,9 +121,12 @@
     }
 
     @keyframes bounce {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateY(0);
       }
+
       50% {
         transform: translateY(-10px);
       }
@@ -142,12 +139,14 @@
         background-clip: text;
         -webkit-text-fill-color: transparent;
       }
+
       50% {
         background: linear-gradient(90deg, #1A1A1A 0%, #DCEF62 100%);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
       }
+
       100% {
         background: linear-gradient(90deg, #DCEF62 0%, #1A1A1A 100%);
         -webkit-background-clip: text;
@@ -172,7 +171,6 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-    };
       font-weight: 700;
     }
 
@@ -188,9 +186,8 @@
     .description {
       font-size: 1.1rem;
       color: var(--text-muted);
-      max-width: 500px;
-      margin: 0 auto;
       line-height: 1.6;
+      width: 100%;
     }
 
     /* Role Cards Grid */
@@ -198,7 +195,6 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 2rem;
-      margin: 1rem 0;
       width: 100%;
     }
 
@@ -271,6 +267,7 @@
       0% {
         transform: scale(0) rotate(-180deg);
       }
+
       100% {
         transform: scale(1) rotate(0);
       }
@@ -359,8 +356,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0.75rem 0;
-      margin: 0.5rem 0;
+      padding: 0.5rem 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -388,14 +384,12 @@
       overflow: hidden;
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-      margin-bottom: 0.5rem;
     }
 
     .info-panel.active {
       max-height: 300px;
       opacity: 1;
       animation: slideDown 0.4s ease-out;
-      margin-bottom: 1rem;
     }
 
     @keyframes slideDown {
@@ -403,6 +397,7 @@
         transform: translateY(-20px);
         opacity: 0;
       }
+
       to {
         transform: translateY(0);
         opacity: 1;
@@ -483,7 +478,6 @@
     .footer-text {
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 0.5rem;
     }
 
     /* Back Button */
@@ -518,6 +512,7 @@
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -528,6 +523,7 @@
       from {
         opacity: 0;
       }
+
       to {
         opacity: 1;
       }
@@ -630,8 +626,10 @@
     <!-- Info Panel -->
     <div class="info-panel" id="infoPanel">
       <div class="info-content">
-        <p><strong>Learners</strong> can access courses, track progress, earn certificates, and manage their learning journey.</p>
-        <p><strong>Administrators</strong> can create courses, manage users, view analytics, and configure platform settings.</p>
+        <p><strong>Learners</strong> can access courses, track progress, earn certificates, and manage their learning
+          journey.</p>
+        <p><strong>Administrators</strong> can create courses, manage users, view analytics, and configure platform
+          settings.</p>
       </div>
     </div>
 
@@ -658,7 +656,7 @@
 
     function selectRole(role) {
       selectedRole = role;
-      
+
       // Update card selection states
       document.querySelectorAll('.role-card').forEach(card => {
         card.classList.remove('selected');
@@ -674,7 +672,7 @@
     function toggleInfo() {
       const panel = document.getElementById('infoPanel');
       const toggle = document.getElementById('infoToggle');
-      
+
       panel.classList.toggle('active');
       toggle.classList.toggle('active');
     }
@@ -690,7 +688,7 @@
       container.style.animation = 'none';
       setTimeout(() => {
         container.style.animation = 'fadeIn 0.3s ease-out reverse';
-        
+
         setTimeout(() => {
           if (selectedRole === 'learner') {
             window.location.href = 'login.html';

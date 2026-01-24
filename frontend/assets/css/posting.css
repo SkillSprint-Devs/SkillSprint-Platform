@@ -861,15 +861,6 @@ body {
   padding-right: 4px;
 }
 
-.sidebar-list::-webkit-scrollbar {
-  width: 5px;
-}
-
-.sidebar-list::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
-}
-
 /* Suggestion user card */
 .suggestion-card {
   display: flex;
