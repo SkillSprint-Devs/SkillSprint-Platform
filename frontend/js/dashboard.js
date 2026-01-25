@@ -1,7 +1,5 @@
 // === DASHBOARD.JS ===
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-  ? 'http://localhost:5000/api'
-  : '/api';
+const API_BASE = window.API_BASE_URL;
 
 // --- STATE MANAGEMENT ---
 window.dashboardState = {
@@ -534,9 +532,7 @@ let dashboardSocket = null;
 function setupSocket(token) {
   if (dashboardSocket) return; // Prevent duplicate connections
 
-  const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-    ? 'http://localhost:5000'
-    : '';
+  const SOCKET_URL = window.API_SOCKET_URL || '';
 
   dashboardSocket = io(SOCKET_URL, {
     auth: { token },

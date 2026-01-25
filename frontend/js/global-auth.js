@@ -8,6 +8,13 @@
     if (window.GlobalAuthInitialized) return;
     window.GlobalAuthInitialized = true;
 
+    // --- Global Config ---
+    // --- Global Config ---
+    // API_BASE_URL and API_SOCKET_URL are set in config.js
+    if (!window.API_BASE_URL) {
+        console.error("Critical: config.js not loaded. API calls will fail.");
+    }
+
     const IDS = {
         avatar: ["profileAvatar", "userAvatar", "creatorAvatar", "creatorAvatarSmall", "navbarProfileImage"],
         name: ["username", "usernameTop", "profileName"],

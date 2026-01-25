@@ -1,8 +1,6 @@
 // --- HELPER CONFIG ---
 function getApiConfig() {
-    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-        ? 'http://localhost:5000/api'
-        : '/api';
+    const API_BASE = window.API_BASE_URL;
     const token = localStorage.getItem("token");
     return { API_BASE, token };
 }
