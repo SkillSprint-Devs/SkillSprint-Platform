@@ -697,8 +697,17 @@ router.post(
     const board = await Board.findById(req.params.id);
     if (!board) return res.status(404).json({ success: false, message: "Board not found" });
 
-    if (!hasPermission(board, req.user.id, ["owner", "editor"]))
-      return res.status(403).json({ success: false, message: "Permission denied" });
+    // DEBUG: Permission Check
+    const userId = req.user.id;
+    const isOwner = board.owner.toString() === userId;
+    const isEditor = board.permissions?.editors?.some(e => e.toString() === userId);
+
+    if (!isOwner && !isEditor) {
+      console.warn(`[SaveState] Permission Denied for user ${userId} on board ${board._id}`);
+      console.warn(`[SaveState] Owner: ${board.owner}`);
+      console.warn(`[SaveState] Editors: ${board.permissions?.editors}`);
+      return res.status(403).json({ success: false, message: "Permission denied (Not Owner/Editor)" });
+    }
 
     if (stickies) board.stickies = stickies;
     if (strokes) board.strokes = strokes;
@@ -862,7 +871,9 @@ router.post(
   "/:id/invite",
   verifyToken,
   asyncHandler(async (req, res) => {
-    const { userIds, role } = req.body; // userIds: [string]
+    const { userIds, permission } = req.body;
+    const role = permission; // Map permission to role variable used below
+
     if (!userIds || !Array.isArray(userIds)) {
       return res.status(400).json({ success: false, message: "userIds array required" });
     }
