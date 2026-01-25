@@ -10,6 +10,8 @@ function initNavbar(config = {}) {
         backUrl: 'dashboard.html',
         showSearch: true,
         searchPlaceholder: 'Search resources, recordings, courses...',
+        showSettingsBtn: true, // Default: visible
+        showProfileBtn: false, // Default: hidden
         primaryAction: {
             show: true,
             label: 'Upload',
@@ -53,9 +55,14 @@ function initNavbar(config = {}) {
                     <i class="fa-solid fa-bell"></i>
                     <span class="notification-badge" id="navbarNotifBadge" style="display:none;">0</span>
                 </button>
+                ${options.showSettingsBtn ? `
                 <button class="icon-btn" title="Settings" onclick="location.href='settings.html'">
                     <i class="fa-solid fa-gear"></i>
-                </button>
+                </button>` : ''}
+                ${options.showProfileBtn ? `
+                <button class="icon-btn" title="My Profile" onclick="location.href='profile.html'">
+                    <i class="fa-solid fa-user"></i>
+                </button>` : ''}
                 ${options.primaryAction.show ? `
                     <button class="primary-btn" id="${options.primaryAction.id}">
                         <i class="fa-solid ${options.primaryAction.icon}"></i>

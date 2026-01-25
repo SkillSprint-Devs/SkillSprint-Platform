@@ -1,7 +1,9 @@
 // middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
 
-export const verifyToken = (req, res, next) => {
+import User from "../models/user.js";
+
+export const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
@@ -10,10 +12,23 @@ export const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // If token payload has user id under _id, assign to id:
+
+    // Check if user still exists and is active
+    const userId = decoded.id || decoded._id || decoded.userId;
+    const user = await User.findById(userId).select("isActive role"); // Fetch from DB
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found." });
+    }
+
+    if (user.isActive === false) {
+      return res.status(403).json({ message: "Account is deactivated. Please contact support." });
+    }
+
+    // Attach user to req
     req.user = {
-      id: decoded.id || decoded._id || decoded.userId,
-      role: decoded.role
+      id: userId,
+      role: user.role
     };
     next();
   } catch (error) {

@@ -148,6 +148,8 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
+    if (user.isActive === false) return res.status(403).json({ message: "Account deactivated" });
+
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
@@ -260,6 +262,7 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
       projects,
       education,
       achievements,
+      notifications,
     } = req.body;
 
     // Identify user from token 
@@ -282,8 +285,11 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
         const parsedPref = typeof learning_preferences === 'string' ? JSON.parse(learning_preferences) : learning_preferences;
         if (parsedPref.style) user.learning_preferences.style = parsedPref.style;
         if (parsedPref.depth) user.learning_preferences.depth = parsedPref.depth;
+        if (parsedPref.pace) user.learning_preferences.pace = parsedPref.pace;
       } catch (e) { }
     }
+
+    if (notifications !== undefined) user.notifications = notifications;
 
     if (designation !== undefined) user.designation = designation;
     if (skills) {
@@ -436,6 +442,73 @@ router.post("/log-activity", verifyToken, async (req, res) => {
   } catch (err) {
     console.error("Log activity error:", err);
     res.status(500).json({ message: "Failed to log activity" });
+  }
+});
+
+// Change Password
+router.put("/change-password", verifyToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: "Missing fields" });
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isMatch) return res.status(400).json({ message: "Incorrect current password" });
+
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({ message: "Password weak. Needs 8+ chars, 1 uppercase, 1 number, 1 special." });
+    }
+
+    user.password_hash = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Change Email
+router.put("/change-email", verifyToken, async (req, res) => {
+  try {
+    const { newEmail, password } = req.body;
+    if (!newEmail || !password) return res.status(400).json({ message: "Missing fields" });
+
+    const user = await User.findById(req.user.id);
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
+
+    const existing = await User.findOne({ email: newEmail });
+    if (existing) return res.status(400).json({ message: "Email already in use" });
+
+    user.email = newEmail;
+    await user.save();
+    res.json({ message: "Email updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Deactivate Account
+router.post("/deactivate-account", verifyToken, async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, { isActive: false });
+    res.json({ message: "Account deactivated" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete Account
+router.delete("/delete-account", verifyToken, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user.id);
+    res.json({ message: "Account deleted permanently" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 });
 
