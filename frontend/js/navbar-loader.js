@@ -71,7 +71,7 @@ function initNavbar(config = {}) {
 </nav>`;
 
     // Inject into the body or a specific placeholder
-    const placeholder = document.getElementById('navbar-placeholder');
+    const placeholder = document.getElementById('navbar-placeholder') || document.getElementById('navbar-container');
     if (placeholder) {
         placeholder.innerHTML = navbarHtml;
     } else {
@@ -131,6 +131,15 @@ window.initNavbar = initNavbar;
 
     const s = document.createElement('script');
     s.src = 'js/notifications-global.js';
+    s.async = true;
+    document.body.appendChild(s);
+})();
+
+// Automatically inject global auth handler
+(function () {
+    if (document.querySelector('script[src*="global-auth.js"]')) return;
+    const s = document.createElement('script');
+    s.src = 'js/global-auth.js';
     s.async = true;
     document.body.appendChild(s);
 })();

@@ -259,7 +259,7 @@ router.get(
   "/:id/comments",
   verifyToken,
   asyncHandler(async (req, res) => {
-    const board = await Board.findById(req.params.id).populate("comments.authorId", "name avatarUrl colorTag");
+    const board = await Board.findById(req.params.id).populate("comments.authorId", "name profile_image colorTag");
     if (!board) return res.status(404).json({ success: false, message: "Board not found" });
 
     if (!hasPermission(board, req.user.id, ["owner", "editor", "commenter", "viewer"]))
@@ -768,10 +768,10 @@ router.get(
   asyncHandler(async (req, res) => {
     const id = req.params.id;
     const board = await Board.findById(id)
-      .populate("owner", "name email avatarUrl colorTag")
-      .populate("members", "name email avatarUrl colorTag")
-      .populate("stickies.ownerId", "name avatarUrl colorTag")
-      .populate("comments.authorId", "name avatarUrl colorTag");
+      .populate("owner", "name email profile_image colorTag")
+      .populate("members", "name email profile_image colorTag")
+      .populate("stickies.ownerId", "name profile_image colorTag")
+      .populate("comments.authorId", "name profile_image colorTag");
     // Removed expensive strokes/shapes population for performance
 
     if (!board) return res.status(404).json({ success: false, message: "Board not found" });

@@ -93,7 +93,7 @@ router.post("/posts", verifyToken, upload.array("media", 3), async (req, res) =>
 router.get("/posts", verifyToken, async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("authorId", "name email avatarUrl position")
+      .populate("authorId", "name email profile_image position")
       .lean();
 
 

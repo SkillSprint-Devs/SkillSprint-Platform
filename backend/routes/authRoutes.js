@@ -250,6 +250,8 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
       role,
       location,
       bio,
+      primary_goal,
+      learning_preferences,
       skills,
       github,
       linkedin,
@@ -273,27 +275,67 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
     if (role && ["student", "mentor"].includes(role)) user.role = role;
     if (location !== undefined) user.location = location;
     if (bio !== undefined) user.bio = bio;
+    if (primary_goal !== undefined) user.primary_goal = primary_goal;
+
+    if (learning_preferences) {
+      try {
+        const parsedPref = typeof learning_preferences === 'string' ? JSON.parse(learning_preferences) : learning_preferences;
+        if (parsedPref.style) user.learning_preferences.style = parsedPref.style;
+        if (parsedPref.depth) user.learning_preferences.depth = parsedPref.depth;
+      } catch (e) { }
+    }
+
     if (designation !== undefined) user.designation = designation;
     if (skills) {
       if (typeof skills === "string") {
-        user.skills = skills.split(",").map(s => s.trim()).filter(Boolean);
+        try {
+          // Try parsing as JSON first (handles array from JS FormData)
+          const parsed = JSON.parse(skills);
+          user.skills = Array.isArray(parsed) ? parsed.filter(Boolean) : [parsed];
+        } catch (e) {
+          // Fallback to comma-separated
+          user.skills = skills.split(",").map(s => s.trim()).filter(Boolean);
+        }
       } else if (Array.isArray(skills)) {
-        user.skills = skills;
+        user.skills = skills.filter(Boolean);
       }
     }
     if (github !== undefined) user.github = github;
     if (linkedin !== undefined) user.linkedin = linkedin;
     if (portfolio !== undefined) user.portfolio = portfolio;
 
-    // Parse JSON strings for projects, education, achievements
-    let projectsParsed = [], educationParsed = [], achievementsParsed = [];
-    try { projectsParsed = JSON.parse(projects); } catch { }
-    try { educationParsed = JSON.parse(education); } catch { }
-    try { achievementsParsed = JSON.parse(achievements); } catch { }
+    // Parse JSON strings for privacy if necessary
+    let privacyParsed = null;
+    try { privacyParsed = typeof req.body.privacy === 'string' ? JSON.parse(req.body.privacy) : req.body.privacy; } catch { }
 
-    if (Array.isArray(projectsParsed)) user.projects = projectsParsed;
-    if (Array.isArray(educationParsed)) user.education = educationParsed;
-    if (Array.isArray(achievementsParsed)) user.achievements = achievementsParsed;
+    if (privacyParsed) {
+      if (typeof privacyParsed.showSkills === 'boolean') user.privacy.showSkills = privacyParsed.showSkills;
+      if (typeof privacyParsed.showStreaks === 'boolean') user.privacy.showStreaks = privacyParsed.showStreaks;
+      if (typeof privacyParsed.showProgress === 'boolean') user.privacy.showProgress = privacyParsed.showProgress;
+      if (typeof privacyParsed.showAchievements === 'boolean') user.privacy.showAchievements = privacyParsed.showAchievements;
+    }
+
+    // Parse JSON strings for projects, education, achievements if provided
+    if (projects !== undefined) {
+      try {
+        const projectsParsed = JSON.parse(projects);
+        if (Array.isArray(projectsParsed)) user.projects = projectsParsed;
+      } catch (e) { console.error("Error parsing projects", e); }
+    }
+
+    if (education !== undefined) {
+      try {
+        const educationParsed = JSON.parse(education);
+        if (Array.isArray(educationParsed)) user.education = educationParsed;
+      } catch (e) { console.error("Error parsing education", e); }
+    }
+
+    if (achievements !== undefined) {
+      try {
+        const achievementsParsed = JSON.parse(achievements);
+        if (Array.isArray(achievementsParsed)) user.achievements = achievementsParsed;
+      } catch (e) { console.error("Error parsing achievements", e); }
+    }
 
     await user.save();
 

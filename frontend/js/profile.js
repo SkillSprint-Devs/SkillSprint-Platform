@@ -8,607 +8,637 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const token = localStorage.getItem("token");
   if (!token) {
-    alert("Please login first!");
     window.location.href = "login.html";
     return;
   }
 
-  // Nav buttons
-  document.getElementById("backBtn")?.addEventListener("click", () => {
-    window.location.href = "dashboard.html";
-  });
-  document.getElementById("logoutBtn")?.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    alert("Logged out successfully!");
-    window.location.href = "login.html";
-  });
-
-  // UI references
-  const editBtn = document.getElementById("editProfileBtn");
-  const editSection = document.getElementById("editProfileSection");
-  const form = document.getElementById("editProfileForm");
-
-  const profileProjectsContainer = document.getElementById("profileProjects");
-  const profileEducationContainer = document.getElementById("profileEducation");
-  const profileAchievementsContainer = document.getElementById("profileAchievements");
-
-  // State arrays
-  let projects = [];
+  // --- State ---
+  let currentUser = {};
+  let projects = []; // Manual projects
+  let dynamicProjects = []; // Boards+PairSessions
   let education = [];
-  let achievements = [];
+  let skills = [];
 
-
-  function togglePanel(btn, panel) {
-    const isHidden = panel.classList.toggle("hidden");
-    btn.setAttribute("aria-expanded", !isHidden);
-    panel.setAttribute("aria-hidden", isHidden);
+  // --- Modal Helpers ---
+  function openModal(id) {
+    document.getElementById(id).classList.add('active');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
   }
 
-  // Update profile UI and sync data
-  function updateProfileUI(user) {
-    const setText = (id, value) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = value || "";
-    };
-    const setInputValue = (id, value) => {
-      const el = document.getElementById(id);
-      if (el) el.value = value || "";
-    };
+  // --- Dynamic Fetching ---
+  async function fetchDynamicContent() {
+    try {
+      // Fetch concurrently but handle individually to be resilient
+      const [boardsRes, pairsRes, achRes] = await Promise.allSettled([
+        fetch(`${API_BASE}/board/all`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE}/pair-programming/all`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE.replace('/api', '')}/api/certificates/achievements`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
 
-    setText("profileName", user.name);
-    setText("profileEmail", user.email);
-    setText("profileRole", user.role);
-    setText("profileDesignation", user.designation || "—");
-    setText("profileLocation", user.location || "Not specified");
-    setText("profileBio", user.bio || "—");
+      let boards = [];
+      if (boardsRes.status === 'fulfilled' && boardsRes.value.ok) {
+        const boardsData = await boardsRes.value.json();
+        boards = Array.isArray(boardsData.data) ? boardsData.data : (Array.isArray(boardsData) ? boardsData : []);
+      }
 
-    const profileImageEl = document.getElementById("profileImage");
-    if (profileImageEl) {
-      profileImageEl.src = user.profile_image
-        ? user.profile_image.startsWith("http")
-          ? user.profile_image
-          : `/${user.profile_image}`
-        : "assets/images/user-avatar.png";
+      let pairs = [];
+      if (pairsRes.status === 'fulfilled' && pairsRes.value.ok) {
+        pairs = await pairsRes.value.json();
+      }
+
+      let achievements = [];
+      if (achRes.status === 'fulfilled' && achRes.value.ok) {
+        const achData = await achRes.value.json();
+        achievements = achData.achievements || [];
+      }
+
+      dynamicProjects = [
+        ...boards.map(b => ({
+          id: b._id,
+          title: b.name,
+          description: "Smartboard Session",
+          tech_stack: ["Whiteboard", "Collaboration"],
+          link: `board.html?id=${b._id}`,
+          isDynamic: true,
+          type: 'Board'
+        })),
+        ...pairs.map(p => ({
+          id: p._id,
+          title: p.agenda || "Pair Programming",
+          description: `Session with ${p.mentor?.name || 'Mentor'}`,
+          tech_stack: p.tags || ["Pair Programming"],
+          link: `pair-programming.html?id=${p._id}`,
+          isDynamic: true,
+          type: 'Pair'
+        }))
+      ];
+
+      renderAchievements(achievements);
+      // If UI was already rendered, we might need to refresh project count
+      const projCountEl = document.getElementById("projectsCount");
+      if (projCountEl) projCountEl.textContent = projects.length + dynamicProjects.length;
+      renderProjects(); // Refresh list to include dynamic ones
+    } catch (err) {
+      console.error("Failed to fetch dynamic content", err);
+      renderAchievements([]); // Clear loading state
+    }
+  }
+
+  function renderAchievements(achievements) {
+    const container = document.getElementById("achievementsList");
+    if (!container) return;
+
+    if (achievements.length === 0) {
+      container.innerHTML = `<span style="color:var(--text-muted);">No achievements yet.</span>`;
+      return;
     }
 
-    // Skills
-    const skillsContainer = document.getElementById("profileSkills");
-    if (skillsContainer) {
-      skillsContainer.innerHTML = "";
-      (user.skills || []).forEach(skill => {
-        const tag = document.createElement("span");
-        tag.className = "skill-tag";
-        tag.textContent = skill;
-        skillsContainer.appendChild(tag);
-      });
-    }
+    container.innerHTML = achievements.map(ach => `
+        <div class="achievement-mini-card" style="background:#fff; border:1px solid #eee; padding:1rem; border-radius:12px; display:flex; align-items:center; gap:1rem; flex:1; min-width:200px;">
+           <i class="fa-solid ${ach.type === 'certificate' ? 'fa-certificate' : 'fa-award'}" style="font-size:1.5rem; color:var(--user-accent);"></i>
+           <div>
+              <div style="font-weight:700; font-size:0.9rem;">${ach.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${ach.courseName}</div>
+           </div>
+        </div>
+    `).join("");
+  }
 
-    projects = user.projects || [];
+  // --- UI Rendering ---
+  function updateUI(user) {
+    currentUser = user;
+    skills = (user.skills || []).filter(s => s && s !== '[]');
+    projects = user.projects || []; // Manual Only
     education = user.education || [];
-    achievements = user.achievements || [];
 
+    // Identity
+    document.getElementById("profileName").textContent = user.name || "User";
+    document.getElementById("profileRole").textContent = (user.role || "Student").toUpperCase();
+    const designationEl = document.getElementById("profileDesignation");
+    if (designationEl) designationEl.textContent = user.designation || "No designation";
+
+    const locationEl = document.getElementById("profileLocation");
+    if (locationEl) locationEl.innerHTML = `<i class="fa-solid fa-location-dot"></i> <span>${user.location || "Not specified"}</span>`;
+
+    const bioEl = document.getElementById("profileBio");
+    if (bioEl) bioEl.textContent = user.bio || "No bio yet.";
+
+    // Goal
+    const goalDisplay = document.getElementById("goalDisplay");
+    if (goalDisplay) goalDisplay.textContent = user.primary_goal || "Set your goal...";
+    const goalInput = document.getElementById("goalInput");
+    if (goalInput) goalInput.value = user.primary_goal || "";
+
+    // Preferences
+    const prefs = user.learning_preferences || {};
+    if (prefs.style) {
+      const radio = document.querySelector(`input[name="learning_style"][value="${prefs.style}"]`);
+      if (radio) radio.checked = true;
+    }
+    if (prefs.depth) {
+      const radio = document.querySelector(`input[name="explanation_depth"][value="${prefs.depth}"]`);
+      if (radio) radio.checked = true;
+    }
+
+    const imgEl = document.getElementById("profileImage");
+    if (imgEl) {
+      const fallback = "assets/images/user-avatar.png";
+      const rawImg = user.profile_image || "";
+      if (!rawImg) {
+        imgEl.src = fallback;
+      } else if (rawImg.startsWith("http")) {
+        imgEl.src = rawImg;
+      } else {
+        // Ensure single leading slash
+        const cleanPath = rawImg.startsWith("/") ? rawImg : `/${rawImg}`;
+        imgEl.src = cleanPath;
+      }
+
+      imgEl.onerror = () => { imgEl.src = fallback; };
+    }
+
+    // Unified setLink logic
+    const setLink = (id, url) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      let cleanUrl = (url || "").toString().trim();
+      if (!cleanUrl || cleanUrl === 'null' || cleanUrl === 'undefined') {
+        el.style.display = 'none';
+        return;
+      }
+
+      // Add https if missing but not for local paths
+      if (!/^https?:\/\//i.test(cleanUrl) && !cleanUrl.startsWith('/') && !cleanUrl.startsWith('data:')) {
+        cleanUrl = `https://${cleanUrl}`;
+      }
+
+      el.style.display = 'flex';
+      el.href = cleanUrl;
+    };
+
+    setLink("githubLink", user.github);
+    setLink("linkedinLink", user.linkedin);
+    setLink("portfolioLink", user.portfolio);
+
+    // Stats
+    const streakEl = document.getElementById("streakCount");
+    if (streakEl) streakEl.textContent = user.streakCount || 0;
+
+    const projCountEl = document.getElementById("projectsCount");
+    if (projCountEl) projCountEl.textContent = projects.length + dynamicProjects.length;
+
+    renderSkills();
     renderProjects();
     renderEducation();
-    renderAchievements();
-
-    // Social links
-    const setHref = (id, url) => {
-      const el = document.getElementById(id);
-      if (el) el.href = url || "#";
-    };
-    setHref("githubLink", user.github);
-    setHref("linkedinLink", user.linkedin);
-    setHref("portfolioLink", user.portfolio);
-
-    // Prefill form inputs
-    setInputValue("editName", user.name);
-    setInputValue("editRole", user.role || "student");
-    setInputValue("editLocation", user.location);
-    setInputValue("editDesignation", user.designation);
-    setInputValue("editBio", user.bio);
-    setInputValue("editSkills", (user.skills || []).join(", "));
-    setInputValue("editGithub", user.github);
-    setInputValue("editLinkedin", user.linkedin);
-    setInputValue("editPortfolio", user.portfolio);
   }
 
-  // Render Projects
+  function renderSkills() {
+    const container = document.getElementById("skillsContainer");
+    if (!container) return;
+
+    if (skills.length === 0) {
+      container.innerHTML = `<span style="color:var(--text-muted);">No skills added.</span>`;
+      return;
+    }
+
+    container.innerHTML = skills.map((skill, index) => `
+        <span class="skill-tag">
+            ${skill}
+            <i class="fa-solid fa-xmark remove-skill-btn" data-index="${index}" style="font-size:0.8rem; margin-left:4px;"></i>
+        </span>
+    `).join("");
+
+    // Bind remove events
+    document.querySelectorAll('.remove-skill-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const idx = parseInt(e.target.dataset.index);
+        skills.splice(idx, 1);
+        await saveField('skills', skills);
+      });
+    });
+  }
+
   function renderProjects() {
-    if (!profileProjectsContainer) return;
-    profileProjectsContainer.innerHTML = "";
+    const container = document.getElementById("projectsList");
+    if (!container) return;
 
-    projects.forEach((p, idx) => {
-      const card = document.createElement("div");
-      card.className = "project-card";
+    // Merge Manual + Dynamic
+    const allProjects = [...projects, ...dynamicProjects];
 
-      card.innerHTML = `
-        <div class="project-controls">
-          <button class="btn-edit-project" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn-delete-project" title="Delete"><i class="fa-solid fa-trash"></i></button>
+    if (allProjects.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:1.5rem; color:var(--text-muted);">No projects yet.</div>`;
+      return;
+    }
+
+    container.innerHTML = allProjects.map((p, index) => {
+      // Need to know real index for manual projects to edit/delete
+      // If it's dynamic, verified by isDynamic flag
+      const isManual = !p.isDynamic;
+      // Find index in 'projects' array if manual
+      const manualIndex = isManual ? projects.indexOf(p) : -1;
+
+      return `
+        <div class="list-card-item ${p.isDynamic ? 'auto-generated' : ''}">
+            <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <h4 style="margin:0; font-size:1.1rem; font-weight:700;">${p.title}</h4>
+                    ${p.isDynamic
+          ? `<span style="font-size:0.65rem; background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:4px; font-weight:600;">AUTO</span>`
+          : ''}
+                    ${p.link ? `<a href="${p.link}" target="_blank" style="color:var(--text-muted); font-size:0.9rem;"><i class="fa-solid fa-external-link-alt"></i></a>` : ''}
+                </div>
+                <p style="margin:0.25rem 0; color:#4b5563; font-size:0.95rem;">${p.description || "No description"}</p>
+                <div style="font-size:0.8rem; color:#6b7280; font-weight:500;">
+                    ${(p.tech_stack || []).join(" • ")}
+                </div>
+            </div>
+            ${isManual ? `
+            <div class="action-btn-group">
+                <button class="action-btn edit-project-btn" data-index="${manualIndex}"><i class="fa-solid fa-pen"></i></button>
+                <button class="action-btn delete-project-btn" data-index="${manualIndex}"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            ` : ''}
         </div>
-        <div class="project-view">
-          <h4>${p.title}</h4>
-          <p>${p.description || ""}</p>
-          <small>${(p.tech_stack || []).join(", ")}</small><br/>
-          ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener">View Project</a>` : ""}
-        </div>
-        <form class="project-edit-form hidden">
-          <input type="text" name="editTitle" value="${p.title}" required />
-          <textarea name="editDescription">${p.description || ""}</textarea>
-          <input type="text" name="editTechStack" value="${(p.tech_stack || []).join(", ")}" />
-          <input type="url" name="editLink" value="${p.link || ""}" />
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">Save</button>
-            <button type="button" class="btn-cancel-edit">Cancel</button>
-          </div>
-        </form>
-      `;
+        `;
+    }).join("");
 
-      profileProjectsContainer.appendChild(card);
-
-      const view = card.querySelector(".project-view");
-      const edit = card.querySelector(".project-edit-form");
-      const btnEdit = card.querySelector(".btn-edit-project");
-      const btnDelete = card.querySelector(".btn-delete-project");
-      const btnCancel = card.querySelector(".btn-cancel-edit");
-
-      btnEdit.addEventListener("click", () => {
-        view.classList.add("hidden");
-        edit.classList.remove("hidden");
-      });
-      btnCancel.addEventListener("click", () => {
-        edit.classList.add("hidden");
-        view.classList.remove("hidden");
-      });
-
-      edit.addEventListener("submit", async e => {
-        e.preventDefault();
-        const fd = new FormData(edit);
-        projects[idx] = {
-          title: fd.get("editTitle").trim(),
-          description: fd.get("editDescription").trim(),
-          tech_stack: fd.get("editTechStack").split(",").map(s => s.trim()).filter(Boolean),
-          link: fd.get("editLink").trim() || null,
-        };
-        const updatedUser = await saveListToBackend("projects", projects);
-        if (updatedUser) {
-          projects = updatedUser.projects || [];
-          education = updatedUser.education || [];
-          achievements = updatedUser.achievements || [];
-          renderProjects();
-        }
-      });
-
-      btnDelete.addEventListener("click", async () => {
-        const confirmed = await showConfirm(`Delete project "${p.title}"?`);
-        if (confirmed) {
+    // Bind Edit/Delete
+    document.querySelectorAll('.delete-project-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        if (confirm("Delete this project?")) {
+          const idx = parseInt(btn.closest('.action-btn').dataset.index);
           projects.splice(idx, 1);
-          const updatedUser = await saveListToBackend("projects", projects);
-          if (updatedUser) {
-            projects = updatedUser.projects || [];
-            education = updatedUser.education || [];
-            achievements = updatedUser.achievements || [];
-            renderProjects();
-          }
+          await saveField("projects", projects);
         }
+      });
+    });
+
+    document.querySelectorAll('.edit-project-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(btn.closest('.action-btn').dataset.index);
+        const p = projects[idx];
+        // Populate Modal
+        const form = document.getElementById("projectForm");
+        form.index.value = idx;
+        form.title.value = p.title;
+        form.description.value = p.description;
+        form.tech_stack.value = (p.tech_stack || []).join(", ");
+        form.link.value = p.link || "";
+
+        document.getElementById("projectModalTitle").textContent = "Edit Project";
+        openModal("projectModal");
       });
     });
   }
 
-  // Render Education
   function renderEducation() {
-    if (!profileEducationContainer) return;
-    profileEducationContainer.innerHTML = "";
+    const container = document.getElementById("educationList");
+    if (!container) return;
 
-    education.forEach((edu, idx) => {
-      const card = document.createElement("div");
-      card.className = "education-card";
+    if (education.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:1.5rem; color:var(--text-muted);">No education added.</div>`;
+      return;
+    }
 
-      card.innerHTML = `
-        <div class="education-controls">
-          <button class="btn-edit-education" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn-delete-education" title="Delete"><i class="fa-solid fa-trash"></i></button>
+    container.innerHTML = education.map((edu, index) => `
+        <div class="list-card-item">
+            <div style="flex:1;">
+                <h4 style="margin:0; font-size:1.1rem; font-weight:700;">${edu.degree}</h4>
+                <p style="margin:0.25rem 0; font-size:0.95rem; font-weight:500;">${edu.institution}</p>
+                <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">${edu.year || ""} • ${edu.grade || ""}</p>
+            </div>
+            <div class="action-btn-group">
+                <button class="action-btn edit-edu-btn" data-index="${index}"><i class="fa-solid fa-pen"></i></button>
+                <button class="action-btn delete-edu-btn" data-index="${index}"><i class="fa-solid fa-trash"></i></button>
+            </div>
         </div>
-        <div class="education-view">
-          <strong>${edu.degree}</strong><br/>
-          <span>${edu.institution}</span><br/>
-          <small>${edu.year || "N/A"} • Grade: ${edu.grade || "N/A"}</small>
-        </div>
-        <form class="education-edit-form hidden">
-          <input type="text" name="editDegree" value="${edu.degree}" required />
-          <input type="text" name="editInstitution" value="${edu.institution}" required />
-          <input type="text" name="editYear" value="${edu.year || ""}" />
-          <input type="text" name="editGrade" value="${edu.grade || ""}" />
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">Save</button>
-            <button type="button" class="btn-cancel-education">Cancel</button>
-          </div>
-        </form>
-      `;
+    `).join("");
 
-      profileEducationContainer.appendChild(card);
-
-      const view = card.querySelector(".education-view");
-      const edit = card.querySelector(".education-edit-form");
-      const btnEdit = card.querySelector(".btn-edit-education");
-      const btnDelete = card.querySelector(".btn-delete-education");
-      const btnCancel = card.querySelector(".btn-cancel-education");
-
-      btnEdit.addEventListener("click", () => {
-        view.classList.add("hidden");
-        edit.classList.remove("hidden");
-      });
-      btnCancel.addEventListener("click", () => {
-        edit.classList.add("hidden");
-        view.classList.remove("hidden");
-      });
-
-      edit.addEventListener("submit", async e => {
-        e.preventDefault();
-        const fd = new FormData(edit);
-        education[idx] = {
-          degree: fd.get("editDegree").trim(),
-          institution: fd.get("editInstitution").trim(),
-          year: fd.get("editYear").trim() || "N/A",
-          grade: fd.get("editGrade").trim() || "N/A",
-        };
-        const updatedUser = await saveListToBackend("education", education);
-        if (updatedUser) {
-          projects = updatedUser.projects || [];
-          education = updatedUser.education || [];
-          achievements = updatedUser.achievements || [];
-          renderEducation();
-        }
-      });
-
-      btnDelete.addEventListener("click", async () => {
-        const confirmed = await showConfirm(`Delete education "${education[idx].degree}"?`);
-        if (confirmed) {
+    // Bind Edit/Delete
+    document.querySelectorAll('.delete-edu-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        if (confirm("Delete this entry?")) {
+          const idx = parseInt(btn.closest('.action-btn').dataset.index);
           education.splice(idx, 1);
-          const updatedUser = await saveListToBackend("education", education);
-          if (updatedUser) {
-            projects = updatedUser.projects || [];
-            education = updatedUser.education || [];
-            achievements = updatedUser.achievements || [];
-            renderEducation();
-          }
+          await saveField("education", education);
         }
       });
     });
-  }
 
-  // Render Achievements
-  function renderAchievements() {
-    if (!profileAchievementsContainer) return;
-    profileAchievementsContainer.innerHTML = "";
+    document.querySelectorAll('.edit-edu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(btn.closest('.action-btn').dataset.index);
+        const edu = education[idx];
+        const form = document.getElementById("eduForm");
+        form.index.value = idx;
+        form.degree.value = edu.degree;
+        form.institution.value = edu.institution;
+        form.year.value = edu.year || "";
+        form.grade.value = edu.grade || "";
 
-    achievements.forEach((a, idx) => {
-      const card = document.createElement("div");
-      card.className = `achievement-item badge-${a.type || "bronze"}`;
-
-      card.innerHTML = `
-        <div class="achievement-header">
-          <span>${a.title}</span>
-          <div class="achievement-controls">
-            <button class="btn-edit-achievement" title="Edit"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn-delete-achievement" title="Delete"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        </div>
-        ${a.details ? `<small>${a.details}</small>` : ""}
-        <form class="achievement-edit-form hidden">
-          <input type="text" name="editTitle" value="${a.title}" required />
-          <select name="editType">
-            <option value="bronze" ${a.type === "bronze" ? "selected" : ""}>Bronze</option>
-            <option value="silver" ${a.type === "silver" ? "selected" : ""}>Silver</option>
-            <option value="gold" ${a.type === "gold" ? "selected" : ""}>Gold</option>
-          </select>
-          <textarea name="editDetails">${a.details || ""}</textarea>
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">Save</button>
-            <button type="button" class="btn-cancel-achievement">Cancel</button>
-          </div>
-        </form>
-      `;
-
-      profileAchievementsContainer.appendChild(card);
-
-      const editForm = card.querySelector(".achievement-edit-form");
-      const btnEdit = card.querySelector(".btn-edit-achievement");
-      const btnDelete = card.querySelector(".btn-delete-achievement");
-      const btnCancel = editForm.querySelector(".btn-cancel-achievement");
-
-      btnEdit.addEventListener("click", () => {
-        editForm.classList.remove("hidden");
-        card.querySelector("small")?.classList.add("hidden");
-      });
-      btnCancel.addEventListener("click", () => {
-        editForm.classList.add("hidden");
-        card.querySelector("small")?.classList.remove("hidden");
-      });
-
-      editForm.addEventListener("submit", async e => {
-        e.preventDefault();
-        const fd = new FormData(editForm);
-        achievements[idx] = {
-          title: fd.get("editTitle").trim(),
-          type: fd.get("editType"),
-          details: fd.get("editDetails").trim(),
-        };
-        const updatedUser = await saveListToBackend("achievements", achievements);
-        if (updatedUser) {
-          projects = updatedUser.projects || [];
-          education = updatedUser.education || [];
-          achievements = updatedUser.achievements || [];
-          renderAchievements();
-        }
-      });
-
-      btnDelete.addEventListener("click", async () => {
-        const confirmed = await showConfirm(`Delete achievement "${a.title}"?`);
-        if (confirmed) {
-          achievements.splice(idx, 1);
-          const updatedUser = await saveListToBackend("achievements", achievements);
-          if (updatedUser) {
-            projects = updatedUser.projects || [];
-            education = updatedUser.education || [];
-            achievements = updatedUser.achievements || [];
-            renderAchievements();
-          }
-        }
+        document.getElementById("eduModalTitle").textContent = "Edit Education";
+        openModal("eduModal");
       });
     });
   }
 
-  // Setup Add Panel
-  function setupAddPanel(btnId, type, renderFn, listRef) {
-    const btn = document.getElementById(btnId);
-    if (!btn) {
-      console.error(`Button with id '${btnId}' not found.`);
-      return;
-    }
 
-    // Create add panel once
-    const panel = document.createElement("div");
-    panel.className = "add-panel hidden";
-    panel.innerHTML = getAddFormHTML(type);
-    btn.after(panel);
-
-    btn.addEventListener("click", () => togglePanel(btn, panel));
-
-    const cancelBtn = panel.querySelector(".btn-add-cancel");
-    if (!cancelBtn) {
-      console.error(`Cancel button not found inside ${type} add panel.`);
-      return;
-    }
-
-    cancelBtn.addEventListener("click", () => {
-      panel.classList.add("hidden");
-      btn.setAttribute("aria-expanded", false);
-      panel.querySelector("form").reset();
-    });
-
-    panel.querySelector("form").addEventListener("submit", async e => {
-      e.preventDefault();
-
-      const fd = new FormData(e.target);
-      const newItem = createNewItem(type, fd);
-
-
-      listRef.push(newItem);
-
-
-      const updatedUser = await saveListToBackend(type, listRef);
-
-      if (updatedUser) {
-        projects = updatedUser.projects || [];
-        education = updatedUser.education || [];
-        achievements = updatedUser.achievements || [];
-
-        renderFn();
-
-        panel.classList.add("hidden");
-        e.target.reset();
-      } else {
-        listRef.pop();
-      }
-    });
-  }
-
-  function getAddFormHTML(type) {
-    if (type === "projects")
-      return `
-      <form>
-        <input name="title" placeholder="Title" required />
-        <textarea name="description" placeholder="Description"></textarea>
-        <input name="tech_stack" placeholder="Tech stack (comma separated)" />
-        <input name="link" placeholder="Project link" />
-        <div class="form-actions"><button class="btn-primary">Add</button><button type="button" class="btn-add-cancel">Cancel</button></div>
-      </form>`;
-    if (type === "education")
-      return `
-      <form>
-        <input name="degree" placeholder="Degree" required />
-        <input name="institution" placeholder="Institution" required />
-        <input name="year" placeholder="Year" />
-        <input name="grade" placeholder="Grade" />
-        <div class="form-actions"><button class="btn-primary">Add</button><button type="button" class="btn-add-cancel">Cancel</button></div>
-      </form>`;
-    return `
-      <form>
-        <input name="title" placeholder="Title" required />
-        <select name="type">
-          <option value="bronze">Bronze</option>
-          <option value="silver">Silver</option>
-          <option value="gold">Gold</option>
-        </select>
-        <textarea name="details" placeholder="Details"></textarea>
-        <div class="form-actions"><button class="btn-primary">Add</button><button type="button" class="btn-add-cancel">Cancel</button></div>
-      </form>`;
-  }
-
-  function createNewItem(type, fd) {
-    if (type === "projects")
-      return {
-        title: fd.get("title").trim(),
-        description: fd.get("description").trim(),
-        tech_stack: fd.get("tech_stack").split(",").map(s => s.trim()).filter(Boolean),
-        link: fd.get("link").trim() || null,
-      };
-    if (type === "education")
-      return {
-        degree: fd.get("degree").trim(),
-        institution: fd.get("institution").trim(),
-        year: fd.get("year").trim() || "N/A",
-        grade: fd.get("grade").trim() || "N/A",
-      };
-    return {
-      title: fd.get("title").trim(),
-      type: fd.get("type"),
-      details: fd.get("details").trim(),
-    };
-  }
-
-  async function saveListToBackend(field, list) {
+  // --- CRUD API ---
+  async function saveField(field, value, refreshWholeUser = false) {
     try {
-      const formData = new FormData();
-      formData.append(field, JSON.stringify(list));
+      const fd = new FormData();
+      // Handle file or JSON
+      if (value instanceof File) {
+        fd.append(field, value);
+      } else {
+        fd.append(field, typeof value === 'object' ? JSON.stringify(value) : value);
+      }
 
       const res = await fetch(`${API_BASE}/auth/update-profile`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await res.json();
-      console.log("Updated user response:", data);
-
-      if (!res.ok) {
-        alert(data.message || `Failed to update ${field}`);
-        return null;
-      }
-
-      return data.user || null;
-    } catch (err) {
-      console.error("saveListToBackend error:", err);
-      alert(`Error updating ${field}`);
-      return null;
-    }
-  }
-
-
-  function showConfirm(message) {
-    return new Promise((resolve) => {
-      const confirmDiv = document.createElement("div");
-      confirmDiv.style = `
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.5);
-        display: flex; align-items: center; justify-content: center;
-        z-index: 9999;
-      `;
-
-      confirmDiv.innerHTML = `
-        <div style="background: white; padding: 1.5rem 2rem; border-radius: 8px; max-width: 320px; text-align: center;">
-          <p style="margin-bottom: 1rem;">${message}</p>
-          <button id="confirmYes" style="margin-right: 1rem; padding: 0.5rem 1rem;">Yes</button>
-          <button id="confirmNo" style="padding: 0.5rem 1rem;">No</button>
-        </div>
-      `;
-
-      document.body.appendChild(confirmDiv);
-
-      confirmDiv.querySelector("#confirmYes").onclick = () => {
-        resolve(true);
-        document.body.removeChild(confirmDiv);
-      };
-
-      confirmDiv.querySelector("#confirmNo").onclick = () => {
-        resolve(false);
-        document.body.removeChild(confirmDiv);
-      };
-    });
-  }
-
-  // Load profile and initialize
-  async function loadProfile() {
-    try {
-      const res = await fetch(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
+        body: fd
       });
-      const user = await res.json();
-      if (!res.ok) return alert(user.message || "Failed to load profile");
-      updateProfileUI(user);
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Saved!", "success");
+        if (refreshWholeUser) {
+          updateUI(data.user);
+        } else {
+          currentUser = data.user;
+          // Only re-render relevant part
+          if (field === 'projects') renderProjects();
+          if (field === 'education') renderEducation();
+          if (field === 'skills') renderSkills();
+          if (field === 'profile_image') updateUI(data.user);
+        }
+
+        // Global Sync
+        if (window.updateGlobalUserUI) window.updateGlobalUserUI(data.user);
+        else localStorage.setItem("user", JSON.stringify(data.user));
+
+      } else {
+        alert(data.message || "Failed to save");
+      }
     } catch (err) {
       console.error(err);
-      alert("Error loading profile");
+      alert("Error saving");
     }
   }
 
-  await loadProfile();
 
+  // --- Event Listeners ---
 
-  editBtn?.addEventListener("click", () => editSection.classList.toggle("hidden"));
+  // Goal Editing
+  const goalDisplay = document.getElementById("goalDisplay");
+  const goalEditArea = document.getElementById("goalEditArea");
+  const saveGoalBtn = document.getElementById("saveGoalBtn");
+  const cancelGoalBtn = document.getElementById("cancelGoalBtn");
+  const goalInput = document.getElementById("goalInput");
 
+  if (goalDisplay && goalEditArea) {
+    goalDisplay.onclick = () => {
+      goalDisplay.style.display = 'none';
+      goalEditArea.style.display = 'block';
+      goalInput.focus();
+    };
 
-  form.addEventListener("submit", async e => {
-    e.preventDefault();
+    cancelGoalBtn.onclick = () => {
+      goalDisplay.style.display = 'block';
+      goalEditArea.style.display = 'none';
+      goalInput.value = currentUser.primary_goal || "";
+    };
 
-    const formData = new FormData();
+    saveGoalBtn.onclick = async () => {
+      const newVal = goalInput.value.trim();
+      if (newVal) {
+        await saveField('primary_goal', newVal);
+        currentUser.primary_goal = newVal; // Update local state for immediate sync
+        goalDisplay.textContent = newVal;
+      }
+      goalDisplay.style.display = 'block';
+      goalEditArea.style.display = 'none';
+    };
+  }
 
-    formData.append("name", form.editName.value.trim());
-    formData.append("role", form.editRole.value.trim());
-    formData.append("location", form.editLocation.value.trim());
-    formData.append("designation", form.editDesignation.value.trim());
-    formData.append("bio", form.editBio.value.trim());
-    formData.append("skills", form.editSkills.value.trim());
-    formData.append("github", form.editGithub.value.trim());
-    formData.append("linkedin", form.editLinkedin.value.trim());
-    formData.append("portfolio", form.editPortfolio.value.trim());
+  // Preferences Sync
+  document.querySelectorAll('input[name="learning_style"], input[name="explanation_depth"]').forEach(radio => {
+    radio.onchange = async () => {
+      const style = document.querySelector('input[name="learning_style"]:checked')?.value;
+      const depth = document.querySelector('input[name="explanation_depth"]:checked')?.value;
 
+      const prefs = { style, depth };
+      await saveField('learning_preferences', prefs);
+    };
+  });
 
-    formData.append("projects", JSON.stringify(projects));
-    formData.append("education", JSON.stringify(education));
-    formData.append("achievements", JSON.stringify(achievements));
+  // Avatar Upload
+  const uploadBtn = document.getElementById("uploadAvatarBtn");
+  const avatarInput = document.getElementById("avatarInput");
+  if (uploadBtn && avatarInput) {
+    uploadBtn.onclick = () => avatarInput.click();
+    avatarInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        await saveField('profile_image', file, true);
+      }
+    };
+  }
 
+  // Logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.onclick = () => {
+      if (confirm("Logout from SkillSprint?")) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "login.html";
+      }
+    };
+  }
 
-    const fileInput = document.getElementById("editProfileImage");
-    if (fileInput && fileInput.files.length > 0) {
-      formData.append("profile_image", fileInput.files[0]);
+  // Identity Modal
+  document.getElementById("editIdentityBtn").addEventListener("click", () => {
+    // Prefill
+    const form = document.getElementById("identityForm");
+    form.name.value = currentUser.name || "";
+    form.designation.value = currentUser.designation || "";
+    form.location.value = currentUser.location || "";
+    form.bio.value = currentUser.bio || "";
+    form.github.value = (currentUser.github && currentUser.github !== 'null') ? currentUser.github : "";
+    form.linkedin.value = (currentUser.linkedin && currentUser.linkedin !== 'null') ? currentUser.linkedin : "";
+    form.portfolio.value = (currentUser.portfolio && currentUser.portfolio !== 'null') ? currentUser.portfolio : "";
+
+    if (currentUser.privacy) {
+      form.showSkills.checked = currentUser.privacy.showSkills !== false;
+      form.showStreaks.checked = currentUser.privacy.showStreaks !== false;
+    } else {
+      form.showSkills.checked = true;
+      form.showStreaks.checked = true;
     }
+
+    openModal("identityModal");
+  });
+
+  // Privacy settings button removed from HTML
+  const privacyBtn = document.getElementById("togglePrivacySettings");
+  if (privacyBtn) {
+    privacyBtn.addEventListener("click", () => {
+      document.getElementById("editIdentityBtn").click();
+    });
+  }
+
+  document.getElementById("identityForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    // Construct Privacy Obj
+    const privacy = {
+      showSkills: fd.get("showSkills") === "on",
+      showStreaks: fd.get("showStreaks") === "on",
+    };
+
+    // We can't use saveField for multiple fields easily unless we pass FormData directly
+    // Let's do a custom fetch here
+    const updateFd = new FormData();
+    updateFd.append("name", fd.get("name"));
+    updateFd.append("designation", fd.get("designation"));
+    updateFd.append("location", fd.get("location"));
+    updateFd.append("bio", fd.get("bio"));
+    updateFd.append("github", fd.get("github"));
+    updateFd.append("linkedin", fd.get("linkedin"));
+    updateFd.append("portfolio", fd.get("portfolio"));
+    updateFd.append("privacy", JSON.stringify(privacy));
 
     try {
       const res = await fetch(`${API_BASE}/auth/update-profile`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
+        headers: { Authorization: `Bearer ${token}` },
+        body: updateFd
       });
-
       const data = await res.json();
-      alert(data.message);
-
-      if (res.ok && data.user) {
-        projects = data.user.projects || [];
-        education = data.user.education || [];
-        achievements = data.user.achievements || [];
-
-        updateProfileUI(data.user);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        editSection.classList.add("hidden");
+      if (res.ok) {
+        showToast("Profile Updated", "success");
+        updateUI(data.user);
+        closeModal("identityModal");
+        if (window.updateGlobalUserUI) window.updateGlobalUserUI(data.user);
       }
-    } catch (err) {
-      console.error("Profile update error:", err);
-      alert("Error updating profile");
+    } catch (err) { console.error(err); }
+  });
+
+
+  // Skills Input
+  document.getElementById("addSkillBtn").addEventListener("click", () => {
+    const val = document.getElementById("newSkillInput").value.trim();
+    if (val && val !== '[]') {
+      skills.push(val);
+      // Filter just in case malformed data exists
+      skills = skills.filter(s => s && s !== '[]');
+      saveField("skills", skills);
+      document.getElementById("newSkillInput").value = "";
+    }
+  });
+  document.getElementById("newSkillInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("addSkillBtn").click();
     }
   });
 
-  setupAddPanel("addProjectBtn", "projects", renderProjects, projects);
-  setupAddPanel("addEducationBtn", "education", renderEducation, education);
-  setupAddPanel("addAchievementBtn", "achievements", renderAchievements, achievements);
+
+  // Project Modal
+  document.getElementById("addProjectModalBtn").addEventListener("click", () => {
+    document.getElementById("projectForm").reset();
+    document.getElementById("projectForm").index.value = "-1";
+    document.getElementById("projectModalTitle").textContent = "Add Project";
+    openModal("projectModal");
+  });
+
+  document.getElementById("projectForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const newProj = {
+      title: fd.get("title"),
+      description: fd.get("description"),
+      tech_stack: fd.get("tech_stack").split(",").map(s => s.trim()).filter(Boolean),
+      link: fd.get("link")
+    };
+
+    const idx = parseInt(fd.get("index"));
+    if (idx >= 0) {
+      projects[idx] = newProj;
+    } else {
+      projects.push(newProj);
+    }
+
+    await saveField("projects", projects);
+    closeModal("projectModal");
+  });
+
+
+  // Education Modal
+  document.getElementById("addEduModalBtn").addEventListener("click", () => {
+    document.getElementById("eduForm").reset();
+    document.getElementById("eduForm").index.value = "-1";
+    document.getElementById("eduModalTitle").textContent = "Add Education";
+    openModal("eduModal");
+  });
+
+  document.getElementById("eduForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+
+    const newEdu = {
+      degree: fd.get("degree"),
+      institution: fd.get("institution"),
+      year: fd.get("year"),
+      grade: fd.get("grade")
+    };
+
+    const idx = parseInt(fd.get("index"), 10);
+    if (idx >= 0) {
+      education[idx] = newEdu;
+    } else {
+      education.push(newEdu);
+    }
+
+    await saveField("education", education);
+    closeModal("eduModal");
+  });
+
+
+  // --- Navbar Init ---
+  if (window.initNavbar) {
+    window.initNavbar({
+      activePage: 'Profile',
+      contextIcon: 'fa-user',
+      backUrl: 'dashboard.html',
+      showSearch: false,
+      primaryAction: {
+        show: true,
+        label: 'Edit Profile',
+        icon: 'fa-pen',
+        onClick: () => {
+          document.getElementById('editIdentityBtn').click();
+        }
+      }
+    });
+  }
+
+  // --- Initialization ---
+  async function loadProfile() {
+    await fetchDynamicContent();
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        updateUI(data);
+      }
+    } catch (err) { console.error(err); }
+  }
+
+  loadProfile();
 });
-
-
-
-
