@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings | SkillSprint</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/dashboard.css" />
+    <link rel="stylesheet" href="assets/css/navbar.css" />
+    <link rel="stylesheet" href="assets/css/toast.css" />
+
+    <style>
+        /* Premium Settings Design */
+        :root {
+            --user-accent: #DCEF62;
+            --user-accent-hover: #cbe050;
+            --text-main: #1A1A1A;
+            --text-muted: #666666;
+            --danger-color: #ef4444;
+            --danger-bg: #fef2f2;
+        }
+
+        body {
+            background-color: #F9F8D9;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            /* Enable global scroll */
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Animated Background */
+        .bg-element {
+            position: fixed;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-element-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(220, 239, 98, 0.6);
+            top: -150px;
+            left: -100px;
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        .bg-element-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(220, 239, 98, 0.5);
+            bottom: -50px;
+            right: -50px;
+            animation: pulse 12s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            50% {
+                transform: scale(1.1) translate(20px, 20px);
+            }
+        }
+
+        /* Layout Overrides for Global Scroll */
+        .dashboard-container {
+            position: relative;
+            z-index: 1;
+            height: auto !important;
+            /* Override dashboard.css fixed height */
+            display: block !important;
+            /* Override flex layout */
+            overflow: visible !important;
+            /* Remove internal scroll */
+        }
+
+        .main-content {
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            flex: none !important;
+            /* Disable flex grow */
+            overflow: visible !important;
+            /* Remove internal scroll */
+            height: auto !important;
+        }
+
+        /* Navbar Container Fix */
+        #navbar-placeholder {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            margin-top: 2rem;
+            /* Add spacing below navbar */
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        /* Glass Card - Stronger Background */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            /* Much more opaque */
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--text-main);
+        }
+
+        .section-title i {
+            color: #1a1a1a;
+            background: var(--user-accent);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .settings-group {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .settings-group:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .group-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .group-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* Inputs & Forms */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 100%;
+        }
+
+        .setting-input {
+            width: 100%;
+            /* Force block */
+            display: block;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            /* Visible border */
+            border-color: rgba(0, 0, 0, 0.1);
+            background: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--text-main);
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Buttons */
+        .btn-action {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            width: fit-content;
+        }
+
+        .btn-primary {
+            background-color: var(--user-accent);
+            color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(220, 239, 98, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 239, 98, 0.6);
+        }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background-color: #fecaca;
+            color: #dc2626;
+        }
+
+        /* Toggles */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ddd;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--user-accent);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+            background-color: #1a1a1a;
+            /* Dark knob on accent bg */
+        }
+
+        /* Preferences Grid */
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media(max-width:600px) {
+            .option-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid transparent;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .option-card:hover {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .option-card.selected {
+            background: rgba(220, 239, 98, 0.2);
+            border-color: var(--user-accent);
+            font-weight: 700;
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            background: #fff5f5;
+            border-color: #ffe4e6;
+        }
+
+        .danger-zone .section-title i {
+            background: #ffe4e6;
+            color: #ef4444;
+        }
+
+        /* Hide generic status dot for Settings context */
+        .page-indicator .status-dot {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+
+    <div id="navbar-placeholder"></div>
+
+    <div class="dashboard-container">
+        <main class="main-content">
+
+            <div class="page-header">
+                <h1>Settings</h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Manage your account, preferences, and privacy.
+                </p>
+            </div>
+
+            <!-- Account Settings -->
+            <section class="glass-card">
+                <h2 class="section-title"><i class="fa-solid fa-user-shield"></i> Account</h2>
+
+                <!-- Password -->
+                <div class="settings-group">
+                    <h3 class="group-header">Change Password</h3>
+                    <p class="group-desc">Update your password securely.</p>
+                    <form id="passwordForm">
+                        <input type="password" id="currentPassword" class="setting-input" placeholder="Current Password"
+                            required>
+                        <input type="password" id="newPassword" class="setting-input" placeholder="New Password"
+                            required>
+                        <button type="submit" class="btn-action btn-primary">Update Password</button>
+                    </form>
+                </div>
+
+                <!-- Email -->
+                <div class="settings-group">
+                    <h3 class="group-header">Change Email</h3>
+                    <p class="group-desc">Update your email address.</p>
+                    <form id="emailForm">
+                        <input type="email" id="newEmail" class="setting-input" placeholder="New Email Address"
+                            required>
+                        <input type="password" id="emailPasswordConfirm" class="setting-input"
+                            placeholder="Confirm with Password" required>
+                        <button type="submit" class="btn-action btn-primary">Update Email</button>
+                    </form>
+                </div>
+
+                <!-- Privacy -->
+                <div class="settings-group">
+                    <h3 class="group-header" style="margin-bottom:1rem;">Privacy</h3>
+                    <div class="toggle-row">
+                        <span>Show Skills & Projects on Profile</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleSkills">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-row">
+                        <span>Show Activity Streak</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleStreaks">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-row">
+                        <span>Show Achievements</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleAchievements">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Logout All - REMOVED -->
+            </section>
+
+            <!-- Preferences -->
+            <section class="glass-card">
+                <h2 class="section-title"><i class="fa-solid fa-sliders"></i> Preferences</h2>
+
+                <!-- Learning Pace -->
+                <div class="settings-group">
+                    <h3 class="group-header">Learning Pace</h3>
+                    <p class="group-desc">How fast do you want to progress?</p>
+                    <div class="option-grid" id="paceOptions">
+                        <div class="option-card" data-value="Slow">Slow</div>
+                        <div class="option-card" data-value="Normal">Normal</div>
+                        <div class="option-card" data-value="Fast">Fast</div>
+                    </div>
+                </div>
+
+                <!-- Explanation Style -->
+                <div class="settings-group">
+                    <h3 class="group-header">Explanation Style</h3>
+                    <p class="group-desc">How deep should explanations be?</p>
+                    <div class="option-grid" id="depthOptions">
+                        <div class="option-card" data-value="Simple">Simple</div>
+                        <div class="option-card" data-value="Balanced">Balanced</div>
+                        <div class="option-card" data-value="Deep-dive">Deep-dive</div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="settings-group">
+                    <div class="toggle-row">
+                        <div>
+                            <h3 class="group-header" style="margin-bottom:0;">Email Notifications</h3>
+                            <p class="group-desc" style="margin-bottom:0;">Receive updates and critical alerts.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleNotifications">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button id="savePreferencesBtn" class="btn-action btn-primary">Save Preferences</button>
+                </div>
+            </section>
+
+            <!-- Danger Zone -->
+            <section class="glass-card danger-zone">
+                <h2 class="section-title" style="color: var(--danger-color);"><i
+                        class="fa-solid fa-triangle-exclamation"></i> Danger Zone</h2>
+
+                <div class="settings-group">
+                    <h3 class="group-header">Deactivate Account</h3>
+                    <p class="group-desc">Temporarily disable your account. You can reactivate it anytime.</p>
+                    <button id="deactivateBtn" class="btn-action btn-danger">Deactivate Account</button>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="group-header">Delete Account</h3>
+                    <p class="group-desc">Permanently remove your account and all data. This cannot be undone.</p>
+                    <button id="deleteAccountBtn" class="btn-action btn-danger"
+                        style="background: var(--danger-color); color: white;">Delete Permanently</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/navbar-loader.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/settings.js"></script>
+    <script>
+        // Initialize Navbar
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.initNavbar) {
+                initNavbar({
+                    activePage: 'Settings',
+                    contextIcon: 'fa-gear',
+                    backUrl: 'dashboard.html',
+                    showSearch: false, // Cleaner settings page
+                    showSettingsBtn: false, // Don't show settings link when already on settings
+                    showProfileBtn: true, // Show profile link instead
+                    primaryAction: { show: false }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

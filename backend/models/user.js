@@ -16,7 +16,8 @@ const userSchema = new mongoose.Schema({
   availability: { type: String, default: "available" }, // or "busy", "open to collab"
   learning_preferences: {
     style: { type: String, enum: ["Video", "Reading", "Practice-first"], default: "Practice-first" },
-    depth: { type: String, enum: ["Simple", "Balanced", "Deep-dive"], default: "Balanced" }
+    depth: { type: String, enum: ["Simple", "Balanced", "Deep-dive"], default: "Balanced" },
+    pace: { type: String, enum: ["Slow", "Normal", "Fast"], default: "Normal" }
   },
 
   // PROFESSIONAL INFO
@@ -93,6 +94,9 @@ const userSchema = new mongoose.Schema({
     showProgress: { type: Boolean, default: true },
     showAchievements: { type: Boolean, default: true }
   },
+
+  notifications: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: true },
 
   // STREAKS
   streakCount: { type: Number, default: 1 },
