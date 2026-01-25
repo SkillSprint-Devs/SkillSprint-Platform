@@ -14,6 +14,7 @@ import os from "os";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
+import Invitation from "../models/Invitation.js";
 const router = express.Router();
 // console.log("RUNNER ROUTE FILE LOADED:", __filename);
 
@@ -307,25 +308,47 @@ router.post("/:id/invite", verifyToken, async (req, res) => {
     let permDesc = permMap[permission] || "View Only";
     if (permission === 'editor') permDesc = "Can Edit Files, Run Code";
 
-    // 1. Create Notifications & Send Emails
+    // ... inside loop ...
+    // 1. Create Notifications & Send Emails & Create Invitations
     const notificationPromises = userIds.map(async (userId) => {
       // Fetch user details for email
       const invitee = await User.findById(userId).select("email name");
+
+      // Create Invitation for Pending State
+      const existingInv = await Invitation.findOne({
+        sender: req.user.id,
+        recipient: userId,
+        projectType: 'PairProgramming',
+        projectId: board._id,
+        status: 'pending'
+      });
+
+      if (!existingInv) {
+        await Invitation.create({
+          sender: req.user.id,
+          recipient: userId,
+          projectType: 'PairProgramming',
+          projectId: board._id,
+          status: 'pending',
+          permission: permission || 'viewer'
+        });
+      }
+
       if (invitee) {
         // Send Email
         await sendPairProgrammingInvite(invitee.email, {
           inviterName: inviter.name,
           projectName: board.name,
-          shareUrl
+          shareUrl // Still useful if they want to direct join, but UI will direct to collaborations
         });
       }
 
       const notification = new Notification({
         user_id: userId,
         title: "Pair Programming Invite",
-        message: `${inviter?.name || 'Someone'} invited you to \"${board.name}\"`,
+        message: `${inviter?.name || 'Someone'} invited you to join \"${board.name}\"`,
         type: "invite",
-        link: `${req.protocol}://${req.get('host')}/pair-programming.html?join=${shareToken}`,
+        link: `/collaborations.html`, // Redirect to collaborations to accept/decline
       });
       await notification.save();
       return notification;
