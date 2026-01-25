@@ -239,7 +239,7 @@ io.on("connection", (socket) => {
       try {
         await Board.findByIdAndUpdate(
           boardId,
-          { $pull: { activeUsers: mongoose.Types.ObjectId(userId) } },
+          { $pull: { activeUsers: new mongoose.Types.ObjectId(userId) } },
           { new: true }
         );
       } catch (e) {
@@ -288,7 +288,7 @@ io.on("connection", (socket) => {
           try {
             await Board.findByIdAndUpdate(
               boardId,
-              { $pull: { activeUsers: mongoose.Types.ObjectId(userId) } },
+              { $pull: { activeUsers: new mongoose.Types.ObjectId(userId) } },
               { new: true }
             );
 
@@ -320,7 +320,15 @@ io.on("connection", (socket) => {
 });
 
 // ROUTES 
-app.get("/api/status", (req, res) => res.json({ status: "ok", version: "1.2.0", debug_time: new Date().toISOString() }));
+app.get("/api/status", (req, res) => {
+  res.json({
+    status: "ok",
+    version: "1.2.0",
+    mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    mongodb_state: mongoose.connection.readyState,
+    debug_time: new Date().toISOString()
+  });
+});
 
 // TEST ROUTE: Trigger an error to test DB persistence
 app.get("/api/test-error-log", (req, res) => {
