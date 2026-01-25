@@ -136,6 +136,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Save Preferences ---
     savePreferencesBtn.addEventListener('click', async () => {
+        if (!currentUser) {
+            showToast("User data not loaded. Cannot save.", "error");
+            return;
+        }
         try {
             const formData = new FormData();
 
