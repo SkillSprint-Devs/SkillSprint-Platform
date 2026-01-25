@@ -12,7 +12,12 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, default: "" },
   location: { type: String, default: "" },           // e.g. "Remote – Pakistan"
   bio: { type: String, default: "" },                // short intro
+  primary_goal: { type: String, default: "" },       // e.g. "Crack FYP"
   availability: { type: String, default: "available" }, // or "busy", "open to collab"
+  learning_preferences: {
+    style: { type: String, enum: ["Video", "Reading", "Practice-first"], default: "Practice-first" },
+    depth: { type: String, enum: ["Simple", "Balanced", "Deep-dive"], default: "Balanced" }
+  },
 
   // PROFESSIONAL INFO
   designation: { type: String, default: "" },        // e.g. "Frontend Developer"
@@ -45,7 +50,8 @@ const userSchema = new mongoose.Schema({
     {
       degree: String,                                // "BS Computer Science"
       institution: String,                           // "Szabist University"
-      year: Number,
+      year: String,
+      grade: String,
     },
   ],
   certifications: [
@@ -77,8 +83,16 @@ const userSchema = new mongoose.Schema({
   following_count: { type: Number, default: 0 },
 
   // SMARTBOARD
-  avatarUrl: { type: String, default: "" },
+
   colorTag: { type: String, default: "" },
+
+  // SETTINGS
+  privacy: {
+    showSkills: { type: Boolean, default: true },
+    showStreaks: { type: Boolean, default: true },
+    showProgress: { type: Boolean, default: true },
+    showAchievements: { type: Boolean, default: true }
+  },
 
   // STREAKS
   streakCount: { type: Number, default: 1 },

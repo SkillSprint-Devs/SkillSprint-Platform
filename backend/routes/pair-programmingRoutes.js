@@ -118,14 +118,14 @@ router.get("/:id", verifyToken, async (req, res) => {
     }
 
     const board = await PairProgramming.findById(req.params.id)
-      .populate("owner", "name email profile_image avatarUrl colorTag")
-      .populate("members", "name email profile_image avatarUrl colorTag")
-      .populate("permissions.editors", "name email profile_image avatarUrl colorTag")
-      .populate("permissions.commenters", "name email profile_image avatarUrl colorTag")
-      .populate("permissions.viewers", "name email profile_image avatarUrl colorTag")
-      .populate("comments.authorId", "name email profile_image avatarUrl colorTag")
+      .populate("owner", "name email profile_image colorTag")
+      .populate("members", "name email profile_image colorTag")
+      .populate("permissions.editors", "name email profile_image colorTag")
+      .populate("permissions.commenters", "name email profile_image colorTag")
+      .populate("permissions.viewers", "name email profile_image colorTag")
+      .populate("comments.authorId", "name email profile_image colorTag")
       // Also populate comments inside folders/files
-      .populate("folders.files.comments.authorId", "name email profile_image avatarUrl colorTag");
+      .populate("folders.files.comments.authorId", "name email profile_image colorTag");
 
     if (!board) {
       console.log("Board not found:", req.params.id);
@@ -209,7 +209,7 @@ router.get("/users/search", verifyToken, async (req, res) => {
           ]
         }
       ]
-    }).select("name email profile_image avatarUrl colorTag").limit(10);
+    }).select("name email profile_image colorTag").limit(10);
 
     res.json(users);
   } catch (err) {
@@ -639,8 +639,8 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
 
     // Re-fetch with population for the response and socket emit
     const updatedBoard = await PairProgramming.findById(req.params.id)
-      .populate("comments.authorId", "name email profile_image avatarUrl colorTag")
-      .populate("folders.files.comments.authorId", "name email profile_image avatarUrl colorTag");
+      .populate("comments.authorId", "name email profile_image colorTag")
+      .populate("folders.files.comments.authorId", "name email profile_image colorTag");
 
     let savedComment;
     if (folderId && fileId) {
@@ -707,8 +707,8 @@ router.get("/:id/comments", verifyToken, async (req, res) => {
     const { folderId, fileId } = req.query;
 
     const board = await PairProgramming.findById(req.params.id)
-      .populate("comments.authorId", "name email profile_image avatarUrl colorTag")
-      .populate("folders.files.comments.authorId", "name email profile_image avatarUrl colorTag");
+      .populate("comments.authorId", "name email profile_image colorTag")
+      .populate("folders.files.comments.authorId", "name email profile_image colorTag");
 
     if (!board) return res.status(404).json({ message: "Board not found" });
 

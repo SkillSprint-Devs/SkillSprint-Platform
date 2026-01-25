@@ -7,142 +7,672 @@
   <title>Profile | SkillSprint</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/variables.css" />
-  <link rel="stylesheet" href="assets/css/profile.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" /> <!-- Reuse dashboard styles for layout consistency -->
+  <link rel="stylesheet" href="assets/css/navbar.css" />
   <link rel="stylesheet" href="assets/css/toast.css" />
 
+  <style>
+    /* Premium Profile Specific Overrides */
+    :root {
+      --user-accent: #DCEF62;
+      /* Yellow-Green */
+      --user-accent-hover: #cbe050;
+      --card-bg: #ffffff;
+      --text-main: #1A1A1A;
+      --text-muted: #666666;
+    }
+
+    body {
+      background-color: #F9F8D9;
+      min-height: 100vh;
+      height: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .dashboard-container {
+      height: auto;
+      display: block;
+    }
+
+    .main-content {
+      padding: 2rem;
+      /* Balanced padding */
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* Glass Panels */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Grid Layout */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .identity-container {
+        position: static;
+        margin-bottom: 2rem;
+      }
+    }
+
+    /* Identity Card */
+    .identity-container {
+      position: sticky;
+      top: 100px;
+      /* Clear sticky navbar */
+      text-align: center;
+      z-index: 10;
+    }
+
+    .goal-card {
+      margin-top: 1.5rem;
+      text-align: left;
+    }
+
+    .goal-input-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .goal-display {
+      font-weight: 500;
+      color: var(--text-main);
+      background: #f9f8d9;
+      padding: 0.8rem;
+      border-radius: 12px;
+      border-left: 4px solid var(--user-accent);
+      cursor: pointer;
+    }
+
+    .goal-display:hover {
+      background: #fff;
+    }
+
+    .profile-avatar-xl {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 6px solid #fff;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .role-badge {
+      background: var(--user-accent);
+      color: var(--text-main);
+      padding: 0.5rem 1.25rem;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(220, 239, 98, 0.4);
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .user-name {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.5px;
+    }
+
+    /* Social Links */
+    .social-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .social-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      transition: all 0.2s;
+      font-size: 1.25rem;
+      text-decoration: none;
+    }
+
+    .social-btn:hover {
+      background: var(--user-accent);
+      transform: translateY(-3px);
+    }
+
+    /* Refined Goal UI */
+    .goal-display {
+      font-weight: 600;
+      color: var(--text-main);
+      background: rgba(220, 239, 98, 0.1);
+      padding: 1rem;
+      border-radius: 16px;
+      border: 1px dashed var(--user-accent-hover);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .goal-display:hover {
+      background: rgba(220, 239, 98, 0.2);
+    }
+
+    .btn-secondary-premium {
+      background: #f3f4f6;
+      color: var(--text-main);
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary-premium:hover {
+      background: #e5e7eb;
+    }
+
+    /* Skills with Effects */
+    .skill-tag {
+      background: #f0fdf4;
+      /* Light green tint */
+      color: #15803d;
+      padding: 0.6rem 1.2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: 1px solid #dcfce7;
+      transition: all 0.3s;
+      cursor: default;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      /* Prevent text break */
+    }
+
+    .skill-tag:hover {
+      background: var(--user-accent);
+      color: var(--text-main);
+      border-color: var(--user-accent);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(220, 239, 98, 0.3);
+    }
+
+    .remove-skill-btn {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .remove-skill-btn:hover {
+      opacity: 1;
+    }
+
+    /* Projects & Edu Cards */
+    .list-card-item {
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+
+    .list-card-item:hover {
+      border-color: var(--user-accent);
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .list-card-item.auto-generated {
+      background: #f0f9ff;
+      border-color: #e0f2fe;
+    }
+
+    .list-card-item.auto-generated:hover {
+      border-color: #38bdf8;
+    }
+
+    .action-btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-btn:hover {
+      background: var(--user-accent);
+    }
+
+    .add-btn-header {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--user-accent);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .add-btn-header:hover {
+      transform: scale(1.1);
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 24px;
+      padding: 2.5rem;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      max-height: 85vh;
+      /* Prevent vertical overflow */
+      overflow-y: auto;
+      /* Enable scroll */
+      overflow-x: hidden;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .form-input-premium {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 2px solid #f3f4f6;
+      margin-bottom: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .form-input-premium:focus {
+      outline: none;
+      border-color: var(--user-accent);
+    }
+
+    .btn-premium {
+      background: var(--text-main);
+      color: white;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-premium:hover {
+      opacity: 0.9;
+    }
+  </style>
 </head>
 
 <body>
+  <!-- Navbar will be injected here -->
+  <div id="navbar-placeholder"></div>
 
-  <main class="profile-container">
-    <header class="profile-header">
-      <button id="backBtn" class="icon-btn" aria-label="Go back">
-        <i class="fa-solid fa-arrow-left"></i>
-      </button>
-      <h2>My Profile</h2>
-      <button id="logoutBtn" class="icon-btn" aria-label="Log out">
-        <i class="fa-solid fa-right-from-bracket"></i>
-      </button>
-    </header>
+  <div class="dashboard-container"> <!-- Adjust for injected navbar spacing -->
 
-    <div class="profile-content">
-      <section class="profile-summary card">
-        <img id="profileImage" src="assets/images/user-avatar.png" alt="User Avatar" />
-        <div class="profile-info">
-          <h2 id="profileName">Loading...</h2>
-          <p id="profileEmail"></p>
-          <p><strong>Role:</strong> <span id="profileRole"></span></p>
-          <p><strong>Designation:</strong> <span id="profileDesignation">-</span></p>
-          <p><strong>Location:</strong> <span id="profileLocation">-</span></p>
-          <p><strong>Bio:</strong> <span id="profileBio">-</span></p>
+    <main class="main-content">
+
+      <div class="profile-grid">
+        <!-- LEFT: Identity -->
+        <aside class="identity-container">
+          <div class="glass-card">
+            <button class="action-btn" style="position:absolute; top:1rem; right:1rem;" id="editIdentityBtn"
+              title="Edit Profile Details">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+
+            <div style="position:relative; display:inline-block;">
+              <img id="profileImage" src="assets/images/user-avatar.png" class="profile-avatar-xl" alt="Profile" />
+              <button class="action-btn" id="uploadAvatarBtn" style="position:absolute; bottom:2rem; right:0;"
+                title="Change Avatar">
+                <i class="fa-solid fa-camera"></i>
+              </button>
+              <input type="file" id="avatarInput" style="display:none;" accept="image/*">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <span class="role-badge" id="profileRole">STUDENT</span>
+            </div>
+
+            <h1 class="user-name" id="profileName" style="margin-bottom: 0.5rem;">Loading...</h1>
+            <p style="color:var(--text-muted); font-weight:500;" id="profileDesignation">Designation</p>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.3rem;" id="profileLocation"><i
+                class="fa-solid fa-location-dot"></i> <span>Remote</span></p>
+
+            <p id="profileBio" style="line-height:1.6; color:#4b5563; font-style:italic; margin-top: 1rem;">
+              "No bio yet."
+            </p>
+
+            <!-- Social Links -->
+            <div class="social-row">
+              <a href="#" id="githubLink" class="social-btn" target="_blank"><i class="fa-brands fa-github"></i></a>
+              <a href="#" id="linkedinLink" class="social-btn" target="_blank"><i
+                  class="fa-brands fa-linkedin-in"></i></a>
+              <a href="#" id="portfolioLink" class="social-btn" target="_blank"><i class="fa-solid fa-globe"></i></a>
+            </div>
+
+            <div style="margin-top:1.5rem; padding-top:1.2rem; border-top:1px solid #f3f4f6;">
+              <button id="logoutBtn"
+                style="background:none; border:none; color:#ef5350; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:0.5rem; width: 100%; justify-content: center;">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+              </button>
+            </div>
+          </div>
+
+          <!-- Goal Card attached to Sidebar -->
+          <div class="glass-card goal-card">
+            <h3 style="font-size: 1rem; margin-bottom: 1rem; display:flex; align-items:center; gap:0.5rem;">
+              <i class="fa-solid fa-bullseye" style="color:var(--user-accent-hover);"></i> Primary Learning Goal
+            </h3>
+            <div id="goalContainer">
+              <div id="goalDisplay" class="goal-display">Set your goal...</div>
+              <div id="goalEditArea" style="display:none;">
+                <textarea id="goalInput" class="form-input-premium" style="margin-bottom:0.8rem; height:80px;"
+                  placeholder="e.g. Master React and get a job at Google"></textarea>
+                <div style="display:flex; gap:0.5rem;">
+                  <button id="saveGoalBtn" class="btn-premium" style="flex:1; padding:0.8rem;">Save Goal</button>
+                  <button id="cancelGoalBtn" class="btn-secondary-premium" style="flex:1;">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- RIGHT: Content -->
+        <div class="content-container">
+
+          <!-- Stats Row -->
+          <div class="glass-card" style="margin-bottom:2rem; padding:1.5rem;">
+            <div style="display:flex; justify-content:space-around; align-items:center;">
+              <div style="text-align:center;">
+                <h2 style="font-size:2rem; font-weight:800; color:var(--text-main);" id="streakCount">0</h2>
+                <span
+                  style="font-size:0.85rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:1px; font-weight:600;">Day
+                  Streak</span>
+              </div>
+              <div style="width:1px; height:40px; background:#e5e7eb;"></div>
+              <div style="text-align:center;">
+                <h2 style="font-size:2rem; font-weight:800; color:var(--text-main);" id="projectsCount">0</h2>
+                <span
+                  style="font-size:0.85rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:1px; font-weight:600;">Projects</span>
+              </div>
+              <!-- Add more stats if needed -->
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="glass-card" style="margin-bottom:2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+              <h3 style="font-size:1.4rem; font-weight:700;"><i class="fa-solid fa-bolt"
+                  style="color:var(--user-accent);"></i> Skills</h3>
+              <div style="display:flex; gap:0.5rem;">
+                <input type="text" id="newSkillInput" placeholder="Add skill..."
+                  style="padding:0.5rem 1rem; border-radius:10px; border:1px solid #e5e7eb; width:150px;">
+                <button class="add-btn-header" id="addSkillBtn"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
+            <div id="skillsContainer" style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+              <!-- Skills injected here -->
+              <span style="color:var(--text-muted);">No skills added.</span>
+            </div>
+          </div>
+
+          <!-- Learning Preferences -->
+          <div class="glass-card" style="margin-bottom:2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+              <h3 style="font-size:1.4rem; font-weight:700;"><i class="fa-solid fa-sliders"
+                  style="color:var(--user-accent);"></i> Learning Preferences</h3>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+              <div class="pref-group">
+                <p
+                  style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.8rem; text-transform:uppercase;">
+                  Learning Style</p>
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="learning_style" value="Video"> Video
+                  </label>
+                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="learning_style" value="Reading"> Reading
+                  </label>
+                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="learning_style" value="Practice-first" checked> Practice-first
+                  </label>
+                </div>
+              </div>
+              <div class="pref-group">
+                <p
+                  style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.8rem; text-transform:uppercase;">
+                  Explanation Depth</p>
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="explanation_depth" value="Simple"> Simple
+                  </label>
+                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="explanation_depth" value="Balanced" checked> Balanced
+                  </label>
+                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="explanation_depth" value="Deep-dive"> Deep-dive
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div class="glass-card" style="margin-bottom:2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+              <h3 style="font-size:1.4rem; font-weight:700;"><i class="fa-solid fa-rocket"
+                  style="color:var(--user-accent);"></i> Projects</h3>
+              <button class="add-btn-header" id="addProjectModalBtn"><i class="fa-solid fa-plus"></i></button>
+            </div>
+
+            <div id="projectsList">
+              <!-- Projects Injected -->
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="glass-card" style="margin-bottom:2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+              <h3 style="font-size:1.4rem; font-weight:700;"><i class="fa-solid fa-graduation-cap"
+                  style="color:var(--user-accent);"></i> Education</h3>
+              <button class="add-btn-header" id="addEduModalBtn"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <div id="educationList">
+              <!-- Edu Injected -->
+            </div>
+          </div>
+
+          <!-- Achievements -->
+          <div class="glass-card" style="margin-bottom:2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+              <h3 style="font-size:1.4rem; font-weight:700;"><i class="fa-solid fa-medal"
+                  style="color:var(--user-accent);"></i> Achievements</h3>
+              <a href="achievements.html" class="action-btn" title="View All Achievements"><i
+                  class="fa-solid fa-external-link-alt"></i></a>
+            </div>
+            <div id="achievementsList" style="display:flex; flex-wrap:wrap; gap:1rem;">
+              <!-- Achievements Injected -->
+              <span style="color:var(--text-muted);">Loading achievements...</span>
+            </div>
+          </div>
+
         </div>
-        <button id="editProfileBtn" class="btn-primary" aria-label="Edit Profile">
-          <i class="fa-solid fa-pen"></i> Edit Profile
-        </button>
-      </section>
+      </div>
+    </main>
+  </div>
 
-      <section class="edit-profile card hidden" id="editProfileSection">
-        <form id="editProfileForm" class="edit-form">
-          <h3>Edit Profile</h3>
+  <!-- MODALS -->
 
-          <div class="form-group">
-            <label for="editName">Full Name</label>
-            <input type="text" id="editName" name="editName" />
-          </div>
+  <!-- Identity/Settings Modal -->
+  <div class="modal-overlay" id="identityModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:1.5rem;">Edit Profile & Privacy</h3>
+      <form id="identityForm">
+        <input type="text" name="name" class="form-input-premium" placeholder="Full Name">
+        <input type="text" name="designation" class="form-input-premium" placeholder="Designation">
+        <input type="text" name="location" class="form-input-premium" placeholder="Location">
+        <textarea name="bio" class="form-input-premium" rows="3" placeholder="Bio"></textarea>
 
-          <div class="form-group">
-            <label for="editProfileImage">Profile Image</label>
-            <input type="file" id="editProfileImage" name="profile_image" accept="image/*" />
-          </div>
+        <h4 style="margin:1rem 0;">Social Links</h4>
+        <input type="url" name="github" class="form-input-premium" placeholder="GitHub URL">
+        <input type="url" name="linkedin" class="form-input-premium" placeholder="LinkedIn URL">
+        <input type="url" name="portfolio" class="form-input-premium" placeholder="Portfolio URL">
 
-          <div class="form-group">
-            <label for="editRole">Role</label>
-            <select id="editRole" name="editRole">
-              <option value="student">Student</option>
-              <option value="mentor">Mentor</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="editDesignation">Designation</label>
-            <input type="text" id="editDesignation" name="designation" />
-          </div>
-
-          <div class="form-group">
-            <label for="editLocation">Location</label>
-            <input type="text" id="editLocation" name="editLocation" />
-          </div>
-
-          <div class="form-group">
-            <label for="editBio">Bio</label>
-            <textarea id="editBio" name="editBio"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="editSkills">Skills (comma separated)</label>
-            <input type="text" id="editSkills" name="editSkills" />
-          </div>
-
-          <div class="form-group">
-            <label for="editGithub">GitHub</label>
-            <input type="url" id="editGithub" name="editGithub" />
-          </div>
-
-          <div class="form-group">
-            <label for="editLinkedin">LinkedIn</label>
-            <input type="url" id="editLinkedin" name="editLinkedin" />
-          </div>
-
-          <div class="form-group">
-            <label for="editPortfolio">Portfolio</label>
-            <input type="url" id="editPortfolio" name="editPortfolio" />
-          </div>
-
-          <button type="submit" class="btn-primary">Save</button>
-        </form>
-      </section>
-
-      <section class="profile-details card">
-        <div class="profile-section card">
-          <h3><i class="fa-solid fa-diagram-project"></i> Projects</h3>
-          <div id="profileProjects" class="project-cards"></div>
-          <button class="add-btn" id="addProjectBtn" aria-label="Add Project">
-            <i class="fa-solid fa-plus"></i> Add Project
-          </button>
+        <h4 style="margin:1rem 0;">Privacy</h4>
+        <div style="margin-bottom:1rem;">
+          <label style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <span>Show Skills Publicly</span>
+            <input type="checkbox" name="showSkills">
+          </label>
+          <label style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <span>Show Streaks</span>
+            <input type="checkbox" name="showStreaks">
+          </label>
         </div>
 
-        <div class="profile-section card">
-          <h3><i class="fa-solid fa-graduation-cap"></i> Education</h3>
-          <div id="profileEducation"></div>
-          <button class="add-btn" id="addEducationBtn" aria-label="Add Education">
-            <i class="fa-solid fa-plus"></i> Add Education
-          </button>
-        </div>
-
-        <div class="profile-section card">
-          <h3><i class="fa-solid fa-trophy"></i> Achievements</h3>
-          <div id="profileAchievements" class="badge-list"></div>
-          <button class="add-btn" id="addAchievementBtn" aria-label="Add Achievement">
-            <i class="fa-solid fa-plus"></i> Add Achievement
-          </button>
-        </div>
-
-        <div class="profile-section card">
-          <h3><i class="fa-solid fa-link"></i> Social Links</h3>
-          <ul>
-            <li><a id="githubLink" href="#" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-            <li><a id="linkedinLink" href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-            <li><a id="portfolioLink" href="#" target="_blank" rel="noopener noreferrer">Portfolio</a></li>
-          </ul>
-        </div>
-      </section>
+        <button type="submit" class="btn-premium">Save Changes</button>
+        <button type="button" class="btn-premium" style="background:transparent; color:#666; margin-top:0.5rem;"
+          onclick="closeModal('identityModal')">Cancel</button>
+      </form>
     </div>
-  </main>
+  </div>
 
-  <script src="js/profile.js" defer></script>
-  <script src="js/toast.js" defer></script>
+  <!-- Project Modal -->
+  <div class="modal-overlay" id="projectModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:1.5rem;" id="projectModalTitle">Add Project</h3>
+      <form id="projectForm">
+        <input type="hidden" name="index" value="-1"> <!-- -1 for clean add -->
+        <input type="text" name="title" class="form-input-premium" placeholder="Project Title" required>
+        <textarea name="description" class="form-input-premium" placeholder="Description"></textarea>
+        <input type="text" name="tech_stack" class="form-input-premium" placeholder="Tech Stack (comma separated)">
+        <input type="url" name="link" class="form-input-premium" placeholder="Project Link">
+
+        <button type="submit" class="btn-premium">Save Project</button>
+        <button type="button" class="btn-premium" style="background:transparent; color:#666; margin-top:0.5rem;"
+          onclick="closeModal('projectModal')">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Education Modal -->
+  <div class="modal-overlay" id="eduModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:1.5rem;" id="eduModalTitle">Add Education</h3>
+      <form id="eduForm">
+        <input type="hidden" name="index" value="-1">
+        <input type="text" name="degree" class="form-input-premium" placeholder="Degree" required>
+        <input type="text" name="institution" class="form-input-premium" placeholder="Institution" required>
+        <input type="text" name="year" class="form-input-premium" placeholder="Year (e.g. 2024)">
+        <input type="text" name="grade" class="form-input-premium" placeholder="Grade/CGPA">
+
+        <button type="submit" class="btn-premium">Save Education</button>
+        <button type="button" class="btn-premium" style="background:transparent; color:#666; margin-top:0.5rem;"
+          onclick="closeModal('eduModal')">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/navbar-loader.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/toast.js"></script>
+  <script>
+    // Simple Modal Helpers
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+    // Clicking outside closes
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+  </script>
 </body>
 
 </html>

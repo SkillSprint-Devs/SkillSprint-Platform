@@ -217,16 +217,24 @@
   }
 
   /* Hide scrollbar to prevent extra space */
-  body::-webkit-scrollbar,
-  html::-webkit-scrollbar {
-    display: none;
+  body {
+    background: var(--base-bg);
+    min-height: 100vh;
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
-  body,
-  html {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+  .dashboard-container {
+    height: auto;
+    display: block;
+  }
+
+  .main-content {
+    flex: 1;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 3rem;
   }
 </style>
