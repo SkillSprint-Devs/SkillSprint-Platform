@@ -104,7 +104,8 @@ export default function pairProgrammingSocket(io) {
             break;
           case "python":
             fileExt = "py";
-            command = "python"; // or python3 depending on env
+            // On Windows, 'py' is often used as a launcher, try python first then py
+            command = "python";
             break;
           case "php":
             fileExt = "php";
@@ -124,52 +125,67 @@ export default function pairProgrammingSocket(io) {
           args.unshift("-u");
         }
 
-        console.log("Spawning:", command, args);
+        console.log(`[Terminal] Spawning: ${command}`, args);
 
-        const child = spawn(command, args);
+        const isWin = process.platform === "win32";
+        const child = spawn(command, args, { shell: isWin });
 
         socket.adapter.processes.set(boardId, { process: child, tempPath: tempFilePath });
 
         // Stream Output
         child.stdout.on("data", (data) => {
-          pair.to(boardId).emit("terminal:output", { data: data.toString() });
+          const out = data.toString();
+          console.log(`[Terminal OUT] ${out.trim()}`);
+          pair.to(boardId).emit("terminal:output", { data: out });
         });
 
         child.stderr.on("data", (data) => {
-          pair.to(boardId).emit("terminal:output", { data: data.toString() });
+          const err = data.toString();
+          console.log(`[Terminal ERR] ${err.trim()}`);
+          pair.to(boardId).emit("terminal:output", { data: err });
         });
 
-        child.on("close", (code) => {
-          console.log(`Process exited with code ${code}`);
-          pair.to(boardId).emit("terminal:output", { data: `\n[Process exited with code ${code}]\n` });
+        child.on("close", (code, signal) => {
+          console.log(`[Terminal] Process closed. Code: ${code}, Signal: ${signal}`);
+          const msg = signal ? `\n[Process terminated by signal ${signal}]\n` : `\n[Process exited with code ${code}]\n`;
+          pair.to(boardId).emit("terminal:output", { data: msg });
 
           // Cleanup
           try {
             if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
-          } catch (e) { console.error("Temp file cleanup failed", e); }
+          } catch (e) { console.error("[Terminal] Temp file cleanup failed", e); }
 
           socket.adapter.processes.delete(boardId);
         });
 
         child.on("error", (err) => {
-          pair.to(boardId).emit("terminal:output", { data: `Error: ${err.message}\n` });
+          console.error("[Terminal] Process Error:", err);
+          let msg = `Error: ${err.message}\n`;
+          if (err.code === 'ENOENT') {
+            if (command === 'php') msg = "Error: PHP interpreter not found. Please ensure PHP is installed and in your system PATH.\n";
+            if (command === 'python' || command === 'py') msg = "Error: Python interpreter not found. Please ensure Python installed and in your system PATH.\n";
+          }
+          pair.to(boardId).emit("terminal:output", { data: msg });
         });
 
       } catch (err) {
-        console.error("Terminal start error:", err);
+        console.error("[Terminal] Catch Error:", err);
         socket.emit("terminal:output", { data: `Server error: ${err.message}\n` });
       }
     });
 
     socket.on("terminal:input", ({ boardId, data }) => {
+      console.log(`[Terminal IN] Board: ${boardId} | Input: ${data}`);
       const active = socket.adapter.processes.get(boardId);
       if (active && active.process) {
         try {
           active.process.stdin.write(data + "\n");
         } catch (err) {
-          console.error("Write error:", err);
+          console.error("[Terminal] Write error:", err);
+          socket.emit("terminal:output", { data: `\n[Error writing to process: ${err.message}]\n` });
         }
       } else {
+        console.warn(`[Terminal] Input received but no active process for board: ${boardId}`);
         socket.emit("terminal:output", { data: "\n[No active process]\n" });
       }
     });

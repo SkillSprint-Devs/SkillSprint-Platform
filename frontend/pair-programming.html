@@ -31,7 +31,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css" />
 
@@ -316,10 +318,23 @@
           <p><em>(Max execution time: 5 seconds)</em></p>
 
           <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i
+              class="fa-solid fa-wrench" style="margin-right:8px;"></i>5. Environment Setup</h3>
+          <p>If you see "Command Not Found" or "Interpreter Not Found" in the terminal:</p>
+          <ul style="padding-left:20px; margin:10px 0;">
+            <li><strong>Node.js (JS):</strong> Ensure Node.js is installed on the host machine.</li>
+            <li><strong>Python (.py):</strong> Install Python from python.org and add it to your <strong>System
+                PATH</strong>.</li>
+            <li><strong>PHP (.php):</strong> Install PHP CLI and ensure <code>php</code> works in your system's
+              CMD/PowerShell.</li>
+            <li><strong>Refresh:</strong> If you just installed an interpreter, restart the SkillSprint server to detect
+              it.</li>
+          </ul>
+
+          <h3 style="margin-top:15px; font-size:1.1rem; border-bottom:1px solid #eee; padding-bottom:5px;"><i
               class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Limitations</h3>
           <ul style="padding-left:20px; margin:10px 0;">
             <li>No internet access for code execution.</li>
-            <li>No installing external packages.</li>
+            <li>No installing external packages via terminal.</li>
             <li>Secure sandbox environment.</li>
           </ul>
         </div>
@@ -339,8 +354,7 @@
   <!-- Page JS -->
   <!-- Page JS -->
   <script src="js/pair-programming.js?v=2" type="module"></script>
-  <!-- <script src="js/pair-programming-sio.js" type="module"></script>
-  <script src="js/toast.js" type="module"></script> -->
+  <script src="js/toast.js"></script>
 
 </body>
 
