@@ -151,7 +151,11 @@ router.post("/:id/accept", verifyToken, async (req, res) => {
         };
         const group = roleMap[invitation.permission] || 'viewers';
 
-        if (project.permissions && project.permissions[group] && !project.permissions[group].includes(pid)) {
+        // Ensure permissions structure exists
+        if (!project.permissions) project.permissions = {};
+        if (!project.permissions[group]) project.permissions[group] = [];
+
+        if (!project.permissions[group].includes(pid)) {
             project.permissions[group].push(pid);
         }
 
