@@ -160,13 +160,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Unified setLink logic
-    const setLink = (id, url) => {
+    const setLink = (id, url, name) => {
       const el = document.getElementById(id);
       if (!el) return;
 
       let cleanUrl = (url || "").toString().trim();
+
+      // If empty, show as "Add" placeholder
       if (!cleanUrl || cleanUrl === 'null' || cleanUrl === 'undefined') {
-        el.style.display = 'none';
+        el.style.display = 'flex';
+        el.style.opacity = '0.4';
+        el.href = 'javascript:void(0)';
+        el.title = `Add ${name}`;
+        el.onclick = (e) => {
+          e.preventDefault();
+          document.getElementById('editIdentityBtn').click();
+        };
         return;
       }
 
@@ -176,12 +185,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       el.style.display = 'flex';
+      el.style.opacity = '1';
       el.href = cleanUrl;
+      el.title = name;
+      el.onclick = null; // Remove placeholder click handler
     };
 
-    setLink("githubLink", user.github);
-    setLink("linkedinLink", user.linkedin);
-    setLink("portfolioLink", user.portfolio);
+    setLink("githubLink", user.github, "GitHub");
+    setLink("linkedinLink", user.linkedin, "LinkedIn");
+    setLink("portfolioLink", user.portfolio, "Portfolio");
 
     // Stats
     const streakEl = document.getElementById("streakCount");
@@ -268,7 +280,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Bind Edit/Delete
     document.querySelectorAll('.delete-project-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        if (confirm("Delete this project?")) {
+        if (await showConfirm("Delete Project?", "Are you sure you want to delete this project? This action cannot be undone.", "Delete", true)) {
           const idx = parseInt(btn.closest('.action-btn').dataset.index);
           projects.splice(idx, 1);
           await saveField("projects", projects);
@@ -320,7 +332,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Bind Edit/Delete
     document.querySelectorAll('.delete-edu-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        if (confirm("Delete this entry?")) {
+        if (await showConfirm("Delete Entry?", "Are you sure you want to remove this education entry?", "Delete", true)) {
           const idx = parseInt(btn.closest('.action-btn').dataset.index);
           education.splice(idx, 1);
           await saveField("education", education);
@@ -451,8 +463,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Logout
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
-    logoutBtn.onclick = () => {
-      if (confirm("Logout from SkillSprint?")) {
+    logoutBtn.onclick = async () => {
+      if (await showConfirm("Logout", "Are you sure you want to logout from SkillSprint?", "Logout")) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         window.location.href = "login.html";

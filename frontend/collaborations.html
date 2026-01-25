@@ -496,11 +496,11 @@
       if (isOwner) {
         const delBtn = div.querySelector('.delete-btn');
         if (delBtn) {
-          delBtn.onclick = (e) => {
+          delBtn.onclick = async (e) => {
             e.stopPropagation();
-            confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`, () => {
+            if (await showConfirm("Confirm Deletion", `Are you sure you want to delete "${item.name}"? This cannot be undone.`)) {
               deleteItem(item._id, type);
-            });
+            }
           };
         }
       }
@@ -561,6 +561,7 @@
   </script>
   <script src="js/toast.js"></script>
   <script src="js/navbar-loader.js"></script>
+  <script src="js/custom-dialog.js"></script>
   <script src="js/collaborations.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {

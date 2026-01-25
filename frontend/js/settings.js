@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Danger Zone ---
     deactivateBtn.addEventListener('click', async () => {
-        if (!confirm("Are you sure you want to deactivate your account? You will be logged out.")) return;
+        if (!await showConfirm("Deactivate Account?", "Are you sure you want to deactivate your account? You will be logged out.", "Deactivate", true)) return;
 
         try {
             const res = await fetch('http://localhost:5000/api/auth/deactivate-account', {
@@ -237,7 +237,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     deleteAccountBtn.addEventListener('click', async () => {
-        if (!confirm("WARNING: This will PERMANENTLY delete your account and all data. This action cannot be undone. Are you absolutely sure?")) return;
+        if (!await showConfirm(
+            "Delete Account Permanently?",
+            "WARNING: This will PERMANENTLY delete your account and all data. This action cannot be undone. Are you absolutely sure?",
+            "Yes, Delete",
+            true
+        )) return;
 
         // Double confirmation
         const confirmation = prompt("Type 'DELETE' to confirm.");
