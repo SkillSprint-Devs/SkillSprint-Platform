@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import multer from "multer";
 import Board from "../models/board.js";
+import Invitation from "../models/Invitation.js";
 import Library from "../models/library.js";
 import User from "../models/user.js";
 import Notification from "../models/notification.js";
@@ -904,11 +905,31 @@ router.post(
       // But we can preemptively add them if we want.
       // Let's stick to notification + email.
 
+      // Create Invitation for Pending State
+      const existingInv = await Invitation.findOne({
+        sender: inviter._id,
+        recipient: uid,
+        projectType: 'Board',
+        projectId: board._id,
+        status: 'pending'
+      });
+
+      if (!existingInv) {
+        await Invitation.create({
+          sender: inviter._id,
+          recipient: uid,
+          projectType: 'Board',
+          projectId: board._id,
+          status: 'pending',
+          permission: role || 'viewer'
+        });
+      }
+
       // Email
       await sendBoardInvite(user.email, {
         inviterName: inviter.name,
         boardName: board.name,
-        shareUrl
+        shareUrl // Link to board or collaborations page
       });
 
       // In-App Notification
@@ -917,7 +938,7 @@ router.post(
         title: "Board Invite",
         message: `${inviter.name} invited you to board "${board.name}"`,
         type: "invite",
-        link: `/board.html?token=${token}`
+        link: `/collaborations.html` // Changed to collaborations to encourage Accept/Decline flow
       });
       await notif.save();
 
