@@ -68,33 +68,18 @@ let boardId = null;
 })();
 
 export function showToast(message, type = "info", duration = 2500) {
-  const existing = document.querySelector(".toast");
-  if (existing) existing.remove();
-
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.textContent = message;
-
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    background: ${type === "success" ? "#28a745" : type === "error" ? "#dc3545" : "#007bff"};
-    color: white;
-    border-radius: 6px;
-    z-index: 10000;
-    opacity: 0;
-    transition: opacity 0.3s;
-  `;
-
-  document.body.appendChild(toast);
-  requestAnimationFrame(() => (toast.style.opacity = "1"));
-
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    setTimeout(() => toast.remove(), 300);
-  }, duration);
+  if (typeof window.showToast === 'function') {
+    window.showToast(message, type, duration);
+  } else {
+    // Fallback if toast.js isn't loaded for some reason
+    console.log(`[Proxy Toast] ${type}: ${message}`);
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    toast.style.cssText = "position:fixed; bottom:20px; right:20px; z-index:9999; background:#333; color:#fff; padding:10px;";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), duration);
+  }
 }
 
 export async function apiCall(endpoint, method = "GET", body = null) {
@@ -394,7 +379,10 @@ export async function renameItem() {
 }
 
 export async function deleteItem() {
-  const confirmed = await showCustomConfirm("Are you sure you want to delete this?");
+  const confirmed = typeof window.showCustomConfirm === 'function'
+    ? await window.showCustomConfirm("Are you sure you want to delete this?")
+    : window.confirm("Are you sure you want to delete this?");
+
   if (!confirmed) return;
 
   if (contextTargetFileId) {
@@ -775,11 +763,27 @@ export function renderComments() {
     if (deleteBtn) {
       deleteBtn.onclick = async (e) => {
         e.stopPropagation();
-        if (!await showCustomConfirm("Are you sure you want to delete this comment?")) return;
+
+        // Safety check for showCustomConfirm (ensure it's defined in window)
+        const confirmed = typeof window.showCustomConfirm === 'function'
+          ? await window.showCustomConfirm("Are you sure you want to delete this comment?")
+          : window.confirm("Are you sure you want to delete this comment?");
+
+        if (!confirmed) return;
 
         try {
           await apiCall(`/${boardId}/comments/${comment._id}`, "DELETE");
-          el.remove();
+
+          // Defensive removal: ensure element exists and is in the list
+          try {
+            if (el && el.parentNode) {
+              el.parentNode.removeChild(el);
+            }
+          } catch (domErr) {
+            console.warn('DOM cleanup skipped:', domErr);
+            // Element might have been removed by a remote sync already
+          }
+
           showToast("Comment deleted", "success");
 
           // Remove from state
