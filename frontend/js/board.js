@@ -957,9 +957,20 @@
   function updateActiveUsersUI(users) {
     const container = document.getElementById('activeUsers');
     if (!container || !users) return;
-    container.innerHTML = users.filter(u => u).map(u => `
-      <img src="${u.profile_image || 'assets/images/user-avatar.png'}" class="user-avatar-stack" title="${u.name}">
-    `).join('');
+
+    // We expect users to be an array of objects: { _id, name, profile_image, status: 'active'|'inactive' }
+    // If backend only sends active users for now, we just show them as active.
+
+    container.innerHTML = users.filter(u => u).map(u => {
+      const isOnline = u.status === 'active' || u.status === undefined; // Default active if realtime list
+      const color = isOnline ? '#4ade80' : '#f87171'; // Green : Red
+      return `
+      <div class="user-avatar-stack-container" style="position:relative; display:inline-block;">
+          <img src="${u.profile_image || 'assets/images/user-avatar.png'}" class="user-avatar-stack" title="${u.name} (${isOnline ? 'Online' : 'Offline'})">
+          <span style="position:absolute; bottom:0; right:0; width:10px; height:10px; background:${color}; border-radius:50%; border:1px solid #fff;"></span>
+      </div>
+    `;
+    }).join('');
   }
 
   function setupRealtimeListeners() {

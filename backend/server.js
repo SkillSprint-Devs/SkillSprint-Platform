@@ -32,6 +32,8 @@ import quizRoutes from "./routes/quizRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import invitationRoutes from "./routes/invitationRoutes.js";
 import errorRoutes from "./routes/errorRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import { initTaskScheduler } from "./utils/taskScheduler.js";
@@ -352,6 +354,8 @@ app.use("/api/quiz", quizRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/invitations", invitationRoutes);
 app.use("/api/errors", errorRoutes);
 
 // Favicon handler

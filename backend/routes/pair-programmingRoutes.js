@@ -672,7 +672,7 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
     await Promise.all(notifPromises);
     // --------------------------
 
-    res.status(201).json(newComment);
+    res.status(201).json(savedComment);
   } catch (err) {
     console.error("Error adding comment:", err);
     res.status(500).json({ message: "Error adding comment", error: err.message });
@@ -684,7 +684,8 @@ router.get("/:id/comments", verifyToken, async (req, res) => {
     const { folderId, fileId } = req.query;
 
     const board = await PairProgramming.findById(req.params.id)
-      .populate("comments.authorId", "name email");
+      .populate("comments.authorId", "name email profile_image avatarUrl colorTag")
+      .populate("folders.files.comments.authorId", "name email profile_image avatarUrl colorTag");
 
     if (!board) return res.status(404).json({ message: "Board not found" });
 

@@ -932,22 +932,52 @@ export async function loadBoardMembers() {
   if (!state.board?.members) return;
 
   state.board.members.forEach(member => {
+    // Basic online check based on socket presence list if available, or default
+    // Ideally we merge with onlineUsers list
+
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "position:relative; display:inline-block; margin-left: -8px;";
+
     const avatar = document.createElement("img");
     avatar.className = "collab-avatar active";
     avatar.src = member.profile_image || member.avatarUrl || "assets/images/user-avatar.png";
     avatar.alt = member.name;
-    avatar.title = `${member.name} (Active)`;
+    avatar.title = `${member.name}`;
     avatar.setAttribute("data-user-id", member._id);
 
     // Set role if available
-    if (member._id === state.board.owner) {
+    let roleTitle = "Navigator";
+    if (member._id === state.board.owner || (state.board.owner._id && member._id === state.board.owner._id)) {
       avatar.setAttribute("data-role", "driver");
-      avatar.title = `${member.name} (Driver)`;
+      roleTitle = "Driver";
     } else {
       avatar.setAttribute("data-role", "navigator");
     }
 
-    container.appendChild(avatar);
+    // Status Dot logic - Assuming `member.status` might be populated later or we use separate list
+    // For now we default to active if they are in the 'members' list which usually implies access, 
+    // but accurate 'online' requires socket real-time data which we might not have fully merged here yet.
+    // Let's mimic Board's logic:Green if 'active', Red if 'inactive'
+
+    const isOnline = member.status === 'active' || member.status === undefined;
+    avatar.title = `${member.name} (${roleTitle})`;
+
+    const dot = document.createElement("span");
+    dot.style.cssText = `
+        position: absolute; 
+        bottom: 0; 
+        right: 0; 
+        width: 10px; 
+        height: 10px; 
+        background-color: ${isOnline ? '#4ade80' : '#f87171'}; 
+        border-radius: 50%; 
+        border: 2px solid #1e1e1e;
+        z-index: 10;
+    `;
+
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(dot);
+    container.appendChild(wrapper);
   });
 
   // Update project name in navbar
