@@ -9,87 +9,92 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/navbar.css">
+  <!-- Pair Programming Modal Styles (Shared Components) - loaded first -->
+  <link rel="stylesheet" href="assets/css/pair-programming.css">
+  <link rel="stylesheet" href="assets/css/pair-programming-overrides.css">
+  <!-- Board-specific styles - loaded after to override where needed -->
   <link rel="stylesheet" href="assets/css/board.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 
 <body>
-  <header class="top-bar">
-    <div class="left-section">
-      <a href="dashboard.html" class="brand" title="Back to Dashboard"
-        style="text-decoration:none; display:flex; align-items:center; gap:12px;">
-        <div class="brand-logo">
-          <i class="fa-solid fa-puzzle-piece context-icon"></i>
-          <i class="fa-solid fa-arrow-left-long back-icon"></i>
+  <div id="navbar-placeholder"></div>
+
+  <div class="toolbar-container">
+    <!-- Undo/Redo Group -->
+    <div class="tool-group">
+      <button id="undoBtn" class="tool-btn" title="Undo (Ctrl+Z)">
+        <i class="fa-solid fa-rotate-left"></i>
+        <div class="tooltip">Undo</div>
+      </button>
+      <button id="redoBtn" class="tool-btn" title="Redo (Ctrl+Y)">
+        <i class="fa-solid fa-rotate-right"></i>
+        <div class="tooltip">Redo</div>
+      </button>
+    </div>
+
+    <!-- Drawing Tools Group -->
+    <div class="tool-group">
+      <button class="tool-btn active" data-tool="pen" title="Pen Tool">
+        <i class="fa-solid fa-pen-nib"></i>
+        <div class="tooltip">Pen</div>
+      </button>
+      <button class="tool-btn" data-tool="eraser" title="Eraser Tool">
+        <i class="fa-solid fa-eraser"></i>
+        <div class="tooltip">Eraser</div>
+      </button>
+      <button class="tool-btn" data-tool="highlighter" title="Highlighter">
+        <i class="fa-solid fa-highlighter"></i>
+        <div class="tooltip">Highlighter</div>
+      </button>
+    </div>
+
+    <!-- Extras Group -->
+    <div class="tool-group">
+      <button class="tool-btn" data-tool="text" title="Text Box">
+        <i class="fa-solid fa-font"></i>
+        <div class="tooltip">Text Box</div>
+      </button>
+      <button id="stickyBtn" class="tool-btn" data-tool="sticky" title="Add Sticky Note">
+        <i class="fa-solid fa-note-sticky"></i>
+        <div class="tooltip">Sticky Note</div>
+      </button>
+    </div>
+
+    <!-- Shapes Group -->
+    <div class="tool-group">
+      <button class="tool-btn" data-tool="rectangle" title="Rectangle Shape">
+        <i class="fa-regular fa-square"></i>
+        <div class="tooltip">Rectangle</div>
+      </button>
+      <button class="tool-btn" data-tool="circle" title="Circle Shape">
+        <i class="fa-regular fa-circle"></i>
+        <div class="tooltip">Circle</div>
+      </button>
+    </div>
+
+    <!-- Stroke Size Slider -->
+    <div class="slider-container">
+      <span class="slider-label">Stroke</span>
+      <div id="strokeSlider" class="slider" title="Change Stroke Size">
+        <div id="sliderFill" class="slider-fill">
+          <div class="slider-thumb"></div>
         </div>
-        <span class="brand-name" style="color:white; font-weight:700; font-size:18px;">SkillSprint</span>
-      </a>
-    </div>
-
-    <div class="center-section">
-      <h3 id="boardTitle">SkillSprint - <span id="boardName">untitled</span>.smartboard</h3>
-    </div>
-
-    <div class="right-section">
-      <button id="saveBtn" class="accent-btn" title="Save Board (Ctrl+S)"><span
-          class="material-icons-outlined">save</span> Save</button>
-      <button id="inviteBtn" class="icon-btn" title="Invite User"><span
-          class="material-icons-outlined">person_add_alt</span></button>
-      <div id="activeUsers" class="active-users"></div>
-      <div id="currentUserBadge" class="user-presence">
-        <!-- Badge populated by JS -->
-        <img id="currentUserAvatar" src="assets/images/user-avatar.png" alt="Me" class="user-avatar-stack" title="You">
       </div>
-      <button id="recordBtn" class="icon-btn" title="Record Board"><span
-          class="material-icons-outlined">radio_button_checked</span></button>
-      <button id="shareBtn" class="accent-btn" title="Share (Public Link)"><span
-          class="material-icons-outlined">ios_share</span> Share</button>
-    </div>
-  </header>
-
-  <aside class="toolbox">
-    <button id="undoBtn" class="tool" title="Undo (Ctrl+Z)">
-      <span class="material-icons-outlined">undo</span>
-    </button>
-    <button id="redoBtn" class="tool" title="Redo (Ctrl+Y)">
-      <span class="material-icons-outlined">redo</span>
-    </button>
-    <div class="tool-divider"></div>
-    <button data-tool="pen" class="tool active" title="Pen Tool">
-      <span class="material-icons-outlined">draw</span>
-    </button>
-    <button data-tool="eraser" class="tool" title="Eraser Tool">
-      <span class="material-icons-outlined">cleaning_services</span>
-    </button>
-    <button data-tool="highlighter" class="tool" title="Highlighter">
-      <span class="material-icons-outlined">auto_fix_high</span>
-    </button>
-    <button data-tool="rectangle" class="tool" title="Rectangle Shape">
-      <span class="material-icons-outlined">rectangle</span>
-    </button>
-    <button data-tool="circle" class="tool" title="Circle Shape">
-      <span class="material-icons-outlined">panorama_fish_eye</span>
-    </button>
-    <button data-tool="text" class="tool" title="Text Box">
-      <span class="material-icons-outlined">title</span>
-    </button>
-
-    <div class="color-picker-wrapper">
-      <input id="colorPicker" type="color" value="#000000" title="Select Color">
-      <span class="color-display"></span>
+      <!-- Keep hidden range for logic compatibility -->
+      <input id="strokeRange" type="range" min="1" max="60" value="4" style="display:none">
     </div>
 
-    <button id="commentToggle" data-tool="comment" class="tool" title="Discussion / Comments">
-      <span class="material-icons-outlined">forum</span>
-    </button>
-    <button id="stickyBtn" data-tool="sticky" class="tool" title="Add Sticky Note">
-      <span class="material-icons-outlined">sticky_note_2</span>
-    </button>
-
-
-    <div class="stroke-control">
-      <input id="strokeRange" type="range" min="1" max="60" value="4" title="Stroke Size">
+    <!-- Color Picker -->
+    <div class="tool-group">
+      <button id="premiumColorBtn" class="color-picker-btn">
+        <div class="color-gradient"></div>
+        <div class="tooltip">Color Picker</div>
+      </button>
+      <input id="colorPicker" type="color" value="#000000" style="display:none">
     </div>
-  </aside>
+  </div>
 
 
   <main id="boardContainer">
@@ -98,58 +103,110 @@
     </div>
   </main>
 
-  <div id="commentsPanel" class="comments hidden">
+  <!-- Sliding Comments Panel (Standardized with Pair Programming) -->
+  <aside id="commentsPanel" class="comments-panel">
     <div class="comments-header">
-      <h4>Comments</h4>
-      <button id="closeComments"><span class="material-icons-outlined">close</span></button>
+      <div>Discussion</div>
+      <button id="closeComments" class="btn small">Close</button>
     </div>
     <div id="commentsList" class="comments-list"></div>
-    <textarea id="commentInput" placeholder="Add a comment..."></textarea>
-    <button id="sendComment" class="accent-btn">Send</button>
-  </div>
 
-  <!-- Invite Modal -->
-  <div id="inviteModal" class="modal-overlay">
-    <div class="modal">
-      <h3>Invite to Board</h3>
-      <input type="text" id="userSearchInput" class="full-width" placeholder="Search users by name or email...">
-      <div id="userList" class="user-list"></div>
+    <div class="comments-input">
+      <input id="commentText" placeholder="Write a comment..." />
+      <button id="sendComment" class="btn accent">Send</button>
+    </div>
+  </aside>
 
-      <label>Permission:</label>
-      <select id="inviteRole" class="full-width">
-        <option value="viewer">View Only</option>
-        <option value="editor">Can Edit</option>
-      </select>
+  <!-- Floating button to open comments -->
+  <button id="toggleComments" class="fab"><i class="fa-solid fa-comment"></i></button>
 
-      <div class="modal-actions">
-        <button id="closeInviteBtn" class="accent-btn" style="background:#e0e0e0">Cancel</button>
-        <button id="sendInviteBtn" class="accent-btn" disabled>Send Invite</button>
+  <!-- Invite Modal (Pair Programming Standard) -->
+  <div id="inviteModal" class="input-modal">
+    <div class="input-box invite-box" style="width: 500px; max-width: 90%;">
+      <h3><i class="fa-solid fa-user-plus"></i> Invite Collaborator</h3>
+
+      <div style="margin-bottom: 20px;">
+        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+          Search Users
+        </label>
+        <input type="text" id="inviteSearch" placeholder="Type name or email to search..." style="margin-bottom: 0;" />
+        <p style="font-size: 11px; color: var(--text-light); margin: 6px 0 0 0;">
+          Search from your connections or all platform users
+        </p>
+      </div>
+
+      <div id="inviteUserList" class="user-list"
+        style="max-height: 280px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #eee; border-radius: 8px; background: #f9f9f9;">
+        <div style="padding: 40px 20px; text-align: center; color: #999;">
+          <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+          <p style="margin: 0; font-size: 13px;">Start typing to search users</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+          <i class="fa-solid fa-shield-halved"></i> Permission Level
+        </label>
+        <select id="invitePermission"
+          style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+          <option value="viewer">View Only - Can see board but not edit</option>
+          <option value="editor" selected>Can Edit - Full read/write access</option>
+        </select>
+        <p style="font-size: 11px; color: var(--text-light); margin: 6px 0 0 0;">
+          You can change permissions later from the board settings
+        </p>
+      </div>
+
+      <div class="input-actions">
+        <button id="sendInviteBtn" class="btn-ok" disabled>
+          <i class="fa-solid fa-paper-plane"></i> Send Invite
+        </button>
+        <button class="btn-cancel btn-close-invite">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- Share Modal -->
-  <div id="shareModal" class="modal-overlay">
-    <div class="modal">
-      <h3>Share Public Link</h3>
-      <p style="font-size:14px; color:#666; margin:0;">Anyone with this link can access the board.</p>
+  <!-- Share Modal (Pair Programming Standard) -->
+  <div id="shareModal" class="input-modal">
+    <div class="input-box share-box" style="width: 500px; max-width: 90%;">
+      <h3><i class="fa-solid fa-share-nodes"></i> Share Board Link</h3>
 
-      <div class="radio-group" style="display:flex; gap:16px; margin: 8px 0;">
-        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="viewer"
-            checked> View Only</label>
-        <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="shareRole" value="editor"> Can
-          Edit</label>
+      <div style="background: linear-gradient(135deg, rgba(220, 239, 98, 0.1) 0%, transparent 100%); 
+                  padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--accent);">
+        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-dark);">
+          <i class="fa-solid fa-info-circle" style="color: var(--accent);"></i>
+          <strong>Public Link Sharing:</strong> Anyone with this link can access the board with the selected
+          permissions.
+          The link never expires unless you regenerate it.
+        </p>
       </div>
 
-      <div style="display:flex; gap:8px;">
-        <input type="text" id="shareLinkInput" class="full-width" readonly onclick="this.select()"
-          placeholder="No link generated yet">
-        <button id="copyShareLinkBtn" class="accent-btn">Copy</button>
+      <div style="margin-bottom: 20px;">
+        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+          <i class="fa-solid fa-shield-halved"></i> Link Permission
+        </label>
+        <select id="sharePermission"
+          style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+          <option value="viewer">View Only - Read-only access to board</option>
+          <option value="editor">Can Edit - Full collaboration access</option>
+        </select>
       </div>
 
-      <div class="modal-actions">
-        <button id="closeShareBtn" class="accent-btn" style="background:#e0e0e0">Close</button>
-        <button id="generateLinkBtn" class="accent-btn">Generate Link</button>
+      <div style="margin-bottom: 20px;">
+        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">
+          Share Link
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="shareLinkInput" readonly value="Generating link..."
+            style="background: #f5f5f5; color: #333; font-family: monospace; font-size: 12px; flex: 1;" />
+          <button id="copyShareLinkBtn" class="btn accent" style="white-space: nowrap;">
+            <i class="fa-solid fa-copy"></i> Copy
+          </button>
+        </div>
+      </div>
+
+      <div class="input-actions">
+        <button class="btn-cancel btn-close-share">Close</button>
       </div>
     </div>
   </div>
@@ -172,8 +229,9 @@
     })();
   </script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script src="js/board.js"></script>
   <script src="js/toast.js"></script>
+  <script src="js/navbar-loader.js"></script>
+  <script src="js/board.js"></script>
   <script src="js/board-sio.js"></script>
 
 </body>

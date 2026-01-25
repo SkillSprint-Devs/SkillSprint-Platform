@@ -365,8 +365,14 @@
       await loadWhiteboards(token);
       await loadPairProgramming(token);
 
-      document.getElementById("searchInput").addEventListener("input", filterResults);
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) {
+        searchInput.addEventListener("input", () => filterResults(searchInput.value));
+      }
     });
+
+    // Expose for navbar-loader.js callback
+    window.filterResultsGlobal = filterResults;
 
     /* ====================== FETCH WHITEBOARDS ====================== */
     async function loadWhiteboards(token) {
@@ -519,8 +525,8 @@
     }
 
     /* ====================== SEARCH FILTER ====================== */
-    function filterResults() {
-      const val = document.getElementById("searchInput").value.toLowerCase();
+    function filterResults(query) {
+      const val = (typeof query === 'string' ? query : document.getElementById("searchInput")?.value || "").toLowerCase();
 
       filterList("whiteboardList", whiteboards, "board.html");
       filterList("pairList", pairProjects, "pair-programming.html");
@@ -561,10 +567,8 @@
         primaryAction: { show: false },
         search: {
           onInput: (val) => {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-              searchInput.value = val;
-              searchInput.dispatchEvent(new Event('input'));
+            if (window.filterResultsGlobal) {
+              window.filterResultsGlobal(val);
             }
           }
         }

@@ -239,7 +239,7 @@ router.delete(
       return res.status(403).json({ success: false, message: "Permission denied" });
     }
 
-    sticky.remove();
+    sticky.deleteOne();
     await board.save();
 
     const io = req.app.get("io");
@@ -348,11 +348,15 @@ router.delete(
     if (!comment) return res.status(404).json({ success: false, message: "Comment not found" });
 
     // Only author or board owner can delete
-    if (comment.authorId.toString() !== req.user.id && board.owner.toString() !== req.user.id) {
+    const commentAuthorId = comment.authorId ? comment.authorId.toString() : null;
+    const boardOwnerId = board.owner ? board.owner.toString() : null;
+    const currentUserId = req.user.id;
+
+    if (commentAuthorId !== currentUserId && boardOwnerId !== currentUserId) {
       return res.status(403).json({ success: false, message: "Permission denied" });
     }
 
-    comment.remove();
+    board.comments.pull(req.params.commentId);
     await board.save();
 
     const io = req.app.get("io");
@@ -419,7 +423,7 @@ router.delete(
     const stroke = board.strokes.id(req.params.strokeId);
     if (!stroke) return res.status(404).json({ success: false, message: "Stroke not found" });
 
-    stroke.remove();
+    stroke.deleteOne();
     await board.save();
 
     const io = req.app.get("io");
@@ -483,7 +487,7 @@ router.delete(
     const shape = board.shapes.id(req.params.shapeId);
     if (!shape) return res.status(404).json({ success: false, message: "Shape not found" });
 
-    shape.remove();
+    shape.deleteOne();
     await board.save();
 
     const io = req.app.get("io");
@@ -557,7 +561,7 @@ router.delete(
       return res.status(403).json({ success: false, message: "Permission denied" });
     }
 
-    notif.remove();
+    notif.deleteOne();
     await board.save();
 
     const io = req.app.get("io");
@@ -737,7 +741,7 @@ router.delete(
       return res.status(403).json({ success: false, message: "Permission denied" });
     }
 
-    rec.remove();
+    rec.deleteOne();
     await board.save();
 
     const io = req.app.get("io");
