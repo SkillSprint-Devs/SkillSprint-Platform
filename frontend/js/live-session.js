@@ -2,12 +2,8 @@ const token = localStorage.getItem("token");
 if (!token) {
     window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.href);
 }
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-    ? 'http://localhost:5000/api'
-    : '/api';
-const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-    ? 'http://localhost:5000'
-    : ''; // Empty string for relative path in production
+const API_BASE = window.API_BASE_URL;
+const SOCKET_URL = window.API_SOCKET_URL; // Empty string for relative path in production
 
 const socket = io(SOCKET_URL, {
     auth: { token }

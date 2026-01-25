@@ -1,6 +1,4 @@
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-    ? 'http://localhost:5000/api'
-    : '/api';
+const API_BASE = window.API_BASE_URL;
 let currentPage = 1;
 let totalPages = 1;
 let limit = 20;
@@ -374,9 +372,7 @@ function setupRealTimeUpdates() {
         console.warn("No token available for Socket.IO connection");
         return;
     }
-    const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-        ? 'http://localhost:5000'
-        : '';
+    const SOCKET_URL = window.API_SOCKET_URL;
     socket = io(SOCKET_URL, {
         auth: { token: token },
         reconnection: true,

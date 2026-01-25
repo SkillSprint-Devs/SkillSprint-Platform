@@ -1,6 +1,4 @@
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : '/api';
+const API_URL = window.API_BASE_URL;
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user'));
 
@@ -15,9 +13,7 @@ document.getElementById('myAvatar').src = user.profile_image || 'https://ui-avat
 // Global State
 let currentChatUserId = null;
 let debounceTimer;
-const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-    ? 'http://localhost:5000'
-    : '';
+const SOCKET_URL = window.API_SOCKET_URL;
 
 let socket = io(SOCKET_URL, {
     auth: { token: token }

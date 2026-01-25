@@ -1,9 +1,7 @@
 
 // Admin Dashboard Logic
 
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-    ? 'http://localhost:5000/api/admin'
-    : '/api/admin';
+const API_BASE = window.API_BASE_URL + '/admin';
 
 // DOM Elements
 const totalUsersEl = document.getElementById("totalUsersCount");

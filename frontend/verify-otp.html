@@ -30,6 +30,11 @@
     </div>
   </div>
 
+  <!-- Config script -->
+  <script src="js/config.js"></script>
+  <!-- Toast script -->
+  <script src="js/toast.js"></script>
+
   <script>
     document.getElementById("otpForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -37,10 +42,8 @@
       const stored = JSON.parse(localStorage.getItem("pendingSignup"));
       if (!stored) return alert("Signup info missing.");
 
-      // Dynamic API Base
-      const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-        ? 'http://localhost:5000/api'
-        : '/api';
+      // API_BASE is now global from config.js
+      const API_BASE = window.API_BASE_URL;
 
       const res = await fetch(`${API_BASE}/auth/verify-otp`, {
         method: "POST",

@@ -10,7 +10,7 @@
 
 
   // Determine Socket URL dynamically
-  const SOCKET_IO_BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000' ? 'http://localhost:5000' : '';
+  const SOCKET_IO_BACKEND_URL = window.API_SOCKET_URL;
   const token = localStorage.getItem('token');
 
   const socket = io(SOCKET_IO_BACKEND_URL, {

@@ -17,9 +17,7 @@
   const redoStack = [];
   const MAX_STACK = 40;
 
-  const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-    ? 'http://localhost:5000/api/board'
-    : '/api/board';
+  const API_BASE = `${window.API_BASE_URL}/board`;
 
   // --- Auth & Initial Data ---
   const urlParams = new URLSearchParams(window.location.search);

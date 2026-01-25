@@ -1,8 +1,6 @@
 // frontend/js/posting.js
 
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-  ? 'http://localhost:5000/api'
-  : '/api';
+const API_BASE = window.API_BASE_URL;
 const POSTING_BASE = `${API_BASE}/posting`;
 const AUTH_ME = `${API_BASE}/auth/me`;
 const POSTS_API = `${POSTING_BASE}/posts`;
@@ -116,7 +114,11 @@ function buildMediaNode(media = []) {
     let url = m.url;
     if (!url) return m;
 
-    // Fix 1: Remove localhost prefix
+    // Fix 1: Remove API base prefix if present
+    if (url.includes(`${window.API_BASE_URL}/uploads/`)) {
+      url = url.replace(window.API_BASE_URL, "");
+    }
+    // Also handle raw localhost:5000 just in case legacy data exists
     if (url.includes("localhost:5000/uploads/")) {
       url = url.replace(/https?:\/\/localhost:5000/, "");
     }

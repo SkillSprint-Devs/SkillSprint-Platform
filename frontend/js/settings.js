@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadSettings() {
         try {
-            const res = await fetch('http://localhost:5000/api/auth/me', {
+            const res = await fetch(`${window.API_BASE_URL}/auth/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error("Failed to load user");
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const formData = new FormData();
             formData.append('privacy', JSON.stringify(privacy));
 
-            const res = await fetch('http://localhost:5000/api/auth/update-profile', {
+            const res = await fetch(`${window.API_BASE_URL}/auth/update-profile`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             formData.append('learning_preferences', JSON.stringify(learning_preferences));
             formData.append('notifications', toggleNotifications.checked);
 
-            const res = await fetch('http://localhost:5000/api/auth/update-profile', {
+            const res = await fetch(`${window.API_BASE_URL}/auth/update-profile`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const newPassword = document.getElementById('newPassword').value;
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/change-password', {
+            const res = await fetch(`${window.API_BASE_URL}/auth/change-password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const password = document.getElementById('emailPasswordConfirm').value;
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/change-email', {
+            const res = await fetch(`${window.API_BASE_URL}/auth/change-email`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!await showConfirm("Deactivate Account?", "Are you sure you want to deactivate your account? You will be logged out.", "Deactivate", true)) return;
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/deactivate-account', {
+            const res = await fetch(`${window.API_BASE_URL}/auth/deactivate-account`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (confirmation !== 'DELETE') return;
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/delete-account', {
+            const res = await fetch(`${window.API_BASE_URL}/auth/delete-account`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

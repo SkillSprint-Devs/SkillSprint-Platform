@@ -3,12 +3,8 @@
     const token = localStorage.getItem("token");
     if (!token || !window.io) return;
 
-    const SOCKET_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-        ? 'http://localhost:5000'
-        : '';
-    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000'
-        ? 'http://localhost:5000/api'
-        : '/api';
+    const SOCKET_URL = window.API_SOCKET_URL;
+    const API_BASE = window.API_BASE_URL;
 
     const socket = io(SOCKET_URL, {
         auth: { token },
