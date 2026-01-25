@@ -201,26 +201,12 @@ async function openCourseModal(courseId) {
     const levelLabel = targetLevel.charAt(0).toUpperCase() + targetLevel.slice(1);
     const msg = `Start ${course.name} - ${levelLabel} Quiz?\n\nAttempts remaining today: ${attemptsData.attemptsRemaining}`;
 
-    // Check if confirm is overridden (takes callbacks) or native
-    if (window.confirm.length >= 2 || window.confirm.toString().includes('onConfirm')) {
-        // Overridden confirm with callbacks
-        confirm(msg, async () => {
-            try {
-                await startQuiz(courseId, targetLevel);
-            } catch (err) {
-                console.error('[QUIZ] Error in startQuiz:', err);
-                hideLoading();
-            }
-        });
-    } else {
-        // Native confirm or synchronous override
-        if (confirm(msg)) {
-            try {
-                await startQuiz(courseId, targetLevel);
-            } catch (err) {
-                console.error('[QUIZ] Error in startQuiz:', err);
-                hideLoading();
-            }
+    if (await showConfirm("Start Quiz?", msg, "Start Quiz")) {
+        try {
+            await startQuiz(courseId, targetLevel);
+        } catch (err) {
+            console.error('[QUIZ] Error in startQuiz:', err);
+            hideLoading();
         }
     }
 }
@@ -541,11 +527,10 @@ function setupEventListeners() {
         }
     });
 
-    document.getElementById('submitBtn').addEventListener('click', () => {
+    document.getElementById('submitBtn').addEventListener('click', async () => {
         const unanswered = currentQuiz.userAnswers.filter(a => a === -1).length;
         if (unanswered > 0) {
-            const confirmed = confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`);
-            if (!confirmed) return;
+            if (!await showConfirm("Unanswered Questions", `You have ${unanswered} unanswered question(s). Submit anyway?`, "Submit", true)) return;
         }
         submitQuiz();
     });

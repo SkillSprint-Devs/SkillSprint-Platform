@@ -353,44 +353,9 @@ async function deletePost(id) {
 }
 
 
-let confirmModal, confirmText, confirmYesBtn, confirmNoBtn;
-let confirmResolve;
-
-function createConfirmModal() {
-  confirmModal = el("div", { id: "confirmModal", class: "confirm-modal" });
-  confirmModal.innerHTML = `
-    <div class="modal-content">
-      <p id="confirmText">Are you sure?</p>
-      <div class="modal-actions">
-        <button id="confirmYes">Yes</button>
-        <button id="confirmNo">No</button>
-      </div>
-    </div>`;
-  document.body.appendChild(confirmModal);
-
-  confirmText = confirmModal.querySelector("#confirmText");
-  confirmYesBtn = confirmModal.querySelector("#confirmYes");
-  confirmNoBtn = confirmModal.querySelector("#confirmNo");
-
-  confirmYesBtn.onclick = () => {
-    confirmModal.classList.remove("open");
-    if (confirmResolve) confirmResolve(true);
-  };
-
-  confirmNoBtn.onclick = () => {
-    confirmModal.classList.remove("open");
-    if (confirmResolve) confirmResolve(false);
-  };
-}
-
+// Shared showConfirm is used instead of local implementation
 async function customConfirm(message) {
-  if (!confirmModal) createConfirmModal();
-  confirmText.textContent = message;
-  confirmModal.classList.add("open");
-
-  return new Promise((resolve) => {
-    confirmResolve = resolve;
-  });
+  return await showConfirm("Confirm Action", message, "Yes", true);
 }
 
 

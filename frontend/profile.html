@@ -18,7 +18,7 @@
     :root {
       --user-accent: #DCEF62;
       /* Yellow-Green */
-      --user-accent-hover: #cbe050;
+      --user-accent-hover: #a3b825;
       --card-bg: #ffffff;
       --text-main: #1A1A1A;
       --text-muted: #666666;
@@ -384,6 +384,58 @@
     .btn-premium:hover {
       opacity: 0.9;
     }
+
+    /* Custom Radio Buttons */
+    .pref-group input[type="radio"] {
+      display: none;
+    }
+
+    .pref-group label {
+      position: relative;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      background: #fff;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      transition: all 0.2s;
+      font-weight: 500;
+      width: 100%;
+      display: flex;
+      /* Fix for overlap bug */
+      align-items: center;
+    }
+
+    .pref-group label:hover {
+      border-color: var(--user-accent);
+      background: rgba(220, 239, 98, 0.05);
+    }
+
+    .pref-group label::before {
+      content: '';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid #d1d5db;
+      border-radius: 50%;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    .pref-group input[type="radio"]:checked+label {
+      border-color: var(--user-accent);
+      background: rgba(220, 239, 98, 0.15);
+      color: #0a0a0a;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(220, 239, 98, 0.2);
+    }
+
+    .pref-group input[type="radio"]:checked+label::before {
+      border-color: var(--user-accent);
+      background: var(--user-accent);
+      box-shadow: inset 0 0 0 4px #fff;
+    }
   </style>
 </head>
 
@@ -511,32 +563,44 @@
                 <p
                   style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.8rem; text-transform:uppercase;">
                   Learning Style</p>
-                <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="radio" name="learning_style" value="Video"> Video
-                  </label>
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="radio" name="learning_style" value="Reading"> Reading
-                  </label>
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="radio" name="learning_style" value="Practice-first" checked> Practice-first
-                  </label>
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                  <!-- Video -->
+                  <div style="width:100%;">
+                    <input type="radio" id="ls_video" name="learning_style" value="Video">
+                    <label for="ls_video">Video</label>
+                  </div>
+                  <!-- Reading -->
+                  <div style="width:100%;">
+                    <input type="radio" id="ls_reading" name="learning_style" value="Reading">
+                    <label for="ls_reading">Reading</label>
+                  </div>
+                  <!-- Practice -->
+                  <div style="width:100%;">
+                    <input type="radio" id="ls_practice" name="learning_style" value="Practice-first" checked>
+                    <label for="ls_practice">Practice-first</label>
+                  </div>
                 </div>
               </div>
               <div class="pref-group">
                 <p
                   style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.8rem; text-transform:uppercase;">
                   Explanation Depth</p>
-                <div style="display:flex; flex-direction:column; gap:0.5rem; ">
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="radio" name="explanation_depth" value="Simple"> Simple
-                  </label>
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="radio" name="explanation_depth" value="Balanced" checked> Balanced
-                  </label>
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="radio" name="explanation_depth" value="Deep-dive"> Deep-dive
-                  </label>
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                  <!-- Simple -->
+                  <div style="width:100%;">
+                    <input type="radio" id="ed_simple" name="explanation_depth" value="Simple">
+                    <label for="ed_simple">Simple</label>
+                  </div>
+                  <!-- Balanced -->
+                  <div style="width:100%;">
+                    <input type="radio" id="ed_balanced" name="explanation_depth" value="Balanced" checked>
+                    <label for="ed_balanced">Balanced</label>
+                  </div>
+                  <!-- Deep Dive -->
+                  <div style="width:100%;">
+                    <input type="radio" id="ed_deep" name="explanation_depth" value="Deep-dive">
+                    <label for="ed_deep">Deep-dive</label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -659,6 +723,7 @@
   </div>
 
   <script src="js/navbar-loader.js"></script>
+  <script src="js/custom-dialog.js"></script>
   <script src="js/profile.js"></script>
   <script src="js/toast.js"></script>
   <script>

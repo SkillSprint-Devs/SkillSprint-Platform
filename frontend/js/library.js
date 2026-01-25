@@ -22,8 +22,8 @@ window.deleteLibraryItem = async function (id) {
         return;
     }
 
-    // Confirmation bypassed
-    // if (!confirm("Are you sure you want to delete this file?")) return;
+    // Custom confirmation
+    if (!await showConfirm("Delete Item?", "Are you sure you want to delete this file? This action cannot be undone.", "Delete", true)) return;
 
     const card = document.querySelector(`[data-item-id="${id}"]`);
     if (card) {

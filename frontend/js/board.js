@@ -178,8 +178,12 @@
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
         body: JSON.stringify(payload)
       });
-      if (res.ok) notify('Board saved!', 'success');
-      else notify('Save failed', 'error');
+      if (res.ok) {
+        notify('Board saved!', 'success');
+      } else {
+        if (res.status === 403) notify('Permission denied: Only the owner can save.', 'error');
+        else notify('Save failed', 'error');
+      }
     } catch (e) { console.error('Save Error:', e); }
   }
 
