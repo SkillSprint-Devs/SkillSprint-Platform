@@ -9,6 +9,17 @@ export async function updateStreak(userId) {
         const user = await User.findById(userId);
         if (!user) return;
 
+        // Initialize missing streak fields for manually created users
+        if (user.streakCount === undefined || user.streakCount === null) {
+            user.streakCount = 1;
+        }
+        if (user.longestStreak === undefined || user.longestStreak === null) {
+            user.longestStreak = 1;
+        }
+        if (!user.lastActiveDate) {
+            user.lastActiveDate = new Date();
+        }
+
         const now = new Date();
         // Normalize to local midnight for comparison
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -43,5 +54,7 @@ export async function updateStreak(userId) {
         console.log(`[Streak] User ${userId} updated. Streak: ${user.streakCount}, Longest: ${user.longestStreak}`);
     } catch (error) {
         console.error(`[Streak Error] Failed to update streak for user ${userId}:`, error);
+        // Re-throw to allow caller to handle
+        throw error;
     }
 }

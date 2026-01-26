@@ -145,6 +145,14 @@ router.post("/login", async (req, res) => {
 
     if (user.isActive === false) return res.status(403).json({ message: "Account deactivated" });
 
+    // Check if password_hash exists (for manually created users)
+    if (!user.password_hash) {
+      console.error(`[Login] User ${user._id} has no password_hash. Likely manually created without proper password.`);
+      return res.status(400).json({
+        message: "Account configuration error. Please use 'Forgot Password' to set a valid password."
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
@@ -152,8 +160,25 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
-    // Update Streak on Login
-    await updateStreak(user._id);
+    // Ensure wallet exists (for manually created users)
+    try {
+      const existingWallet = await WalletService.checkAndResetCredits(user._id);
+      if (!existingWallet) {
+        console.log(`[Login] Creating wallet for user ${user._id}`);
+        await WalletService.createWallet(user._id);
+      }
+    } catch (walletErr) {
+      console.error(`[Login] Wallet check/creation failed for user ${user._id}:`, walletErr);
+      // Don't block login if wallet creation fails
+    }
+
+    // Update Streak on Login (wrapped in try-catch to prevent login failure)
+    try {
+      await updateStreak(user._id);
+    } catch (streakErr) {
+      console.error(`[Login] Streak update failed for user ${user._id}:`, streakErr);
+      // Don't block login if streak update fails
+    }
 
     res.json({
       message: "Login successful",
@@ -163,8 +188,8 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        streakCount: user.streakCount,
-        longestStreak: user.longestStreak
+        streakCount: user.streakCount || 1,
+        longestStreak: user.longestStreak || 1
       },
     });
   } catch (error) {
