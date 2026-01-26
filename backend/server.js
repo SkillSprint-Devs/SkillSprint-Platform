@@ -395,9 +395,12 @@ const gracefulShutdown = () => {
   console.log("Received kill signal, shutting down gracefully...");
   server.close(() => {
     console.log("Closed out remaining connections.");
-    mongoose.connection.close(false, () => {
+    mongoose.connection.close().then(() => {
       console.log("MongoDB connection closed.");
       process.exit(0);
+    }).catch(err => {
+      console.error("Error during MongoDB close:", err);
+      process.exit(1);
     });
   });
 
