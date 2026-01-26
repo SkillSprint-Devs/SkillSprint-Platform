@@ -241,16 +241,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     deleteAccountBtn.addEventListener('click', async () => {
+        // First confirmation
         if (!await showConfirm(
             "Delete Account Permanently?",
-            "WARNING: This will PERMANENTLY delete your account and all data. This action cannot be undone. Are you absolutely sure?",
-            "Yes, Delete",
+            "WARNING: This will PERMANENTLY delete your account and all data. This action cannot be undone.",
+            "Continue",
             true
         )) return;
 
-        // Double confirmation
-        const confirmation = prompt("Type 'DELETE' to confirm.");
-        if (confirmation !== 'DELETE') return;
+        // Second confirmation for extra safety
+        if (!await showConfirm(
+            "Are You Absolutely Sure?",
+            "This is your last chance. Your account and ALL data will be permanently deleted. There is no way to recover it.",
+            "Yes, Delete Forever",
+            true
+        )) return;
 
         try {
             const res = await fetch(`${window.API_BASE_URL}/auth/delete-account`, {
@@ -260,8 +265,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!res.ok) throw new Error("Failed");
 
             localStorage.removeItem('token');
-            alert("Your account has been deleted.");
-            window.location.href = 'signup.html';
+            localStorage.removeItem('user');
+            showToast("Your account has been deleted.", "info");
+            setTimeout(() => {
+                window.location.href = 'signup.html';
+            }, 1500);
         } catch (err) {
             showToast("Error deleting account", "error");
             console.error(err);

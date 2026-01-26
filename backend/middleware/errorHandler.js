@@ -1,9 +1,7 @@
 import ErrorLog from "../models/ErrorLog.js";
 
-/**
- * Global Error Handler Middleware
- * Captures detailed context and logs to database
- */
+// Global Error Handler Middleware
+
 const errorHandler = async (err, req, res, next) => {
     console.error("SERVER ERROR:", err);
 

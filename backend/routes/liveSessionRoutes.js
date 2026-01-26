@@ -11,10 +11,7 @@ import SessionService from "../services/sessionService.js";
 const router = express.Router();
 console.log("LiveSessionRoutes initialized");
 
-/**
- * Helper: Check for session conflicts
- * Returns true if conflict exists
- */
+//Helper
 async function checkConflict(userId, startDateTime, durationMinutes) {
     const start = new Date(startDateTime);
     const end = new Date(start.getTime() + durationMinutes * 60000);
@@ -30,12 +27,9 @@ async function checkConflict(userId, startDateTime, durationMinutes) {
             { acceptedUserIds: userId }
         ],
         $or: [
-            // Case 1: Existing session starts during new session
+            
             { scheduledDateTime: { $gte: bufferedStart, $lt: bufferedEnd } },
-            // Case 2: New session starts during existing session
-            // We need to calc existing session end. Since Mongoose isn't great at this in query, 
-            // we'll fetch potentials and filter or use a more complex query if needed.
-            // Simplified: overlap exists if (StartA < EndB) && (EndA > StartB)
+            
         ]
     });
 

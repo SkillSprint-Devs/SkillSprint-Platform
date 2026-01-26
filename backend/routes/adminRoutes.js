@@ -11,14 +11,14 @@ router.get("/stats", async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
 
-        // FIX 1: Get REAL online users count from socket connections
+        // Get REAL online users count from socket connections
         const onlineUsersMap = req.app.get('onlineUsers');
         const onlineUsers = onlineUsersMap ? onlineUsersMap.size : 0;
 
-        // FIX 2: Count LIVE SESSIONS (not boards) with status = "live"
+        // Count LIVE SESSIONS (not boards) with status = "live"
         const activeSessions = await LiveSession.countDocuments({ status: "live" });
 
-        // BONUS: Add projects count for future dashboard enhancement
+        // Add projects count for future dashboard enhancement
         const totalProjects = await PairProgramming.countDocuments();
 
         res.json({
@@ -38,10 +38,7 @@ router.get("/stats", async (req, res) => {
 // GET /api/admin/activity
 router.get("/activity", async (req, res) => {
     try {
-        // Determine the source of activity. 
-        // If we have an ActivityLog model, use it.
-        // If not, fetch recent users.
-
+        
         // Attempting to use ActivityLog if available, else fallback to Users (recently created)
         let activities = [];
 
@@ -83,7 +80,7 @@ router.get("/users-preview", async (req, res) => {
 });
 
 // GET /api/admin/health
-// FIX 3: Real system health monitoring
+// Real system health monitoring
 router.get("/health", async (req, res) => {
     try {
         const health = {

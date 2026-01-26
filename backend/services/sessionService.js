@@ -2,10 +2,9 @@ import LiveSession from "../models/liveSession.js";
 import WalletService from "../utils/walletService.js";
 
 class SessionService {
-    /**
-     * Centralized termination logic for Live Sessions
-     * Handles status update, credit processing, and notifications
-     */
+    //Centralized termination
+    
+    
     async terminateSession(sessionId, io) {
         try {
             console.log(`[RUNTIME-DEBUG] SessionService.terminateSession START for ID: ${sessionId}`);
@@ -25,7 +24,7 @@ class SessionService {
             session.endedAt = new Date();
 
             // Ensure we have a startTime to calculate duration. 
-            // If they merged before scheduled, we use scheduledDateTime as fallback if startTime is missing.
+
             const startStr = session.startTime || session.scheduledDateTime;
             const actualStart = new Date(startStr);
             const actualDurationMinutes = Math.max(1, Math.round((session.endedAt - actualStart) / 60000));
@@ -34,8 +33,7 @@ class SessionService {
             await session.save();
             console.log(`[RUNTIME-DEBUG] DB SAVE SUCCESS.`);
 
-            // 2. Process Credits (Silent Casualty Fixed)
-            // Use ACTUAL duration instead of planned duration
+            // Process Credits          
             const learners = session.acceptedUserIds || [];
             for (const learnerId of learners) {
                 try {
@@ -72,7 +70,7 @@ class SessionService {
                 const participants = [...learners, session.mentorId];
                 participants.forEach(pid => {
                     io.to(pid.toString()).emit("notification", {
-                        type: "session_update", // Handled by frontend to refresh lists
+                        type: "session_update", 
                         message: `Session "${session.sessionName}" has ended.`
                     });
                 });

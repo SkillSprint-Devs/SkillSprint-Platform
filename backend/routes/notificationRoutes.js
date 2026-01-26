@@ -14,7 +14,7 @@ router.get("/ping", (req, res) => {
 router.get("/", verifyToken, async (req, res) => {
     try {
         const notifications = await Notification.find({ user_id: req.user.id })
-            .sort({ created_at: -1 }); // Newest first
+            .sort({ created_at: -1 }); 
         res.json(notifications);
     } catch (err) {
         console.error("Error fetching notifications:", err);
@@ -26,14 +26,6 @@ router.get("/", verifyToken, async (req, res) => {
 router.post("/", verifyToken, async (req, res) => {
     try {
         const { title, message, type, link, user_id } = req.body;
-
-        // Allow sending to self if no user_id provided, or specific user if admin (logic can be expanded)
-        // For now, assuming self or validated logic.
-        // If user_id is provided, use it. Otherwise default to current user? 
-        // Actually, usually you post a notification FOR someone. 
-        // The requester might be the system or another user. 
-        // Let's assume the body contains the target user_id. 
-        // If not provided, maybe default to self for testing.
 
         const targetUserId = user_id || req.user.id;
 

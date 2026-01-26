@@ -1,9 +1,7 @@
 import ErrorLog from "../models/ErrorLog.js";
 
-/**
- * Middleware to log errors to database
- * Captures full context and masks sensitive data
- */
+// Middleware to log errors to database
+
 const errorLogger = async (err, req, res, next) => {
     try {
         // Determine error type and severity
