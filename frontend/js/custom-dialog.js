@@ -38,8 +38,8 @@ window.showConfirm = (title, message, confirmText = "Confirm", isDanger = false)
                 ">
                     <i class="fa-solid fa-${isDanger ? 'triangle-exclamation' : 'circle-question'}"></i>
                 </div>
-                <h3 style="margin-bottom: 0.5rem; color: #1a1a1a; font-size: 1.3rem;">${title}</h3>
-                <p style="color: #666; margin-bottom: 2rem; line-height: 1.5;">${message}</p>
+                <h3 style="margin-bottom: 0.5rem; color: #1a1a1a; font-size: 1.3rem; text-align: center; width: 100%; display: block !important; margin: 0 auto 0.5rem;">${title}</h3>
+                ${message ? `<p style="color: #666; margin-bottom: 2rem; line-height: 1.5;">${message}</p>` : '<div style="margin-bottom: 2rem;"></div>'}
                 <div style="display: flex; gap: 1rem;">
                     <button id="confirm-cancel-btn" style="
                         flex: 1; padding: 0.8rem; border-radius: 12px; border: none;

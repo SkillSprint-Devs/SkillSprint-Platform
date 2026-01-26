@@ -37,8 +37,14 @@ window.removeTask = async (id) => {
 };
 
 window.clearAllNotifications = async () => {
+  // Check if there are notifications to clear
+  if (!window.dashboardState.notifications || window.dashboardState.notifications.length === 0) {
+    if (typeof showToast === 'function') showToast("Your notifications are already clear!", "info");
+    return;
+  }
+
   const confirmed = typeof showCustomConfirm === 'function'
-    ? await showCustomConfirm("Clear all notifications?")
+    ? await showCustomConfirm("Clear all notifications?", "")
     : confirm("Clear all notifications?");
 
   if (!confirmed) return;
@@ -92,7 +98,7 @@ const toggleBtn = document.getElementById("toggleSidebar");
 const aiGuide = document.getElementById("aiGuide");
 
 if (toggleBtn) {
-  toggleBtn.innerHTML = 'S';
+  toggleBtn.innerHTML = '<i class="fa-solid fa-bolt"></i>';
 
   toggleBtn.addEventListener('click', () => {
     sidebar.classList.toggle('collapsed');
@@ -116,7 +122,67 @@ if (toggleBtn) {
   });
 }
 
-// FETCH DASHBOARD DATA
+// Holographic 3D Welcome Card Restoration
+document.addEventListener('DOMContentLoaded', () => {
+  const welcomeCard = document.querySelector('.welcome-card');
+  const parallaxContent = welcomeCard?.querySelector('.welcome-parallax-content');
+  const parallaxImg = welcomeCard?.querySelector('.welcome-card-img-group');
+
+  if (welcomeCard) {
+    let lastMouseX = 0, lastMouseY = 0, lastTime = Date.now();
+    let glowIntensity = 1;
+
+    welcomeCard.addEventListener('mousemove', (e) => {
+      const rect = welcomeCard.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Calculate cursor speed for glow intensity
+      const now = Date.now();
+      const deltaT = Math.max(1, now - lastTime);
+      const dist = Math.sqrt(Math.pow(x - lastMouseX, 2) + Math.pow(y - lastMouseY, 2));
+      const velocity = dist / deltaT;
+      glowIntensity = Math.min(2.5, Math.max(0.8, velocity * 1.5));
+
+      // Calculate tilt angles
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = -(y - centerY) / (rect.height / 2) * 8; // Max 8deg
+      const rotateY = (x - centerX) / (rect.width / 2) * 10; // Max 10deg
+
+      // Map coords to percentage for CSS gradients
+      const percX = (x / rect.width) * 100;
+      const percY = (y / rect.height) * 100;
+
+      welcomeCard.style.setProperty('--mouse-x', `${percX.toFixed(1)}%`);
+      welcomeCard.style.setProperty('--mouse-y', `${percY.toFixed(1)}%`);
+      welcomeCard.style.setProperty('--tilt-x', `${rotateX.toFixed(2)}deg`);
+      welcomeCard.style.setProperty('--tilt-y', `${rotateY.toFixed(2)}deg`);
+      welcomeCard.style.setProperty('--glow-intensity', glowIntensity.toFixed(2));
+
+      // Inner elements parallax logic
+      const moveX = (x - centerX) / (rect.width / 2) * 18;
+      const moveY = (y - centerY) / (rect.height / 2) * 18;
+
+      if (parallaxImg) {
+        parallaxImg.style.transform = `translate3d(${-moveX}px, ${-moveY}px, 80px)`;
+      }
+      if (parallaxContent) {
+        parallaxContent.style.transform = `translate3d(${moveX / 2}px, ${moveY / 2}px, 40px)`;
+      }
+
+      lastMouseX = x; lastMouseY = y; lastTime = now;
+    });
+
+    welcomeCard.addEventListener('mouseleave', () => {
+      welcomeCard.style.setProperty('--tilt-x', `0deg`);
+      welcomeCard.style.setProperty('--tilt-y', `0deg`);
+      welcomeCard.style.setProperty('--glow-intensity', '1');
+      if (parallaxImg) parallaxImg.style.transform = `translate3d(0,0,0)`;
+      if (parallaxContent) parallaxContent.style.transform = `translate3d(0,0,0)`;
+    });
+  }
+});
 async function loadDashboard() {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -139,7 +205,10 @@ async function loadDashboard() {
       if (el) el.textContent = user.name || "Guest";
     });
 
-    const profileImgUrl = user.profile_image || "assets/images/user-avatar.png";
+    let profileImgUrl = user.profile_image || "assets/images/user-avatar.png";
+    if (profileImgUrl && !profileImgUrl.startsWith("http") && !profileImgUrl.startsWith("assets")) {
+      profileImgUrl = profileImgUrl.startsWith("/") ? profileImgUrl : `/${profileImgUrl}`;
+    }
     if (document.getElementById("profileAvatar")) document.getElementById("profileAvatar").src = profileImgUrl;
 
     // Streak Info (NEW)
@@ -280,6 +349,7 @@ async function loadNotifications() {
     if (res.status === 404) return; // Silent fail if not implemented
 
     const notifications = await res.json();
+    window.dashboardState.notifications = notifications;
     renderNotifications(notifications);
 
     // Update red dot (badge)
@@ -779,4 +849,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Clear All Listener
   document.getElementById("clearAllNotifsBtn")?.addEventListener("click", window.clearAllNotifications);
+
+  // Welcome Card Spotlight Effect
+  const welcomeCard = document.querySelector('.welcome-card');
+  if (welcomeCard) {
+    welcomeCard.addEventListener('mousemove', (e) => {
+      const rect = welcomeCard.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      welcomeCard.style.setProperty('--mouse-x', `${x}px`);
+      welcomeCard.style.setProperty('--mouse-y', `${y}px`);
+    });
+  }
 });

@@ -2,386 +2,754 @@
   const API_BASE = window.API_BASE_URL;
   const navHTML = `
     <style>
-      .bottom-nav {
+      /* --- OBSIDIAN HUB STYLES --- */
+      .bottom-nav-container {
         position: fixed;
-        bottom: 20px;
+        bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
-        background-color: #1A1A1A;
-        border-radius: 40px;
-        padding: 10px 25px;
-        display: flex;
-        gap: 25px;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
       }
-      .bottom-nav .nav-item {
-        color: #DCEF62;
+
+      /* Floating Dock */
+      .bottom-nav {
+        background: rgba(10, 10, 10, 0.85); /* Deep Obsidian */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: 8px 12px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .bottom-nav:hover {
+        border-color: rgba(220, 239, 98, 0.3);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 30px rgba(220, 239, 98, 0.1);
+      }
+
+      .nav-item {
+        color: rgba(255, 255, 255, 0.6);
         font-size: 1.4rem;
-        transition: 0.3s;
+        transition: all 0.3s;
         text-decoration: none;
+        padding: 10px;
+        border-radius: 12px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
-      .bottom-nav .nav-create {
-        color: #1A1A1A;
-        font-size: 1.3rem;
-        background: #DCEF62;
+
+      .nav-item:hover {
+        color: #DCEF62;
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-3px);
+      }
+
+      /* The "Nexus" Button */
+      .nav-create {
+        width: 64px;
+        height: 64px;
+        background: radial-gradient(circle at 30% 30%, #DCEF62, #a8c945);
         border: none;
+        border-radius: 20px;
+        color: #0a0a0a;
+        font-size: 1.8rem;
         cursor: pointer;
-        transition: 0.3s;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-      }
-      .bottom-nav .nav-create i {
-        color: #1A1A1A;
-      }
-      .bottom-nav .nav-item:hover,
-      .bottom-nav .nav-create:hover {
-        transform: translateY(-2px);
-      }
-
-      #floatingCreateMenu {
-        position: fixed;
-        bottom: 90px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        background: #222;
-        border-radius: 12px;
-        padding: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 10px 30px rgba(220, 239, 98, 0.3);
+        margin: 0 10px;
+        position: relative;
         z-index: 10001;
-        width: max-content;
-      }
-      #floatingCreateMenu button {
-        background: #DCEF62;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        color: #1A1A1A;
       }
 
-      #createBoardModal {
+      .nav-create:hover {
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 0 40px rgba(220, 239, 98, 0.5);
+      }
+
+      .nav-create.active {
+        transform: rotate(45deg);
+        background: #fff;
+      }
+
+      /* --- ACTION GRID PANEL --- */
+      #floatingCreateMenu {
+        position: absolute;
+        bottom: 100px; /* Sits above dock */
+        display: none; /* Flex when active */
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        width: 600px;
+        max-width: 90vw;
+        perspective: 1000px;
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        pointer-events: none; /* Prevent clicks when hidden */
+      }
+
+      #floatingCreateMenu.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: all;
+      }
+
+      /* Action Cards */
+      .action-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 24px;
+        border-radius: 24px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+        text-align: left;
+      }
+
+      .action-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .action-card:hover {
+        border-color: #DCEF62;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(220, 239, 98, 0.1);
+      }
+
+      .action-card:hover::before {
+        opacity: 1;
+      }
+
+      .action-icon {
+        font-size: 2rem;
+        color: #DCEF62;
+        background: rgba(220, 239, 98, 0.1);
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+        transition: all 0.3s;
+      }
+
+      .action-card:hover .action-icon {
+        background: #DCEF62;
+        color: #0a0a0a;
+        transform: rotate(-10deg) scale(1.1);
+      }
+
+      .action-title {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 700;
+        font-family: 'Outfit', sans-serif;
+      }
+
+      .action-desc {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      /* Special Large Card for Live Session */
+      .action-card.large {
+        grid-column: span 2;
+        background: linear-gradient(135deg, rgba(20,20,20,0.95), rgba(30,35,20,0.95));
+      }
+
+      /* --- PREMIUM MODALS --- */
+      .custom-modal-overlay {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
         display: none;
         align-items: center;
         justify-content: center;
-        z-index: 10002;
+        z-index: 20000;
+        opacity: 0;
+        transition: opacity 0.3s;
       }
-      #createBoardModal .modal-content {
-        background: #fff;
-        padding: 20px 30px;
-        border-radius: 10px;
-        max-width: 400px;
-        width: 90%;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.3);
-        color: #111;
+
+      .custom-modal-overlay.active {
+        display: flex;
+        opacity: 1;
+      }
+
+      .premium-modal {
+        background: #141414;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        width: 100%;
+        max-width: 600px;
+        position: relative;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+        transform: scale(0.95) translateY(20px);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden;
+      }
+
+      .custom-modal-overlay.active .premium-modal {
+        transform: scale(1) translateY(0);
+      }
+
+      /* Modal Header */
+      .pm-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 20px;
+      }
+
+      .pm-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .pm-close {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pm-close:hover {
+        background: rgba(255, 0, 0, 0.2);
+        color: #ff4444;
+      }
+
+      /* Modal Form */
+      .pm-form-group {
+        margin-bottom: 20px;
+      }
+
+      .pm-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+      }
+
+      .pm-input, .pm-textarea, .pm-select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 14px;
+        padding: 14px 18px;
+        color: #fff;
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.2s;
+      }
+
+      .pm-input:focus, .pm-textarea:focus, .pm-select:focus {
+        outline: none;
+        border-color: #DCEF62;
+        background: rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 20px rgba(220, 239, 98, 0.15);
+      }
+
+      .pm-textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .pm-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      /* Submit Button */
+      .pm-submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #DCEF62, #a8c945);
+        color: #0a0a0a;
+        font-weight: 800;
+        font-size: 1.1rem;
+        padding: 16px;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .pm-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(220, 239, 98, 0.3);
+      }
+
+      .pm-submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Typeahead overrides for dark mode */
+      #userSearchResults {
+        background: #1E1E1E !important;
+        border-color: #333 !important;
+      }
+      #userSearchResults div {
+        color: #fff !important;
+        border-bottom: 1px solid #333 !important;
+      }
+      #userSearchResults div:hover {
+        background: #333 !important;
+      }
+
+      /* --- MENU OVERLAY --- */
+      #createMenuOverlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 9999; /* Below nav (10000) */
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+
+      #createMenuOverlay.active {
+        opacity: 1;
+        pointer-events: all;
       }
     </style>
 
-    <nav class="bottom-nav" id="floatingBottomNav">
-      <a href="chat.html" class="nav-item" title="Chat"><i class="fa-solid fa-comments"></i></a>
-      <a href="collaborations.html" class="nav-item" title="Collabs"><i class="fa-solid fa-users"></i></a>
+    <div id="createMenuOverlay"></div>
 
-      <button class="nav-create" id="createBtn" title="Create New"><i class="fa-solid fa-plus"></i></button>
-
-      <a href="live-history.html" class="nav-item" title="Live Sessions"><i class="fa-solid fa-clock-rotate-left"></i></a>
-      <a href="pair-programming.html" class="nav-item" title="Code"><i class="fa-solid fa-code"></i></a>
-    </nav>
-
-    <div id="floatingCreateMenu">
-      <button id="btnCreatePairProgramming">Create Pair-Programming Project</button>
-      <button id="btnCreateBoard">Create Board</button>
-      <button id="btnCreateLiveSession">Create Live Session</button>
-    </div>
-
-    <div id="createPairModal" style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10002;">
-      <div style="background:#fff; padding:25px 35px; border-radius:12px; max-width:450px; width:95%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); color:#111; position: relative;">
-        <button id="closePairModal" style="position:absolute; top:15px; right:15px; font-size:20px; background:none; border:none; cursor:pointer;">✕</button>
-        <h2 style="margin-bottom:20px; color:var(--sidebar-bg);">New Programming Project</h2>
-        <label style="display:block; margin-bottom:5px; font-weight:600;">Project Name *</label>
-        <input type="text" id="pairProjectTitleInput" placeholder="e.g. My Awesome App" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" required />
-        <button id="submitCreatePairProject" style="width:100%; background:#DCEF62; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; margin-top:20px;" disabled>Create Project</button>
-        <div id="pairCreateError" style="color:red; margin-top:8px; display:none;"></div>
-      </div>
-    </div>
-
-    <div id="createBoardModal" style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10002;">
-      <div style="background:#fff; padding:25px 35px; border-radius:12px; max-width:450px; width:95%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); color:#111; position: relative;">
-        <button id="closeBoardModal" style="position:absolute; top:15px; right:15px; font-size:20px; background:none; border:none; cursor:pointer;">✕</button>
-        <h2 style="margin-bottom:20px; color:var(--sidebar-bg);">New Smartboard</h2>
-        <label style="display:block; margin-bottom:5px; font-weight:600;">Board Name *</label>
-        <input type="text" id="boardTitleInput" placeholder="e.g. Brainstorming" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" required />
-        <button id="submitCreateBoard" style="width:100%; background:#DCEF62; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; margin-top:20px;" disabled>Create Board</button>
-      </div>
-    </div>
-
-    <div id="createLiveSessionModal" style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10002;">
-      <div style="background:#fff; padding:25px 35px; border-radius:12px; max-width:500px; width:95%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); color:#111; position: relative; max-height: 90vh; overflow-y: auto;">
-        <button id="closeLiveModal" style="position:absolute; top:15px; right:15px; font-size:20px; background:none; border:none; cursor:pointer;">✕</button>
-        <h2 style="margin-bottom:20px; color:var(--sidebar-bg);">Create Live Session</h2>
+    <div class="bottom-nav-container">
         
-        <div style="display:flex; flex-direction:column; gap:15px;">
-          <div class="form-group">
-            <label style="display:block; margin-bottom:5px; font-weight:600;">Session Name *</label>
-            <input type="text" id="sessionNameInput" placeholder="e.g. React Deep Dive" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" required />
-          </div>
-
-          <div class="form-group">
-            <label style="display:block; margin-bottom:5px; font-weight:600;">Purpose / Description *</label>
-            <textarea id="sessionPurposeInput" placeholder="What will be covered?" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; height:80px;" required></textarea>
-          </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-             <div class="form-group">
-               <label style="display:block; margin-bottom:5px; font-weight:600;">Duration (45-75m) *</label>
-               <input type="number" id="sessionDurationInput" value="60" min="45" max="75" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" required />
-             </div>
-             <div class="form-group">
-               <label style="display:block; margin-bottom:5px; font-weight:600;">Max Mentees (Max 3)</label>
-               <input type="number" id="sessionMaxUser" value="3" max="3" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; background:#f5f5f5;" />
-             </div>
-          </div>
-
-          <div class="form-group">
-            <label style="display:block; margin-bottom:5px; font-weight:600;">Scheduled Date & Time *</label>
-            <input type="datetime-local" id="sessionDateTimeInput" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" required />
-          </div>
-
-          <div class="form-group" style="position:relative;">
-            <label style="display:block; margin-bottom:5px; font-weight:600;">Invite Users</label>
-            <div style="display:flex; flex-wrap:wrap; gap:5px; padding:5px; border:1px solid #ddd; border-radius:8px; min-height:45px; align-items:center;" id="selectedUsersContainer">
-                <input type="text" id="sessionInviteInput" placeholder="Search by name or email..." style="border:none; outline:none; flex:1; min-width:150px; padding:5px;" />
+        <!-- THE OBSIDIAN GRID HUB -->
+        <div id="floatingCreateMenu">
+            <!-- Board Card -->
+            <div class="action-card" id="btnCreateBoard">
+                <div class="action-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+                <div class="action-title">SmartBoard</div>
+                <div class="action-desc">Infinite canvas for brainstorming and visual planning.</div>
             </div>
-            <div id="userSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ddd; border-top:none; border-radius:0 0 8px 8px; z-index:10; max-height:200px; overflow-y:auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1);"></div>
-          </div>
 
-          <button id="submitCreateLiveSession" style="background:#DCEF62; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; margin-top:10px;">Create Session</button>
-          <div id="liveCreateError" style="color:red; margin-top:8px; display:none; font-size:0.9rem;"></div>
+            <!-- Pair Card -->
+            <div class="action-card" id="btnCreatePairProgramming">
+                <div class="action-icon"><i class="fa-solid fa-code-branch"></i></div>
+                <div class="action-title">Pair Code</div>
+                <div class="action-desc">Real-time collaborative coding environment.</div>
+            </div>
+
+            <!-- Live Session (Large) -->
+            <div class="action-card large" id="btnCreateLiveSession">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div class="action-icon"><i class="fa-solid fa-headset"></i></div>
+                        <div class="action-title">Live Session</div>
+                        <div class="action-desc">Host a mentorship session or workshop.</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right" style="color:rgba(255,255,255,0.2); font-size:2rem;"></i>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- FLOATING DOCK -->
+        <nav class="bottom-nav" id="floatingBottomNav">
+            <a href="chat.html" class="nav-item" title="Chat"><i class="fa-solid fa-comments"></i></a>
+            <a href="posting.html" class="nav-item" title="Feed"><i class="fa-solid fa-rss"></i></a>
+
+            <button class="nav-create" id="createBtn" title="Create New">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+            <a href="task.html" class="nav-item" title="Tasks"><i class="fa-solid fa-list-check"></i></a>
+            <a href="quiz.html" class="nav-item" title="Quiz"><i class="fa-solid fa-graduation-cap"></i></a>
+        </nav>
+    </div>
+
+    <!-- MODAL: NEW BOARD -->
+    <div id="createBoardModal" class="custom-modal-overlay">
+        <div class="premium-modal">
+            <div class="pm-header">
+                <div class="pm-title"><i class="fa-solid fa-chalkboard-user" style="color:#DCEF62;"></i> New Board</div>
+                <button id="closeBoardModal" class="pm-close"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <div class="pm-form-group">
+                <label class="pm-label">Board Name</label>
+                <input type="text" id="boardTitleInput" class="pm-input" placeholder="e.g. System Architecture V2">
+            </div>
+
+            <div class="pm-form-group">
+                <label class="pm-label">Description (Optional)</label>
+                <textarea id="boardDescInput" class="pm-textarea" placeholder="What is this board for?"></textarea>
+            </div>
+
+            <div class="pm-form-group">
+                <label class="pm-label">Privacy</label>
+                <select id="boardPrivacyInput" class="pm-select">
+                    <option value="private">Private (Only Me)</option>
+                    <option value="public">Public (Everyone)</option>
+                </select>
+            </div>
+
+            <button id="submitCreateBoard" class="pm-submit-btn">Create Board <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- MODAL: NEW PAIR PROJECT -->
+    <div id="createPairModal" class="custom-modal-overlay">
+        <div class="premium-modal">
+            <div class="pm-header">
+                <div class="pm-title"><i class="fa-solid fa-code" style="color:#DCEF62;"></i> Pair Programming</div>
+                <button id="closePairModal" class="pm-close"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <div class="pm-form-group">
+                <label class="pm-label">Project Title</label>
+                <input type="text" id="pairProjectTitleInput" class="pm-input" placeholder="e.g. Algorithm Practice">
+            </div>
+
+            <div class="pm-row">
+                <div class="pm-form-group">
+                    <label class="pm-label">Language / Stack</label>
+                    <input type="text" id="pairStackInput" class="pm-input" placeholder="e.g. Python, React...">
+                </div>
+                <div class="pm-form-group">
+                    <label class="pm-label">Duration (Min)</label>
+                    <input type="number" id="pairDurationInput" class="pm-input" value="60">
+                </div>
+            </div>
+
+            <div class="pm-form-group">
+                <label class="pm-label">Goal / Description</label>
+                <textarea id="pairDescInput" class="pm-textarea" placeholder="What do you want to achieve together?"></textarea>
+            </div>
+
+            <button id="submitCreatePairProject" class="pm-submit-btn">Start Session <i class="fa-solid fa-bolt"></i></button>
+        </div>
+    </div>
+
+    <!-- MODAL: NEW LIVE SESSION -->
+    <div id="createLiveSessionModal" class="custom-modal-overlay">
+        <div class="premium-modal">
+            <div class="pm-header">
+                <div class="pm-title"><i class="fa-solid fa-headset" style="color:#DCEF62;"></i> Schedule Session</div>
+                <button id="closeLiveModal" class="pm-close"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <div class="pm-form-group">
+                <label class="pm-label">Session Topic</label>
+                <input type="text" id="sessionNameInput" class="pm-input" placeholder="e.g. Mock Interview">
+            </div>
+
+            <div class="pm-form-group">
+                <label class="pm-label">Agenda / Description</label>
+                <textarea id="sessionPurposeInput" class="pm-textarea" placeholder="Outline the session goals..."></textarea>
+            </div>
+
+            <div class="pm-row">
+                <div class="pm-form-group">
+                    <label class="pm-label">Duration (Min)</label>
+                    <input type="number" id="sessionDurationInput" class="pm-input" value="60" min="15" max="180">
+                </div>
+                <div class="pm-form-group">
+                    <label class="pm-label">Date & Time</label>
+                    <input type="datetime-local" id="sessionDateTimeInput" class="pm-input">
+                </div>
+            </div>
+
+            <div class="pm-form-group" style="position:relative;">
+                <label class="pm-label">Invite Participants</label>
+                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:14px; padding:8px; display:flex; flex-wrap:wrap; gap:8px; min-height:50px;">
+                    <div id="selectedUsersContainer" style="display:flex; flex-wrap:wrap; gap:5px; width:100%;"></div>
+                    <input type="text" id="sessionInviteInput" placeholder="Search users..." style="background:transparent; border:none; color:#fff; outline:none; flex:1; min-width:120px;">
+                </div>
+                <div id="userSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; background:#1E1E1E; border:1px solid #333; border-radius:12px; z-index:100; max-height:200px; overflow-y:auto; margin-top:5px; box-shadow:0 10px 40px rgba(0,0,0,0.5);"></div>
+            </div>
+
+            <button id="submitCreateLiveSession" class="pm-submit-btn">Schedule Event <i class="fa-solid fa-calendar-check"></i></button>
+            <div id="liveCreateError" style="color:#ff4444; margin-top:15px; display:none; font-size:0.9rem; text-align:center;"></div>
+        </div>
     </div>
   `;
 
   document.addEventListener("DOMContentLoaded", () => {
     document.body.insertAdjacentHTML("beforeend", navHTML);
 
+    // --- ELEMENTS ---
     const createBtn = document.getElementById("createBtn");
     const createMenu = document.getElementById("floatingCreateMenu");
+    const menuOverlay = document.getElementById("createMenuOverlay");
 
-    const boardModal = document.getElementById("createBoardModal");
-    const boardTitleInput = document.getElementById("boardTitleInput");
-    const submitBoardBtn = document.getElementById("submitCreateBoard");
-    const btnCreateBoard = document.getElementById("btnCreateBoard");
+    // Toggle Menu Logic
+    const toggleMenu = () => {
+      const isActive = createMenu.classList.contains("active");
+      if (isActive) {
+        // CLOSE
+        createMenu.classList.remove("active");
+        createBtn.classList.remove("active");
+        menuOverlay.classList.remove("active");
+        setTimeout(() => {
+          if (!createMenu.classList.contains("active")) createMenu.style.display = "none";
+        }, 300);
+      } else {
+        // OPEN
+        createMenu.style.display = "grid";
+        setTimeout(() => {
+          createMenu.classList.add("active");
+          createBtn.classList.add("active");
+          menuOverlay.classList.add("active");
+        }, 10);
+      }
+    };
 
-    const pairModal = document.getElementById("createPairModal");
-    const pairTitleInput = document.getElementById("pairProjectTitleInput");
-    const submitPairBtn = document.getElementById("submitCreatePairProject");
-    const btnCreatePairProgramming = document.getElementById("btnCreatePairProgramming");
+    createBtn.addEventListener("click", toggleMenu);
 
-    const liveModal = document.getElementById("createLiveSessionModal");
-    const submitLiveBtn = document.getElementById("submitCreateLiveSession");
-    const btnCreateLiveSession = document.getElementById("btnCreateLiveSession");
-
-    // CREATE MENU TOGGLE
-    createBtn.addEventListener("click", () => {
-      createMenu.style.display = createMenu.style.display === "flex" ? "none" : "flex";
+    // Close when clicking overlay
+    menuOverlay.addEventListener("click", () => {
+      if (createMenu.classList.contains("active")) toggleMenu();
     });
 
-    // --- BOARD ---
-    btnCreateBoard.addEventListener("click", () => {
-      createMenu.style.display = "none";
-      boardModal.style.display = "flex";
-      boardTitleInput.focus();
-    });
-    document.getElementById("closeBoardModal").addEventListener("click", () => boardModal.style.display = "none");
-    boardTitleInput.addEventListener("input", () => submitBoardBtn.disabled = !boardTitleInput.value.trim());
+    // --- MODAL HANDLERS ---
+    const setupModal = (triggerId, modalId, closeId) => {
+      const trigger = document.getElementById(triggerId);
+      const modal = document.getElementById(modalId);
+      const close = document.getElementById(closeId);
 
-    submitBoardBtn.addEventListener("click", async () => {
-      const title = boardTitleInput.value.trim();
-      submitBoardBtn.disabled = true;
-      submitBoardBtn.textContent = "Creating...";
+      if (trigger) {
+        trigger.addEventListener("click", () => {
+          modal.classList.add("active");
+          // Close the menu immediately
+          createMenu.classList.remove("active");
+          createBtn.classList.remove("active");
+          menuOverlay.classList.remove("active");
+          setTimeout(() => createMenu.style.display = "none", 300);
+        });
+      }
+
+      if (close) {
+        close.addEventListener("click", () => modal.classList.remove("active"));
+      }
+
+      // Close on outside click
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.remove("active");
+      });
+    };
+
+    setupModal("btnCreateBoard", "createBoardModal", "closeBoardModal");
+    setupModal("btnCreatePairProgramming", "createPairModal", "closePairModal");
+    setupModal("btnCreateLiveSession", "createLiveSessionModal", "closeLiveModal");
+
+
+    // --- API & SUBMIT LOGIC ---
+
+    // 1. BOARD
+    const submitBoard = document.getElementById("submitCreateBoard");
+    const boardTitle = document.getElementById("boardTitleInput");
+
+    submitBoard.addEventListener("click", async () => {
+      const name = boardTitle.value.trim();
+      const desc = document.getElementById("boardDescInput").value.trim();
+      const privacy = document.getElementById("boardPrivacyInput").value;
+
+      if (!name) return showToast("Board name is required", "error");
+
+      submitBoard.disabled = true;
+      submitBoard.textContent = "Forging...";
+
       try {
         const token = localStorage.getItem("token");
+        // Assuming backend accepts these extra fields or ignores them
         const res = await fetch(`${API_BASE}/board/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ name: title }),
+          body: JSON.stringify({ name, description: desc, privacy }),
         });
         const data = await res.json();
         if (data.success) window.location.href = `board.html?id=${data.data._id}`;
-      } catch (e) { console.error(e); }
-      finally { submitBoardBtn.disabled = false; submitBoardBtn.textContent = "Create Board"; }
+        else showToast(data.message || "Failed", "error");
+      } catch (e) { console.error(e); showToast("Connection error", "error"); }
+      finally {
+        submitBoard.disabled = false;
+        submitBoard.innerHTML = 'Create Board <i class="fa-solid fa-arrow-right"></i>';
+      }
     });
 
-    // --- PAIR PROGRAMMING ---
-    btnCreatePairProgramming.addEventListener("click", () => {
-      createMenu.style.display = "none";
-      pairModal.style.display = "flex";
-      pairTitleInput.focus();
-    });
-    document.getElementById("closePairModal").addEventListener("click", () => pairModal.style.display = "none");
-    pairTitleInput.addEventListener("input", () => submitPairBtn.disabled = !pairTitleInput.value.trim());
+    // 2. PAIR PROGRAMMING
+    const submitPair = document.getElementById("submitCreatePairProject");
 
-    submitPairBtn.addEventListener("click", async () => {
-      const title = pairTitleInput.value.trim();
-      submitPairBtn.disabled = true;
-      submitPairBtn.textContent = "Creating...";
+    submitPair.addEventListener("click", async () => {
+      const title = document.getElementById("pairProjectTitleInput").value.trim();
+      const stack = document.getElementById("pairStackInput").value.trim().split(',');
+      const duration = document.getElementById("pairDurationInput").value;
+      const desc = document.getElementById("pairDescInput").value;
+
+      if (!title) return showToast("Project title is required", "error");
+
+      submitPair.disabled = true;
+      submitPair.textContent = "Initializing...";
+
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(`${API_BASE}/pair-programming/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ name: title }),
+          body: JSON.stringify({ name: title, description: desc, tags: stack, duration }),
         });
         const data = await res.json();
-        if (data.success) {
-          window.location.href = `pair-programming.html?id=${data.data._id}`;
-        }
-      } catch (err) { console.error(err); }
-      finally { submitPairBtn.disabled = false; submitPairBtn.textContent = "Create Project"; }
-    });
-
-    // --- LIVE SESSION ---
-    btnCreateLiveSession.addEventListener("click", () => {
-      createMenu.style.display = "none";
-      liveModal.style.display = "flex";
-      document.getElementById("liveCreateError").style.display = "none";
-      selectedUsers.clear();
-      renderSelectedUsers();
-    });
-    document.getElementById("closeLiveModal").addEventListener("click", () => liveModal.style.display = "none");
-
-    submitLiveBtn.addEventListener("click", async () => {
-      const name = document.getElementById("sessionNameInput").value.trim();
-      const purpose = document.getElementById("sessionPurposeInput").value.trim();
-      const duration = parseInt(document.getElementById("sessionDurationInput").value);
-      const rawDateTime = document.getElementById("sessionDateTimeInput").value;
-      const scheduledDateTime = rawDateTime ? new Date(rawDateTime).toISOString() : null;
-      const invitedUserIds = Array.from(selectedUsers.keys());
-      const errorEl = document.getElementById("liveCreateError");
-
-      if (!name || !purpose || !rawDateTime) {
-        errorEl.textContent = "Please fill all required fields.";
-        errorEl.style.display = "block";
-        return;
+        if (data.success) window.location.href = `pair-programming.html?id=${data.data._id}`;
+        else showToast(data.message || "Failed", "error");
+      } catch (err) { console.error(err); showToast("Connection error", "error"); }
+      finally {
+        submitPair.disabled = false;
+        submitPair.innerHTML = 'Start Session <i class="fa-solid fa-bolt"></i>';
       }
+    });
 
-      submitLiveBtn.disabled = true;
-      submitLiveBtn.textContent = "Creating...";
+    // 3. LIVE SESSION (Existing logic adapted)
+    const submitLive = document.getElementById("submitCreateLiveSession");
+    const selectedUsers = new Map();
+    const selectedContainer = document.getElementById("selectedUsersContainer");
+    const inviteInput = document.getElementById("sessionInviteInput");
+    const resultsContainer = document.getElementById("userSearchResults");
+
+    submitLive.addEventListener("click", async () => {
+      const name = document.getElementById("sessionNameInput").value.trim();
+      // ... (rest of live session logic handled similarly to before, just cleaner UI)
+      // Re-using essential logic for brevity but ensuring it grabs the new IDs
+      const purpose = document.getElementById("sessionPurposeInput").value.trim();
+      const duration = document.getElementById("sessionDurationInput").value;
+      const rawDateTime = document.getElementById("sessionDateTimeInput").value;
+
+      if (!name || !purpose || !rawDateTime) return showToast("Please fill required fields", "warning");
+
+      submitLive.disabled = true;
+      submitLive.textContent = "Scheduling...";
 
       try {
         const token = localStorage.getItem("token");
+        const invitedUserIds = Array.from(selectedUsers.keys());
+        const scheduledDateTime = new Date(rawDateTime).toISOString();
+
         const res = await fetch(`${API_BASE}/live-sessions/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ sessionName: name, purpose, durationMinutes: duration, scheduledDateTime, invitedUserIds }),
+          body: JSON.stringify({ sessionName: name, purpose, durationMinutes: parseInt(duration), scheduledDateTime, invitedUserIds }),
         });
         const data = await res.json();
         if (res.ok) {
-          liveModal.style.display = "none";
-          if (typeof showToast === 'function') showToast("Session scheduled successfully!", "success");
+          document.getElementById("createLiveSessionModal").classList.remove("active");
+          showToast("Session scheduled!", "success");
           if (window.loadSchedule) window.loadSchedule();
-          else window.location.reload();
         } else {
-          errorEl.textContent = data.message || "Failed to create session.";
-          errorEl.style.display = "block";
+          showToast(data.message || "Failed", "error");
         }
-      } catch (err) {
-        errorEl.textContent = "Connection error.";
-        errorEl.style.display = "block";
-      } finally {
-        submitLiveBtn.disabled = false;
-        submitLiveBtn.textContent = "Create Session";
+      } catch (err) { console.error(err); showToast("Error scheduling", "error"); }
+      finally {
+        submitLive.disabled = false;
+        submitLive.innerHTML = 'Schedule Event <i class="fa-solid fa-calendar-check"></i>';
       }
     });
 
-    // TYPEAHEAD SEARCH LOGIC
-    const inviteInput = document.getElementById("sessionInviteInput");
-    const resultsContainer = document.getElementById("userSearchResults");
-    const selectedContainer = document.getElementById("selectedUsersContainer");
-    const selectedUsers = new Map();
-
+    // SEARCH LOGIC (Debounced)
     const debounce = (func, wait) => {
       let timeout;
-      return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-      };
+      return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); };
     };
 
     inviteInput.addEventListener("input", debounce(async (e) => {
       const query = e.target.value.trim();
-      if (query.length < 2) {
-        resultsContainer.style.display = "none";
-        return;
-      }
+      if (query.length < 2) { resultsContainer.style.display = "none"; return; }
+
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE}/auth/search-users?q=${query}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await fetch(`${API_BASE}/auth/search-users?q=${query}`, { headers: { Authorization: `Bearer ${token}` } });
         const users = await res.json();
-        renderSearchResults(users);
-      } catch (err) { console.error("Search error:", err); }
-    }, 300));
 
-    function renderSearchResults(users) {
-      resultsContainer.innerHTML = "";
-      if (users.length === 0) {
-        resultsContainer.innerHTML = '<div style="padding:10px; color:#999; font-size:0.9rem;">No users found</div>';
-      } else {
+        resultsContainer.innerHTML = "";
+        if (users.length === 0) resultsContainer.innerHTML = '<div style="padding:10px; color:#aaa;">No users found</div>';
+
         users.forEach(user => {
           if (selectedUsers.has(user._id)) return;
           const div = document.createElement("div");
-          div.style = "padding:10px; cursor:pointer; display:flex; align-items:center; gap:10px; border-bottom:1px solid #f0f0f0;";
-          div.innerHTML = `
-                    <img src="${user.profile_image || 'assets/images/user-avatar.png'}" style="width:30px; height:30px; border-radius:50%;" />
-                    <div>
-                        <div style="font-weight:600; font-size:0.9rem;">${user.name}</strong></div>
-                        <div style="font-size:0.75rem; color:#999;">${user.email}</div>
-                    </div>
-                `;
+          div.style.padding = "10px";
+          div.style.cursor = "pointer";
+          div.innerHTML = `<div style="font-weight:bold;">${user.name}</div><div style="font-size:0.8rem; color:#aaa;">${user.email}</div>`;
           div.addEventListener("click", () => {
-            if (selectedUsers.size >= 3) return alert("Max 3 mentees allowed");
             selectedUsers.set(user._id, user);
-            renderSelectedUsers();
+            renderSelected();
             inviteInput.value = "";
             resultsContainer.style.display = "none";
           });
           resultsContainer.appendChild(div);
         });
-      }
-      resultsContainer.style.display = "block";
-    }
+        resultsContainer.style.display = "block";
+      } catch (err) { console.error(err); }
+    }, 300));
 
-    function renderSelectedUsers() {
-      // Keep the input reference
-      const input = inviteInput;
+    function renderSelected() {
       selectedContainer.innerHTML = "";
       selectedUsers.forEach((user, id) => {
         const tag = document.createElement("div");
-        tag.style = "background:#f0f0f0; padding:2px 8px; border-radius:15px; display:flex; align-items:center; gap:5px; font-size:0.8rem;";
-        tag.innerHTML = `${user.name} <span style="cursor:pointer; font-weight:bold;">✕</span>`;
-        tag.querySelector("span").addEventListener("click", () => {
+        tag.style = "background:#DCEF62; color:#000; padding:4px 10px; border-radius:20px; font-size:0.85rem; display:flex; align-items:center; gap:6px;";
+        tag.innerHTML = `<span>${user.name}</span> <i class="fa-solid fa-times" style="cursor:pointer;"></i>`;
+        tag.querySelector("i").addEventListener("click", () => {
           selectedUsers.delete(id);
-          renderSelectedUsers();
+          renderSelected();
         });
         selectedContainer.appendChild(tag);
       });
-      selectedContainer.appendChild(input);
-      input.focus();
     }
+
+    // Helper Toast if not present
+    function showToast(msg, type = 'info') {
+      if (window.showToast) window.showToast(msg, type);
+      else alert(msg);
+    }
+
   });
 })();

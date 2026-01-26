@@ -17,7 +17,6 @@
     transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
     width: 100%;
     /* Full width */
-    margin: 0 0 12px;
     height: 72px;
     border-radius: 0 0 24px 24px;
     /* Only bottom corners rounded */
@@ -25,7 +24,9 @@
     display: flex;
     align-items: center;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-    margin-bottom: 20px;
+    margin: 0 !important;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 .navbar:hover:not(.scrolled) {
