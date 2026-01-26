@@ -198,8 +198,8 @@ async function loadDashboard() {
     if (!res.ok) throw new Error("Failed to load dashboard.");
     const data = await res.json();
 
-    // User Info
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    // User Info - Use fresh data from API response
+    const user = data.user || JSON.parse(localStorage.getItem("user") || "{}");
     ["username", "usernameTop"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = user.name || "Guest";

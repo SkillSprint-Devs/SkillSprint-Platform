@@ -21,7 +21,10 @@ const upload = multer({
             ".xlsx",
             ".xls",
             ".mp4",
-            ".txt"
+            ".txt",
+            ".jpg",
+            ".png",
+            ".jpeg"
         ];
 
         const ext = path.extname(file.originalname).toLowerCase();

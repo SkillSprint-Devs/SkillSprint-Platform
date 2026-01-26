@@ -1,13 +1,12 @@
-/**
- * Utility to group similar errors
- */
+// Utility to group similar errors
+
 export const groupErrors = (errors) => {
     const groups = {};
 
     errors.forEach(error => {
-        // Create a key based on error message (sanitized) and source
+        // key based on error message (sanitized) and source
         const source = error.fileName || error.screenName || 'Unknown';
-        const message = error.errorMessage.substring(0, 100); // Take first 100 chars to avoid unique data issues
+        const message = error.errorMessage.substring(0, 100);
         const key = `${message}|${source}`;
 
         if (!groups[key]) {

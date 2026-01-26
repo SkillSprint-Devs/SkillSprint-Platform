@@ -141,7 +141,7 @@ body {
   transform: translateX(-4px);
 }
 
-/* ===== Auth Card ===== */
+/* Auth Card  */
 .auth-card {
   background: white;
   padding: 3rem 2.5rem;
@@ -201,12 +201,12 @@ body {
 
 .subtitle {
   color: var(--text-muted);
-  /* Fallback or variable */
+  
   font-size: 0.9rem;
   margin: 0.5rem 0 0 0;
 }
 
-/* ===== Form & Inputs ===== */
+/*  Form & Inputs  */
 form {
   display: flex;
   flex-direction: column;
@@ -219,7 +219,7 @@ input {
   width: 100%;
   padding: 0.875rem 1rem;
   margin-bottom: 1rem;
-  /* UPDATED: Clearly visible border matching theme aesthetics */
+  
   border: 1.5px solid #d1d5db;
   border-radius: 12px;
   font-size: 0.95rem;
@@ -293,7 +293,7 @@ input::placeholder {
   border-bottom-color: var(--accent);
 }
 
-/* ===== Specific Utilities ===== */
+/*  Specific Utilities  */
 #otpSection {
   display: none;
   width: 100%;

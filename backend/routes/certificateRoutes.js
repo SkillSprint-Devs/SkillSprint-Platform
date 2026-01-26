@@ -6,9 +6,9 @@ import User from "../models/user.js";
 
 const router = express.Router();
 
-// ============================================================
-// GET /api/certificates - List user's certificates
-// ============================================================
+
+// GET /api/certificates - user's certificates
+
 router.get("/", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -34,9 +34,9 @@ router.get("/", verifyToken, async (req, res) => {
     }
 });
 
-// ============================================================
-// GET /api/certificates/achievements - List user's achievements (badges & certificates)
-// ============================================================
+
+// GET /api/certificates/achievements - user's achievements (badges & certificates)
+
 router.get("/achievements", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -66,9 +66,9 @@ router.get("/achievements", verifyToken, async (req, res) => {
     }
 });
 
-// ============================================================
+
 // GET /api/certificates/verify/:verificationId - Public verification
-// ============================================================
+
 router.get("/verify/:verificationId", async (req, res) => {
     try {
         const { verificationId } = req.params;

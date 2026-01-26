@@ -6,9 +6,28 @@ if (!token || !user) {
     window.location.href = 'login.html';
 }
 
-// Setup User Info
+// Setup User Info - Fetch fresh data
 document.getElementById('myName').textContent = user.name;
-document.getElementById('myAvatar').src = user.profile_image || 'https://ui-avatars.com/api/?name=' + user.name;
+
+// Fetch fresh user data for avatar
+(async () => {
+    try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const freshUser = await res.json();
+            const avatarUrl = freshUser.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(freshUser.name)}`;
+            document.getElementById('myAvatar').src = avatarUrl;
+        } else {
+            // Fallback to localStorage
+            document.getElementById('myAvatar').src = user.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`;
+        }
+    } catch (err) {
+        console.error('Failed to load fresh user data:', err);
+        document.getElementById('myAvatar').src = user.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`;
+    }
+})();
 
 // Global State
 let currentChatUserId = null;
@@ -215,7 +234,7 @@ async function loadConversations() {
             item.className = `user-item ${isActive}`;
             item.onclick = () => openChat(userDetails);
             item.innerHTML = `
-                <img src="${userDetails.avatarUrl || 'https://ui-avatars.com/api/?name=' + userDetails.name}" class="user-avatar">
+                <img src="${userDetails.profile_image || userDetails.avatarUrl || 'https://ui-avatars.com/api/?name=' + userDetails.name}" class="user-avatar">
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 text-truncate chat-name" style="max-width: 140px;">${userDetails.name}</h6>

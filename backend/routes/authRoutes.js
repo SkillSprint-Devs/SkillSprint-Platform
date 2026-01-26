@@ -30,11 +30,6 @@ router.use((req, res, next) => {
   next();
 });
 
-// REMOVED: Local nodemailer transporter. Using shared mailService.
-
-// REMOVED: Local nodemailer transporter. Using shared mailService.
-
-// REMOVED: Local nodemailer transporter. Using shared mailService.
 
 // Helpers
 const validatePassword = (password) => {
@@ -110,7 +105,7 @@ router.post("/verify-signup-otp", async (req, res) => {
     }
 
     // If valid, allow creation
-    // (Note: No explicit 'verified' flag needed if we proceed immediately)
+
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
