@@ -33,17 +33,9 @@
             <i class="fa-solid fa-table-columns"></i>
             <span class="label">Dashboard</span>
           </a>
-          <a href="task.html">
-            <i class="fa-solid fa-list-check"></i>
-            <span class="label">Tasks</span>
-          </a>
-          <a href="posting.html">
-            <i class="fa-solid fa-comments"></i>
-            <span class="label">Feed</span>
-          </a>
-          <a href="quiz.html">
-            <i class="fa-solid fa-graduation-cap"></i>
-            <span class="label">Quiz</span>
+          <a href="wallet.html">
+            <i class="fa-solid fa-wallet"></i>
+            <span class="label">Wallet</span>
           </a>
           <a href="library.html">
             <i class="fa-solid fa-book"></i>
@@ -52,6 +44,18 @@
           <a href="achievements.html">
             <i class="fa-solid fa-award"></i>
             <span class="label">Achievements</span>
+          </a>
+          <a href="collaborations.html">
+            <i class="fa-solid fa-users"></i>
+            <span class="label">Collaborations</span>
+          </a>
+          <a href="live-history.html">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="label">History</span>
+          </a>
+          <a href="settings.html">
+            <i class="fa-solid fa-gear"></i>
+            <span class="label">Settings</span>
           </a>
         </nav>
       </div>
@@ -67,18 +71,13 @@
       <!-- Top Nav -->
       <header class="top-nav">
         <div class="search-bar">
-          <i class="fa-solid fa-magnifying-glass"></i>
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
           <input type="text" placeholder="Search projects, tasks, or resources..." />
         </div>
 
-        <div class="profile" id="userProfile">
-          <div class="profile-info">
-            <span id="usernameTop">Guest</span>
-            <a href="profile.html" class="profile-link">View Profile</a>
-          </div>
-          <a href="profile.html">
-            <img src="assets/images/user-avatar.png" alt="User avatar" id="profileAvatar" />
-          </a>
+        <div class="profile" id="userProfile" onclick="window.location.href='profile.html'">
+          <span id="usernameTop" style="font-weight: 600; font-size: 0.9rem;">&nbsp;</span>
+          <img src="assets/images/user-avatar.png" alt="User avatar" id="profileAvatar" />
         </div>
       </header>
 
@@ -88,31 +87,37 @@
         <!-- LEFT COLUMN -->
         <section class="main-left">
 
-          <!-- Welcome Card -->
-          <div class="welcome-card">
-            <div class="text">
-              <h2>Hi, <span id="username">Guest</span>!</h2>
-              <p id="sprintGoalsText">Ready to sprint towards your goals today?</p>
+          <!-- Welcome Card: Premium 3D Perspective Architecture -->
+          <div class="welcome-card-perspective-container" style="margin-bottom: 2.5rem;">
+            <div class="welcome-card">
+              <div class="welcome-card-hologram"></div>
+              <div class="welcome-card-spotlight"></div>
+              <div class="welcome-card-bg-blobs welcome-card-blob"></div>
+              <div class="text welcome-parallax-content">
+                <h2>Hi, <span id="username">&nbsp;</span>!</h2>
+                <p id="sprintGoalsText">Ready to sprint towards your goals today?</p>
 
-              <!-- STREAKS CARD (MOVED INSIDE) -->
-              <div class="streak-card nested-streak">
-                <div class="streak-header">
-                  <div class="streak-fire"><i class="fa-solid fa-fire"></i></div>
-                  <div class="streak-info">
-                    <h3 id="streakCountText">1-Day Streak</h3>
-                    <p id="streakMotivationalText">Start your journey today!</p>
+                <!-- STREAKS CARD (MOVED INSIDE) -->
+                <div class="streak-card nested-streak">
+                  <div class="streak-header">
+                    <div class="streak-fire"><i class="fa-solid fa-fire"></i></div>
+                    <div class="streak-info">
+                      <h3 id="streakCountText">&nbsp;</h3>
+                      <p id="streakMotivationalText">Loading your journey...</p>
+                    </div>
+                  </div>
+                  <div class="streak-progress-container">
+                    <div id="streakProgressBar" class="streak-progress-bar"></div>
                   </div>
                 </div>
-                <div class="streak-progress-container">
-                  <div id="streakProgressBar" class="streak-progress-bar"></div>
-                </div>
               </div>
-            </div>
-            <div class="img">
-              <img src="assets/images/coffee-penguin.png" alt="Welcome illustration" />
+              <div class="img welcome-card-img-group">
+                <img src="assets/images/coffee-penguin.png" alt="Welcome illustration" />
+              </div>
             </div>
           </div>
 
+          <h3 class="section-title"><i class="fa-solid fa-wallet"></i> Wallet Overview</h3>
           <!-- WALLET OVERVIEW (Now horizontal bar) -->
           <section class="wallet-horizontal">
             <a href="wallet.html" class="wallet-card" style="text-decoration: none; color: inherit;">
@@ -219,7 +224,7 @@
               <span>
                 <i class="fa-solid fa-bell" style="position:relative;">
                   <span class="notif-badge"
-                    style="display:none; position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:var(--danger); border-radius:50%; border:1.5px solid #fff;"></span>
+                    style="display:none; position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:var(--danger); border-radius:50%;"></span>
                 </i> Notifications
               </span>
               <button id="clearAllNotifsBtn"
