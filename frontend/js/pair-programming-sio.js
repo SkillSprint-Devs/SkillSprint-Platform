@@ -9,6 +9,7 @@ let currentUserId = null;
 let _loadBoardMembers = () => { };
 let _loadBoard = () => { };
 let _renderComments = () => { };
+let _onlineUserIds = new Set();
 let _getCurrentFile = () => null;
 let _getEditor = () => null;
 let _getActiveTab = () => null;
@@ -28,6 +29,10 @@ export function setLoadBoard(fn) {
 
 export function setRenderComments(fn) {
   _renderComments = fn;
+}
+
+export function setOnlineUserIds(userIdsSet) {
+  _onlineUserIds = userIdsSet;
 }
 
 export function setGetCurrentFile(fn) {
@@ -90,15 +95,31 @@ export function initSocket(token, boardIdParam) {
     _showToast("Failed to connect to server", "error");
   });
 
+  socket.on("user-meta", ({ name, color }) => {
+    console.log("Syncing user meta from server:", { name, color });
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const updated = { ...user, name: name || user.name, colorTag: color || user.colorTag };
+    localStorage.setItem("user", JSON.stringify(updated));
+    // Also notify global-auth if needed
+    if (window.updateGlobalUserUI) window.updateGlobalUserUI(updated);
+  });
+
   socket.on("user-joined", ({ userId }) => {
     console.log("User joined:", userId);
-    _showToast("A user joined the board", "info");
+    _onlineUserIds.add(userId);
+    _loadBoardMembers();
+  });
+
+  socket.on("initial-presence", ({ userIds }) => {
+    console.log("Initial presence:", userIds);
+    userIds.forEach(id => _onlineUserIds.add(id));
     _loadBoardMembers();
   });
 
   socket.on("user-left", ({ userId }) => {
     console.log("User left:", userId);
     _showToast("A user left the board", "info");
+    _onlineUserIds.delete(userId);
     _loadBoardMembers();
   });
 
@@ -179,7 +200,12 @@ export function initSocket(token, boardIdParam) {
   socket.on("comment-created", ({ comment }) => {
     console.log("Comment created:", comment);
     _loadBoard(); // Reload board to get updated comments for files
-    _showToast("New comment added", "info");
+
+    // Only show toast if it's someone else's comment
+    const authorId = comment.authorId?._id || comment.authorId;
+    if (authorId !== currentUserId) {
+      _showToast("New comment added", "info");
+    }
   });
 
   socket.on("typing", ({ userId, fileId, status }) => {
@@ -194,7 +220,7 @@ export function initSocket(token, boardIdParam) {
   // Remote Cursors handling for Pair Programming
   const remoteCursors = {};
 
-  socket.on("cursor-update", ({ userId, name, cursor, color }) => {
+  socket.on("cursor-update", ({ userId, name, fileId, cursor, color }) => {
     if (userId === currentUserId) return;
 
     let cursorEl = remoteCursors[userId];
@@ -220,6 +246,17 @@ export function initSocket(token, boardIdParam) {
       cursorEl.style.top = "0";
       cursorEl.style.left = "0";
       cursorEl.style.transform = `translate(${cursor.x}px, ${cursor.y}px)`;
+
+      // Update label and color on every update
+      const label = cursorEl.querySelector(".cursor-label");
+      const pointer = cursorEl.querySelector(".cursor-pointer");
+      if (label) {
+        label.textContent = name || 'User';
+        label.style.backgroundColor = color || '#8C52FF';
+      }
+      if (pointer) {
+        pointer.style.backgroundColor = color || '#8C52FF';
+      }
     }
 
     clearTimeout(cursorEl.timeout);
@@ -234,6 +271,24 @@ export function initSocket(token, boardIdParam) {
     const event = new CustomEvent("terminal-output", { detail: data });
     window.dispatchEvent(event);
   });
+
+  socket.on("roles-updated", ({ members }) => {
+    console.log("Roles updated remote:", members);
+    _loadBoard(); // Reload everything to ensure sync
+    _showToast("Roles have been reassigned", "info");
+  });
+
+  socket.on("role-request", ({ userName, role }) => {
+    _showToast(`${userName} requested to be ${role}`, "info", 5000);
+  });
+
+  // Handle board deletion
+  socket.on("board-deleted", ({ boardId }) => {
+    if (boardId === currentBoardId) {
+      alert("This project has been deleted by the owner.");
+      window.location.href = "dashboard.html";
+    }
+  });
 }
 
 // Emitters - ALL FUNCTIONS PROPERLY EXPORTED
@@ -243,11 +298,12 @@ export function emitTyping(boardId, fileId, status) {
   }
 }
 
-export function emitCursorUpdate(boardId, cursor, color) {
+export function emitCursorUpdate(boardId, fileId, cursor, color) {
   if (socket && socket.connected) {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     socket.emit("cursor-update", {
       boardId,
+      fileId,
       cursor,
       name: user.name || "User",
       color: color || user.colorTag || "#8C52FF"

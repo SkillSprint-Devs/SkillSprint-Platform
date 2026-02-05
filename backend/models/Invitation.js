@@ -8,6 +8,7 @@ const InvitationSchema = new mongoose.Schema({
     projectId: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'projectType' },
     status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
     permission: { type: String, enum: ["viewer", "commenter", "editor", "owner"], default: "viewer" },
+    role: { type: String, enum: ["driver", "navigator"], default: "navigator" },
     createdAt: { type: Date, default: Date.now }
 });
 

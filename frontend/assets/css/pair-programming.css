@@ -422,23 +422,23 @@ html,
 }
 
 .tab.active {
-  background: #fff;
+  background: white;
   color: var(--text-dark);
   font-weight: 600;
   border-color: var(--border-color);
-  border-bottom-color: #fff;
-  /* Blend with content */
+  border-bottom-color: white;
+  box-shadow: 0 -4px 12px rgba(220, 239, 98, 0.2);
 }
 
 .tab.active::before {
   content: '';
   position: absolute;
-  top: -1px;
+  top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 2px 2px 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), #c8dc50);
+  border-radius: 3px 3px 0 0;
 }
 
 .tab .close {

@@ -23,6 +23,10 @@ const CommentSchema = new Schema({
   text: { type: String, default: "" },
   authorId: { type: Schema.Types.ObjectId, ref: "User" },
   stickyId: { type: Schema.Types.ObjectId, required: false },
+  // CRITICAL: Required for pair programming inline comments
+  line: { type: Number }, // 0-indexed
+  fileId: { type: String },
+  folderId: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
@@ -113,6 +117,9 @@ const BoardSchema = new Schema(
 
     // Optional preview image
     lastSavedImage: { type: String },
+
+    // Description
+    description: { type: String, default: "" },
 
     // Collaboration metadata
     activeUsers: [{ type: Schema.Types.ObjectId, ref: "User" }],
