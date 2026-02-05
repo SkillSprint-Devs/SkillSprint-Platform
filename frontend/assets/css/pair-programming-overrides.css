@@ -39,22 +39,22 @@ html {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.brand-interactive .icon-default {
+.brand-interactive .context-icon {
     opacity: 1;
     transform: translate(-50%, -50%) rotate(0deg);
 }
 
-.brand-interactive .icon-hover {
+.brand-interactive .back-icon {
     opacity: 0;
     transform: translate(-50%, -50%) rotate(-90deg) scale(0.8);
 }
 
-.brand-interactive:hover .icon-default {
+.brand-interactive:hover .context-icon {
     opacity: 0;
     transform: translate(-50%, -50%) rotate(90deg) scale(0.8);
 }
 
-.brand-interactive:hover .icon-hover {
+.brand-interactive:hover .back-icon {
     opacity: 1;
     transform: translate(-50%, -50%) rotate(0deg) scale(1);
 }
@@ -141,6 +141,18 @@ html {
     margin-bottom: 20px;
     padding-bottom: 12px;
     border-bottom: 2px solid var(--accent);
+}
+
+.folder.selected {
+    background-color: rgba(220, 239, 98, 0.15);
+    /* Accent with opacity */
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.dark .folder.selected {
+    background-color: rgba(220, 239, 98, 0.1);
+    color: #fff;
 }
 
 /* User List in Invite Modal */
@@ -270,16 +282,148 @@ html {
 }
 
 /* Inline Comment Markers */
-.comment-marker {
-    color: var(--accent);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
+.CodeMirror-gutter.comments-gutter {
+    width: 28px;
+    background: transparent;
 }
 
-.comment-marker:hover {
-    transform: scale(1.2);
-    filter: brightness(1.2);
+.comment-marker-container {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.comment-marker-bubble {
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Enhanced Tabs styling */
+#tabsBar {
+    background: #fdfdfd;
+    padding: 6px 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    gap: 4px;
+    height: 44px;
+    align-items: flex-end;
+}
+
+.tab {
+    background: #f1f1f1;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    font-size: 13px;
+    padding: 8px 18px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #777;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.tab:hover {
+    background: #e8e8e8;
+    color: #333;
+    transform: translateY(-1px);
+}
+
+.tab.active {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid rgba(220, 239, 98, 0.3) !important;
+    border-bottom: 2px solid #fff !important;
+    box-shadow: 0 -4px 15px rgba(220, 239, 98, 0.1) !important;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), #d4eb4d);
+    border-radius: 10px 10px 0 0;
+}
+
+/* Enhanced Editor Header */
+.editor-header {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+#activeFilename {
+    font-weight: 700;
+    color: #111;
+    font-size: 15px;
+    letter-spacing: -0.2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#activeFilename::before {
+    content: '\f15b';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 400;
+    color: var(--accent);
+}
+
+.editor-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.editor-actions .btn {
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 13.5px;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.editor-actions #saveBtn {
+    background: #fff;
+    color: #444;
+    border: 1.5px solid #eee;
+}
+
+.editor-actions #saveBtn:hover {
+    border-color: var(--accent);
+    color: #000;
+    background: #fdfdfd;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.editor-actions #runCodeBtn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    box-shadow: 0 4px 14px rgba(220, 239, 98, 0.3);
+}
+
+.editor-actions #runCodeBtn:hover {
+    box-shadow: 0 6px 20px rgba(220, 239, 98, 0.45);
+    transform: translateY(-2px);
+    filter: brightness(1.05);
 }
 
 /* Comment Action Buttons */
@@ -329,4 +473,130 @@ html {
 .comment-edit-input {
     font-family: inherit;
     resize: vertical;
+}
+
+/* --- Dark Mode Overrides (Added) --- */
+.dark #tabsBar {
+    background: var(--sidebar-bg);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .tab {
+    background: #252526;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: none;
+    color: #888;
+}
+
+.dark .tab:hover {
+    background: #2d2d2d;
+    color: #ccc;
+}
+
+.dark .tab.active {
+    background: #212121 !important;
+    /* Match Editor bg */
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 2px solid #212121 !important;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .editor-header {
+    background: #212121;
+    /* Match Editor bg */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #ccc;
+    box-shadow: none;
+}
+
+.dark #activeFilename {
+    color: #fff;
+}
+
+.dark .editor-actions #saveBtn {
+    background: #333;
+    color: #eee;
+    border-color: #444;
+}
+
+.dark .editor-actions #saveBtn:hover {
+    background: #444;
+    border-color: var(--accent);
+}
+
+/* --- Added Utilities --- */
+.hidden {
+    display: none !important;
+}
+
+/* Restyle "Add New" Button in Tabs Bar */
+#newFileBtn {
+    background: transparent;
+    border: 1px dashed rgba(0, 0, 0, 0.2);
+    color: var(--text-light);
+    font-size: 12px;
+    padding: 4px 10px;
+    margin-left: 4px;
+    opacity: 0.7;
+    height: 28px;
+    /* Lift it up slightly to align with tabs visually */
+    margin-bottom: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#newFileBtn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: var(--accent);
+    color: var(--text-dark);
+    opacity: 1;
+}
+
+#newFileBtn::before {
+    content: '\f067';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+.dark #newFileBtn {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #888;
+}
+
+.dark #newFileBtn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* Dark Mode Comments */
+.dark .comment {
+    background: #2b3035;
+    /* Darker grey */
+    border-color: #444;
+    color: #e6edf3;
+    /* Light text */
+}
+
+.dark .comment-text {
+    color: #d1d5db !important;
+}
+
+.dark .comment-meta {
+    color: #8b949e;
+}
+
+.dark .comment-header {
+    border-bottom-color: #444;
+}
+
+.dark .comment-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .comment-marker-bubble {
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
 }

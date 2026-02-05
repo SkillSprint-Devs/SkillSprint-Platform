@@ -441,7 +441,7 @@
 
     <!-- MODAL: NEW PAIR PROJECT -->
     <div id="createPairModal" class="custom-modal-overlay">
-        <div class="premium-modal">
+        <div class="premium-modal" style="max-height: 90vh; overflow-y: auto;">
             <div class="pm-header">
                 <div class="pm-title"><i class="fa-solid fa-code" style="color:#DCEF62;"></i> Pair Programming</div>
                 <button id="closePairModal" class="pm-close"><i class="fa-solid fa-times"></i></button>
@@ -452,23 +452,43 @@
                 <input type="text" id="pairProjectTitleInput" class="pm-input" placeholder="e.g. Algorithm Practice">
             </div>
 
-            <div class="pm-row">
-                <div class="pm-form-group">
-                    <label class="pm-label">Language / Stack</label>
-                    <input type="text" id="pairStackInput" class="pm-input" placeholder="e.g. Python, React...">
-                </div>
-                <div class="pm-form-group">
-                    <label class="pm-label">Duration (Min)</label>
-                    <input type="number" id="pairDurationInput" class="pm-input" value="60">
-                </div>
-            </div>
-
             <div class="pm-form-group">
                 <label class="pm-label">Goal / Description</label>
                 <textarea id="pairDescInput" class="pm-textarea" placeholder="What do you want to achieve together?"></textarea>
             </div>
 
-            <button id="submitCreatePairProject" class="pm-submit-btn">Start Session <i class="fa-solid fa-bolt"></i></button>
+            <div class="pm-form-group">
+                <label class="pm-label">Primary Language</label>
+                <select id="pairLanguageInput" class="pm-select">
+                    <option value="js">JavaScript (Node.js)</option>
+                    <option value="python">Python</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="php">PHP</option>
+                </select>
+            </div>
+
+            <div class="pm-form-group" style="margin-top:20px;">
+                <label class="pm-label">Invite Members (Max 2 + You)</label>
+                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:12px;">
+                    <!-- Owner Role -->
+                    <div id="ownerRoleRow" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:8px 12px; border-radius:10px;">
+                        <span style="color:#fff; font-size:0.9rem; font-weight:600;">You (Owner)</span>
+                        <div class="role-toggles" id="ownerRoleToggles" style="display:flex; background:rgba(0,0,0,0.2); border-radius:8px; padding:2px;">
+                            <button type="button" class="role-btn active" data-role="driver" style="border:none; background:#DCEF62; color:#000; padding:4px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">Driver</button>
+                            <button type="button" class="role-btn" data-role="navigator" style="border:none; background:transparent; color:#fff; padding:4px 12px; border-radius:6px; font-size:0.8rem; font-weight:600; cursor:pointer;">Navigator</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Invited Members Container -->
+                    <div id="pairMembersContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+                    
+                    <input type="text" id="pairInviteSearch" placeholder="Search to invite members..." style="background:transparent; border:none; border-bottom:1px solid rgba(255,255,255,0.1); color:#fff; outline:none; padding:8px 0; font-size:0.9rem;">
+                    <div id="pairSearchResults" style="display:none; background:#141414; border:1px solid rgba(255,255,255,0.1); border-radius:12px; max-height:150px; overflow-y:auto; margin-top:5px; box-shadow:0 10px 30px rgba(0,0,0,0.8);"></div>
+                </div>
+            </div>
+
+            <button id="submitCreatePairProject" class="pm-submit-btn">Create Project <i class="fa-solid fa-code-commit"></i></button>
         </div>
     </div>
 
@@ -524,6 +544,12 @@
     const createMenu = document.getElementById("floatingCreateMenu");
     const menuOverlay = document.getElementById("createMenuOverlay");
 
+    // Utility: Debounce
+    const debounce = (func, wait) => {
+      let timeout;
+      return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); };
+    };
+
     // Toggle Menu Logic
     const toggleMenu = () => {
       const isActive = createMenu.classList.contains("active");
@@ -553,7 +579,56 @@
       if (createMenu.classList.contains("active")) toggleMenu();
     });
 
+    // State for Modals
+    const selectedUsers = new Map();
+    const pairMembers = new Map();
+
     // --- MODAL HANDLERS ---
+    const clearForm = (modalId) => {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      const inputs = modal.querySelectorAll("input, textarea");
+      inputs.forEach(input => {
+        if (input.type === 'number') input.value = input.defaultValue || 60;
+        else if (input.type === 'datetime-local') input.value = '';
+        else if (input.type === 'text' || input.tagName === 'TEXTAREA') input.value = '';
+        else input.value = '';
+      });
+
+      const selects = modal.querySelectorAll("select");
+      selects.forEach(s => s.selectedIndex = 0);
+
+      // Hide results
+      const searchResults = modal.querySelectorAll("[id$='SearchResults'], #userSearchResults");
+      searchResults.forEach(r => r.style.display = 'none');
+
+      const errors = modal.querySelectorAll("[id$='Error']");
+      errors.forEach(e => e.style.display = 'none');
+
+      // Clear Specific States
+      if (modalId === "createLiveSessionModal") {
+        selectedUsers.clear();
+        if (typeof renderSelected === 'function') renderSelected();
+      }
+      if (modalId === "createPairModal") {
+        pairMembers.clear();
+        if (typeof renderPairMembers === 'function') renderPairMembers();
+
+        // Reset Owner Role Toggles to Navigator
+        document.querySelectorAll("#ownerRoleToggles .role-btn").forEach(b => {
+          b.classList.remove("active");
+          b.style.background = "transparent";
+          b.style.color = "#fff";
+        });
+        const navBtn = document.querySelector("#ownerRoleToggles .role-btn[data-role='navigator']");
+        if (navBtn) {
+          navBtn.classList.add("active");
+          navBtn.style.background = "#DCEF62";
+          navBtn.style.color = "#000";
+        }
+      }
+    };
+
     const setupModal = (triggerId, modalId, closeId) => {
       const trigger = document.getElementById(triggerId);
       const modal = document.getElementById(modalId);
@@ -571,12 +646,18 @@
       }
 
       if (close) {
-        close.addEventListener("click", () => modal.classList.remove("active"));
+        close.addEventListener("click", () => {
+          modal.classList.remove("active");
+          clearForm(modalId);
+        });
       }
 
       // Close on outside click
       modal.addEventListener("click", (e) => {
-        if (e.target === modal) modal.classList.remove("active");
+        if (e.target === modal) {
+          modal.classList.remove("active");
+          clearForm(modalId);
+        }
       });
     };
 
@@ -610,7 +691,10 @@
           body: JSON.stringify({ name, description: desc, privacy }),
         });
         const data = await res.json();
-        if (data.success) window.location.href = `board.html?id=${data.data._id}`;
+        if (data.success) {
+          clearForm("createBoardModal");
+          window.location.href = `board.html?id=${data.data._id}`;
+        }
         else showToast(data.message || "Failed", "error");
       } catch (e) { console.error(e); showToast("Connection error", "error"); }
       finally {
@@ -621,38 +705,158 @@
 
     // 2. PAIR PROGRAMMING
     const submitPair = document.getElementById("submitCreatePairProject");
+    const pairMembersContainer = document.getElementById("pairMembersContainer");
+    const pairInviteSearch = document.getElementById("pairInviteSearch");
+    const pairSearchResults = document.getElementById("pairSearchResults");
+
+    // Role Toggles for Owner
+    document.querySelectorAll("#ownerRoleToggles .role-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#ownerRoleToggles .role-btn").forEach(b => {
+          b.classList.remove("active");
+          b.style.background = "transparent";
+          b.style.color = "#fff";
+          b.style.fontWeight = "600";
+        });
+        btn.classList.add("active");
+        btn.style.background = "#DCEF62";
+        btn.style.color = "#000";
+        btn.style.fontWeight = "700";
+      });
+    });
+
+    function renderPairMembers() {
+      pairMembersContainer.innerHTML = "";
+      pairMembers.forEach((user, id) => {
+        const row = document.createElement("div");
+        row.style = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:8px 12px; border-radius:10px;";
+
+        row.innerHTML = `
+          <div style="display:flex; flex-direction:column;">
+            <span style="color:#fff; font-size:0.9rem; font-weight:600;">${user.name}</span>
+            <span style="color:rgba(255,255,255,0.4); font-size:0.75rem;">${user.email}</span>
+          </div>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div class="role-toggles" style="display:flex; background:rgba(0,0,0,0.2); border-radius:8px; padding:2px;">
+              <button type="button" class="role-btn-remote ${user.role === 'driver' ? 'active' : ''}" data-id="${id}" data-role="driver" style="border:none; background:${user.role === 'driver' ? '#DCEF62' : 'transparent'}; color:${user.role === 'driver' ? '#000' : '#fff'}; padding:4px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">Driver</button>
+              <button type="button" class="role-btn-remote ${user.role === 'navigator' ? 'active' : ''}" data-id="${id}" data-role="navigator" style="border:none; background:${user.role === 'navigator' ? '#DCEF62' : 'transparent'}; color:${user.role === 'navigator' ? '#000' : '#fff'}; padding:4px 12px; border-radius:6px; font-size:0.8rem; font-weight:600; cursor:pointer;">Navigator</button>
+            </div>
+            <i class="fa-solid fa-times-circle" style="color:rgba(255,0,0,0.4); cursor:pointer;" title="Remove"></i>
+          </div>
+        `;
+
+        // Handle role toggle
+        row.querySelectorAll(".role-btn-remote").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const userId = btn.dataset.id;
+            const newRole = btn.dataset.role;
+            const userData = pairMembers.get(userId);
+            if (userData) {
+              userData.role = newRole;
+              pairMembers.set(userId, userData);
+              renderPairMembers();
+            }
+          });
+        });
+
+        // Handle remove
+        row.querySelector(".fa-times-circle").addEventListener("click", () => {
+          pairMembers.delete(id);
+          renderPairMembers();
+        });
+
+        pairMembersContainer.appendChild(row);
+      });
+
+      // Show/Hide search based on limit (Max 2 invited users)
+      if (pairMembers.size >= 2) {
+        pairInviteSearch.parentElement.style.display = "none";
+      } else {
+        pairInviteSearch.parentElement.style.display = "block";
+      }
+    }
+
+    pairInviteSearch.addEventListener("input", debounce(async (e) => {
+      const query = e.target.value.trim();
+      if (query.length < 2) { pairSearchResults.style.display = "none"; return; }
+
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_BASE}/auth/search-users?q=${query}`, { headers: { Authorization: `Bearer ${token}` } });
+        const users = await res.json();
+
+        pairSearchResults.innerHTML = "";
+        if (users.length === 0) pairSearchResults.innerHTML = '<div style="padding:10px; color:#aaa;">No users found</div>';
+
+        users.forEach(user => {
+          if (pairMembers.has(user._id)) return;
+          const div = document.createElement("div");
+          div.style = "padding:10px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); color:#fff;";
+          div.innerHTML = `<div style="font-weight:bold;">${user.name}</div><div style="font-size:0.8rem; color:#aaa;">${user.email}</div>`;
+          div.addEventListener("click", () => {
+            pairMembers.set(user._id, { ...user, role: 'navigator' });
+            renderPairMembers();
+            pairInviteSearch.value = "";
+            pairSearchResults.style.display = "none";
+          });
+          pairSearchResults.appendChild(div);
+        });
+        pairSearchResults.style.display = "block";
+      } catch (err) { console.error(err); }
+    }, 300));
 
     submitPair.addEventListener("click", async () => {
       const title = document.getElementById("pairProjectTitleInput").value.trim();
-      const stack = document.getElementById("pairStackInput").value.trim().split(',');
-      const duration = document.getElementById("pairDurationInput").value;
-      const desc = document.getElementById("pairDescInput").value;
+      const desc = document.getElementById("pairDescInput").value.trim();
+      const language = document.getElementById("pairLanguageInput").value;
+
+      const ownerRole = document.querySelector("#ownerRoleToggles .role-btn.active").dataset.role;
+
+      const invitedMembers = [];
+      pairMembers.forEach((user, id) => {
+        invitedMembers.push({
+          userId: id,
+          role: user.role
+        });
+      });
 
       if (!title) return showToast("Project title is required", "error");
 
       submitPair.disabled = true;
-      submitPair.textContent = "Initializing...";
+      submitPair.textContent = "Forging Project...";
 
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(`${API_BASE}/pair-programming/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ name: title, description: desc, tags: stack, duration }),
+          body: JSON.stringify({
+            name: title,
+            description: desc,
+            language,
+            ownerRole,
+            invitedMembers
+          }),
         });
         const data = await res.json();
-        if (data.success) window.location.href = `pair-programming.html?id=${data.data._id}`;
-        else showToast(data.message || "Failed", "error");
-      } catch (err) { console.error(err); showToast("Connection error", "error"); }
-      finally {
+        if (data.success) {
+          showToast("Project created!", "success");
+          clearForm("createPairModal");
+          window.location.href = `pair-programming.html?id=${data.data._id}`;
+        } else {
+          showToast(data.message || "Failed to create project", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Connection error", "error");
+      } finally {
         submitPair.disabled = false;
-        submitPair.innerHTML = 'Start Session <i class="fa-solid fa-bolt"></i>';
+        submitPair.innerHTML = 'Create Project <i class="fa-solid fa-code-commit"></i>';
       }
     });
 
     // 3. LIVE SESSION (Existing logic adapted)
     const submitLive = document.getElementById("submitCreateLiveSession");
-    const selectedUsers = new Map();
     const selectedContainer = document.getElementById("selectedUsersContainer");
     const inviteInput = document.getElementById("sessionInviteInput");
     const resultsContainer = document.getElementById("userSearchResults");
@@ -683,6 +887,7 @@
         const data = await res.json();
         if (res.ok) {
           document.getElementById("createLiveSessionModal").classList.remove("active");
+          clearForm("createLiveSessionModal");
           showToast("Session scheduled!", "success");
           if (window.loadSchedule) window.loadSchedule();
         } else {
@@ -695,11 +900,6 @@
       }
     });
 
-    // SEARCH LOGIC (Debounced)
-    const debounce = (func, wait) => {
-      let timeout;
-      return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); };
-    };
 
     inviteInput.addEventListener("input", debounce(async (e) => {
       const query = e.target.value.trim();

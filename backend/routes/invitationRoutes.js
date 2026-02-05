@@ -70,14 +70,14 @@ router.post("/send", verifyToken, async (req, res) => {
             title: "New Project Invitation",
             message: `${sender.name} invited you to join ${project.name}`,
             type: "invite",
-            link: "/collaborations.html" // Direct them to where they can accept/decline
+            link: "/collaborations.html" 
         });
         await notif.save();
 
         const io = req.app.get("io");
         if (io) io.to(recipientId).emit("notification", notif);
 
-        // 2. Email (Optional, if mailService supports generic or we reuse existing)
+        
         // simplistic reuse:
         if (projectType === "Board") {
             sendBoardInvite(recipient.email, { inviterName: sender.name, boardName: project.name, shareUrl: `${process.env.CLIENT_URL}/collaborations.html` });
@@ -102,8 +102,7 @@ router.get("/pending", verifyToken, async (req, res) => {
             .populate("sender", "name profile_image email")
             .sort({ createdAt: -1 });
 
-        // We also need project names. Since dynamic refPath might be tricky to populate deeply efficiently in one go if types differ,
-        // let's just loop or use aggregate. Simple loop for now.
+        
         const augmented = await Promise.all(invites.map(async (inv) => {
             const p = await getProject(inv.projectType, inv.projectId);
             return {
@@ -147,7 +146,7 @@ router.post("/:id/accept", verifyToken, async (req, res) => {
             'viewer': 'viewers',
             'commenter': 'commenters',
             'editor': 'editors',
-            'owner': 'editors' // fallback, usually can't invite as owner
+            'owner': 'editors' 
         };
         const group = roleMap[invitation.permission] || 'viewers';
 
@@ -181,7 +180,6 @@ router.post("/:id/accept", verifyToken, async (req, res) => {
             io.to(invitation.sender.toString()).emit("notification", notif);
 
             // Update real-time board/project if people are online
-            // We can emit a specific 'member-joined' event
             io.to(project._id.toString()).emit("member-joined", {
                 userId: req.user.id,
                 user: recipientUser,

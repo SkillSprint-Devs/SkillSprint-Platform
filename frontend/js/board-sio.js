@@ -125,6 +125,15 @@
     if (window.saveBoardState) window.saveBoardState(data);
   });
 
+  // Handle board deletion
+  socket.on("board:deleted", (data) => {
+    // Only alert if we are currently on the deleted board
+    if (data.boardId === window.BOARD_ID) {
+      alert("This board has been deleted by the owner.");
+      window.location.href = "dashboard.html";
+    }
+  });
+
   // Expose emit functions for your board.js usage
   window.BoardSocket = {
     emitDraw: (drawData) => {

@@ -7,7 +7,7 @@ import Notification from "../models/notification.js";
 import { updateStreak } from "../utils/streakHelper.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { exec } from "child_process";
-import { sendPairProgrammingInvite } from "../utils/mailService.js";
+import { sendProjectInvitation } from "../utils/invitationHelper.js";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -28,7 +28,10 @@ function hasPermission(board, userId, roles = []) {
   const editors = (board.permissions?.editors || []).map(e => e._id ? e._id.toString() : e.toString());
   const commenters = (board.permissions?.commenters || []).map(c => c._id ? c._id.toString() : c.toString());
   const viewers = (board.permissions?.viewers || []).map(v => v._id ? v._id.toString() : v.toString());
-  const members = (board.members || []).map(m => m._id ? m._id.toString() : m.toString());
+  const members = (board.members || []).map(m => {
+    const uId = m.user?._id || m.user || m;
+    return uId.toString();
+  });
 
   if (normalizedRoles.includes("owner") && ownerId === id) return true;
   if (normalizedRoles.includes("editor") && editors.includes(id)) return true;
@@ -49,23 +52,39 @@ function emitBoard(io, boardId, event, payload) {
 
 router.post("/create", verifyToken, async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, language, ownerRole, invitedMembers } = req.body;
     const owner = req.user.id;
+
+    // Enforce 3 member limit (1 owner + max 2 invited)
+    if (invitedMembers && invitedMembers.length > 2) {
+      return res.status(400).json({ message: "Max 3 members allowed (including you)" });
+    }
+
+    const initialLanguage = language || 'js';
+    const mainFileMap = {
+      'js': { name: 'index.js', content: '// Start coding here\nconsole.log("Hello World!");' },
+      'python': { name: 'main.py', content: '# Start coding here\nprint("Hello World!")' },
+      'html': { name: 'index.html', content: '<!DOCTYPE html>\n<html>\n<body>\n<h1>Hello!</h1>\n</body>\n</html>' },
+      'css': { name: 'styles.css', content: '/* Add your styles here */\nbody {\n  background: #f0f0f0;\n}' },
+      'php': { name: 'index.php', content: '<?php\necho "Hello World!";\n?>' }
+    };
+    const fileInfo = mainFileMap[initialLanguage] || mainFileMap['js'];
 
     const newBoard = new PairProgramming({
       name,
       description,
+      language: initialLanguage,
       owner,
-      members: [owner],
+      members: [{ user: owner, role: ownerRole || 'navigator' }],
       permissions: { editors: [owner], commenters: [], viewers: [] },
       folders: [
         {
           name: "src",
           files: [
             {
-              name: "index.js",
-              content: "// Start coding here\nconsole.log('Hello World!');",
-              language: "js",
+              name: fileInfo.name,
+              content: fileInfo.content,
+              language: initialLanguage,
               comments: [],
               runs: [],
             },
@@ -77,6 +96,23 @@ router.post("/create", verifyToken, async (req, res) => {
     });
 
     await newBoard.save();
+
+    // Send Invitations
+    if (invitedMembers && invitedMembers.length > 0) {
+      for (const invite of invitedMembers) {
+        await sendProjectInvitation({
+          senderId: req.user.id,
+          recipientId: invite.userId,
+          projectType: 'PairProgramming',
+          projectId: newBoard._id,
+          projectName: newBoard.name,
+          permission: 'editor',
+          role: invite.role || 'navigator',
+          io: req.app.get("io"),
+          appUrl: process.env.CLIENT_URL
+        });
+      }
+    }
 
     const io = req.app.get("io");
     emitBoard(io, newBoard._id, "board-created", { board: newBoard });
@@ -91,21 +127,26 @@ router.post("/create", verifyToken, async (req, res) => {
 router.get("/all", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
+    console.log(`GET /all - Fetching all boards for user: ${userId}`);
+
     const boards = await PairProgramming.find({
       $or: [
         { owner: userId },
-        { members: userId },
+        { "members.user": userId },
         { "permissions.editors": userId },
         { "permissions.commenters": userId },
         { "permissions.viewers": userId },
       ],
-    }).select("name owner createdAt updatedAt members")
-      .populate("owner", "name profile_image");
+    })
+      .select("name owner createdAt updatedAt members language description")
+      .populate("owner", "name profile_image")
+      .populate("members.user", "name profile_image")
+      .lean();
 
     res.json(boards);
   } catch (err) {
-    console.error("Error fetching boards:", err);
-    res.status(500).json({ message: "Error fetching boards", error: err.message });
+    console.error("[PAIR-ALL] Error stack:", err.stack);
+    res.status(500).json({ message: "Error fetching boards", error: err.message, stack: err.stack });
   }
 });
 
@@ -120,6 +161,7 @@ router.get("/:id", verifyToken, async (req, res) => {
     const board = await PairProgramming.findById(req.params.id)
       .populate("owner", "name email profile_image colorTag")
       .populate("members", "name email profile_image colorTag")
+      .populate("members.user", "name email profile_image colorTag")
       .populate("permissions.editors", "name email profile_image colorTag")
       .populate("permissions.commenters", "name email profile_image colorTag")
       .populate("permissions.viewers", "name email profile_image colorTag")
@@ -661,7 +703,7 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
       if (board.owner && board.owner.toString() !== req.user.id) recipients.add(board.owner.toString());
 
       board.members.forEach(m => {
-        const mid = m._id ? m._id.toString() : m.toString();
+        const mid = (m.user?._id || m.user || m).toString();
         if (mid !== req.user.id) recipients.add(mid);
       });
 
@@ -969,8 +1011,9 @@ router.post(
       const permission = shareLink.permission || 'viewer';
 
       let changed = false;
-      if (!board.members.includes(userId)) {
-        board.members.push(userId);
+      const memberIds = board.members.map(m => (m.user?._id || m.user || m).toString());
+      if (!memberIds.includes(userId)) {
+        board.members.push({ user: userId, role: 'navigator' });
         changed = true;
       }
 
@@ -1012,5 +1055,88 @@ router.post(
     }
   }
 );
+
+// SWAP ROLES (OWNER ONLY)
+router.post("/:id/swap-roles", verifyToken, async (req, res) => {
+  try {
+    const board = await PairProgramming.findById(req.params.id);
+    if (!board) return res.status(404).json({ message: "Board not found" });
+
+    // Only owner can swap roles
+    if (board.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Only the project owner can reassign roles" });
+    }
+
+    const { targetUserId } = req.body; // The user who should become the Driver
+    if (!targetUserId) return res.status(400).json({ message: "Target user ID required" });
+
+    // Rules: Exactly ONE driver.
+    let memberFound = false;
+
+    // Check if target is owner but not in members array (shouldn't happen with new logic but safe to check)
+    const ownerId = board.owner.toString();
+    const isTargetOwner = targetUserId === ownerId;
+
+    board.members.forEach(m => {
+      const uId = (m.user?._id || m.user || m).toString();
+      if (uId === targetUserId) {
+        m.role = 'driver';
+        memberFound = true;
+      } else {
+        m.role = 'navigator';
+      }
+    });
+
+    // If target is owner and wasn't found in members loop (legacy fix), push them
+    if (isTargetOwner && !memberFound) {
+      board.members.push({ user: targetUserId, role: 'driver' });
+    }
+
+    await board.save();
+
+    const io = req.app.get("io");
+    emitBoard(io, board._id, "roles-updated", { members: board.members });
+
+    res.json({ success: true, message: "Roles updated successfully" });
+  } catch (err) {
+    console.error("Error swapping roles:", err);
+    res.status(500).json({ message: "Error swapping roles", error: err.message });
+  }
+});
+
+// REQUEST DRIVER ROLE
+router.post("/:id/request-driver", verifyToken, async (req, res) => {
+  try {
+    const board = await PairProgramming.findById(req.params.id).populate("owner");
+    if (!board) return res.status(404).json({ message: "Board not found" });
+
+    const requesterId = req.user.id;
+    const { userName } = req.body;
+
+    const notification = new Notification({
+      user_id: board.owner._id,
+      title: "Driver Role Request",
+      message: `${userName || "A collaborator"} requested to be the Driver for "${board.name}"`,
+      type: "info",
+      link: `/pair-programming.html?id=${board._id}`,
+    });
+    await notification.save();
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(board.owner._id.toString()).emit("notification", notification);
+      emitBoard(io, board._id, "role-request", {
+        userId: requesterId,
+        userName: userName || "Someone",
+        role: "driver"
+      });
+    }
+
+    res.json({ success: true, message: "Request sent to owner" });
+  } catch (err) {
+    console.error("Error requesting driver role:", err);
+    res.status(500).json({ message: "Error sending request", error: err.message });
+  }
+});
 
 export default router;

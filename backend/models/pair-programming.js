@@ -42,8 +42,12 @@ const PairProgrammingSchema = new Schema(
   {
     name: { type: String, required: true },
     description: { type: String, default: "" },
+    language: { type: String, enum: ["js", "html", "css", "python", "php"], default: "js" },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    members: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    members: [{
+      user: { type: Schema.Types.ObjectId, ref: "User" },
+      role: { type: String, enum: ['driver', 'navigator'], default: 'navigator' }
+    }],
     permissions: {
       editors: [{ type: Schema.Types.ObjectId, ref: "User" }],
       commenters: [{ type: Schema.Types.ObjectId, ref: "User" }],

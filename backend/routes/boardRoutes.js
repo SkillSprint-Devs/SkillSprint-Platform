@@ -115,8 +115,9 @@ router.get(
         { "permissions.viewers": userId },
       ],
     })
-      .select("name owner createdAt updatedAt lastSavedImage members")
+      .select("name description owner createdAt updatedAt lastSavedImage members")
       .populate("owner", "name profile_image")
+      .populate("members", "name profile_image")
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -275,7 +276,7 @@ router.post(
   "/:id/comment",
   verifyToken,
   asyncHandler(async (req, res) => {
-    const { text, stickyId } = req.body;
+    const { text, stickyId, line, fileId, folderId } = req.body;
     const board = await Board.findById(req.params.id);
     if (!board) return res.status(404).json({ success: false, message: "Board not found" });
 
@@ -293,6 +294,10 @@ router.post(
       text: commentText,
       authorId: req.user.id,
       stickyId: stickyId || null,
+      // Inline fields - Check undefined to allow line 0
+      line: line !== undefined ? Number(line) : undefined,
+      fileId: fileId || undefined,
+      folderId: folderId || undefined,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };

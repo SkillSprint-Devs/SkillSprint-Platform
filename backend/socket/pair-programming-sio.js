@@ -4,14 +4,34 @@ import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import mongoose from "mongoose";
+import User from "../models/user.js";
+
+const USER_COLORS = [
+  "#8C52FF", "#5CE1E6", "#7ED957", "#FF66C4", "#FFBD59",
+  "#FF5757", "#CB6CE6", "#5271FF", "#00C2CB", "#00BF63"
+];
 
 function hasSocketPermission(board, userId, roles = []) {
   const id = userId.toString();
-  if (roles.includes("owner") && board.owner.toString() === id) return true;
-  if (roles.includes("editor") && board.permissions?.editors?.some(e => e.toString() === id)) return true;
-  if (roles.includes("commenter") && board.permissions?.commenters?.some(c => c.toString() === id)) return true;
-  if (roles.includes("viewer") && board.permissions?.viewers?.some(v => v.toString() === id)) return true;
-  if (roles.includes("viewer") && board.members?.some(m => m.toString() === id)) return true;
+  const normalizedRoles = roles.map(r => r.toLowerCase());
+
+  // Ownership Check
+  if (normalizedRoles.includes("owner") && board.owner.toString() === id) return true;
+
+  // Generic Role Check (Driver/Navigator)
+  if (board.members) {
+    const member = board.members.find(m => (m.user?._id || m.user || m).toString() === id);
+    if (member) {
+      if (normalizedRoles.includes(member.role.toLowerCase())) return true;
+    }
+  }
+
+  // legacy permission check
+  if (normalizedRoles.includes("editor") && board.permissions?.editors?.some(e => e.toString() === id)) return true;
+  if (normalizedRoles.includes("commenter") && board.permissions?.commenters?.some(c => c.toString() === id)) return true;
+  if (normalizedRoles.includes("viewer") && board.permissions?.viewers?.some(v => (v._id || v).toString() === id)) return true;
+
   return false;
 }
 
@@ -26,13 +46,42 @@ export default function pairProgrammingSocket(io) {
     socket.on("join-board", async ({ boardId }) => {
       console.log("User", socket.user.id, "joining board:", boardId);
 
+      // DB SAFETY CHECK
+      if (mongoose.connection.readyState !== 1) {
+        return socket.emit("error", { message: "Database is connecting... please try again in a moment." });
+      }
+
       try {
-        const board = await PairProgramming.findById(boardId);
+        const [board, userProfile] = await Promise.all([
+          PairProgramming.findById(boardId),
+          User.findById(socket.user.id).select("name colorTag profile_image")
+        ]);
+
         if (!board) {
           console.log("Board not found:", boardId);
           socket.emit("error", { message: "Board not found" });
           return;
         }
+
+        // AUTO-ASSIGN COLOR IF MISSING
+        let color = userProfile?.colorTag;
+        if (!color) {
+          color = USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)];
+          // Async update in background, non-blocking for socket join
+          User.findByIdAndUpdate(socket.user.id, { colorTag: color }).exec().catch(err => {
+            console.error("Failed to auto-assign color:", err);
+          });
+        }
+
+        // Cache profile on socket for faster broadcasts
+        socket.userMeta = {
+          userId: socket.user.id.toString(),
+          name: userProfile?.name || "User",
+          color: color || "#8C52FF"
+        };
+
+        // Sync back to joined user so their local state is updated
+        socket.emit("user-meta", { name: socket.userMeta.name, color: socket.userMeta.color });
 
         if (!hasSocketPermission(board, socket.user.id, ["owner", "editor", "commenter", "viewer"])) {
           console.log("Permission denied for user:", socket.user.id);
@@ -43,8 +92,21 @@ export default function pairProgrammingSocket(io) {
         socket.join(boardId);
         console.log("User joined board room:", boardId);
 
+        // INITIAL PRESENCE: Send list of online users to the joining user
+        const room = pair.adapter.rooms.get(boardId);
+        const onlineUsers = [];
+        if (room) {
+          for (const socketId of room) {
+            const s = pair.sockets.get(socketId);
+            if (s && s.user?.id) {
+              onlineUsers.push(s.user.id.toString());
+            }
+          }
+        }
+        socket.emit("initial-presence", { userIds: onlineUsers });
+
         // Notify others in the room
-        socket.to(boardId).emit("user-joined", { userId: socket.user.id });
+        socket.to(boardId).emit("user-joined", { userId: socket.user.id.toString() });
 
         // Send confirmation to the user
         socket.emit("joined-board", { boardId, message: "Successfully joined board" });
@@ -60,11 +122,14 @@ export default function pairProgrammingSocket(io) {
       socket.to(boardId).emit("user-left", { userId: socket.user.id });
     });
 
-    socket.on("cursor-update", ({ boardId, fileId, cursor }) => {
+    socket.on("cursor-update", ({ boardId, fileId, cursor, name, color }) => {
+      // Backend is authoritative for name and color to prevent spoofing/stale data
       socket.to(boardId).emit("cursor-update", {
         userId: socket.user.id,
         fileId,
-        cursor
+        cursor,
+        name: socket.userMeta?.name || name || "User",
+        color: socket.userMeta?.color || color || "#8C52FF"
       });
     });
 
@@ -80,8 +145,8 @@ export default function pairProgrammingSocket(io) {
 
       try {
         const board = await PairProgramming.findById(boardId);
-        if (!board || !hasSocketPermission(board, socket.user.id, ["owner", "editor"])) {
-          socket.emit("terminal:output", { data: "Permission denied or board not found.\n" });
+        if (!board || !hasSocketPermission(board, socket.user.id, ["driver"])) {
+          socket.emit("terminal:output", { data: "Permission denied. Only the Driver can run the terminal.\n" });
           return;
         }
 
@@ -174,8 +239,14 @@ export default function pairProgrammingSocket(io) {
       }
     });
 
-    socket.on("terminal:input", ({ boardId, data }) => {
+    socket.on("terminal:input", async ({ boardId, data }) => {
       console.log(`[Terminal IN] Board: ${boardId} | Input: ${data}`);
+
+      const board = await PairProgramming.findById(boardId);
+      if (!board || !hasSocketPermission(board, socket.user.id, ["driver"])) {
+        return; // Silently ignore if not driver
+      }
+
       const active = socket.adapter.processes.get(boardId);
       if (active && active.process) {
         try {
@@ -210,9 +281,9 @@ export default function pairProgrammingSocket(io) {
           return;
         }
 
-        if (!hasSocketPermission(board, socket.user.id, ["owner", "editor"])) {
-          console.log("Permission denied for editing");
-          socket.emit("error", { message: "Permission denied for editing" });
+        if (!hasSocketPermission(board, socket.user.id, ["driver"])) {
+          console.log("Permission denied for editing (not a driver)");
+          socket.emit("error", { message: "Only the Driver can edit the code." });
           return;
         }
 
@@ -264,12 +335,16 @@ export default function pairProgrammingSocket(io) {
       }
     });
 
-    socket.on("typing", ({ boardId, fileId, status }) => {
-      socket.to(boardId).emit("typing", {
-        userId: socket.user.id,
-        fileId,
-        status
-      });
+    socket.on("typing", async ({ boardId, fileId, status }) => {
+      // Basic check for driver role for typing indicator
+      const board = await PairProgramming.findById(boardId);
+      if (board && hasSocketPermission(board, socket.user.id, ["driver"])) {
+        socket.to(boardId).emit("typing", {
+          userId: socket.user.id,
+          fileId,
+          status
+        });
+      }
     });
 
     socket.on("disconnect", () => {
