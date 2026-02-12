@@ -60,7 +60,8 @@ const liveSessionSocket = (io) => {
                     sessionRooms.set(sessionId, {
                         chat: [],
                         whiteboard: [],
-                        connectedUsers: new Set()
+                        connectedUsers: new Set(),
+                        permissions: {} // userId -> { mic: boolean, cam: boolean, whiteboard: boolean }
                     });
                 }
                 const room = sessionRooms.get(sessionId);
@@ -92,10 +93,21 @@ const liveSessionSocket = (io) => {
                     sessionName: session.sessionName,
                     status: session.status,
                     participants: presenceList,
-                    isMentor
+                    isMentor,
+                    grantedPermissions: room.permissions[userId] || {}
                 });
 
                 io.to(sessionId).emit("live:presence", presenceList);
+
+                // Notify others that a new peer has joined to initiate WebRTC
+                socket.to(sessionId).emit("live:peerJoined", { userId });
+
+                // Track first mentee join for billable time
+                if (!isMentor && !session.firstMenteeJoinedAt) {
+                    session.firstMenteeJoinedAt = new Date();
+                    await session.save();
+                    console.log(`[SOCKET] First mentee joined at ${session.firstMenteeJoinedAt}. Billable time starts.`);
+                }
 
             } catch (e) {
                 console.error("live:join error:", e);
@@ -124,6 +136,14 @@ const liveSessionSocket = (io) => {
             socket.to(sessionId).emit("live:whiteboard", draw);
         });
 
+        socket.on("live:whiteboardToggle", async ({ sessionId, visible }) => {
+            const session = await LiveSession.findById(sessionId).select("mentorId");
+            if (!session || session.mentorId.toString() !== userId.toString()) return;
+
+            if (!sessionRooms.has(sessionId)) return;
+            io.to(sessionId).emit("live:whiteboardToggle", { visible });
+        });
+
         socket.on("live:whiteboardClear", async ({ sessionId }) => {
             const session = await LiveSession.findById(sessionId).select("mentorId");
             if (!session || session.mentorId.toString() !== userId.toString()) return;
@@ -131,6 +151,30 @@ const liveSessionSocket = (io) => {
             if (!sessionRooms.has(sessionId)) return;
             sessionRooms.get(sessionId).whiteboard = [];
             io.to(sessionId).emit("live:whiteboardClear");
+        });
+
+        // Permission System
+        socket.on("live:requestPermission", ({ sessionId, type }) => {
+            // Forward to Mentor ONLY
+            LiveSession.findById(sessionId).then(session => {
+                if (session) {
+                    io.to(session.mentorId.toString()).emit("live:permissionRequest", {
+                        userId,
+                        type
+                    });
+                }
+            });
+        });
+
+        socket.on("live:grantPermission", ({ sessionId, targetUserId, type, granted }) => {
+            if (!sessionRooms.has(sessionId)) return;
+            const room = sessionRooms.get(sessionId);
+
+            if (!room.permissions[targetUserId]) room.permissions[targetUserId] = {};
+            room.permissions[targetUserId][type] = granted;
+
+            // Forward to specific mentee
+            io.to(targetUserId.toString()).emit("live:permissionGranted", { type, granted });
         });
 
         // WebRTC Signaling
