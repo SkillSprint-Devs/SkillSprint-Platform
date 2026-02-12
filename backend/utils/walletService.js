@@ -106,7 +106,7 @@ class WalletService {
         const wallet = await this.checkAndResetCredits(userId);
         if (!wallet) throw new Error("Wallet not found");
 
-        const amountToDeduct = Math.floor(durationMinutes * 0.4); // 40% charge
+        const amountToDeduct = Math.floor(durationMinutes * 1.0); // 1:1 charge
 
         if (wallet.available_credits < amountToDeduct) {
             throw new Error("Insufficient credits");
@@ -135,7 +135,7 @@ class WalletService {
         const wallet = await this.checkAndResetCredits(userId);
         if (!wallet) throw new Error("Wallet not found");
 
-        const amountToEarn = Math.floor(durationMinutes * 0.6); // 60% reward
+        const amountToEarn = Math.floor(durationMinutes * 1.0); // 1:1 reward
 
         wallet.available_credits += amountToEarn;
         await wallet.save();

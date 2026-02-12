@@ -43,6 +43,7 @@ function initNavbar(config = {}) {
                     <span class="status-dot"></span>
                     <span id="pageIndicatorLabel">${options.activePage}</span>
                 </div>
+                <div id="nav-participants" class="nav-participants"></div>
             </div>
             <div class="nav-center" style="${options.showSearch ? '' : 'display: none;'}">
                 <div class="ss-search-bar">

@@ -3,8 +3,8 @@ import WalletService from "../utils/walletService.js";
 
 class SessionService {
     //Centralized termination
-    
-    
+
+
     async terminateSession(sessionId, io) {
         try {
             console.log(`[RUNTIME-DEBUG] SessionService.terminateSession START for ID: ${sessionId}`);
@@ -25,7 +25,7 @@ class SessionService {
 
             // Ensure we have a startTime to calculate duration. 
 
-            const startStr = session.startTime || session.scheduledDateTime;
+            const startStr = session.firstMenteeJoinedAt || session.startTime || session.scheduledDateTime;
             const actualStart = new Date(startStr);
             const actualDurationMinutes = Math.max(1, Math.round((session.endedAt - actualStart) / 60000));
 
@@ -70,7 +70,7 @@ class SessionService {
                 const participants = [...learners, session.mentorId];
                 participants.forEach(pid => {
                     io.to(pid.toString()).emit("notification", {
-                        type: "session_update", 
+                        type: "session_update",
                         message: `Session "${session.sessionName}" has ended.`
                     });
                 });

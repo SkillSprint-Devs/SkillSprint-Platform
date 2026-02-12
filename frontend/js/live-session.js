@@ -10,6 +10,7 @@ const socket = io(SOCKET_URL, {
 });
 let localStream;
 let peerConnections = {};
+let grantedPermissions = { mic: false, cam: false, whiteboard: false };
 let sessionId = new URLSearchParams(window.location.search).get("sessionId");
 let currentTool = 'pen';
 let isDrawing = false;
@@ -100,6 +101,14 @@ function joinSession() {
             data.whiteboard.forEach(draw => drawOnCanvas(draw));
         }
 
+        // Sync local permissions
+        if (data.grantedPermissions) {
+            console.log("[LIVE] Restoring permissions:", data.grantedPermissions);
+            Object.entries(data.grantedPermissions).forEach(([type, granted]) => {
+                if (granted) handlePermissionGranted(type, true, true); // silent sync
+            });
+        }
+
         if (data.status === 'live') startTimer();
     });
 
@@ -138,24 +147,98 @@ function joinSession() {
         updateParticipants(participants);
     });
 
-    socket.on("live:signal", async ({ fromUserId, signal }) => {
-        // Handle signals for WebRTC logic...
+    socket.on("live:peerJoined", ({ userId }) => {
+        console.log("[LIVE] New peer joined:", userId);
+        if (userId !== getMyId()) {
+            initiatePeerConnection(userId);
+        }
     });
+
+    socket.on("live:whiteboardToggle", ({ visible }) => {
+        const container = document.getElementById("whiteboardContainer");
+        if (container) {
+            container.style.display = visible ? "block" : "none";
+            document.getElementById("toggleWhiteboard")?.classList.toggle("active", visible);
+            if (visible && typeof window.triggerWhiteboardResize === 'function') {
+                window.triggerWhiteboardResize();
+            }
+        }
+    });
+
+    socket.on("live:permissionRequest", ({ userId, type }) => {
+        if (!window.isMentor) return;
+        handlePermissionRequest(userId, type);
+    });
+
+    socket.on("live:permissionGranted", ({ type, granted }) => {
+        handlePermissionGranted(type, granted);
+    });
+
+    socket.on("live:signal", async ({ fromUserId, signal }) => {
+        try {
+            let pc = peerConnections[fromUserId];
+            if (!pc) {
+                pc = await createPeerConnection(fromUserId, false);
+            }
+
+            if (signal.sdp) {
+                await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                if (signal.type === "offer") {
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+                    socket.emit("live:signal", { sessionId, targetUserId: fromUserId, signal: { sdp: pc.localDescription, type: "answer" } });
+                }
+            } else if (signal.candidate) {
+                await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+            }
+        } catch (err) {
+            console.error("Signal handling error:", err);
+        }
+    });
+}
+
+async function initiatePeerConnection(peerId) {
+    if (peerConnections[peerId]) return;
+    await createPeerConnection(peerId, true);
 }
 
 async function createPeerConnection(peerId, isOffer) {
     const pc = new RTCPeerConnection(iceConfig);
     peerConnections[peerId] = pc;
 
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    // IMPORTANT: Only add tracks if we have permission or we are the mentor
+    if (window.isMentor) {
+        if (localStream) {
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+        }
+    } else {
+        // Mentee: Only add tracks that were previously granted
+        if (localStream) {
+            const micTrack = localStream.getAudioTracks()[0];
+            const camTrack = localStream.getVideoTracks()[0];
+            if (micTrack && grantedPermissions.mic) pc.addTrack(micTrack, localStream);
+            if (camTrack && grantedPermissions.cam) pc.addTrack(camTrack, localStream);
+        }
+    }
 
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            socket.emit("live:signal", { to: peerId, signal: { candidate: event.candidate } });
+            socket.emit("live:signal", { sessionId, targetUserId: peerId, signal: { candidate: event.candidate } });
+        }
+    };
+
+    pc.onnegotiationneeded = async () => {
+        try {
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            socket.emit("live:signal", { sessionId, targetUserId: peerId, signal: { sdp: pc.localDescription, type: "offer" } });
+        } catch (err) {
+            console.error("Negotiation error:", err);
         }
     };
 
     pc.ontrack = (event) => {
+        console.log("[WEBRTC] Track received from", peerId, event.streams);
         let remoteVid = document.getElementById(`video-${peerId}`);
         if (!remoteVid) {
             const wrapper = document.createElement("div");
@@ -165,16 +248,35 @@ async function createPeerConnection(peerId, isOffer) {
             remoteVid.id = `video-${peerId}`;
             remoteVid.autoplay = true;
             remoteVid.playsinline = true;
+
+            const nameSpan = document.createElement("span");
+            nameSpan.className = "participant-name";
+            nameSpan.id = `name-${peerId}`;
+            nameSpan.textContent = "Remote User"; // Will be updated by presence
+
             wrapper.appendChild(remoteVid);
+            wrapper.appendChild(nameSpan);
             document.getElementById("videoGrid").appendChild(wrapper);
+
+            // Sync name if we already have it in presence
+            const p = window.lastParticipants?.find(part => part.id === peerId);
+            if (p) nameSpan.textContent = p.name;
         }
         remoteVid.srcObject = event.streams[0];
+    };
+
+    pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
+            const wrapper = document.getElementById(`wrapper-${peerId}`);
+            if (wrapper) wrapper.remove();
+            delete peerConnections[peerId];
+        }
     };
 
     if (isOffer) {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        socket.emit("live:signal", { to: peerId, signal: offer });
+        socket.emit("live:signal", { sessionId, targetUserId: peerId, signal: { sdp: pc.localDescription, type: "offer" } });
     }
 
     return pc;
@@ -284,25 +386,45 @@ function setupEventListeners() {
     document.getElementById("chatInput").addEventListener("keypress", (e) => e.key === 'Enter' && sendChat());
 
     document.getElementById("toggleMic").addEventListener("click", function () {
+        if (!window.isMentor && !grantedPermissions.mic) {
+            socket.emit("live:requestPermission", { sessionId, type: 'mic' });
+            if (typeof showToast === 'function') showToast("Mic permission requested from Mentor...", "info");
+            return;
+        }
         const audioTrack = localStream.getAudioTracks()[0];
-        audioTrack.enabled = !audioTrack.enabled;
-        this.classList.toggle("off", !audioTrack.enabled);
+        if (audioTrack) {
+            audioTrack.enabled = !audioTrack.enabled;
+            this.classList.toggle("off", !audioTrack.enabled);
+        }
     });
 
     document.getElementById("toggleCam").addEventListener("click", function () {
+        if (!window.isMentor && !grantedPermissions.cam) {
+            socket.emit("live:requestPermission", { sessionId, type: 'cam' });
+            if (typeof showToast === 'function') showToast("Camera permission requested from Mentor...", "info");
+            return;
+        }
         const videoTrack = localStream.getVideoTracks()[0];
-        videoTrack.enabled = !videoTrack.enabled;
-        this.classList.toggle("off", !videoTrack.enabled);
+        if (videoTrack) {
+            videoTrack.enabled = !videoTrack.enabled;
+            this.classList.toggle("off", !videoTrack.enabled);
+        }
     });
 
     document.getElementById("toggleWhiteboard").addEventListener("click", () => {
         const container = document.getElementById("whiteboardContainer");
         const isVisible = container.style.display !== "none";
-        container.style.display = isVisible ? "none" : "block";
-        document.getElementById("toggleWhiteboard").classList.toggle("active", !isVisible);
+        const newVisible = !isVisible;
 
-        if (!isVisible && typeof window.triggerWhiteboardResize === 'function') {
+        container.style.display = newVisible ? "block" : "none";
+        document.getElementById("toggleWhiteboard").classList.toggle("active", newVisible);
+
+        if (newVisible && typeof window.triggerWhiteboardResize === 'function') {
             window.triggerWhiteboardResize();
+        }
+
+        if (window.isMentor) {
+            socket.emit("live:whiteboardToggle", { sessionId, visible: newVisible });
         }
     });
 
@@ -439,28 +561,95 @@ function appendChatMessage({ user, message, timestamp }) {
 }
 
 function updateParticipants(participants) {
-    const list = document.getElementById("participantList");
-    list.innerHTML = "";
-    document.getElementById("attendeeCount").textContent = participants.length;
+    window.lastParticipants = participants;
+    const navContainer = document.getElementById("nav-participants");
+    if (!navContainer) return;
+
+    navContainer.innerHTML = "";
+
     participants.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "participant-item";
+        const wrapper = document.createElement("div");
+        wrapper.className = "nav-avatar-wrapper";
 
-        let statusIcon = "[Offline]";
-        if (p.status === "Joined") statusIcon = "[Online]";
-        if (p.status === "Waiting") statusIcon = "[Waiting]";
+        const img = document.createElement("img");
+        img.src = p.profile_image || 'assets/images/user-avatar.png';
+        img.alt = p.name;
+        img.className = `nav-p-avatar ${p.role.toLowerCase()}`;
+        if (p.status === "Absent") img.classList.add("offline");
+        img.title = `${p.name} (${p.role})`;
 
-        div.innerHTML = `
-            <img src="${p.profile_image || 'assets/images/user-avatar.png'}" alt="${p.name}" class="p-avatar">
-            <div class="p-info">
-                <h5>${p.name} <span class="status-icon">${statusIcon}</span></h5>
-                <span class="p-role ${p.role.toLowerCase()}">${p.role}</span>
-                <span class="p-status-text">${p.status}</span>
-            </div>
-        `;
-        list.appendChild(div);
+        const dot = document.createElement("span");
+        dot.className = `nav-status-dot ${p.status.toLowerCase()}`;
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(dot);
+        navContainer.appendChild(wrapper);
+
+        // Update video grid names if present
+        const nameEl = document.getElementById(`name-${p.id}`);
+        if (nameEl) nameEl.textContent = p.name;
     });
 }
+
+// Permission System Handlers
+async function handlePermissionRequest(userId, type) {
+    const user = window.lastParticipants?.find(p => p.id === userId);
+    const userName = user ? user.name : "A participant";
+
+    const confirmed = await showConfirm(
+        "Permission Request",
+        `${userName} is requesting permission to use ${type}. Grant it?`,
+        "Grant",
+        false
+    );
+
+    socket.emit("live:grantPermission", { sessionId, targetUserId: userId, type, granted: confirmed });
+}
+
+function handlePermissionGranted(type, granted, isSilent = false) {
+    if (!granted) {
+        if (!isSilent && typeof showToast === 'function') showToast(`Mentor denied ${type} permission.`, "warning");
+        return;
+    }
+
+    grantedPermissions[type] = true;
+    if (!isSilent && typeof showToast === 'function') showToast(`Mentor granted ${type} permission!`, "success");
+
+    if (type === 'mic') {
+        const audioTrack = localStream.getAudioTracks()[0];
+        if (audioTrack) {
+            audioTrack.enabled = true;
+            document.getElementById("toggleMic").classList.remove("off");
+            // WebRTC: Add track to active connections
+            Object.values(peerConnections).forEach(pc => {
+                if (!pc.getSenders().find(s => s.track === audioTrack)) {
+                    pc.addTrack(audioTrack, localStream);
+                }
+            });
+        }
+    } else if (type === 'cam') {
+        const videoTrack = localStream.getVideoTracks()[0];
+        if (videoTrack) {
+            videoTrack.enabled = true;
+            document.getElementById("toggleCam").classList.remove("off");
+            // WebRTC: Add track to active connections
+            Object.values(peerConnections).forEach(pc => {
+                if (!pc.getSenders().find(s => s.track === videoTrack)) {
+                    pc.addTrack(videoTrack, localStream);
+                }
+            });
+        }
+    } else if (type === 'whiteboard') {
+        // Allow whiteboard access
+        if (!window.isMentor) {
+            document.getElementById("toggleWhiteboard").style.display = "block";
+        }
+    }
+}
+
+// Wrap existing toggle handlers to check for permissions if mentee
+const originalMicHandler = document.getElementById("toggleMic").onclick; // Not working because it's added via addEventListener
+// I will instead modify the event listeners in setupEventListeners directly.
 
 function getMyId() {
     const user = JSON.parse(localStorage.getItem("user") || "{}");

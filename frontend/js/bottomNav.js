@@ -289,6 +289,12 @@
         box-shadow: 0 0 20px rgba(220, 239, 98, 0.15);
       }
 
+      /* White calendar icon for date inputs */
+      input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+      }
+
       .pm-textarea {
         resize: vertical;
         min-height: 100px;
@@ -494,7 +500,7 @@
 
     <!-- MODAL: NEW LIVE SESSION -->
     <div id="createLiveSessionModal" class="custom-modal-overlay">
-        <div class="premium-modal">
+        <div class="premium-modal" style="max-height: 90vh; overflow-y: auto;">
             <div class="pm-header">
                 <div class="pm-title"><i class="fa-solid fa-headset" style="color:#DCEF62;"></i> Schedule Session</div>
                 <button id="closeLiveModal" class="pm-close"><i class="fa-solid fa-times"></i></button>
@@ -530,7 +536,7 @@
                 <div id="userSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; background:#1E1E1E; border:1px solid #333; border-radius:12px; z-index:100; max-height:200px; overflow-y:auto; margin-top:5px; box-shadow:0 10px 40px rgba(0,0,0,0.5);"></div>
             </div>
 
-            <button id="submitCreateLiveSession" class="pm-submit-btn">Schedule Event <i class="fa-solid fa-calendar-check"></i></button>
+            <button id="submitCreateLiveSession" class="pm-submit-btn">Schedule Event <i class="fa-solid fa-calendar-check" style="color: white !important;"></i></button>
             <div id="liveCreateError" style="color:#ff4444; margin-top:15px; display:none; font-size:0.9rem; text-align:center;"></div>
         </div>
     </div>
