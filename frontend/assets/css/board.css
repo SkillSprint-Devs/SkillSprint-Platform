@@ -65,27 +65,30 @@ body {
   pointer-events: none;
 }
 
-/* User Presence & Avatars */
+/* User Presence & Avatar Stack Premium */
 .user-presence {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .active-users {
   display: flex;
   align-items: center;
+  padding-left: 12px;
 }
 
 .user-avatar-stack {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 2px solid #1a1a1a;
   margin-left: -12px;
   object-fit: cover;
   background: #333;
-  transition: transform 0.2s, z-index 0s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
 }
 
 .user-avatar-stack:first-child {
@@ -93,9 +96,46 @@ body {
 }
 
 .user-avatar-stack:hover {
-  transform: translateY(-4px) scale(1.1);
+  transform: translateY(-4px) scale(1.15);
   z-index: 10;
-  border-color: #DCEF62;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.user-avatar-stack.owner {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px rgba(220, 239, 98, 0.2);
+}
+
+/* Remote Cursor Styles */
+.remote-cursor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1500;
+  transition: transform 0.1s linear;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.cursor-pointer {
+  width: 14px;
+  height: 14px;
+  clip-path: polygon(0 0, 100% 70%, 50% 70%, 20% 100%);
+  background: #8C52FF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cursor-label {
+  padding: 4px 10px;
+  background: #8C52FF;
+  color: white;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .current-user-badge {

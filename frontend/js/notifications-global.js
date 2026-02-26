@@ -3,6 +3,12 @@
     const token = localStorage.getItem("token");
     if (!token || !window.io) return;
 
+    // Skip global notifications if on a specific board/board workspace
+    if (window.location.pathname.includes('board.html') || window.BOARD_ID) {
+        console.log("[GlobalNotif] Skipping global fetch on board page");
+        return;
+    }
+
     const SOCKET_URL = window.API_SOCKET_URL;
     const API_BASE = window.API_BASE_URL;
 

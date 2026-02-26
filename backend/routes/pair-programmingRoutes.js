@@ -8,6 +8,7 @@ import { updateStreak } from "../utils/streakHelper.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { exec } from "child_process";
 import { sendProjectInvitation } from "../utils/invitationHelper.js";
+import { sendPairProgrammingInvite } from "../utils/mailService.js";
 import fs from "fs";
 import path from "path";
 import os from "os";

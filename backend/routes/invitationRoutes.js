@@ -70,19 +70,23 @@ router.post("/send", verifyToken, async (req, res) => {
             title: "New Project Invitation",
             message: `${sender.name} invited you to join ${project.name}`,
             type: "invite",
-            link: "/collaborations.html" 
+            link: "/collaborations.html"
         });
         await notif.save();
 
         const io = req.app.get("io");
         if (io) io.to(recipientId).emit("notification", notif);
 
-        
-        // simplistic reuse:
-        if (projectType === "Board") {
-            sendBoardInvite(recipient.email, { inviterName: sender.name, boardName: project.name, shareUrl: `${process.env.CLIENT_URL}/collaborations.html` });
-        } else {
-            sendPairProgrammingInvite(recipient.email, { inviterName: sender.name, projectName: project.name, shareUrl: `${process.env.CLIENT_URL}/collaborations.html` });
+
+        // Send email notification (non-blocking failure — don't abort invite if email fails)
+        try {
+            if (projectType === "Board") {
+                await sendBoardInvite(recipient.email, { inviterName: sender.name, boardName: project.name, shareUrl: `${process.env.CLIENT_URL}/collaborations.html` });
+            } else {
+                await sendPairProgrammingInvite(recipient.email, { inviterName: sender.name, projectName: project.name, shareUrl: `${process.env.CLIENT_URL}/collaborations.html` });
+            }
+        } catch (emailErr) {
+            console.error("Failed to send invite email (non-fatal):", emailErr.message);
         }
 
         res.status(201).json({ success: true, message: "Invitation sent", invitation });
@@ -102,7 +106,7 @@ router.get("/pending", verifyToken, async (req, res) => {
             .populate("sender", "name profile_image email")
             .sort({ createdAt: -1 });
 
-        
+
         const augmented = await Promise.all(invites.map(async (inv) => {
             const p = await getProject(inv.projectType, inv.projectId);
             return {
@@ -135,9 +139,20 @@ router.post("/:id/accept", verifyToken, async (req, res) => {
         const project = await getProject(invitation.projectType, invitation.projectId);
         if (!project) return res.status(404).json({ message: "Project no longer exists" });
 
-        // Add user to project members
-        if (!project.members.includes(req.user.id)) {
-            project.members.push(req.user.id);
+        // Add user to project members (structure differs by project type)
+        if (invitation.projectType === 'PairProgramming') {
+            // PairProgramming.members is [{ user: ObjectId, role: String }]
+            const alreadyMember = project.members.some(
+                m => (m.user?._id || m.user || m).toString() === req.user.id
+            );
+            if (!alreadyMember) {
+                project.members.push({ user: req.user.id, role: 'navigator' });
+            }
+        } else {
+            // Board.members is a flat [ObjectId]
+            if (!project.members.map(m => m.toString()).includes(req.user.id)) {
+                project.members.push(req.user.id);
+            }
         }
 
         // Add to specific permission group
@@ -146,7 +161,7 @@ router.post("/:id/accept", verifyToken, async (req, res) => {
             'viewer': 'viewers',
             'commenter': 'commenters',
             'editor': 'editors',
-            'owner': 'editors' 
+            'owner': 'editors'
         };
         const group = roleMap[invitation.permission] || 'viewers';
 

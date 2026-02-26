@@ -12,6 +12,10 @@ const USER_COLORS = [
   "#FF5757", "#CB6CE6", "#5271FF", "#00C2CB", "#00BF63"
 ];
 
+// Module-level process map: boardId -> { process, tempPath }
+// Must live outside socket handlers to survive reconnects and be shared correctly per-board.
+const activeProcesses = new Map();
+
 function hasSocketPermission(board, userId, roles = []) {
   const id = userId.toString();
   const normalizedRoles = roles.map(r => r.toLowerCase());
@@ -135,11 +139,6 @@ export default function pairProgrammingSocket(io) {
 
     // --- TERMINAL HANDLERS ---
 
-    // Map to store active processes: boardId -> { process, tempPath }
-    if (!socket.adapter.processes) {
-      socket.adapter.processes = new Map();
-    }
-
     socket.on("terminal:start", async ({ boardId, fileId, code, language }) => {
       console.log(`Starting terminal for board ${boardId}, lang: ${language}`);
 
@@ -151,11 +150,11 @@ export default function pairProgrammingSocket(io) {
         }
 
         // Kill existing process for this board if any
-        if (socket.adapter.processes.has(boardId)) {
+        if (activeProcesses.has(boardId)) {
           console.log("Killing existing process for board:", boardId);
-          const old = socket.adapter.processes.get(boardId);
+          const old = activeProcesses.get(boardId);
           if (old.process) old.process.kill();
-          socket.adapter.processes.delete(boardId);
+          activeProcesses.delete(boardId);
         }
 
         // Write temp file
@@ -195,7 +194,7 @@ export default function pairProgrammingSocket(io) {
         const isWin = process.platform === "win32";
         const child = spawn(command, args, { shell: isWin });
 
-        socket.adapter.processes.set(boardId, { process: child, tempPath: tempFilePath });
+        activeProcesses.set(boardId, { process: child, tempPath: tempFilePath });
 
         // Stream Output
         child.stdout.on("data", (data) => {
@@ -220,7 +219,7 @@ export default function pairProgrammingSocket(io) {
             if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
           } catch (e) { console.error("[Terminal] Temp file cleanup failed", e); }
 
-          socket.adapter.processes.delete(boardId);
+          activeProcesses.delete(boardId);
         });
 
         child.on("error", (err) => {
@@ -247,7 +246,7 @@ export default function pairProgrammingSocket(io) {
         return; // Silently ignore if not driver
       }
 
-      const active = socket.adapter.processes.get(boardId);
+      const active = activeProcesses.get(boardId);
       if (active && active.process) {
         try {
           active.process.stdin.write(data + "\n");
@@ -262,7 +261,7 @@ export default function pairProgrammingSocket(io) {
     });
 
     socket.on("terminal:kill", ({ boardId }) => {
-      const active = socket.adapter.processes.get(boardId);
+      const active = activeProcesses.get(boardId);
       if (active && active.process) {
         active.process.kill();
         pair.to(boardId).emit("terminal:output", { data: "\n[Process terminated by user]\n" });

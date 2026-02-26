@@ -3,8 +3,19 @@ import User from "../models/user.js";
 import LiveSession from "../models/liveSession.js";
 import ActivityLog from "../models/activityLog.js";
 import PairProgramming from "../models/pair-programming.js";
+import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+// Require valid JWT + admin role on all admin routes
+const requireAdmin = (req, res, next) => {
+    if (req.user?.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Forbidden: Admin access required' });
+    }
+    next();
+};
+
+router.use(verifyToken, requireAdmin);
 
 // GET /api/admin/stats
 router.get("/stats", async (req, res) => {
@@ -38,7 +49,7 @@ router.get("/stats", async (req, res) => {
 // GET /api/admin/activity
 router.get("/activity", async (req, res) => {
     try {
-        
+
         // Attempting to use ActivityLog if available, else fallback to Users (recently created)
         let activities = [];
 

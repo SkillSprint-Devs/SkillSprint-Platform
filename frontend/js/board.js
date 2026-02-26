@@ -188,36 +188,45 @@
   // --- Event Handling & Initialization ---
   document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Navbar
-    if (typeof window.initNavbar === 'function') {
-      window.initNavbar({
-        activePage: 'Smartboard',
-        contextIcon: 'fa-puzzle-piece',
-        backUrl: 'collaborations.html',
-        primaryAction: {
-          show: true,
-          label: 'Save Board',
-          icon: 'fa-floppy-disk',
-          onClick: saveBoard
-        }
-      });
+    window.initNavbar({
+      activePage: 'Smartboard',
+      contextIcon: 'fa-puzzle-piece',
+      backUrl: 'collaborations.html',
+      showSearch: false,      // Hide search bar in whiteboard
+      showSettingsBtn: false, // Hide settings button in whiteboard
+      primaryAction: {
+        show: true,
+        label: 'Save Board',
+        icon: 'fa-floppy-disk',
+        onClick: saveBoard
+      }
+    });
 
-      // Inject Board actions (Invite, Share, Help) into standardized navbar
-      const navRight = document.querySelector('.nav-right');
-      if (navRight) {
-        const btnGroup = document.createElement('div');
-        btnGroup.style.display = 'flex';
-        btnGroup.style.gap = '12px';
-        btnGroup.style.alignItems = 'center';
-        btnGroup.style.marginRight = '12px';
-        btnGroup.innerHTML = `
+    // Disable global notification fetch if on this page to prevent overwrite
+    if (window.fetchUnreadCount) {
+      const originalFetch = window.fetchUnreadCount;
+      window.fetchUnreadCount = () => { console.log('[Board] Global notif fetch suppressed'); };
+    }
+
+    // Initial board notification count
+    updateBoardNotificationBadge();
+
+    // Inject Board actions (Invite, Share, Help) into standardized navbar
+    const navRight = document.querySelector('.nav-right');
+    if (navRight) {
+      const btnGroup = document.createElement('div');
+      btnGroup.style.display = 'flex';
+      btnGroup.style.gap = '12px';
+      btnGroup.style.alignItems = 'center';
+      btnGroup.style.marginRight = '12px';
+      btnGroup.innerHTML = `
           <button class="icon-btn" title="Invite Collaborators"><i class="fa-solid fa-user-plus"></i></button>
           <button class="icon-btn" title="Share Link"><i class="fa-solid fa-share-nodes"></i></button>
           <button class="icon-btn" title="Board Help" onclick="alert('Smartboard Guide coming soon!')"><i class="fa-solid fa-circle-question"></i></button>
         `;
-        const profileBadge = navRight.querySelector('.current-user-badge') || navRight.querySelector('.mobile-menu-btn');
-        if (profileBadge) navRight.insertBefore(btnGroup, profileBadge);
-        else navRight.appendChild(btnGroup);
-      }
+      const profileBadge = navRight.querySelector('.current-user-badge') || navRight.querySelector('.mobile-menu-btn');
+      if (profileBadge) navRight.insertBefore(btnGroup, profileBadge);
+      else navRight.appendChild(btnGroup);
     }
 
     // 2. Setup Canvas
@@ -232,6 +241,11 @@
     setupToolbox();
     setupCommentPanel();
     setupModals();
+
+    // Listen for board-specific notification updates via sio events
+    window.addEventListener('board:notification:refresh', () => {
+      updateBoardNotificationBadge();
+    });
 
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveBoard(); }
@@ -326,6 +340,33 @@
     }
   }
 
+  async function updateBoardNotificationBadge() {
+    if (!window.currentBoardId) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${window.API_BASE_URL}/board/${window.currentBoardId}/notifications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const userId = window.CURRENT_USER?._id || window.CURRENT_USER?.id;
+        const unreadCount = data.data.filter(n => !n.readBy.includes(userId)).length;
+
+        const badge = document.getElementById('navbarNotifBadge');
+        if (badge) {
+          if (unreadCount > 0) {
+            badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[Board] Failed to update notif badge', e);
+    }
+  }
+
   function setupCommentPanel() {
     const triggers = ['toggleComments', 'commentToggle'];
 
@@ -376,9 +417,26 @@
       panel.classList.add('open');
       if (fabButton) fabButton.classList.add('hidden');
       loadComments();
+      markBoardNotificationsAsRead();
     } else {
       panel.classList.remove('open');
       if (fabButton) fabButton.classList.remove('hidden');
+    }
+  }
+
+  async function markBoardNotificationsAsRead() {
+    if (!window.currentBoardId) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${window.API_BASE_URL}/board/${window.currentBoardId}/notifications/read`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        updateBoardNotificationBadge();
+      }
+    } catch (e) {
+      console.warn('[Board] Failed to mark notifs as read', e);
     }
   }
 
@@ -417,6 +475,9 @@
     const currentUserId = currentUser._id || currentUser.id;
 
     list.innerHTML = '';
+    // Use document fragment for bulk DOM updates
+    const fragment = document.createDocumentFragment();
+
     comments.forEach(c => {
       const el = document.createElement('div');
       el.className = 'comment';
@@ -444,7 +505,7 @@
           <div class="comment-author">
             <img src="${userAvatar}" alt="${userName}" />
             <div>
-              <strong>${userName}</strong>
+              <strong style="color: ${c.authorId?.colorTag || 'inherit'}">${userName}</strong>
               <div class="comment-meta">
                 <span>${dateStr}</span>
               </div>
@@ -454,51 +515,36 @@
         </div>
         <div class="comment-text" style="line-height:1.5; color:var(--text-dark); margin-top:8px; padding-left:40px;">${c.text}</div>
       `;
-      list.appendChild(el);
+      fragment.appendChild(el);
 
-      // Delete functionality
+      // Attach events to elements in fragment
       const deleteBtn = el.querySelector('.delete-comment');
       if (deleteBtn) {
         deleteBtn.onclick = async (e) => {
           e.stopPropagation();
           if (!await showCustomConfirm('Are you sure you want to delete this comment?')) return;
-
           try {
             const delRes = await fetch(`${API_BASE}/${window.currentBoardId}/comment/${c._id}`, {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             if (delRes.ok) {
-              // Defensive removal: ensure element exists and is in the list
-              try {
-                if (el && el.parentNode) {
-                  el.parentNode.removeChild(el);
-                }
-              } catch (domErr) {
-                console.warn('DOM cleanup skipped:', domErr);
-              }
-              notify('Comment deleted', 'success');
-              // Remove from local state
+              el.remove();
               if (window.currentBoardComments) {
                 window.currentBoardComments = window.currentBoardComments.filter(com => com._id !== c._id);
               }
-            } else {
-              notify('Failed to delete comment', 'error');
+              notify('Comment deleted', 'success');
             }
-          } catch (err) {
-            notify('Error deleting comment', 'error');
-          }
+          } catch (err) { console.error('Delete error', err); }
         };
       }
 
-      // Edit functionality
       const editBtn = el.querySelector('.edit-comment');
       if (editBtn) {
         editBtn.onclick = (e) => {
           e.stopPropagation();
           const textDiv = el.querySelector('.comment-text');
           const currentText = c.text;
-
           textDiv.innerHTML = `
             <textarea class="comment-edit-input" style="width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 2px solid var(--accent); font-family: inherit; font-size: 14px;">${currentText}</textarea>
             <div style="margin-top: 8px; display: flex; gap: 8px;">
@@ -506,47 +552,31 @@
               <button class="btn small cancel-edit">Cancel</button>
             </div>
           `;
-
           const saveBtn = textDiv.querySelector('.save-edit');
           const cancelBtn = textDiv.querySelector('.cancel-edit');
           const textarea = textDiv.querySelector('.comment-edit-input');
-
           saveBtn.onclick = async () => {
             const newText = textarea.value.trim();
-            if (!newText) {
-              notify('Comment cannot be empty', 'error');
-              return;
-            }
-
+            if (!newText) return notify('Comment cannot be empty', 'error');
             try {
-              const updateRes = await fetch(`${API_BASE}/${window.currentBoardId}/comment/${c._id}`, {
+              const res = await fetch(`${API_BASE}/${window.currentBoardId}/comment/${c._id}`, {
                 method: 'PUT',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${localStorage.getItem('token')}`
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
                 body: JSON.stringify({ text: newText })
               });
-              if (updateRes.ok) {
+              if (res.ok) {
                 c.text = newText;
                 textDiv.innerHTML = newText;
-                textDiv.style.cssText = 'line-height:1.5; color:var(--text-dark); margin-top:8px; padding-left:40px;';
                 notify('Comment updated', 'success');
-              } else {
-                notify('Failed to update comment', 'error');
               }
-            } catch (err) {
-              notify('Error updating comment', 'error');
-            }
+            } catch (err) { console.error('Update error', err); }
           };
-
-          cancelBtn.onclick = () => {
-            textDiv.innerHTML = currentText;
-            textDiv.style.cssText = 'line-height:1.5; color:var(--text-dark); margin-top:8px; padding-left:40px;';
-          };
+          cancelBtn.onclick = () => { textDiv.innerHTML = currentText; };
         };
       }
     });
+
+    list.appendChild(fragment);
   }
 
 
@@ -778,7 +808,8 @@
     } else if (['rectangle', 'circle'].includes(tool)) {
       drawing = true;
       shapeStart = p;
-      pushSnapshot(); // So we can restore before drawing the preview
+      // Cache current state for fast preview restoration
+      window.previewSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
     }
   }
 
@@ -806,18 +837,11 @@
       if (!window.currentPath) window.currentPath = [];
       window.currentPath.push({ ...p });
       last = p;
-    } else if (['rectangle', 'circle'].includes(tool)) {
-      // Restore before drawing preview
-      if (undoStack.length > 0) {
-        const img = new Image();
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0);
-          // Draw preview
-          drawShapeFromTo(shapeStart, p, tool, document.getElementById('colorPicker')?.value, document.getElementById('strokeRange')?.value);
-        };
-        img.src = undoStack[undoStack.length - 1];
-      }
+    } else if (['rectangle', 'circle'].includes(tool) && window.previewSnapshot) {
+      // Fast restore from cached pixel data
+      ctx.putImageData(window.previewSnapshot, 0, 0);
+      // Draw preview
+      drawShapeFromTo(shapeStart, p, tool, document.getElementById('colorPicker')?.value, document.getElementById('strokeRange')?.value);
     }
   }
 
@@ -956,23 +980,35 @@
     };
   }
 
-  function updateActiveUsersUI(users) {
-    const container = document.getElementById('activeUsers');
-    if (!container || !users) return;
+  function updateActiveUsersUI(activeUsers = []) {
+    const container = document.getElementById('nav-participants');
+    if (!container) return;
 
-    // We expect users to be an array of objects: { _id, name, profile_image, status: 'active'|'inactive' }
-    // If backend only sends active users for now, we just show them as active.
+    const board = window.currentBoardData;
+    if (!board) return;
 
-    container.innerHTML = users.filter(u => u).map(u => {
-      const isOnline = u.status === 'active' || u.status === undefined; // Default active if realtime list
-      const color = isOnline ? '#4ade80' : '#f87171'; // Green : Red
+    // Filter and map online users to include their color tags
+    const onlineUsers = activeUsers.filter(u => u);
+
+    container.innerHTML = `
+      <div class="active-users">
+        ${onlineUsers.map((u, index) => {
+      const uId = (u._id || u).toString();
+      const boardOwnerId = (board.owner?._id || board.owner)?.toString();
+      const isOwner = uId === boardOwnerId;
+      const userColor = u.colorTag || '#8C52FF';
+      const borderStyle = `border-color: ${userColor};`;
+      const zIndex = onlineUsers.length - index;
+
       return `
-      <div class="user-avatar-stack-container" style="position:relative; display:inline-block;">
-          <img src="${u.profile_image || 'assets/images/user-avatar.png'}" class="user-avatar-stack" title="${u.name} (${isOnline ? 'Online' : 'Offline'})">
-          <span style="position:absolute; bottom:0; right:0; width:10px; height:10px; background:${color}; border-radius:50%; border:1px solid #fff;"></span>
+            <img src="${u.profile_image || 'assets/images/user-avatar.png'}" 
+                 class="user-avatar-stack ${isOwner ? 'owner' : ''}" 
+                 title="${u.name || 'User'} ${isOwner ? '(Owner)' : ''}"
+                 style="${borderStyle} z-index: ${zIndex};">
+          `;
+    }).join('')}
       </div>
     `;
-    }).join('');
   }
 
   function setupRealtimeListeners() {
@@ -1009,6 +1045,6 @@
 
   // Expose
   window.saveBoard = saveBoard;
+  window.updateActiveUsersUI = updateActiveUsersUI;
   window.smartboard = { createStickyElement, createTextBoxElement };
-
 })();
