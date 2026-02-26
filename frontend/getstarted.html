@@ -26,7 +26,7 @@
       user-select: none;
       background: var(--bg);
       overflow: hidden;
-      
+
       position: relative;
     }
 
@@ -90,7 +90,7 @@
       justify-content: flex-start;
       overflow-y: auto;
       gap: 1.25rem;
-      
+
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
@@ -383,13 +383,15 @@
       max-height: 0;
       overflow: hidden;
       opacity: 0;
-      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      flex-shrink: 0;
+      /* Prevent flex container from squashing this to 0 */
+      transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
     }
 
     .info-panel.active {
-      max-height: 300px;
+      max-height: 400px;
       opacity: 1;
-      animation: slideDown 0.4s ease-out;
+      flex-shrink: 0;
     }
 
     @keyframes slideDown {
@@ -431,10 +433,10 @@
     /* Continue Button - Landing style */
     .btn-continue {
       width: 100%;
-      padding: 1.125rem 2rem;
+      padding: 1.6rem 2rem;
       border-radius: 14px;
       border: none;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

@@ -59,7 +59,7 @@ function emitBoard(io, boardId, event, payload) {
 
 const ensureObjectId = (id) => {
   try {
-    return mongoose.Types.ObjectId(id);
+    return new mongoose.Types.ObjectId(id);
   } catch {
     return null;
   }
@@ -116,8 +116,8 @@ router.get(
       ],
     })
       .select("name description owner createdAt updatedAt lastSavedImage members")
-      .populate("owner", "name profile_image")
-      .populate("members", "name profile_image")
+      .populate("owner", "name profile_image colorTag")
+      .populate("members.user", "name profile_image colorTag")
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)

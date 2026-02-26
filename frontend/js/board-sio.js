@@ -49,26 +49,9 @@
   // Receive active users list for presence
   socket.on("board:presence:update", (data) => {
     console.log("Board presence update:", data);
-
-    const container = document.getElementById("activeUsers");
-    if (!container) return;
-
-    container.innerHTML = ""; // clear old avatars
-
-    if (!data || !Array.isArray(data.activeUsers)) return;
-
-    data.activeUsers.forEach((user) => {
-      // Don't show self in the small stack if we have a primary badge
-      if (currentUser && user._id === currentUser._id) return;
-
-      const img = document.createElement("img");
-      img.src = user.profile_image || user.avatarUrl || "assets/images/user-avatar.png";
-      img.className = "user-avatar-stack";
-      img.title = user.name || "User";
-      // Add a border color if they have a consistent color tag
-      if (user.colorTag) img.style.borderColor = user.colorTag;
-      container.appendChild(img);
-    });
+    if (data && Array.isArray(data.activeUsers) && typeof window.updateActiveUsersUI === 'function') {
+      window.updateActiveUsersUI(data.activeUsers);
+    }
   });
 
   // Cursor handling
@@ -82,9 +65,10 @@
     if (!cursorEl) {
       cursorEl = document.createElement("div");
       cursorEl.className = "remote-cursor";
+      const userColor = color || '#8C52FF';
       cursorEl.innerHTML = `
-        <div class="cursor-pointer" style="background: ${color || '#8C52FF'}"></div>
-        <div class="cursor-label">${name || 'User'}</div>
+        <div class="cursor-pointer" style="background: ${userColor}"></div>
+        <div class="cursor-label" style="background: ${userColor}">${name || 'User'}</div>
       `;
       document.getElementById("canvasWrapper").appendChild(cursorEl);
       remoteCursors[userId] = cursorEl;
@@ -104,6 +88,14 @@
   // Receive live drawing events
   socket.on("board:draw", (data) => {
     if (window.replicateDraw) window.replicateDraw(data);
+  });
+
+  socket.on("board:comment:created", () => {
+    window.dispatchEvent(new CustomEvent('board:notification:refresh'));
+  });
+
+  socket.on("board:notification:added", () => {
+    window.dispatchEvent(new CustomEvent('board:notification:refresh'));
   });
 
   socket.on("board:undo", () => {
@@ -171,16 +163,25 @@
       }
       socket.emit("board:autosave", { boardId, ...data });
     },
-    emitCursor: (x, y) => {
-      if (!boardId || !currentUser) return;
-      socket.emit("board:cursor", {
-        boardId,
-        userId: currentUser._id,
-        name: currentUser.name,
-        x, y,
-        color: currentUser.colorTag || '#8C52FF'
-      });
-    }
+    emitCursor: (() => {
+      let lastEmit = 0;
+      const THROTTLE_MS = 50; // Throttle cursor to 20fps for performance
+
+      return (x, y) => {
+        if (!boardId || !currentUser) return;
+        const now = Date.now();
+        if (now - lastEmit < THROTTLE_MS) return;
+        lastEmit = now;
+
+        socket.emit("board:cursor", {
+          boardId,
+          userId: currentUser._id,
+          name: currentUser.name,
+          x, y,
+          color: currentUser.colorTag || '#8C52FF'
+        });
+      };
+    })()
   };
 })();
 

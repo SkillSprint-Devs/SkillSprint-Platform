@@ -34,6 +34,7 @@ const FileSchema = new Schema({
 const FolderSchema = new Schema({
   name: { type: String, required: true },
   files: [FileSchema],
+  comments: [CommentSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

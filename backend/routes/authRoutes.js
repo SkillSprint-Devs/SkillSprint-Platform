@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
+import rateLimit from "express-rate-limit";
 import { sendOTPEmail } from "../utils/mailService.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
@@ -10,6 +11,18 @@ import User from "../models/user.js";
 import Otp from "../models/otp.js";
 import WalletService from "../utils/walletService.js";
 import { updateStreak } from "../utils/streakHelper.js";
+// Cascade delete imports
+import Post from "../models/post.js";
+import Notification from "../models/notification.js";
+import Chat from "../models/chat.js";
+import Invitation from "../models/Invitation.js";
+import PairProgramming from "../models/pair-programming.js";
+import Board from "../models/board.js";
+import Wallet from "../models/wallet.js";
+import WalletTransaction from "../models/walletTransaction.js";
+import QuizAttempt from "../models/quizAttempt.js";
+import Certificate from "../models/certificate.js";
+import Reminder from "../models/reminder.js";
 
 dotenv.config();
 
@@ -23,6 +36,26 @@ function fileFilter(req, file, cb) {
 const upload = multer({ storage, fileFilter });
 
 const router = express.Router();
+
+// ── RATE LIMITERS ────────────────────────────────────────────────────────────
+// OTP endpoints: max 5 requests per 15 minutes per IP (prevents OTP spam/abuse)
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many OTP requests. Please wait 15 minutes and try again." }
+});
+
+// Login: max 10 attempts per 15 minutes per IP (prevents brute-force)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many login attempts. Please wait 15 minutes and try again." }
+});
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Logger middleware
 router.use((req, res, next) => {
@@ -47,7 +80,7 @@ const validateUsername = (name) => {
 };
 
 //  Send Signup OTP 
-router.post("/send-otp", async (req, res) => {
+router.post("/send-otp", otpLimiter, async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
@@ -134,7 +167,7 @@ router.post("/verify-signup-otp", async (req, res) => {
 });
 
 //  Login 
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
@@ -203,7 +236,7 @@ router.post("/login", async (req, res) => {
 });
 
 // Forgot Password OTP 
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", otpLimiter, async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
@@ -264,7 +297,7 @@ router.post("/reset-password", async (req, res) => {
 
 // Update Profile 
 
-router.put("/update-profile", upload.single("profile_image"), async (req, res) => {
+router.put("/update-profile", verifyToken, upload.single("profile_image"), async (req, res) => {
   try {
 
     const {
@@ -285,12 +318,7 @@ router.put("/update-profile", upload.single("profile_image"), async (req, res) =
       notifications,
     } = req.body;
 
-    // Identify user from token 
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ message: "Unauthorized" });
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (name) user.name = name;
@@ -524,13 +552,69 @@ router.post("/deactivate-account", verifyToken, async (req, res) => {
 
 // Delete Account
 router.delete("/delete-account", verifyToken, async (req, res) => {
+  const userId = req.user.id;
   try {
-    await User.findByIdAndDelete(req.user.id);
-    res.json({ message: "Account deleted permanently" });
+    // Run all cascade deletions in parallel for speed
+    await Promise.all([
+      // User's own content
+      Post.deleteMany({ authorId: userId }),
+      Notification.deleteMany({ user_id: userId }),
+      Chat.deleteMany({ $or: [{ sender: userId }, { recipient: userId }] }),
+      Invitation.deleteMany({ $or: [{ sender: userId }, { recipient: userId }] }),
+      Otp.deleteMany({ email: (await User.findById(userId).select("email").lean())?.email }),
+      Reminder.deleteMany({ user: userId }),
+      QuizAttempt.deleteMany({ userId }),
+      Certificate.deleteMany({ userId }),
+
+      // Wallet cleanup
+      Wallet.deleteOne({ user_id: userId }),
+      WalletTransaction.deleteMany({ user_id: userId }),
+
+      // Delete boards the user OWNS outright
+      PairProgramming.deleteMany({ owner: userId }),
+      Board.deleteMany({ owner: userId }),
+
+      // Remove user from boards they were just a member/editor/viewer of
+      PairProgramming.updateMany(
+        { owner: { $ne: userId } },
+        {
+          $pull: {
+            members: { user: userId },
+            "permissions.editors": userId,
+            "permissions.commenters": userId,
+            "permissions.viewers": userId,
+          }
+        }
+      ),
+      Board.updateMany(
+        { owner: { $ne: userId } },
+        {
+          $pull: {
+            members: userId,
+            "permissions.editors": userId,
+            "permissions.commenters": userId,
+            "permissions.viewers": userId,
+          }
+        }
+      ),
+
+      // Remove user from followers/following lists of other users
+      User.updateMany(
+        { $or: [{ followers: userId }, { following: userId }] },
+        { $pull: { followers: userId, following: userId } }
+      ),
+    ]);
+
+    // Finally delete the user document
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: "Account and all associated data deleted permanently" });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Delete account cascade error:", err);
+    res.status(500).json({ message: "Server error during account deletion" });
   }
 });
+
 
 export default router;
 

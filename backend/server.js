@@ -1,6 +1,15 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+// ── ENV VALIDATION ──────────────────────────────────────────────────────────
+const REQUIRED_ENV = ["MONGO_URI", "JWT_SECRET", "CLIENT_URL"];
+const MISSING_ENV = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (MISSING_ENV.length > 0) {
+  console.error(`[Startup] Missing required environment variables: ${MISSING_ENV.join(", ")}`);
+  console.error("[Startup] The server will continue, but features relying on these vars (email links, auth) may not work correctly.");
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -211,13 +220,14 @@ io.on("connection", (socket) => {
 
       //presence emit
       const board = await Board.findById(boardId)
-        .populate("activeUsers", "name profile_image")
+        .populate("activeUsers", "name profile_image colorTag")
         .select("activeUsers");
 
       const activeUsers = board?.activeUsers?.map(u => ({
         _id: u._id,
         name: u.name,
         profile_image: u.profile_image,
+        colorTag: u.colorTag
       })) || [];
 
       io.to(boardId.toString()).emit("board:presence:update", { boardId, activeUsers });
@@ -252,13 +262,14 @@ io.on("connection", (socket) => {
 
       //presence emit
       const board = await Board.findById(boardId)
-        .populate("activeUsers", "name profile_image")
+        .populate("activeUsers", "name profile_image colorTag")
         .select("activeUsers");
 
       const activeUsers = board?.activeUsers?.map(u => ({
         _id: u._id,
         name: u.name,
         profile_image: u.profile_image,
+        colorTag: u.colorTag
       })) || [];
 
       io.to(boardId.toString()).emit("board:presence:update", { boardId, activeUsers });
@@ -298,13 +309,14 @@ io.on("connection", (socket) => {
 
             //presence emit
             const board = await Board.findById(boardId)
-              .populate("activeUsers", "name profile_image")
+              .populate("activeUsers", "name profile_image colorTag")
               .select("activeUsers");
 
             const activeUsers = board?.activeUsers?.map(u => ({
               _id: u._id,
               name: u.name,
               profile_image: u.profile_image,
+              colorTag: u.colorTag,
               status: onlineUsers.has(u._id.toString()) ? 'active' : 'inactive' // Basic Status
             })) || [];
 
@@ -378,8 +390,7 @@ app.get("/", (req, res) => {
 // Error handler middleware (at the end of all routes)
 app.use(errorHandler);
 
-// SERVER START 
-// SERVER START 
+// SERVER START
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
