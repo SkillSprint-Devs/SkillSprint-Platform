@@ -33,28 +33,39 @@ async function fetchAchievements() {
 
 function renderAchievements(achievements) {
     const badgesGrid = document.getElementById("badges-grid");
+    const systemGrid = document.getElementById("system-rewards-grid");
     const certificatesGrid = document.getElementById("certificates-grid");
 
-    badgesGrid.innerHTML = "";
-    certificatesGrid.innerHTML = "";
+    if (badgesGrid) badgesGrid.innerHTML = "";
+    if (systemGrid) systemGrid.innerHTML = "";
+    if (certificatesGrid) certificatesGrid.innerHTML = "";
 
-    const badges = achievements.filter(a => a.type === "badge");
+    const badges = achievements.filter(a => a.type === "badge" && a.course !== "skill-sprint");
+    const systemRewards = achievements.filter(a => a.type === "badge" && a.course === "skill-sprint");
     const certificates = achievements.filter(a => a.type === "certificate");
 
-    if (badges.length === 0) {
-        badgesGrid.innerHTML = `<div class="empty-msg">No badges earned yet. Complete Basic and Intermediate levels to earn badges!</div>`;
-    } else {
-        badges.forEach(badge => {
-            badgesGrid.appendChild(createAchievementCard(badge));
-        });
+    if (badgesGrid) {
+        if (badges.length === 0) {
+            badgesGrid.innerHTML = `<div class="empty-msg">No badges earned yet. Complete Basic and Intermediate levels to earn badges!</div>`;
+        } else {
+            badges.forEach(badge => badgesGrid.appendChild(createAchievementCard(badge)));
+        }
     }
 
-    if (certificates.length === 0) {
-        certificatesGrid.innerHTML = `<div class="empty-msg">No certificates earned yet. Pass all levels of a course to receive your certificate!</div>`;
-    } else {
-        certificates.forEach(cert => {
-            certificatesGrid.appendChild(createAchievementCard(cert));
-        });
+    if (systemGrid) {
+        if (systemRewards.length === 0) {
+            systemGrid.innerHTML = `<div class="empty-msg">No system rewards yet. Complete milestones to earn these!</div>`;
+        } else {
+            systemRewards.forEach(reward => systemGrid.appendChild(createAchievementCard(reward)));
+        }
+    }
+
+    if (certificatesGrid) {
+        if (certificates.length === 0) {
+            certificatesGrid.innerHTML = `<div class="empty-msg">No certificates earned yet. Pass all levels of a course to receive your certificate!</div>`;
+        } else {
+            certificates.forEach(cert => certificatesGrid.appendChild(createAchievementCard(cert)));
+        }
     }
 }
 

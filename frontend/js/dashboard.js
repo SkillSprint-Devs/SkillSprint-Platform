@@ -231,6 +231,11 @@ async function loadDashboard() {
     if (document.getElementById("notifList")) loadNotifications();
     if (document.getElementById("reminderList")) loadReminders();
 
+    // Trigger Onboarding if not completed
+    if (data.user && !data.user.onboardingCompleted) {
+      if (window.Onboarding) window.Onboarding.init();
+    }
+
   } catch (err) {
     console.error("Dashboard load error:", err);
     if (typeof showToast === 'function') showToast("Error loading dashboard data", "error");
