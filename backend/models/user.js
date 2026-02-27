@@ -102,6 +102,20 @@ const userSchema = new mongoose.Schema({
   streakCount: { type: Number, default: 1 },
   lastActiveDate: { type: Date, default: Date.now },
   longestStreak: { type: Number, default: 1 },
+
+  // MATCHMAKING & ONBOARDING
+  onboardingCompleted: { type: Boolean, default: false },
+  xp: { type: Number, default: 0 },
+  matchmakingData: {
+    level: { type: String, enum: ["Beginner", "Intermediate", "Advanced"], default: "Beginner" },
+    topSkills: [{ type: String }],
+    skillsToLearn: [{ type: String }],
+    weeklyHours: { type: String }, // e.g., "< 5hrs", "5–10hrs", "10+ hrs"
+    collabStyle: { type: String }, // e.g., "Real-time", "Async"
+    timezone: { type: String },
+    mainGoal: { type: String },
+    projectRole: { type: String }, // e.g., "Lead", "Contribute"
+  },
 });
 
 // Auto-update counts
