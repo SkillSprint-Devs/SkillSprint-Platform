@@ -233,7 +233,7 @@ async function loadDashboard() {
 
     // Trigger Onboarding if not completed
     if (data.user && !data.user.onboardingCompleted) {
-      if (window.Onboarding) window.Onboarding.init();
+      window.location.href = "onboarding.html";
     }
 
   } catch (err) {

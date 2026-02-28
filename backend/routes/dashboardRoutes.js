@@ -27,7 +27,7 @@ router.get("/", verifyToken, async (req, res) => {
     await updateStreak(userId);
 
     const user = await User.findById(userId).select(
-      "name role profile_image email streakCount lastActiveDate longestStreak"
+      "name role profile_image email streakCount lastActiveDate longestStreak onboardingCompleted xp"
     );
     if (!user) return res.status(404).json({ message: "User not found" });
 
