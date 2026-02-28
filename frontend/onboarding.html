@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize Your Journey | SkillSprint</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/onboarding.css">
+</head>
+
+<body class="onboarding-page">
+    <div class="onboarding-container">
+        <header class="onboarding-page-header">
+            <div class="logo">SkillSprint</div>
+            <div class="progress-wrapper">
+                <div class="progress-text">Step <span id="currentStepNum">1</span> of 8</div>
+                <div class="progress-bar-container">
+                    <div id="globalProgressBar" class="progress-bar-fill" style="width: 12.5%;"></div>
+                </div>
+            </div>
+        </header>
+
+        <main class="carousel-viewport">
+            <div id="carouselTrack" class="carousel-track">
+                <!-- Question 1: Level -->
+                <section class="question-card active" data-step="1">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-gauge-high"></i></div>
+                        <h2>What's your current level?</h2>
+                        <p>Tell us how much experience you have in the tech world.</p>
+                        <div class="option-grid">
+                            <button class="option-btn" onclick="Onboarding.select('level', 'Beginner', this)">
+                                <span>Beginner</span>
+                                <small>New to coding/design</small>
+                            </button>
+                            <button class="option-btn selected"
+                                onclick="Onboarding.select('level', 'Intermediate', this)">
+                                <span>Intermediate</span>
+                                <small>Some projects built</small>
+                            </button>
+                            <button class="option-btn" onclick="Onboarding.select('level', 'Advanced', this)">
+                                <span>Advanced</span>
+                                <small>Professional/Experienced</small>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Question 2: Top Skills -->
+                <section class="question-card" data-step="2">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                        <h2>Pick your top 3 skills</h2>
+                        <p>What are you already good at? (Up to 3)</p>
+                        <div id="topSkillsCloud" class="tag-cloud"></div>
+                    </div>
+                </section>
+
+                <!-- Question 3: Learning Goals -->
+                <section class="question-card" data-step="3">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <h2>What do you want to learn?</h2>
+                        <p>Pick 3 skills you'd like to master next.</p>
+                        <div id="learnSkillsCloud" class="tag-cloud"></div>
+                    </div>
+                </section>
+
+                <!-- Question 4: Commitment -->
+                <section class="question-card" data-step="4">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-clock"></i></div>
+                        <h2>Weekly time commitment?</h2>
+                        <p>How much time can you dedicate to SkillSprint per week?</p>
+                        <div class="option-grid">
+                            <button class="option-btn" onclick="Onboarding.select('weeklyHours', '< 5hrs', this)">&lt; 5
+                                hrs</button>
+                            <button class="option-btn selected"
+                                onclick="Onboarding.select('weeklyHours', '5–10hrs', this)">5–10 hrs</button>
+                            <button class="option-btn" onclick="Onboarding.select('weeklyHours', '10+ hrs', this)">10+
+                                hrs</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Question 5: Collab Style -->
+                <section class="question-card" data-step="5">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-people-group"></i></div>
+                        <h2>How do you prefer to collaborate?</h2>
+                        <p>Real-time pair programming or async project work?</p>
+                        <div class="option-grid">
+                            <button class="option-btn selected"
+                                onclick="Onboarding.select('collabStyle', 'Real-time', this)">Real-time</button>
+                            <button class="option-btn"
+                                onclick="Onboarding.select('collabStyle', 'Async', this)">Async</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Question 6: Timezone -->
+                <section class="question-card" data-step="6">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-earth-americas"></i></div>
+                        <h2>Confirm your timezone</h2>
+                        <p>We've auto-detected this for better matching.</p>
+                        <input type="text" id="timezoneInput" class="form-input" placeholder="e.g. UTC, Asia/Kolkata">
+                    </div>
+                </section>
+
+                <!-- Question 7: Main Goal -->
+                <section class="question-card" data-step="7">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-bullseye"></i></div>
+                        <h2>What's your main goal?</h2>
+                        <p>What are you looking for right now?</p>
+                        <div class="goal-list">
+                            <button class="goal-item"
+                                onclick="Onboarding.select('mainGoal', 'Find study partner', this)">Find a study
+                                partner</button>
+                            <button class="goal-item" onclick="Onboarding.select('mainGoal', 'Join project', this)">Join
+                                a project</button>
+                            <button class="goal-item" onclick="Onboarding.select('mainGoal', 'Take courses', this)">Take
+                                courses</button>
+                            <button class="goal-item selected" onclick="Onboarding.select('mainGoal', 'All', this)">All
+                                of the above</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Question 8: Project Role -->
+                <section class="question-card" data-step="8">
+                    <div class="card-content">
+                        <div class="icon-box"><i class="fa-solid fa-chess-king"></i></div>
+                        <h2>Preferred project role?</h2>
+                        <p>Do you like to lead or contribute to existing works?</p>
+                        <div class="option-grid">
+                            <button class="option-btn" onclick="Onboarding.select('projectRole', 'Lead', this)">Project
+                                Lead</button>
+                            <button class="option-btn selected"
+                                onclick="Onboarding.select('projectRole', 'Contribute', this)">Contributor</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="onboarding-controls">
+            <button class="btn-skip" onclick="Onboarding.nudgeSkip()">Skip this question</button>
+            <div class="nav-btns">
+                <button id="prevBtn" class="btn-secondary" onclick="Onboarding.prev()" disabled><i
+                        class="fa-solid fa-arrow-left"></i> Back</button>
+                <button id="nextBtn" class="btn-primary" onclick="Onboarding.next()">Next <i
+                        class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </footer>
+
+        <div id="skipNudge" class="skip-nudge-overlay">
+            <div class="nudge-card">
+                <h3>Wait! Are you sure?</h3>
+                <p>Skipping this question may slightly lower the quality of your initial matches.</p>
+                <div class="nudge-btns">
+                    <button class="btn-text" onclick="Onboarding.hideNudge()">Go back</button>
+                    <button class="btn-secondary" onclick="Onboarding.confirmSkip()">Skip anyway</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reward Overlay -->
+        <div id="rewardOverlay" class="reward-overlay">
+            <div class="reward-content">
+                <div class="confetti-container" id="confetti"></div>
+                <i class="fa-solid fa-award trophy-icon"></i>
+                <h1>Welcome Aboard!</h1>
+                <p>Onboarding complete! You've earned:</p>
+                <div class="reward-badges">
+                    <div class="reward-item">
+                        <span class="reward-value">+50 XP</span>
+                    </div>
+                    <div class="reward-item badge">
+                        <i class="fa-solid fa-medal"></i>
+                        <span>Account Setup</span>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="Onboarding.finish()">Enter Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/onboarding.js"></script>
+</body>
+
+</html>

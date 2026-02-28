@@ -7,8 +7,10 @@ export const COURSES = [
     "git-github",
     "nodejs-express",
     "mongodb",
-    "problem-solving"
+    "problem-solving",
+    "skill-sprint"
 ];
+
 
 export const LEVELS = ["basic", "intermediate", "advanced"];
 
