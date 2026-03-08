@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile | SkillSprint</title>
+    <meta name="description"
+        content="View a SkillSprint member's public profile, skills, achievements, and activity." />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/navbar.css" />
+    <link rel="stylesheet" href="assets/css/toast.css" />
+    <link rel="stylesheet" href="assets/css/public-profile.css" />
+</head>
+
+<body>
+    <div id="navbar-placeholder"></div>
+
+    <div class="pp-wrapper">
+
+        <!-- ── HERO ────────────────────────────────────────────────── -->
+        <section class="pp-hero pp-animate" id="ppHero">
+            <div class="pp-cover">
+                <div class="pp-cover-dots"></div>
+            </div>
+            <div class="pp-hero-body">
+                <div class="pp-avatar-wrap">
+                    <img id="ppAvatar" src="assets/images/user-avatar.png" alt="Profile photo" class="pp-avatar" />
+                    <span class="pp-online-dot" id="ppOnlineDot" title="Offline"></span>
+                </div>
+
+                <div class="pp-hero-info">
+                    <div>
+                        <h1 class="pp-name" id="ppName">&nbsp;</h1>
+                        <p class="pp-handle" id="ppHandle">@&ndash;</p>
+                        <span class="pp-role-badge" id="ppRoleBadge">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <span id="ppRoleText">Student</span>
+                        </span>
+                        <div class="pp-meta-row" id="ppMetaRow">
+                            <span id="ppLocation" style="display:none"><i class="fa-solid fa-location-dot"></i> <span
+                                    id="ppLocationText"></span></span>
+                            <span id="ppMemberSince"><i class="fa-regular fa-calendar"></i> <span
+                                    id="ppMemberSinceText">Joined &ndash;</span></span>
+                            <span id="ppDesignation" style="display:none"><i class="fa-solid fa-briefcase"></i> <span
+                                    id="ppDesignationText"></span></span>
+                        </div>
+                        <p class="pp-bio" id="ppBio" style="display:none"></p>
+                    </div>
+
+                    <!-- CTA Buttons – injected by JS -->
+                    <div class="pp-cta" id="ppCta"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── STATS BAR ─────────────────────────────────────────────── -->
+        <div class="pp-stats pp-animate" id="ppStats">
+            <div class="pp-stat" id="ppStatFollowers">
+                <div class="pp-stat-val" id="ppFollowersVal">–</div>
+                <div class="pp-stat-label">Followers</div>
+            </div>
+            <div class="pp-stat" id="ppStatFollowing">
+                <div class="pp-stat-val" id="ppFollowingVal">–</div>
+                <div class="pp-stat-label">Following</div>
+            </div>
+            <div class="pp-stat">
+                <div class="pp-stat-val" id="ppPostsVal">–</div>
+                <div class="pp-stat-label">Posts</div>
+            </div>
+            <div class="pp-stat">
+                <div class="pp-stat-val accent" id="ppXpVal">–</div>
+                <div class="pp-stat-label">XP Points</div>
+            </div>
+            <div class="pp-stat">
+                <div class="pp-stat-val" id="ppStreakVal">–</div>
+                <div class="pp-stat-label">Day Streak</div>
+            </div>
+        </div>
+
+        <!-- ── MAIN GRID ──────────────────────────────────────────────── -->
+        <div class="pp-grid">
+
+            <!-- LEFT COLUMN -->
+            <aside class="pp-left">
+
+                <!-- Verification Signals -->
+                <div class="pp-card pp-animate">
+                    <div class="pp-card-title"><i class="fa-solid fa-shield-halved"></i> Trust &amp; Verification</div>
+                    <div class="pp-badge-row" id="ppVerificationBadges">
+                        <div class="pp-vbadge inactive" id="pvEmail">
+                            <span class="badge-icon"><i class="fa-solid fa-envelope"></i></span>
+                            <span>Email Verified</span>
+                            <span class="badge-check"><i class="fa-solid fa-circle-xmark"></i></span>
+                        </div>
+                        <div class="pp-vbadge inactive" id="pvGithub">
+                            <span class="badge-icon"><i class="fa-brands fa-github"></i></span>
+                            <span>GitHub Linked</span>
+                            <span class="badge-check"><i class="fa-solid fa-circle-xmark"></i></span>
+                        </div>
+                        <div class="pp-vbadge inactive" id="pvLinkedin">
+                            <span class="badge-icon"><i class="fa-brands fa-linkedin-in"></i></span>
+                            <span>LinkedIn Linked</span>
+                            <span class="badge-check"><i class="fa-solid fa-circle-xmark"></i></span>
+                        </div>
+                        <div class="pp-vbadge inactive" id="pvOnboarding">
+                            <span class="badge-icon"><i class="fa-solid fa-id-card"></i></span>
+                            <span>Profile Complete</span>
+                            <span class="badge-check"><i class="fa-solid fa-circle-xmark"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- XP / Level -->
+                <div class="pp-card pp-animate" id="ppLevelCard">
+                    <div class="pp-card-title"><i class="fa-solid fa-star"></i> Level &amp; XP</div>
+                    <div id="ppLevelDisplay">
+                        <div class="pp-level-circle" id="ppLevelNum">1</div>
+                        <div>
+                            <div style="font-weight:700; font-size:0.95rem; color:#1A1A1A;" id="ppLevelName">Beginner
+                            </div>
+                            <div style="font-size:0.76rem; color:#666;" id="ppLevelXp">0 XP</div>
+                        </div>
+                    </div>
+                    <div class="pp-xp-bar-wrap">
+                        <div class="pp-xp-label">
+                            <span>Progress to next level</span>
+                            <span id="ppXpPercent">0%</span>
+                        </div>
+                        <div class="pp-xp-track">
+                            <div class="pp-xp-fill" id="ppXpFill" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Matchmaking Signal -->
+                <div class="pp-card pp-animate pp-matchmaking" id="ppMatchCard" style="display:none">
+                    <div class="pp-card-title"><i class="fa-solid fa-puzzle-piece"></i> Compatibility</div>
+                    <div class="pp-match-score">
+                        <div class="pp-score-ring" id="ppScoreRing"><span id="ppScoreText">0%</span></div>
+                        <div class="pp-match-details">
+                            <h4 id="ppMatchHeadline">0 skills in common</h4>
+                            <p id="ppMatchSub">Compare your stack</p>
+                        </div>
+                    </div>
+                    <div class="pp-common-skills" id="ppCommonSkillsWrap"></div>
+                    <div style="margin-top:0.8rem; font-size:0.73rem; color:#666; font-weight:600;">Active in:</div>
+                    <div class="pp-active-in" id="ppActiveIn">
+                        <span class="pp-activity-chip"><i class="fa-solid fa-chalkboard"></i> Whiteboard</span>
+                        <span class="pp-activity-chip"><i class="fa-solid fa-code"></i> Pair Programming</span>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="pp-card pp-animate" id="ppSocialCard">
+                    <div class="pp-card-title"><i class="fa-solid fa-link"></i> Social Links</div>
+                    <div class="pp-social-row" id="ppSocialRow">
+                        <span class="pp-empty" style="padding:0.4rem"><i class="fa-solid fa-link"
+                                style="font-size:1rem; display:inline; margin-right:0.3rem;"></i>No links added</span>
+                    </div>
+                </div>
+
+            </aside>
+
+            <!-- RIGHT COLUMN -->
+            <div class="pp-right">
+
+                <!-- Skills -->
+                <div class="pp-card pp-animate" id="ppSkillsCard">
+                    <div class="pp-card-title"><i class="fa-solid fa-bolt"></i> Skills &amp; Stack</div>
+                    <div class="pp-skills-wrap" id="ppSkillsWrap">
+                        <div class="pp-skeleton" style="height:30px; width:80px; border-radius:30px;"></div>
+                        <div class="pp-skeleton" style="height:30px; width:100px; border-radius:30px;"></div>
+                        <div class="pp-skeleton" style="height:30px; width:70px; border-radius:30px;"></div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="pp-card pp-animate" id="ppRecentCard">
+                    <div class="pp-card-title"><i class="fa-solid fa-rss"></i> Recent Activity</div>
+                    <div id="ppRecentList">
+                        <div class="pp-skeleton" style="height:68px; border-radius:12px; margin-bottom:0.7rem;"></div>
+                        <div class="pp-skeleton" style="height:68px; border-radius:12px;"></div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="pp-card pp-animate" id="ppAchCard">
+                    <div class="pp-card-title"><i class="fa-solid fa-medal"></i> Achievements</div>
+                    <div class="pp-ach-grid" id="ppAchGrid">
+                        <div class="pp-skeleton" style="height:44px; width:150px; border-radius:12px;"></div>
+                        <div class="pp-skeleton" style="height:44px; width:120px; border-radius:12px;"></div>
+                    </div>
+                </div>
+
+                <!-- Projects (shown when data available) -->
+                <div class="pp-card pp-animate" id="ppProjectsCard" style="display:none">
+                    <div class="pp-card-title"><i class="fa-solid fa-rocket"></i> Projects</div>
+                    <div id="ppProjectsList"></div>
+                </div>
+
+                <!-- Education (shown when data available) -->
+                <div class="pp-card pp-animate" id="ppEduCard" style="display:none">
+                    <div class="pp-card-title"><i class="fa-solid fa-graduation-cap"></i> Education</div>
+                    <div id="ppEduList"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Report Profile Modal ───────────────────────────────────── -->
+    <div id="ppReportModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.35); align-items:center; justify-content:center;">
+        <div
+            style="background:#fff; border-radius:20px; padding:1.8rem; max-width:400px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.18);">
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:0.35rem; color:#1A1A1A;">
+                <i class="fa-solid fa-flag" style="color:#ef5350; margin-right:0.4rem;"></i>Report Profile
+            </h3>
+            <p style="font-size:0.82rem; color:#666; margin-bottom:1.1rem;">Help us understand the problem. We'll review
+                this within 24 hours.</p>
+            <div style="display:flex; flex-direction:column; gap:0.45rem; margin-bottom:1.1rem;">
+                <label class="pp-report-opt"><input type="radio" name="ppReason" value="Fake or impersonation"> Fake or
+                    impersonation</label>
+                <label class="pp-report-opt"><input type="radio" name="ppReason" value="Inappropriate content">
+                    Inappropriate content</label>
+                <label class="pp-report-opt"><input type="radio" name="ppReason" value="Spam or scam"> Spam or
+                    scam</label>
+                <label class="pp-report-opt"><input type="radio" name="ppReason" value="Harassment"> Harassment</label>
+                <label class="pp-report-opt"><input type="radio" name="ppReason" value="Other"> Other</label>
+            </div>
+            <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
+                <button id="ppReportCancelBtn"
+                    style="padding:0.5rem 1rem; border-radius:10px; border:1px solid #ddd; background:#f5f5f5; font-size:0.83rem; font-weight:600; cursor:pointer;">Cancel</button>
+                <button id="ppReportSubmitBtn"
+                    style="padding:0.5rem 1.1rem; border-radius:10px; border:none; background:#ef5350; color:#fff; font-size:0.83rem; font-weight:600; cursor:pointer;">Submit
+                    Report</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .pp-report-opt {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            padding: 0.5rem 0.75rem;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: #333;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .pp-report-opt:hover {
+            background: #fafafa;
+            border-color: #ccc;
+        }
+
+        .pp-report-opt input {
+            accent-color: #ef5350;
+        }
+
+        /* Navbar icon pills */
+        .pp-nav-icon-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #555;
+            transition: all 0.2s ease;
+        }
+
+        .pp-nav-icon-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #111;
+            transform: translateY(-1px);
+        }
+
+        .pp-nav-icon-btn.danger {
+            background: rgba(239, 83, 80, 0.08);
+            border-color: rgba(239, 83, 80, 0.2);
+            color: #ef5350;
+        }
+
+        .pp-nav-icon-btn.danger:hover {
+            background: rgba(239, 83, 80, 0.16);
+        }
+    </style>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/navbar-loader.js"></script>
+    <script src="js/custom-dialog.js"></script>
+    <script src="js/public-profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavbar({
+                activePage: 'Profile',
+                contextIcon: 'fa-user',
+                backUrl: 'posting.html',
+                showSearch: false,
+                showSettingsBtn: false,
+                showNotifications: false,
+                primaryAction: { show: false }
+            });
+
+            // Inject Share + Report buttons after navbar renders
+            setTimeout(() => {
+                // Hide any notification bell rendered by navbar
+                document.querySelectorAll(
+                    '.notification-btn, .notif-btn, .bell-btn, [class*="notif-icon"], [data-notif], .nav-notif'
+                ).forEach(el => el.style.display = 'none');
+
+                // Find navbar right area
+                const navbarInner = document.querySelector(
+                    '#navbar-placeholder .navbar-right, #navbar-placeholder .nav-right, #navbar-placeholder .nav-actions, #navbar-placeholder nav'
+                );
+
+                const actionsWrap = document.createElement('div');
+                actionsWrap.style.cssText = 'display:flex;align-items:center;gap:0.4rem;';
+
+                const shareBtn = document.createElement('button');
+                shareBtn.className = 'pp-nav-icon-btn';
+                shareBtn.title = 'Share Profile';
+                shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
+
+                const reportBtn = document.createElement('button');
+                reportBtn.className = 'pp-nav-icon-btn danger';
+                reportBtn.title = 'Report Profile';
+                reportBtn.innerHTML = '<i class="fa-solid fa-flag"></i>';
+
+                actionsWrap.appendChild(shareBtn);
+                actionsWrap.appendChild(reportBtn);
+
+                if (navbarInner) {
+                    navbarInner.appendChild(actionsWrap);
+                } else {
+                    // Fallback: stick them at end of navbar-placeholder
+                    document.getElementById('navbar-placeholder').appendChild(actionsWrap);
+                }
+
+                // Share handler
+                shareBtn.addEventListener('click', () => {
+                    const url = window.location.href;
+                    if (navigator.share) {
+                        navigator.share({ title: document.title, url }).catch(() => { });
+                    } else if (navigator.clipboard) {
+                        navigator.clipboard.writeText(url).then(() => {
+                            if (typeof showToast === 'function') showToast('Profile link copied!', 'success');
+                        });
+                    } else {
+                        prompt('Copy this link:', url);
+                    }
+                });
+
+                // Report handler – open modal
+                reportBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('ppReportModal');
+                    if (modal) modal.style.display = 'flex';
+                });
+
+                // Report modal cancel
+                document.getElementById('ppReportCancelBtn')?.addEventListener('click', () => {
+                    document.getElementById('ppReportModal').style.display = 'none';
+                });
+
+                // Report modal submit
+                document.getElementById('ppReportSubmitBtn')?.addEventListener('click', () => {
+                    const chosen = document.querySelector('input[name="ppReason"]:checked');
+                    if (!chosen) {
+                        if (typeof showToast === 'function') showToast('Please select a reason.', 'error');
+                        return;
+                    }
+                    // In a real app, POST /api/reports here
+                    document.getElementById('ppReportModal').style.display = 'none';
+                    if (typeof showToast === 'function') showToast('Report submitted. Thank you!', 'success');
+                });
+
+                // Close modal on backdrop click
+                document.getElementById('ppReportModal')?.addEventListener('click', function (e) {
+                    if (e.target === this) this.style.display = 'none';
+                });
+            }, 350);
+        });
+    </script>
+</body>
+
+</html>
