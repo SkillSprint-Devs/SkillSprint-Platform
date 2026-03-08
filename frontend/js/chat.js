@@ -143,7 +143,7 @@ function updateUserStatus(userId) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     loadConversations();
     const backBtn = document.getElementById('mobileBackBtn');
     if (backBtn) {
@@ -151,6 +151,27 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.remove('chat-open');
             currentChatUserId = null;
         });
+    }
+
+    // Deep-link: ?user=<id> → auto-open that conversation (from public profile Message btn)
+    const deepUserId = new URLSearchParams(window.location.search).get('user');
+    if (deepUserId) {
+        try {
+            const res = await fetch(`${API_URL}/users/${deepUserId}/public`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const userData = await res.json();
+                // openChat expects { _id, name, profile_image / avatarUrl }
+                await openChat({
+                    _id: deepUserId,
+                    name: userData.name || 'User',
+                    profile_image: userData.profile_image || ''
+                });
+            }
+        } catch (e) {
+            console.warn('[Chat] Deep-link user fetch failed:', e);
+        }
     }
 });
 

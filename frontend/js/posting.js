@@ -173,13 +173,32 @@ function buildMediaNode(media = []) {
 function buildPostNode(post) {
 
   const postIdStr = String(post._id);
+  const authorId = post.authorId?._id || post.authorId;
 
   const postWrap = el("div", { class: "feed-post", "data-id": postIdStr });
 
   const header = el("div", { class: "post-header" });
-  header.appendChild(el("img", { src: post.authorId?.profile_image || "./assets/images/user-avatar.png", alt: "author" }));
+
+  // Clickable author avatar → public profile
+  const authorImg = el("img", {
+    src: post.authorId?.profile_image || "./assets/images/user-avatar.png",
+    alt: "author",
+    style: "cursor:pointer",
+    title: `View ${post.authorId?.name || 'user'}'s profile`
+  });
+  if (authorId) authorImg.onclick = () => window.location.href = `public-profile.html?user=${authorId}`;
+  header.appendChild(authorImg);
+
+  // Clickable author name → public profile
+  const authorNameEl = el("h4", { style: authorId ? "cursor:pointer; text-decoration:none;" : "" }, [safeText(post.authorId?.name || "Unknown")]);
+  if (authorId) {
+    authorNameEl.style.cursor = 'pointer';
+    authorNameEl.title = `View ${post.authorId?.name || 'user'}'s profile`;
+    authorNameEl.onclick = () => window.location.href = `public-profile.html?user=${authorId}`;
+  }
+
   const meta = el("div", {}, [
-    el("h4", {}, [safeText(post.authorId?.name || "Unknown")]),
+    authorNameEl,
     el("span", { class: "time" }, [formatTime(post.createdAt)]),
   ]);
   header.appendChild(meta);
@@ -188,6 +207,7 @@ function buildPostNode(post) {
   postWrap.appendChild(el("p", {}, [safeText(post.content)]));
 
   if (Array.isArray(post.media) && post.media.length) postWrap.appendChild(buildMediaNode(post.media));
+
 
   const actions = el("div", { class: "post-actions-bar" });
 
@@ -673,10 +693,16 @@ async function loadSuggestions() {
       const avatar = el("img", {
         src: u.profile_image || "./assets/images/user-avatar.png",
         class: "suggestion-avatar",
+        style: "cursor:pointer",
+        title: `View ${u.name}'s profile`
       });
+      avatar.onclick = () => window.location.href = `public-profile.html?user=${u._id}`;
+
+      const nameEl = el("h4", { style: "cursor:pointer;" }, [safeText(u.name)]);
+      nameEl.onclick = () => window.location.href = `public-profile.html?user=${u._id}`;
 
       const info = el("div", { class: "suggestion-info" }, [
-        el("h4", {}, [safeText(u.name)]),
+        nameEl,
         el("p", { class: "suggestion-role" }, [safeText(u.role || "Member")]),
       ]);
 

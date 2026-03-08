@@ -62,7 +62,7 @@ router.post("/onboarding", verifyToken, async (req, res) => {
             if (!existingAchievement) {
                 await Achievement.create({
                     user: userId,
-                    course: "skill-sprint", // Using a generic identifier for system badges
+                    course: "skill-sprint",
                     achievementType: "badge",
                     title: "Account Setup",
                     description: "Awarded for completing the onboarding flow.",
@@ -85,6 +85,73 @@ router.post("/onboarding", verifyToken, async (req, res) => {
     } catch (err) {
         console.error("Onboarding error:", err);
         res.status(500).json({ message: "Error saving onboarding data", error: err.message });
+    }
+});
+
+// ─────────────────────────────────────────────────────────────
+// GET /api/users/:userId/public  — Public profile (read-only)
+// Returns safe, privacy-respecting user data + online status
+// + follow relationship + recent posts + skills in common
+// ─────────────────────────────────────────────────────────────
+router.get("/:userId/public", verifyToken, async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const viewerId = req.user.id;
+
+        const user = await User.findById(userId)
+            .select("-password_hash -otp -otpExpires -email -phone")
+            .lean();
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // ---- Privacy filtering ----
+        if (user.privacy && !user.privacy.showSkills) delete user.skills;
+        if (user.privacy && !user.privacy.showStreaks) {
+            delete user.streakCount;
+            delete user.longestStreak;
+        }
+        if (user.privacy && !user.privacy.showAchievements) delete user.achievements;
+
+        // ---- Online status (via global socket presence map) ----
+        const onlineUsers = req.app.get("onlineUsers") || new Map();
+        user.isOnline = onlineUsers.has(userId.toString());
+
+        // ---- Follow relationship ----
+        const viewer = await User.findById(viewerId).select("following skills").lean();
+        user.isFollowing = (viewer?.following || []).map(String).includes(userId.toString());
+        user.isOwnProfile = viewerId === userId.toString();
+
+        // ---- Skills in common with the viewer ----
+        if (viewer?.skills && user.skills) {
+            const viewerSkillsSet = new Set((viewer.skills || []).map(s => s.toLowerCase()));
+            user.commonSkills = (user.skills || []).filter(s => viewerSkillsSet.has(s.toLowerCase()));
+        } else {
+            user.commonSkills = [];
+        }
+
+        // ---- Recent posts (last 5) ----
+        let recentPosts = [];
+        try {
+            const Post = (await import("../models/post.js")).default;
+            recentPosts = await Post.find({ authorId: userId })
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .select("content media createdAt likes")
+                .lean();
+            recentPosts = recentPosts.map(p => ({
+                ...p,
+                likesCount: Array.isArray(p.likes) ? p.likes.length : 0
+            }));
+        } catch (e) {
+            console.error("Failed to fetch recent posts for public profile:", e);
+        }
+
+        user.recentPosts = recentPosts;
+
+        res.json(user);
+    } catch (err) {
+        console.error("Public profile fetch error:", err);
+        res.status(500).json({ message: "Error fetching public profile", error: err.message });
     }
 });
 
