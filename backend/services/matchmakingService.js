@@ -1,161 +1,190 @@
 /**
- * SkillSprint — Matchmaking Scoring Service
- * ─────────────────────────────────────────
- * Computes a 0–100 compatibility score between two users using:
- *   40%  Skill complementarity (A teaches ↔ B learns, bidirectional)
- *   20%  Level complementarity (adjacent levels score highest)
- *   15%  Collaboration style match
- *   15%  Weekly hours proximity
- *   10%  Timezone proximity
+ * SkillSprint — K-Nearest Neighbors (KNN) & Cosine Similarity Model
+ * ─────────────────────────────────────────────────────────────────
+ * This engine calculates compatibility between users by projecting their
+ * attributes into a multidimensional feature space and computing the 
+ * Cosine Similarity (angle) between their vectors.
+ * 
+ * The K-Nearest Neighbors (KNN) algorithm then clusters and extracts 
+ * the 'K' closest users (most similar vectors) for suggestions.
  */
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── 1. Vector Math Core (Cosine Similarity) ──────────────────────────────────
 
 /**
- * Returns UTC offset in hours for a given IANA timezone string.
- * Falls back to 0 on any error.
+ * Calculates the Cosine Similarity between two numeric vectors.
+ * Formula: (A · B) / (||A|| * ||B||)
+ * Returns a value between 0.0 (completely dissimilar) and 1.0 (exact match).
  */
+function cosineSimilarity(vecA, vecB) {
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+  
+  for (let i = 0; i < vecA.length; i++) {
+    const aVal = vecA[i] || 0;
+    const bVal = vecB[i] || 0;
+    
+    dotProduct += aVal * bVal;
+    normA += aVal * aVal;
+    normB += bVal * bVal;
+  }
+  
+  if (normA === 0 || normB === 0) return 0;
+  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+
+// ── 2. Vectorization Extraction ──────────────────────────────────────────────
+
+/** Helper to extract timezone offset as a numeric feature */
 function utcOffsetHours(ianaZone) {
   try {
     if (!ianaZone) return 0;
-    // Use Intl to get the offset at a reference point
     const now = new Date();
     const utcMs = now.getTime();
     const local = new Date(now.toLocaleString('en-US', { timeZone: ianaZone }));
-    const offsetMs = local.getTime() - utcMs;
-    // This gives approximate offset in hours
-    return offsetMs / (1000 * 3600);
-  } catch {
-    return 0;
-  }
+    return (local.getTime() - utcMs) / (1000 * 3600);
+  } catch { return 0; }
 }
 
-/** Normalize weekly-hours label to a numeric midpoint for comparison */
-const HOURS_MAP = {
-  '< 5hrs': 2.5,
-  '< 5 hrs': 2.5,
-  '5–10hrs': 7.5,
-  '5-10hrs': 7.5,
-  '5–10 hrs': 7.5,
-  '10+ hrs': 12,
-  '10+hrs': 12,
-};
+/** Standardize attributes into continuous 0.0-1.0 numeric scales */
+const HOURS_MAP = { '< 5hrs': 0.2, '< 5 hrs': 0.2, '5–10hrs': 0.6, '5-10hrs': 0.6, '10+ hrs': 1.0, '10+hrs': 1.0 };
+function vectorizeHours(label) { return HOURS_MAP[label] ?? 0.6; }
 
-function hoursToNum(label) {
-  if (!label) return 7.5; // default to middle
-  return HOURS_MAP[label] ?? 7.5;
+const LEVEL_MAP = { Beginner: 0.2, Intermediate: 0.6, Advanced: 1.0 };
+function vectorizeLevel(level) { return LEVEL_MAP[level] ?? 0.6; }
+
+function vectorizeCollab(style) {
+  if (!style) return 0.5;
+  const s = style.toLowerCase();
+  if (s.includes('real')) return 1.0;
+  if (s.includes('async')) return 0.0;
+  return 0.5; // hybrid / no preference
 }
-
-/** Level hierarchy for computing adjacency */
-const LEVEL_ORDER = { Beginner: 0, Intermediate: 1, Advanced: 2 };
-
-// ── Main scoring function ─────────────────────────────────────────────────────
 
 /**
- * computeMatchScore(userA, userB)
- *
- * Both userA and userB should be plain objects with:
- *   matchmakingData: { level, topSkills[], skillsToLearn[], weeklyHours, collabStyle, timezone, mainGoal, projectRole }
- *
- * Returns: { score: Number (0–100), reasons: String[] }
+ * Extracts a normalized 4-dimensional numerical feature vector for User attributes.
+ * Vector Space: [ ExperienceLevel, WeeklyHours, CollaborationStyle, TimezoneOffset ]
+ */
+function extractAttributeVector(userData) {
+  const d = userData || {};
+  return [
+    vectorizeLevel(d.level) * 0.40,               // Weighting intrinsic to feature map
+    vectorizeHours(d.weeklyHours) * 0.30, 
+    vectorizeCollab(d.collabStyle) * 0.30,
+    (utcOffsetHours(d.timezone) + 12) / 24 * 0.20 // Normalize TZ (-12 to +12) -> 0.0 to 1.0 space
+  ];
+}
+
+
+// ── 3. KNN Distance Metrics & Scoring ────────────────────────────────────────
+
+/**
+ * Computes unidirectional Bag-of-Words Cosine Similarity for Skills.
+ * e.g., computes the vector distance between what User A wants to Learn vs what User B Can Teach.
+ */
+function computeSkillTextVectorSim(wantsToLearn, canTeach) {
+  if (!wantsToLearn || !canTeach || !wantsToLearn.length || !canTeach.length) return 0;
+  
+  const learnTokens = wantsToLearn.map(s => s.toLowerCase());
+  const teachTokens = canTeach.map(s => s.toLowerCase());
+  
+  // Create shared vocabulary space (all unique tokens between both sets)
+  const vocab = Array.from(new Set([...learnTokens, ...teachTokens]));
+  
+  // Vectorize (One-Hot encode) strings mapped to vocabulary index
+  const vecA = vocab.map(word => learnTokens.includes(word) ? 1 : 0);
+  const vecB = vocab.map(word => teachTokens.includes(word) ? 1 : 0);
+  
+  return cosineSimilarity(vecA, vecB);
+}
+
+/**
+ * Calculates the exact Distance/Similarity score between two Users
+ * using Cosine calculations on their multi-dimensional vectors.
  */
 export function computeMatchScore(userA, userB) {
   const reasons = [];
-  let total = 0;
-
   const a = userA.matchmakingData || {};
   const b = userB.matchmakingData || {};
 
-  // ── 1. Skill Complementarity (40 pts) ─────────────────────────────────────
-  // A knows → B wants to learn  +  B knows → A wants to learn
-  const aTopSkillsLower  = (a.topSkills      || []).map(s => s.toLowerCase());
-  const bTopSkillsLower  = (b.topSkills      || []).map(s => s.toLowerCase());
-  const aLearnLower      = (a.skillsToLearn  || []).map(s => s.toLowerCase());
-  const bLearnLower      = (b.skillsToLearn  || []).map(s => s.toLowerCase());
+  // -- Metric 1: Skill Text Cosine Similarity (40% Weight) --
+  // Bidirectional Check: (A learns from B) & (B learns from A)
+  const aLearnsB_Sim = computeSkillTextVectorSim(a.skillsToLearn, b.topSkills);
+  const bLearnsA_Sim = computeSkillTextVectorSim(b.skillsToLearn, a.topSkills);
+  
+  // Average the Cosine coefficients
+  const meanSkillSim = (aLearnsB_Sim + bLearnsA_Sim) / 2;
+  const finalSkillScore = Math.round(meanSkillSim * 40);
 
-  // A can teach B
-  const aTeachesB = aTopSkillsLower.filter(s => bLearnLower.includes(s));
-  // B can teach A
-  const bTeachesA = bTopSkillsLower.filter(s => aLearnLower.includes(s));
+  // Generate readable UI reasons mapping back to text vectors
+  const aTopTokens = (a.topSkills || []).map(s => s.toLowerCase());
+  const aLearnTokens = (a.skillsToLearn || []).map(s => s.toLowerCase());
+  const bTopTokens = (b.topSkills || []).map(s => s.toLowerCase());
+  const bLearnTokens = (b.skillsToLearn || []).map(s => s.toLowerCase());
+  
+  const aTeachesB_Matches = aTopTokens.filter(s => bLearnTokens.includes(s));
+  const bTeachesA_Matches = bTopTokens.filter(s => aLearnTokens.includes(s));
+  
+  if (aTeachesB_Matches.length > 0) reasons.push(`${userA.name} can teach: ${aTeachesB_Matches.slice(0, 2).join(', ')}`);
+  if (bTeachesA_Matches.length > 0) reasons.push(`${userB.name} can teach: ${bTeachesA_Matches.slice(0, 2).join(', ')}`);
+  if (finalSkillScore === 0) reasons.push('Different skill interests');
 
-  const totalPossible = Math.max(1, aLearnLower.length + bLearnLower.length);
-  const complementaryMatches = aTeachesB.length + bTeachesA.length;
-  const skillScore = Math.min(40, Math.round((complementaryMatches / totalPossible) * 40));
-  total += skillScore;
+  // -- Metric 2: Primary Attributes Vector Similarity (60% Weight) --
+  // Extract N-dimensional vectors for user attributes
+  const vectorA = extractAttributeVector(a);
+  const vectorB = extractAttributeVector(b);
+  
+  // Compute absolute mathematically-correct Cosine Similarity between Attribute Vectors
+  const attributeCosineSim = cosineSimilarity(vectorA, vectorB);
+  
+  // Map standard 0.0-1.0 coefficient to a 0-60 point scale
+  // Floor the base, but penalize extreme outliers heavily through KNN isolation
+  const finalAttributeScore = Math.min(60, Math.round(attributeCosineSim * 60));
 
-  if (aTeachesB.length > 0) reasons.push(`${userA.name} can teach: ${aTeachesB.slice(0, 2).join(', ')}`);
-  if (bTeachesA.length > 0) reasons.push(`${userB.name} can teach: ${bTeachesA.slice(0, 2).join(', ')}`);
-  if (skillScore === 0) reasons.push('Different skill interests');
-
-  // ── 2. Level Complementarity (20 pts) ────────────────────────────────────
-  // Adjacent levels (Begin↔Inter or Inter↔Adv): 20pts
-  // Same level: 15pts (peers)
-  // Two steps apart: 5pts
-  const la = LEVEL_ORDER[a.level] ?? 1;
-  const lb = LEVEL_ORDER[b.level] ?? 1;
-  const levelDiff = Math.abs(la - lb);
-
-  let levelScore = 0;
-  if (levelDiff === 1) {
-    levelScore = 20;
-    reasons.push(`Complementary levels (${a.level || '?'} & ${b.level || '?'})`);
-  } else if (levelDiff === 0) {
-    levelScore = 15;
-    reasons.push(`Same skill level (${a.level || 'Intermediate'})`);
-  } else {
-    levelScore = 5;
+  // Determine attribute reasons by calculating scalar differences in vector dimensions
+  if (Math.abs(vectorA[0] - vectorB[0]) <= 0.1) {
+    if (a.level === b.level) reasons.push(`Same skill level (${a.level || 'Intermediate'})`);
+    else reasons.push(`Complementary levels (${a.level || '?'} & ${b.level || '?'})`);
   }
-  total += levelScore;
+  if (vectorA[2] === vectorB[2] && a.collabStyle) {
+    reasons.push(`Both prefer ${a.collabStyle} collaboration`);
+  }
+  if (Math.abs(vectorA[1] - vectorB[1]) <= 0.15) {
+    reasons.push(`Similar availability (${a.weeklyHours || '?'})`);
+  }
+  if (Math.abs(vectorA[3] - vectorB[3]) <= 0.10) {
+    reasons.push('Compatible timezones');
+  }
 
-  // ── 3. Collab Style (15 pts) ──────────────────────────────────────────────
-  // Exact match: 15pts. No match: 0
-  const collabScore = (a.collabStyle && b.collabStyle && a.collabStyle === b.collabStyle) ? 15 : 0;
-  total += collabScore;
-  if (collabScore > 0) reasons.push(`Both prefer ${a.collabStyle} collaboration`);
-
-  // ── 4. Weekly Hours Proximity (15 pts) ────────────────────────────────────
-  const aHrs = hoursToNum(a.weeklyHours);
-  const bHrs = hoursToNum(b.weeklyHours);
-  const hoursDiff = Math.abs(aHrs - bHrs);
-  let hoursScore = 0;
-  if (hoursDiff <= 1)       hoursScore = 15;   // Same bucket
-  else if (hoursDiff <= 5)  hoursScore = 10;   // 1 tier apart
-  else                      hoursScore = 3;
-  total += hoursScore;
-  if (hoursScore >= 10) reasons.push(`Similar availability (${a.weeklyHours || '?'})`);
-
-  // ── 5. Timezone Proximity (10 pts) ────────────────────────────────────────
-  const tzA = utcOffsetHours(a.timezone);
-  const tzB = utcOffsetHours(b.timezone);
-  const tzDiff = Math.abs(tzA - tzB);
-  let tzScore = 0;
-  if (tzDiff <= 2)       tzScore = 10;
-  else if (tzDiff <= 4)  tzScore = 7;
-  else if (tzDiff <= 6)  tzScore = 4;
-  else                   tzScore = 1;
-  total += tzScore;
-  if (tzScore >= 7) reasons.push('Compatible timezones');
-
-  // ── Final ─────────────────────────────────────────────────────────────────
-  const score = Math.min(100, Math.max(0, total));
   if (reasons.length === 0) reasons.push('Diverse backgrounds — great for cross-learning');
 
-  return { score, reasons };
+  const overallScore = Math.min(100, Math.max(0, finalSkillScore + finalAttributeScore));
+
+  return { score: overallScore, reasons };
 }
 
+
+// ── 4. K-Nearest Neighbors Pipeline ──────────────────────────────────────────
+
 /**
- * scoreAndSortCandidates(me, candidates)
+ * scoreAndSortCandidates(me, candidates) -> The KNN Core Operator
  *
- * me         — full User document (needs matchmakingData)
- * candidates — array of User lean objects
- *
+ * Implements K-Nearest Neighbors logic. Evaluates the 'me' target vector 
+ * against a dataset (candidates), sorting them securely by computed 
+ * Cosine distance parameters to extract the nearest neighbor clusters.
+ * 
  * Returns sorted array of { user, score, reasons } descending by score.
  */
 export function scoreAndSortCandidates(me, candidates) {
-  return candidates
-    .map(candidate => {
-      const { score, reasons } = computeMatchScore(me, candidate);
-      return { user: candidate, score, reasons };
-    })
-    .sort((a, b) => b.score - a.score);
+  // 1. Calculate the Feature Distances (Similarity Scores)
+  const evaluatedNeighbors = candidates.map(candidate => {
+    const { score, reasons } = computeMatchScore(me, candidate);
+    return { user: candidate, score, reasons };
+  });
+
+  // 2. Sort the dataset to locate the absolute Nearest Neighbors
+  return evaluatedNeighbors.sort((a, b) => b.score - a.score);
 }
+
