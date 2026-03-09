@@ -850,9 +850,9 @@ export function renderComments() {
     el.innerHTML = `
       <div class="comment-header">
         <div class="comment-author">
-          <img src="${userAvatar}" alt="${userName}" style="border: 2px solid ${comment.authorId?.colorTag || '#8C52FF'};" />
+          <img src="${userAvatar}" alt="${userName}" style="border: 2px solid ${comment.authorId?.colorTag || '#8C52FF'}; cursor:pointer;" onclick="event.stopPropagation(); window.location.href='public-profile.html?user=${comment.authorId?._id || comment.authorId}'" title="View Profile" />
           <div>
-            <strong style="color: ${comment.authorId?.colorTag || '#333'};">${userName}</strong>
+            <strong style="color: ${comment.authorId?.colorTag || '#333'}; cursor:pointer;" onclick="event.stopPropagation(); window.location.href='public-profile.html?user=${comment.authorId?._id || comment.authorId}'" title="View Profile">${userName}</strong>
             <div class="comment-meta">
               ${fileInfo}
               ${lineInfo}
@@ -1200,6 +1200,11 @@ export async function loadBoardMembers() {
     avatar.src = member.profile_image || member.avatarUrl || "assets/images/user-avatar.png";
     avatar.alt = member.name;
     avatar.setAttribute("data-user-id", member._id);
+    avatar.style.cursor = "pointer";
+    avatar.onclick = (e) => {
+      e.stopPropagation();
+      window.location.href = `public-profile.html?user=${member._id}`;
+    };
 
     // Set role
     const ownerId = (state.board.owner._id || state.board.owner).toString();

@@ -716,20 +716,73 @@ router.get("/following/:id", verifyToken, async (req, res) => {
   }
 });
 
-// ======== SUGGESTIONS (users you don't follow yet) =========
+// ======== SUGGESTIONS (matchmaking-scored, falls back if not onboarded) =========
 router.get("/suggestions", verifyToken, async (req, res) => {
   try {
-    const me = await User.findById(req.user.id).select("following");
-    if (!me) return res.status(404).json({ message: "User not found" });
-
-    const suggestions = await User.find({
-      _id: { $ne: req.user.id, $nin: me.following },
-    })
-      .select("name role profile_image followers following")
-      .limit(10)
+    const meId = req.user.id;
+    const me = await User.findById(meId)
+      .select("following onboardingCompleted matchmakingData matchSuggestionsCache matchesCachedAt skills")
       .lean();
 
-    res.json(suggestions);
+    if (!me) return res.status(404).json({ message: "User not found" });
+
+    const excludeIds = [meId, ...(me.following || []).map(String)];
+
+    // If user has not completed onboarding, serve generic suggestions (old behaviour)
+    if (!me.onboardingCompleted) {
+      const suggestions = await User.find({ _id: { $nin: excludeIds } })
+        .select("name role profile_image followers following skills")
+        .limit(10)
+        .lean();
+      return res.json(suggestions.map(u => ({ ...u, score: null, reasons: ['Complete onboarding to see your match score!'] })));
+    }
+
+    // Check in-memory cache on User doc (1 hr TTL)
+    const CACHE_TTL_MS = 60 * 60 * 1000;
+    const cacheAge = me.matchesCachedAt ? Date.now() - new Date(me.matchesCachedAt).getTime() : Infinity;
+    if (me.matchSuggestionsCache && cacheAge < CACHE_TTL_MS) {
+      return res.json(me.matchSuggestionsCache);
+    }
+
+    // Fetch up to 100 candidates with onboarding done
+    const { scoreAndSortCandidates } = await import("../services/matchmakingService.js");
+    const candidates = await User.find({
+      _id: { $nin: excludeIds },
+      onboardingCompleted: true,
+      isActive: true,
+    })
+      .select("name role profile_image skills matchmakingData xp availability")
+      .limit(100)
+      .lean();
+
+    if (!candidates.length) {
+      // Fallback: any user
+      const fallback = await User.find({ _id: { $nin: excludeIds } })
+        .select("name role profile_image skills")
+        .limit(10)
+        .lean();
+      return res.json(fallback.map(u => ({ ...u, score: null, reasons: ['New to SkillSprint — keep an eye out!'] })));
+    }
+
+    const scored = scoreAndSortCandidates(me, candidates);
+    const top10 = scored.slice(0, 10).map(({ user, score, reasons }) => ({
+      _id: user._id,
+      name: user.name,
+      role: user.role,
+      profile_image: user.profile_image,
+      skills: user.skills,
+      availability: user.availability,
+      score,
+      reasons,
+    }));
+
+    // Persist cache
+    await User.findByIdAndUpdate(meId, {
+      matchSuggestionsCache: top10,
+      matchesCachedAt: new Date(),
+    });
+
+    res.json(top10);
   } catch (err) {
     console.error("Suggestions fetch error:", err);
     res.status(500).json({ message: "Failed to load suggestions" });

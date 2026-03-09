@@ -1,4 +1,4 @@
-﻿/* ===============================================
+/* ===============================================
    DASHBOARD STYLING - PREMIUM & MODERN (OPTIMIZED)
 ================================================== */
 :root {
@@ -31,6 +31,13 @@
     background-position: calc(200px + 100%) 0;
   }
 }
+
+/* Refresh spin animation (used by Best Match widget) */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 
 .skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);

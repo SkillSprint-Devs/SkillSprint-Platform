@@ -12,6 +12,7 @@ function initNavbar(config = {}) {
         searchPlaceholder: 'Search resources, recordings, courses...',
         showSettingsBtn: true, // Default: visible
         showProfileBtn: false, // Default: hidden
+        showNotifications: true, // Default: visible
         primaryAction: {
             show: true,
             label: 'Upload',
@@ -52,16 +53,17 @@ function initNavbar(config = {}) {
                 </div>
             </div>
             <div class="nav-right">
+                ${options.showNotifications ? `
                 <button class="icon-btn" title="Notifications">
                     <i class="fa-solid fa-bell"></i>
                     <span class="notification-badge" id="navbarNotifBadge" style="display:none;">0</span>
-                </button>
+                </button>` : ''}
                 ${options.showSettingsBtn ? `
                 <button class="icon-btn" title="Settings" onclick="location.href='settings.html'">
                     <i class="fa-solid fa-gear"></i>
                 </button>` : ''}
                 ${options.showProfileBtn ? `
-                <button class="icon-btn" title="My Profile" onclick="location.href='profile.html'">
+                <button class="icon-btn" title="My Profile" onclick="if(window.goToMyPublicProfile) window.goToMyPublicProfile(); else location.href='profile.html'">
                     <i class="fa-solid fa-user"></i>
                 </button>` : ''}
                 ${options.primaryAction.show ? `

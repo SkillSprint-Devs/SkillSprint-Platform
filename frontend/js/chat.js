@@ -255,7 +255,7 @@ async function loadConversations() {
             item.className = `user-item ${isActive}`;
             item.onclick = () => openChat(userDetails);
             item.innerHTML = `
-                <img src="${userDetails.profile_image || userDetails.avatarUrl || 'https://ui-avatars.com/api/?name=' + userDetails.name}" class="user-avatar">
+                <img src="${userDetails.profile_image || userDetails.avatarUrl || 'https://ui-avatars.com/api/?name=' + userDetails.name}" class="user-avatar" style="cursor:pointer;" onclick="event.stopPropagation(); window.location.href='public-profile.html?user=${userDetails._id}'" title="View Profile">
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 text-truncate chat-name" style="max-width: 140px;">${userDetails.name}</h6>
@@ -284,8 +284,16 @@ async function openChat(otherUser) {
     const activeView = document.getElementById('activeChatView');
     activeView.style.display = 'flex';
 
-    document.getElementById('chatHeaderName').textContent = otherUser.name;
-    document.getElementById('chatHeaderAvatar').src = otherUser.avatarUrl || otherUser.profile_image || 'https://ui-avatars.com/api/?name=' + otherUser.name;
+    const headerName = document.getElementById('chatHeaderName');
+    headerName.textContent = otherUser.name;
+    headerName.style.cursor = 'pointer';
+    headerName.onclick = () => window.location.href = `public-profile.html?user=${otherUser._id}`;
+
+    const headerAvatar = document.getElementById('chatHeaderAvatar');
+    headerAvatar.src = otherUser.avatarUrl || otherUser.profile_image || 'https://ui-avatars.com/api/?name=' + otherUser.name;
+    headerAvatar.style.cursor = 'pointer';
+    headerAvatar.onclick = () => window.location.href = `public-profile.html?user=${otherUser._id}`;
+
     document.getElementById('typingIndicator').textContent = '';
 
     updateUserStatus(otherUser._id);

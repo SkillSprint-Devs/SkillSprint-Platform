@@ -85,12 +85,18 @@ function joinSession() {
                 document.getElementById("endSessionBtn").style.display = "block";
             }
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Mentor)";
+            const pName = document.querySelector(".video-wrapper.local .participant-name");
+            pName.style.cursor = 'pointer';
+            pName.onclick = () => { if (window.goToMyPublicProfile) window.goToMyPublicProfile(); };
         } else {
             // Mentee UI Restrictions
             document.getElementById("startSessionBtn").style.display = "none";
             document.getElementById("endSessionBtn").style.display = "none";
             document.getElementById("toggleWhiteboard").style.display = "none"; // Mentee can't open it
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Learner)";
+            const pName = document.querySelector(".video-wrapper.local .participant-name");
+            pName.style.cursor = 'pointer';
+            pName.onclick = () => { if (window.goToMyPublicProfile) window.goToMyPublicProfile(); };
 
             // Note: If mentor opens whiteboard, mentee should see it. 
             // We'll handle sync below.
@@ -577,6 +583,8 @@ function updateParticipants(participants) {
         img.className = `nav-p-avatar ${p.role.toLowerCase()}`;
         if (p.status === "Absent") img.classList.add("offline");
         img.title = `${p.name} (${p.role})`;
+        img.style.cursor = 'pointer';
+        img.onclick = () => window.location.href = `public-profile.html?user=${p.id}`;
 
         const dot = document.createElement("span");
         dot.className = `nav-status-dot ${p.status.toLowerCase()}`;

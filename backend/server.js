@@ -44,6 +44,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import invitationRoutes from "./routes/invitationRoutes.js";
 import errorRoutes from "./routes/errorRoutes.js";
+import matchmakingRoutes from "./routes/matchmakingRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import { initTaskScheduler } from "./utils/taskScheduler.js";
 import ErrorLog from "./models/ErrorLog.js";
@@ -369,6 +370,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/invitations", invitationRoutes);
 app.use("/api/errors", errorRoutes);
+app.use("/api/matchmaking", matchmakingRoutes);
 
 // Favicon handler
 app.get("/favicon.ico", (req, res) => res.status(204).end());

@@ -58,7 +58,7 @@ function createInviteCard(invite, token) {
     card.innerHTML = `
     <div class="card-header">
        <div style="display:flex; align-items:center; gap:12px;">
-          <img src="${senderImg}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+          <img src="${senderImg}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; cursor:pointer;" onclick="event.stopPropagation(); window.location.href='public-profile.html?user=${invite.sender?._id || invite.sender}'" title="View Profile">
           <div>
             <h3 class="card-title" style="font-size:1.1rem;">${invite.projectName}</h3>
             <span style="font-size:0.8rem; color:#666;">Invited by ${senderName}</span>

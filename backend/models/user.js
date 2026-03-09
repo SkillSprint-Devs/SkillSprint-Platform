@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password_hash: { type: String, required: true },
   profile_image: { type: String, default: "" },
+  banner_image: { type: String, default: "" },
   role: { type: String, enum: ["student", "mentor", "admin"], required: true },
 
   // PERSONAL INFO
@@ -116,6 +117,10 @@ const userSchema = new mongoose.Schema({
     mainGoal: { type: String },
     projectRole: { type: String }, // e.g., "Lead", "Contribute"
   },
+
+  // MATCHMAKING CACHE — pre-computed suggestions to avoid re-scoring on every request
+  matchSuggestionsCache: { type: mongoose.Schema.Types.Mixed, default: null }, // stores [{userId, score, reasons[]}]
+  matchesCachedAt: { type: Date, default: null }, // null = never cached
 });
 
 // Auto-update counts

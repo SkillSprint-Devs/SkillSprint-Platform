@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["system", "chat", "task", "invite", "reminder", "general", "comment", "info"],
+    enum: ["system", "chat", "task", "invite", "reminder", "general", "comment", "info", "match", "reject"],
     default: "system"
   },
   link: {
