@@ -9,6 +9,7 @@
     const API_BASE = window.API_BASE_URL;
     const USERS_API = `${API_BASE}/users`;
     const POSTING_API = `${API_BASE}/posting`;
+    const LIBRARY_API = `${API_BASE}/library`;
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -177,7 +178,7 @@
         const wrap = document.getElementById('ppSkillsWrap');
         if (!wrap) return;
         if (!skills.length) {
-            wrap.innerHTML = '<div class="pp-empty"><i class="fa-solid fa-bolt"></i>No skills listed</div>';
+            wrap.innerHTML = '<div class="pp-empty" style="width:100%"><i class="fa-solid fa-bolt"></i>No skills listed</div>';
             return;
         }
         const commonSet = new Set((commonSkills || []).map(s => s.toLowerCase()));
@@ -337,6 +338,8 @@
 
         if (user.isOwnProfile) {
             cta.innerHTML = `<a href="profile.html" class="pp-btn pp-btn-primary"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</a>`;
+            const navReportBtn = document.getElementById('ppNavReportBtn');
+            if (navReportBtn) navReportBtn.style.display = 'none';
             return;
         }
 
@@ -377,6 +380,23 @@
     // ── Main render ──────────────────────────────────────────────────────────
     function renderProfile(user) {
         document.title = `${user.name || 'Profile'} | SkillSprint`;
+
+        // Banner
+        const cover = document.getElementById('ppCover');
+        if (cover) {
+            if (user.banner_image) {
+                cover.style.backgroundImage = `url('${escAttr(user.banner_image)}')`;
+                cover.style.backgroundSize = 'cover';
+                cover.style.backgroundPosition = 'center';
+            } else {
+                cover.style.backgroundImage = ''; // Default CSS
+            }
+        }
+
+        const editBannerBtn = document.getElementById('ppEditBannerBtn');
+        if (editBannerBtn) {
+            editBannerBtn.style.display = user.isOwnProfile ? 'flex' : 'none';
+        }
 
         // Avatar
         const avatar = document.getElementById('ppAvatar');
@@ -460,6 +480,73 @@
 
         // Education
         renderEducation(user.education || []);
+
+        // Public Library
+        fetchAndRenderPublicLibrary();
+    }
+
+    // ── Public Library ──────────────────────────────────────────────
+    async function fetchAndRenderPublicLibrary() {
+        try {
+            const res = await fetch(`${LIBRARY_API}/user/${targetUserId}/public`, { headers: authHdr });
+            if (!res.ok) throw new Error('Failed to fetch library items');
+            const data = await res.json();
+            renderPublicLibrary(data.data || []);
+        } catch (err) {
+            console.error('[PublicProfile] Fetch library error:', err);
+            renderPublicLibrary([]); // render empty state on error
+        }
+    }
+
+    function renderPublicLibrary(items = []) {
+        const card = document.getElementById('ppLibraryCard');
+        const list = document.getElementById('ppLibraryStrip');
+        if (!card || !list) return;
+
+        if (!items.length) {
+            card.style.display = 'none';
+            return;
+        }
+
+        card.style.display = '';
+
+        const maxVisible = 5;
+        const visibleItems = items.slice(0, maxVisible);
+        const hasMore = items.length > maxVisible;
+
+        list.innerHTML = visibleItems.map(item => {
+            const iconClass = item.type === 'Document' ? 'fa-solid fa-file-lines' :
+                              item.type === 'Note' ? 'fa-solid fa-note-sticky' :
+                              'fa-solid fa-photo-film';
+            
+            const fileUrl = item.file_url ? escAttr(item.file_url) : '#';
+            const desc = item.description ? escHtml(item.description) : 'No description provided.';
+            
+            return `
+            <div class="pp-lib-card" title="${escHtml(item.title)}" onclick="window.openLibraryItemViewer('${escAttr(item.title)}', '${escAttr(item.type)}', '${desc}', '${fileUrl}')" style="cursor:pointer">
+                <div class="pp-lib-card-top">
+                    <div class="pp-lib-icon"><i class="${iconClass}"></i></div>
+                    <div class="pp-lib-tag">${escHtml(item.type)}</div>
+                </div>
+                <div class="pp-lib-title">${escHtml(item.title)}</div>
+                <div class="pp-lib-desc">${desc}</div>
+                <div class="pp-lib-click">View Resource <i class="fa-solid fa-arrow-right"></i></div>
+            </div>`;
+        }).join('');
+
+        const seeAllBtn = document.getElementById('ppLibrarySeeAll');
+        if (seeAllBtn) {
+            if (hasMore) {
+                seeAllBtn.style.display = '';
+                seeAllBtn.textContent = `See all ${items.length} items →`;
+                seeAllBtn.onclick = () => {
+                    // Navigate to library page with a pre-filter
+                    window.location.href = `library.html?user=${targetUserId}&filter=public`;
+                };
+            } else {
+                seeAllBtn.style.display = 'none';
+            }
+        }
     }
 
     // ── Fetch & Initialize ───────────────────────────────────────────────────
@@ -487,6 +574,110 @@
     document.addEventListener('DOMContentLoaded', () => {
         setupSocket();
         init();
+
+        // ── Modal Setup for Library Items ──
+        window.openLibraryItemViewer = (title, type, desc, fileUrl) => {
+            const modal = document.getElementById('ppLibViewModal');
+            if (!modal) return;
+
+            document.getElementById('ppLibModalTitle').textContent = title;
+            document.getElementById('ppLibModalTag').textContent = type;
+            document.getElementById('ppLibModalDesc').textContent = desc;
+            
+            // Set up download button logic
+            const downBtn = document.getElementById('ppLibModalDownloadBtn');
+            if(downBtn) {
+                downBtn.href = fileUrl;
+                // Cloudinary files download best if we add fl_attachment. Adjust if the user uses absolute links
+                if (fileUrl.includes('cloudinary.com') && !fileUrl.includes('fl_attachment')) {
+                    const parts = fileUrl.split('/upload/');
+                    if (parts.length === 2) {
+                        downBtn.href = parts[0] + '/upload/fl_attachment/' + parts[1];
+                    }
+                }
+            }
+
+            const container = document.getElementById('ppLibPreviewContainer');
+            container.innerHTML = '';
+            
+            if (type === 'Recording') {
+                container.innerHTML = `
+                    <video controls style="width:100%; height:100%; max-height:400px; border-radius:8px; background:#000;">
+                        <source src="${fileUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>`;
+            } else if (fileUrl.endsWith('.pdf')) {
+                container.innerHTML = `<iframe src="${fileUrl}" style="width:100%; height:400px; border:none; border-radius:8px;"></iframe>`;
+            } else if (fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i)) {
+                container.innerHTML = `<div style="width:100%; height:400px; display:flex; align-items:center; justify-content:center; background:#eee; border-radius:8px; overflow:hidden;">
+                    <img src="${fileUrl}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="Preview" />
+                </div>`;
+            } else {
+                container.innerHTML = `<div style="width:100%; height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f9f9f9; border-radius:8px; border:1px solid #ddd;">
+                    <i class="fa-solid fa-file-arrow-down" style="font-size:3rem; color:#aaa; margin-bottom:1rem;"></i>
+                    <p style="color:#666; font-size:0.9rem;">No preview available for this file type.</p>
+                </div>`;
+            }
+
+            modal.style.display = 'flex';
+        };
+
+        const libModal = document.getElementById('ppLibViewModal');
+        const closeModBtn = document.getElementById('ppLibModalClose');
+
+        if (libModal) {
+            libModal.addEventListener('click', (e) => {
+                if (e.target === libModal) libModal.style.display = 'none';
+            });
+            if (closeModBtn) {
+                closeModBtn.addEventListener('click', () => {
+                    libModal.style.display = 'none';
+                    // Stop video playback on close
+                    const container = document.getElementById('ppLibPreviewContainer');
+                    if (container) container.innerHTML = ''; 
+                });
+            }
+        }
+
+        // Banner editing listeners
+        document.getElementById('ppEditBannerBtn')?.addEventListener('click', () => {
+            document.getElementById('ppBannerInput')?.click();
+        });
+
+        document.getElementById('ppBannerInput')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const fd = new FormData();
+                fd.append('banner_image', file);
+
+                try {
+                    const res = await fetch(`${window.API_BASE_URL}/auth/update-profile`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: fd
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showToastSafe('Banner updated!', 'success');
+                        const cover = document.getElementById('ppCover');
+                        if (cover && data.user.banner_image) {
+                            cover.style.backgroundImage = `url('${escAttr(data.user.banner_image)}')`;
+                            cover.style.backgroundSize = 'cover';
+                            cover.style.backgroundPosition = 'center';
+                        }
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    } else {
+                        showToastSafe(data.message || 'Upload failed', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToastSafe('Error uploading banner', 'error');
+                }
+            }
+        });
     });
 
 })();

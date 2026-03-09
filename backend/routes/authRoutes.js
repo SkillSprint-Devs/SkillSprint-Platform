@@ -297,7 +297,7 @@ router.post("/reset-password", async (req, res) => {
 
 // Update Profile 
 
-router.put("/update-profile", verifyToken, upload.single("profile_image"), async (req, res) => {
+router.put("/update-profile", verifyToken, upload.fields([{ name: 'profile_image', maxCount: 1 }, { name: 'banner_image', maxCount: 1 }]), async (req, res) => {
   try {
 
     const {
@@ -322,7 +322,15 @@ router.put("/update-profile", verifyToken, upload.single("profile_image"), async
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (name) user.name = name;
-    if (req.file) user.profile_image = req.file.path.replace(/\\/g, "/");
+
+    if (req.files) {
+      if (req.files['profile_image']) {
+        user.profile_image = req.files['profile_image'][0].path.replace(/\\/g, "/");
+      }
+      if (req.files['banner_image']) {
+        user.banner_image = req.files['banner_image'][0].path.replace(/\\/g, "/");
+      }
+    }
     if (role && ["student", "mentor"].includes(role)) user.role = role;
     if (location !== undefined) user.location = location;
     if (bio !== undefined) user.bio = bio;

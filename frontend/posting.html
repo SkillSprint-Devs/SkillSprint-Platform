@@ -27,7 +27,9 @@
     <!-- LEFT SIDEBAR -->
     <aside class="left-sidebar">
       <div class="profile-card">
-        <img id="profileAvatar" src="./assets/images/user-avatar.png" alt="Profile picture" class="avatar" />
+        <img id="profileAvatar" src="./assets/images/user-avatar.png" alt="Profile picture" class="avatar"
+          style="cursor:pointer;" onclick="if(window.goToMyPublicProfile) window.goToMyPublicProfile();"
+          title="View My Public Profile" />
         <h3 id="profileName">Your Name</h3>
         <p id="profilePosition" class="position">Your role</p>
 
@@ -164,6 +166,9 @@
       });
     });
   </script>
+  <script src="js/config.js"></script>
+  <script src="js/global-auth.js"></script>
+  <script src="js/navbar-loader.js"></script>
   <script src="js/custom-dialog.js"></script>
   <script type="module" src="js/posting-sio.js"></script>
   <script type="module" src="js/posting.js"></script>

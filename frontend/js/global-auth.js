@@ -107,9 +107,23 @@
         if (!user) return;
         localStorage.setItem("user", JSON.stringify(user));
         updateUI(user);
-        // Dispatch storage event manually for current tab listeners (if any exist)
-        // Note: window.addEventListener('storage') only triggers for OTHER tabs.
-        // We can dispatch a custom event if needed, but direct UI update handles it.
+    };
+
+    // Expose global nav helper for profile capsules
+    window.goToMyPublicProfile = function () {
+        try {
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
+                const u = JSON.parse(userStr);
+                if (u && (u._id || u.id)) {
+                    window.location.href = `public-profile.html?user=${u._id || u.id}`;
+                    return;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        window.location.href = 'profile.html'; // Fallback if no ID available
     };
 
     console.log("[GlobalAuth] Initialized");

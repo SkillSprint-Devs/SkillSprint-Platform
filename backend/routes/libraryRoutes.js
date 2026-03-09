@@ -94,6 +94,21 @@ router.get("/", verifyToken, async (req, res) => {
     }
 });
 
+// Get public library items for a specific user
+router.get("/user/:userId/public", async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const items = await Library.find({
+            user_id: userId,
+            visibility: "Public"
+        }).sort({ date_added: -1 });
+
+        res.json({ success: true, data: items });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // Update an item (Title, Visibility, Description)
 router.patch("/:id", verifyToken, async (req, res) => {
     try {

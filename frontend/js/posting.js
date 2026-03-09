@@ -680,53 +680,87 @@ async function loadSuggestions() {
 
     const users = await res.json();
     const currentUser = JSON.parse(localStorage.getItem("user"));
+    if (!dom.suggestionsList) return;
     dom.suggestionsList.innerHTML = "";
+
+    if (!users.length) {
+      dom.suggestionsList.innerHTML = `<div style="color:#888;font-size:0.78rem;text-align:center;padding:0.8rem 0;">No suggestions yet.</div>`;
+      return;
+    }
 
     users.forEach((u) => {
       if (!u._id || currentUser._id === u._id) return;
-
-
       if (u.isFollowing) return;
+
+      const score = u.score;       // null = not onboarded
+      const reasons = u.reasons || [];
+
+      // Score badge: green/orange/red text, readable on white bg
+      let scoreColor = '#888';
+      if (score !== null) {
+        if (score >= 70) scoreColor = '#2e7d32';       // dark green — readable
+        else if (score >= 40) scoreColor = '#e65100';  // dark orange
+        else scoreColor = '#c62828';                   // dark red
+      }
 
       const card = el("div", { class: "suggestion-card", "data-id": u._id });
 
+      // Avatar (uses existing .suggestion-avatar CSS)
       const avatar = el("img", {
         src: u.profile_image || "./assets/images/user-avatar.png",
         class: "suggestion-avatar",
-        style: "cursor:pointer",
+        style: "cursor:pointer;",
         title: `View ${u.name}'s profile`
       });
       avatar.onclick = () => window.location.href = `public-profile.html?user=${u._id}`;
 
+      // Info block — uses existing .suggestion-info CSS
       const nameEl = el("h4", { style: "cursor:pointer;" }, [safeText(u.name)]);
       nameEl.onclick = () => window.location.href = `public-profile.html?user=${u._id}`;
+
+      // First reason only (keep card compact); dark text on light grey chip
+      const reasonsWrap = el("div", { style: "display:flex; flex-wrap:wrap; gap:2px; margin-top:2px;" });
+      if (reasons.length > 0) {
+        const chip = el("span", {
+          style: "font-size:0.62rem; background:#f0f0f0; color:#555; border-radius:20px; padding:1px 5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; display:block;",
+          title: reasons[0]
+        }, [reasons[0]]);
+        reasonsWrap.appendChild(chip);
+      }
 
       const info = el("div", { class: "suggestion-info" }, [
         nameEl,
         el("p", { class: "suggestion-role" }, [safeText(u.role || "Member")]),
+        reasonsWrap,
       ]);
 
+      // Score badge (tight, right-aligned before the follow btn)
+      const scoreBadge = el("div", {
+        style: `font-size:0.68rem; font-weight:700; color:${scoreColor}; text-align:center; min-width:30px; margin-right:4px; line-height:1;`,
+        title: score !== null ? `${score}% match` : 'Complete onboarding to see match score'
+      }, [score !== null ? `${score}%` : '']);
+      const scoreSub = el("div", { style: "font-size:0.55rem; color:#999; text-align:center;" }, [score !== null ? "match" : ""]);
+      const scoreWrap = el("div", { style: "display:flex; flex-direction:column; align-items:center; flex-shrink:0;" }, [scoreBadge, scoreSub]);
 
-      const btn = el(
-        "button",
-        { class: "follow-btn", "data-id": u._id },
-        [u.isFollowing ? "Following" : "Follow"]
-      );
+      // Follow btn (existing .follow-btn CSS)
+      const btn = el("button", { class: "follow-btn", "data-id": u._id }, [u.isFollowing ? "Following" : "Follow"]);
       btn.dataset.state = u.isFollowing ? "following" : "";
       if (u.isFollowing) btn.classList.add("following");
-
       btn.onclick = () => handleFollow(u._id, btn, card);
 
+      // Use existing card CSS (flex row): avatar | info | scoreWrap | btn
       card.appendChild(avatar);
       card.appendChild(info);
+      card.appendChild(scoreWrap);
       card.appendChild(btn);
       dom.suggestionsList.appendChild(card);
     });
   } catch (err) {
     console.error("Suggestion load failed:", err);
-    dom.suggestionsList.innerHTML = `<div class="error">Failed to load users</div>`;
+    if (dom.suggestionsList) dom.suggestionsList.innerHTML = `<div class="error">Failed to load users</div>`;
   }
 }
+
 
 
 // --- HANDLE FOLLOW/UNFOLLOW ---

@@ -234,7 +234,12 @@ async function loadDashboard() {
     // Trigger Onboarding if not completed
     if (data.user && !data.user.onboardingCompleted) {
       window.location.href = "onboarding.html";
+      return;
     }
+
+    // Load Best Match widget (only for onboarded users)
+    loadBestMatches();
+
 
   } catch (err) {
     console.error("Dashboard load error:", err);
@@ -621,7 +626,17 @@ function setupSocket(token) {
     if (typeof showToast === 'function') showToast(n.message || "New Notification", "info");
 
     if (n.type === 'session_update') loadSchedule();
+    if (n.type === 'match') {
+      // Refresh the Best Match widget when a new match notification arrives
+      loadBestMatches();
+    }
     loadNotifications();
+  });
+
+  // Socket: match:new event
+  dashboardSocket.on('match:new', ({ count }) => {
+    if (typeof showToast === 'function') showToast(`We found ${count} great match${count !== 1 ? 'es' : ''} for you!`, 'success');
+    loadBestMatches();
   });
 
   // Granular Task Events
@@ -757,6 +772,192 @@ function renderSessions(sessions) {
 }
 
 window.loadSchedule = loadSchedule;
+
+// ═══════════════════════════════════════════════════════════════
+// FIND YOUR BEST MATCH — Dashboard Widget
+// ═══════════════════════════════════════════════════════════════
+async function loadBestMatches({ forceRefresh = false } = {}) {
+  const token = localStorage.getItem('token');
+  const section = document.getElementById('bestMatchSection');
+  const listEl = document.getElementById('matchUsersList');
+  if (!section || !listEl) return;
+
+  // Show section (only for onboarded users — API handles the check)
+  section.style.display = '';
+
+  // Skeleton while loading
+  listEl.innerHTML = `
+    <div class="skeleton skeleton-card" style="height:64px; border-radius:12px;"></div>
+    <div class="skeleton skeleton-card" style="height:64px; border-radius:12px;"></div>
+    <div class="skeleton skeleton-card" style="height:64px; border-radius:12px;"></div>`;
+
+  try {
+    // Invalidate cache first if user explicitly refreshed
+    if (forceRefresh) {
+      await fetch(`${API_BASE}/matchmaking/invalidate`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    }
+
+    const res = await fetch(`${API_BASE}/matchmaking/suggestions`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Match API error');
+
+    const data = await res.json();
+    const suggestions = data.suggestions || data || [];
+
+    listEl.innerHTML = '';
+
+    if (!suggestions.length) {
+      listEl.innerHTML = `<div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">
+        <i class="fa-solid fa-user-slash" style="font-size:1.8rem; margin-bottom:0.5rem; display:block; opacity:0.4;"></i>
+        No matches found yet.<br>
+        <span style="font-size:0.75rem;">Invite more teammates to join SkillSprint!</span>
+      </div>`;
+      return;
+    }
+
+    suggestions.slice(0, 5).forEach(u => {
+      const score = u.score ?? 0;
+      const reasons = (u.reasons || []).slice(0, 2);
+
+      // Score ring colour
+      let ringColor = '#ef5350';
+      if (score >= 70) ringColor = '#4caf50';
+      else if (score >= 40) ringColor = '#ff9800';
+
+      const card = document.createElement('div');
+      card.style.cssText = `
+        display:flex; align-items:center; gap:12px;
+        padding:12px 14px; border-radius:12px;
+        background:var(--card-bg, rgba(255,255,255,0.04));
+        border:1px solid var(--border, rgba(255,255,255,0.07));
+        transition:transform .15s, box-shadow .15s;
+        cursor:default;`;
+      card.addEventListener('mouseenter', () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 6px 24px rgba(0,0,0,.25)'; });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; card.style.boxShadow = ''; });
+
+      // Avatar
+      const avatar = document.createElement('img');
+      avatar.src = u.profile_image || 'assets/images/user-avatar.png';
+      avatar.style.cssText = 'width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; cursor:pointer;';
+      avatar.onclick = () => window.location.href = `public-profile.html?user=${u._id}`;
+
+      // Score ring
+      const ring = document.createElement('div');
+      ring.style.cssText = `
+        width:40px; height:40px; border-radius:50%; flex-shrink:0;
+        background: conic-gradient(${ringColor} ${score}%, rgba(255,255,255,0.05) ${score}%);
+        display:flex; align-items:center; justify-content:center; position:relative;`;
+      const innerRing = document.createElement('div');
+      innerRing.style.cssText = `
+        width:30px; height:30px; border-radius:50%;
+        background:var(--sidebar-bg, #1a1a2e);
+        display:flex; align-items:center; justify-content:center;
+        font-size:0.6rem; font-weight:700; color:${ringColor};`;
+      innerRing.textContent = `${score}%`;
+      ring.appendChild(innerRing);
+
+      // Info
+      const info = document.createElement('div');
+      info.style.cssText = 'flex:1; min-width:0;';
+      info.innerHTML = `
+        <div style="font-weight:600; font-size:0.85rem; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+          onclick="window.location.href='public-profile.html?user=${u._id}'">${u.name || 'User'}</div>
+        <div style="font-size:0.72rem; opacity:0.55; margin-bottom:3px;">${u.role || 'Member'}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:3px;">
+          ${reasons.map(r => `<span style="font-size:0.62rem; background:#f0f0f0; color:#555; border-radius:20px; padding:1px 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px;" title="${r}">${r}</span>`).join('')}
+        </div>`;
+
+
+      // Action buttons
+      const actions = document.createElement('div');
+      actions.style.cssText = 'display:flex; flex-direction:column; gap:5px; flex-shrink:0;';
+
+      const viewBtn = document.createElement('button');
+      viewBtn.style.cssText = 'font-size:0.72rem; padding:4px 10px; border-radius:6px; border:1px solid var(--border,rgba(255,255,255,.1)); background:transparent; color:var(--text-muted); cursor:pointer; transition:all .2s; white-space:nowrap;';
+      viewBtn.textContent = 'View';
+      viewBtn.onclick = () => window.location.href = `public-profile.html?user=${u._id}`;
+
+      const followBtn = document.createElement('button');
+      followBtn.style.cssText = 'font-size:0.72rem; padding:4px 10px; border-radius:6px; border:none; background:var(--accent,#DCEF62); color:#1a1a1a; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap;';
+      followBtn.textContent = 'Follow';
+      followBtn.onclick = async () => {
+        followBtn.disabled = true;
+        followBtn.style.opacity = '0.6';
+        try {
+          const fr = await fetch(`${API_BASE}/posting/follow/${u._id}`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (fr.ok) {
+            followBtn.textContent = '✓ Following';
+            followBtn.style.background = 'transparent';
+            followBtn.style.border = '1px solid rgba(255,255,255,.2)';
+            followBtn.style.color = 'var(--text-muted)';
+            if (typeof showToast === 'function') showToast(`Following ${u.name}!`, 'success');
+          }
+        } catch (e) {
+          followBtn.disabled = false;
+          followBtn.style.opacity = '1';
+        }
+      };
+
+      actions.appendChild(viewBtn);
+      actions.appendChild(followBtn);
+
+      card.appendChild(avatar);
+      card.appendChild(ring);
+      card.appendChild(info);
+      card.appendChild(actions);
+      listEl.appendChild(card);
+    });
+  } catch (err) {
+    console.error('[BestMatch] Load error:', err);
+    if (listEl) listEl.innerHTML = `<div style="color:var(--danger);font-size:0.8rem;padding:0.5rem;">Could not load suggestions.</div>`;
+  }
+}
+
+window.loadBestMatches = loadBestMatches;
+
+// ── Match Tab Switching ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.match-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Reset all tabs
+      document.querySelectorAll('.match-tab').forEach(t => {
+        t.style.background = 'transparent';
+        t.style.color = 'var(--text-muted)';
+        t.style.border = '1px solid var(--border,rgba(255,255,255,.08))';
+      });
+      document.querySelectorAll('.match-tab-panel').forEach(p => p.style.display = 'none');
+
+      // Activate clicked
+      tab.style.background = 'var(--accent,#DCEF62)';
+      tab.style.color = '#1a1a1a';
+      tab.style.border = 'none';
+      const panelId = `matchTab${tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)}`;
+      const panel = document.getElementById(panelId);
+      if (panel) panel.style.display = '';
+    });
+  });
+
+  // Refresh button
+  const refreshBtn = document.getElementById('refreshMatchBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+      const icon = refreshBtn.querySelector('i');
+      if (icon) icon.style.animation = 'spin 0.7s linear infinite';
+      refreshBtn.disabled = true;
+      await loadBestMatches({ forceRefresh: true });
+      if (icon) icon.style.animation = '';
+      refreshBtn.disabled = false;
+    });
+  }
+});
+
 
 // === PENDING INVITES ===
 async function loadPendingInvites() {

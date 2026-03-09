@@ -55,12 +55,12 @@ body {
 .pp-wrapper {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1.5rem 1rem 4rem;
+    padding: 0.5rem 1rem 4rem;
 }
 
 @media (min-width: 768px) {
     .pp-wrapper {
-        padding: 1.5rem 1.5rem 4rem;
+        padding: 0.5rem 1.5rem 4rem;
     }
 }
 
@@ -860,4 +860,225 @@ body {
     .pp-stats {
         grid-template-columns: repeat(3, 1fr);
     }
+}
+
+/* ── Public Library Strip ────────────────────────────────────── */
+.pp-lib-strip-wrap {
+    margin-top: 0.5rem;
+    margin-inline: -1.25rem;
+    padding-inline: 1.25rem;
+    overflow: hidden;
+}
+
+.pp-lib-strip {
+    display: flex;
+    gap: 0.8rem;
+    overflow-x: auto;
+    padding-bottom: 0.8rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+
+.pp-lib-strip::-webkit-scrollbar {
+    height: 6px;
+}
+
+.pp-lib-strip::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.15);
+    border-radius: 4px;
+}
+
+.pp-lib-card {
+    flex: 0 0 240px;
+    background: var(--pp-card2);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    transition: all var(--transition);
+    text-decoration: none;
+}
+
+.pp-lib-card:hover {
+    background: #fff;
+    border-color: rgba(220, 239, 98, 0.4);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.pp-lib-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.pp-lib-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--pp-text);
+}
+
+.pp-lib-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--pp-muted);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.pp-lib-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--pp-text);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pp-lib-desc {
+    font-size: 0.8rem;
+    color: var(--pp-muted);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.pp-lib-click {
+    margin-top: auto;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #a8c945;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color var(--transition);
+}
+
+.pp-lib-card:hover .pp-lib-click {
+    color: #8bab35;
+}
+
+.pp-lib-see-all {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.pp-lib-see-all:hover {
+    color: var(--accent-hover);
+}
+
+/* ── Library Viewer Modal ────────────────────────────────────── */
+.pp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.pp-lib-modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: pp-fade-up 0.3s ease;
+}
+
+.pp-lib-modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--pp-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: #fdfdfd;
+}
+
+.pp-lib-modal-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--pp-text);
+    margin: 0 0 0.3rem 0;
+    line-height: 1.3;
+}
+
+.pp-modal-close {
+    background: rgba(0,0,0,0.05);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pp-modal-close:hover {
+    background: rgba(239, 83, 80, 0.1);
+    color: #ef5350;
+}
+
+.pp-lib-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.pp-lib-modal-desc {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.5;
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+}
+
+.pp-lib-preview-container {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f5f5;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pp-lib-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--pp-border);
+    display: flex;
+    justify-content: flex-end;
+    background: #fdfdfd;
 }

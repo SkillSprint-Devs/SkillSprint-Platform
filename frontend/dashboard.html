@@ -75,7 +75,8 @@
           <input type="text" placeholder="Search projects, tasks, or resources..." />
         </div>
 
-        <div class="profile" id="userProfile" onclick="window.location.href='profile.html'">
+        <div class="profile" id="userProfile"
+          onclick="if(window.goToMyPublicProfile) window.goToMyPublicProfile(); else window.location.href='profile.html';">
           <span id="usernameTop" style="font-weight: 600; font-size: 0.9rem;">&nbsp;</span>
           <img src="assets/images/user-avatar.png" alt="User avatar" id="profileAvatar" />
         </div>
@@ -145,7 +146,58 @@
             </a>
           </section>
 
+          <!-- ── FIND YOUR BEST MATCH ──────────────────────────────────── -->
+          <section class="best-match-section" id="bestMatchSection" style="margin-bottom: 2.5rem; display:none;">
+            <h3 style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+              <span><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent);"></i> Find Your Best Match</span>
+              <button id="refreshMatchBtn" title="Refresh suggestions"
+                style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.85rem; display:flex; align-items:center; gap:4px; transition:opacity .2s;">
+                <i class="fa-solid fa-rotate-right"></i>
+              </button>
+            </h3>
+
+            <!-- Tab nav -->
+            <div class="match-tabs" style="display:flex; gap:6px; margin-bottom:1rem;">
+              <button class="match-tab active" data-tab="users" style="flex:1; padding:6px 10px; border-radius:8px; border:none; cursor:pointer; font-size:0.8rem; font-weight:600; background:var(--accent,#DCEF62); color:#1a1a1a; transition:all .2s;">
+                <i class="fa-solid fa-user-group"></i> Users
+              </button>
+              <button class="match-tab" data-tab="projects" style="flex:1; padding:6px 10px; border-radius:8px; border:1px solid var(--border,rgba(255,255,255,.08)); cursor:pointer; font-size:0.8rem; font-weight:600; background:transparent; color:var(--text-muted); transition:all .2s;">
+                <i class="fa-solid fa-folder-open"></i> Projects
+              </button>
+              <button class="match-tab" data-tab="courses" style="flex:1; padding:6px 10px; border-radius:8px; border:1px solid var(--border,rgba(255,255,255,.08)); cursor:pointer; font-size:0.8rem; font-weight:600; background:transparent; color:var(--text-muted); transition:all .2s;">
+                <i class="fa-solid fa-graduation-cap"></i> Courses
+              </button>
+            </div>
+
+            <!-- Tab panels -->
+            <div id="matchTabUsers" class="match-tab-panel">
+              <div id="matchUsersList" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- skeleton -->
+                <div class="skeleton skeleton-card" style="height:64px; border-radius:12px;"></div>
+                <div class="skeleton skeleton-card" style="height:64px; border-radius:12px;"></div>
+                <div class="skeleton skeleton-card" style="height:64px; border-radius:12px;"></div>
+              </div>
+            </div>
+
+            <div id="matchTabProjects" class="match-tab-panel" style="display:none;">
+              <div style="text-align:center; padding:2rem 1rem; color:var(--text-muted); font-size:0.85rem;">
+                <i class="fa-solid fa-folder-open" style="font-size:2rem; margin-bottom:0.5rem; display:block; opacity:0.4;"></i>
+                Project matching coming soon.<br>
+                <span style="font-size:0.75rem;">We'll surface open projects that need your skills.</span>
+              </div>
+            </div>
+
+            <div id="matchTabCourses" class="match-tab-panel" style="display:none;">
+              <div style="text-align:center; padding:2rem 1rem; color:var(--text-muted); font-size:0.85rem;">
+                <i class="fa-solid fa-graduation-cap" style="font-size:2rem; margin-bottom:0.5rem; display:block; opacity:0.4;"></i>
+                Course recommendations coming soon.<br>
+                <span style="font-size:0.75rem;">Based on your learning goals and current level.</span>
+              </div>
+            </div>
+          </section>
+
           <!-- Ongoing Tasks (Horizontal Scroll) -->
+
           <section class="ongoing-tasks">
             <h3><i class="fa-solid fa-fire"></i> Active Tasks</h3>
 
@@ -269,6 +321,7 @@
 
   <!-- JS -->
   <script src="js/config.js"></script>
+  <script src="js/global-auth.js"></script>
   <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/custom-dialog.js"></script>

@@ -815,7 +815,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 10px; /* gap between navbar and suggestions panel */
 }
+
 
 /* Each section takes equal vertical space */
 .sidebar-section {
