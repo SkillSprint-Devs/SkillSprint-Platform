@@ -131,6 +131,9 @@ const BoardSchema = new Schema(
       role: { type: String, enum: ["viewer", "editor", "none"], default: "none" },
       isActive: { type: Boolean, default: false },
     },
+
+    // Matchmaking — skills required to collaborate on this board/project
+    requiredSkills: [{ type: String }],
   },
   { timestamps: true } // auto-manages createdAt + updatedAt
 );
