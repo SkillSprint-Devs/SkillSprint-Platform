@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import Task from '../models/task.js';
 import Notification from '../models/notification.js';
 import Reminder from '../models/reminder.js';
+import User from '../models/user.js';
+import { refreshMatchesForUser } from '../services/matchmakingService.js';
 
 /**
  * Task Reminder Scheduler
@@ -149,5 +151,44 @@ export function initTaskScheduler(io) {
     });
 
     console.log('Task reminder scheduler initialized (runs daily at 9:00 AM)');
+
+    // ── Nightly Matchmaking Refresh (2:00 AM) ─────────────────────────────────
+    cron.schedule('0 2 * * *', async () => {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('[Matchmaking Cron] Skipping — MongoDB is not connected.');
+            return;
+        }
+        console.log('[Matchmaking Cron] Starting nightly match refresh...');
+
+        try {
+            // Fetch all eligible users — select _id only to keep memory low
+            const users = await User.find({
+                onboardingCompleted: true,
+                isActive: true,
+            }).select('_id').lean();
+
+            const total = users.length;
+            const BATCH_SIZE = 10;
+
+            for (let i = 0; i < total; i += BATCH_SIZE) {
+                const batch = users.slice(i, i + BATCH_SIZE);
+
+                // Process each batch concurrently, not all users at once
+                await Promise.all(
+                    batch.map(u => refreshMatchesForUser(u._id, io).catch(err => {
+                        console.error(`[Matchmaking Cron] Error for user ${u._id}:`, err.message);
+                    }))
+                );
+
+                console.log(`[Matchmaking Cron] Processed ${Math.min(i + BATCH_SIZE, total)}/${total} users`);
+            }
+
+            console.log('[Matchmaking Cron] Nightly refresh complete.');
+        } catch (err) {
+            console.error('[Matchmaking Cron] Fatal error during nightly refresh:', err);
+        }
+    });
+
+    console.log('Nightly matchmaking refresh scheduler initialized (runs daily at 2:00 AM)');
     console.log('Minute reminder scheduler initialized');
 }

@@ -1,3 +1,6 @@
+import User from '../models/user.js';
+import Notification from '../models/notification.js';
+
 /**
  * SkillSprint — K-Nearest Neighbors (KNN) & Cosine Similarity Model
  * ─────────────────────────────────────────────────────────────────
@@ -70,10 +73,10 @@ function vectorizeCollab(style) {
 function extractAttributeVector(userData) {
   const d = userData || {};
   return [
-    vectorizeLevel(d.level) * 0.40,               // Weighting intrinsic to feature map
-    vectorizeHours(d.weeklyHours) * 0.30, 
-    vectorizeCollab(d.collabStyle) * 0.30,
-    (utcOffsetHours(d.timezone) + 12) / 24 * 0.20 // Normalize TZ (-12 to +12) -> 0.0 to 1.0 space
+    vectorizeLevel(d.level),
+    vectorizeHours(d.weeklyHours), 
+    vectorizeCollab(d.collabStyle),
+    (utcOffsetHours(d.timezone) + 12) / 24 // Normalize TZ (-12 to +12) -> 0.0 to 1.0 space
   ];
 }
 
@@ -166,6 +169,109 @@ export function computeMatchScore(userA, userB) {
 }
 
 
+// ── 3b. Project Match Scoring ─────────────────────────────────────────────────
+
+/**
+ * Computes a match score between a user and a board/project.
+ * Overlaps the user's combined skill set (topSkills + skillsToLearn)
+ * against the board's requiredSkills (or tags as a fallback).
+ * Returns { score: 0-100, reasons: String[] }
+ */
+export function computeProjectMatchScore(user, board) {
+  const reasons = [];
+  const userData = user.matchmakingData || {};
+
+  // Union of everything the user knows or wants to learn
+  const userSkills = [
+    ...(userData.topSkills || []),
+    ...(userData.skillsToLearn || []),
+  ];
+
+  // Board's required skills — fall back to tags if field absent
+  const boardSkills = (board.requiredSkills && board.requiredSkills.length)
+    ? board.requiredSkills
+    : (board.tags || []);
+
+  if (!userSkills.length || !boardSkills.length) {
+    return { score: 0, reasons: ['No skill data to compare'] };
+  }
+
+  // Reuse the existing Bag-of-Words cosine similarity function
+  const sim = computeSkillTextVectorSim(userSkills, boardSkills);
+  const score = Math.min(100, Math.round(sim * 100));
+
+  // Build readable reason chips
+  const userTokens = userSkills.map(s => s.toLowerCase());
+  const boardTokens = boardSkills.map(s => s.toLowerCase());
+  const matched = boardTokens.filter(s => userTokens.includes(s));
+
+  if (matched.length > 0) {
+    reasons.push(`Skill match: ${matched.slice(0, 3).join(', ')}`);
+  }
+  if (score === 0) {
+    reasons.push('No overlapping skills');
+  }
+
+  return { score, reasons };
+}
+
+
+// ── 3c. Course Match Scoring ──────────────────────────────────────────────────
+
+/**
+ * Computes a match score between a user and a course.
+ *
+ * Metric 1 (80%): Bag-of-Words cosine similarity between
+ *   user.matchmakingData.skillsToLearn  vs  course.tags
+ *
+ * Metric 2 (20%): Difficulty complementarity — rewards courses
+ *   at or one level above the user's current level (same logic
+ *   as the level dimension used in computeMatchScore).
+ *
+ * Returns { score: 0-100, reasons: String[] }
+ */
+export function computeCourseMatchScore(user, course) {
+  const reasons = [];
+  const userData = user.matchmakingData || {};
+
+  // ── Metric 1: Skill alignment (skillsToLearn vs course tags) ──
+  const wantToLearn = userData.skillsToLearn || [];
+  const courseTags  = course.tags || [];
+
+  let skillScore = 0;
+  if (wantToLearn.length && courseTags.length) {
+    const sim = computeSkillTextVectorSim(wantToLearn, courseTags);
+    skillScore = Math.round(sim * 80); // out of 80
+
+    // Identify matched tags for reason chips
+    const learnTokens  = wantToLearn.map(s => s.toLowerCase());
+    const tagTokens    = courseTags.map(s => s.toLowerCase());
+    const matched      = tagTokens.filter(t => learnTokens.includes(t));
+    if (matched.length > 0) {
+      reasons.push(`Covers: ${matched.slice(0, 3).join(', ')}`);
+    }
+  }
+
+  // ── Metric 2: Difficulty complementarity (out of 20) ──
+  const LEVEL_MAP = { Beginner: 0.2, Intermediate: 0.6, Advanced: 1.0 };
+  const userLevel   = LEVEL_MAP[userData.level]   ?? 0.6;
+  const courseLevel = LEVEL_MAP[course.difficulty] ?? 0.6;
+
+  // Perfect match = same level or one step up; penalise large gaps
+  const levelDiff  = Math.abs(courseLevel - userLevel);
+  const levelBonus = Math.round(Math.max(0, 1 - levelDiff * 1.5) * 20);
+
+  if (levelBonus >= 15) {
+    reasons.push(`Level match: ${course.difficulty}`);
+  }
+
+  const score = Math.min(100, skillScore + levelBonus);
+  if (score === 0) reasons.push('No skill overlap with your learning goals');
+
+  return { score, reasons };
+}
+
+
 // ── 4. K-Nearest Neighbors Pipeline ──────────────────────────────────────────
 
 /**
@@ -188,3 +294,82 @@ export function scoreAndSortCandidates(me, candidates) {
   return evaluatedNeighbors.sort((a, b) => b.score - a.score);
 }
 
+// ── 5. Nightly Refresh — Called by Cron ──────────────────────────────────────
+
+/**
+ * refreshMatchesForUser(userId, io)
+ *
+ * Re-scores all candidates for a single user, diffs against their existing
+ * cache, fires per-match 'match:new' notifications for any new high-score
+ * entries (score >= 75), and persists the updated cache.
+ *
+ * Called by the nightly matchmaking cron in taskScheduler.js.
+ */
+export async function refreshMatchesForUser(userId, io) {
+  // 1. Fetch full user document (non-lean — needs .save())
+  const user = await User.findById(userId);
+  if (!user) return;
+
+  // 2. Fetch up to 100 eligible candidates (exclude self)
+  const candidates = await User.find({
+    _id: { $ne: userId },
+    onboardingCompleted: true,
+    isActive: true,
+  })
+    .select('name role profile_image skills matchmakingData xp availability')
+    .limit(100)
+    .lean();
+
+  if (!candidates.length) return;
+
+  // 3. Score all candidates using the KNN pipeline
+  const scored = scoreAndSortCandidates(user, candidates);
+
+  // 4. Take top 10 results
+  const top10 = scored.slice(0, 10).map(({ user: candidate, score, reasons }) => ({
+    _id: candidate._id,
+    name: candidate.name,
+    role: candidate.role,
+    profile_image: candidate.profile_image,
+    skills: candidate.skills,
+    availability: candidate.availability,
+    xp: candidate.xp,
+    matchmakingData: candidate.matchmakingData,
+    score,
+    reasons,
+  }));
+
+  // 5. Diff against existing cache — find new entries with score >= 75
+  const previousIds = new Set(
+    (user.matchSuggestionsCache || []).map(m => m._id.toString())
+  );
+  const newMatches = top10.filter(
+    m => !previousIds.has(m._id.toString()) && m.score >= 75
+  );
+
+  // 6. Notify user for each new high-score match
+  for (const newMatch of newMatches) {
+    try {
+      const notification = await Notification.create({
+        user_id: userId,
+        title: 'New Match Found!',
+        message: `${newMatch.name} is a great match for you (${newMatch.score}% compatibility)`,
+        type: 'match',
+        link: '/dashboard.html',
+      });
+      if (io) {
+        io.to(userId.toString()).emit('match:new', {
+          notification,
+          count: newMatches.length,
+        });
+      }
+    } catch (notifErr) {
+      console.error(`[Matchmaking Cron] Notification error for user ${userId}:`, notifErr.message);
+    }
+  }
+
+  // 7. Persist updated cache
+  user.matchSuggestionsCache = top10;
+  user.matchesCachedAt = new Date();
+  await user.save();
+}

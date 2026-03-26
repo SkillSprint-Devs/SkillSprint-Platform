@@ -785,6 +785,10 @@ async function loadBestMatches({ forceRefresh = false } = {}) {
   // Show section (only for onboarded users — API handles the check)
   section.style.display = '';
 
+  // Load projects panel in parallel — doesn't depend on user suggestions
+  loadProjectMatches();
+  loadCourseMatches();
+
   // Skeleton while loading
   listEl.innerHTML = `
     <div class="skeleton skeleton-card" style="height:64px; border-radius:12px;"></div>
@@ -810,13 +814,32 @@ async function loadBestMatches({ forceRefresh = false } = {}) {
 
     listEl.innerHTML = '';
 
-    if (!suggestions.length) {
+    const tabs = document.querySelector('.match-tabs');
+    const prefsBtn = document.getElementById('updatePreferencesBtn');
+
+    if (data.coldStart) {
+      listEl.innerHTML = `
+        <div style="text-align:center; padding:2rem 1rem; background:var(--card-bg, rgba(255,255,255,0.03)); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:12px; margin-bottom:1rem;">
+          <i class="fa-solid fa-bullseye" style="font-size:2.5rem; color:var(--accent,#DCEF62); margin-bottom:1rem; display:block;"></i>
+          <h4 style="margin-bottom:0.5rem; font-size:1.1rem;">Unlock Your Best Matches</h4>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Complete your profile to get personalized match suggestions</p>
+          <button onclick="window.location.href='getstarted.html'" style="padding:10px 20px; background:var(--accent,#DCEF62); color:#1a1a1a; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:0.9rem;">Complete Profile</button>
+        </div>
+      `;
+      if (tabs) tabs.style.display = 'none';
+      if (prefsBtn) prefsBtn.style.display = 'none';
+    } else if (!suggestions.length) {
       listEl.innerHTML = `<div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">
         <i class="fa-solid fa-user-slash" style="font-size:1.8rem; margin-bottom:0.5rem; display:block; opacity:0.4;"></i>
         No matches found yet.<br>
         <span style="font-size:0.75rem;">Invite more teammates to join SkillSprint!</span>
       </div>`;
+      if (tabs) tabs.style.display = 'none';
+      if (prefsBtn) prefsBtn.style.display = 'flex';
       return;
+    } else {
+      if (tabs) tabs.style.display = 'flex';
+      if (prefsBtn) prefsBtn.style.display = 'flex';
     }
 
     suggestions.slice(0, 5).forEach(u => {
@@ -914,6 +937,13 @@ async function loadBestMatches({ forceRefresh = false } = {}) {
       card.appendChild(actions);
       listEl.appendChild(card);
     });
+
+    if (!data.coldStart && suggestions.length > 0 && suggestions.length < 3) {
+      const msg = document.createElement('div');
+      msg.style.cssText = 'text-align:center; padding:1rem; color:var(--text-muted); font-size:0.8rem; margin-top:0.5rem;';
+      msg.textContent = 'Use the platform more to improve your matches';
+      listEl.appendChild(msg);
+    }
   } catch (err) {
     console.error('[BestMatch] Load error:', err);
     if (listEl) listEl.innerHTML = `<div style="color:var(--danger);font-size:0.8rem;padding:0.5rem;">Could not load suggestions.</div>`;
@@ -921,6 +951,256 @@ async function loadBestMatches({ forceRefresh = false } = {}) {
 }
 
 window.loadBestMatches = loadBestMatches;
+
+// ── Project Matches ──────────────────────────────────────────────────────────
+async function loadProjectMatches() {
+  const token = localStorage.getItem('token');
+  const panel = document.getElementById('matchTabProjects');
+  if (!panel) return;
+
+  // Skeleton while loading
+  panel.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="skeleton skeleton-card" style="height:80px; border-radius:12px;"></div>
+      <div class="skeleton skeleton-card" style="height:80px; border-radius:12px;"></div>
+    </div>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/matchmaking/projects`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Projects API error');
+    const data = await res.json();
+    renderProjectMatches(data.projects || []);
+  } catch (err) {
+    console.error('[BestMatch] Projects load error:', err);
+    if (panel) panel.innerHTML = `<div style="color:var(--danger);font-size:0.8rem;padding:0.5rem;">Could not load project matches.</div>`;
+  }
+}
+
+function renderProjectMatches(projects) {
+  const panel = document.getElementById('matchTabProjects');
+  if (!panel) return;
+
+  panel.innerHTML = '';
+
+  if (!projects.length) {
+    panel.innerHTML = `
+      <div style="text-align:center; padding:2rem 1rem; color:var(--text-muted); font-size:0.85rem;">
+        <i class="fa-solid fa-folder-open" style="font-size:2rem; margin-bottom:0.5rem; display:block; opacity:0.4;"></i>
+        No open projects matched your skills yet.<br>
+        <span style="font-size:0.75rem;">Projects you collaborate on will appear here.</span>
+      </div>`;
+    return;
+  }
+
+  const listWrap = document.createElement('div');
+  listWrap.style.cssText = 'display:flex; flex-direction:column; gap:10px;';
+
+  projects.forEach(p => {
+    const score = p.score ?? 0;
+    const reasons = (p.reasons || []).slice(0, 2);
+    const skills  = (p.requiredSkills || []).slice(0, 4);
+    const desc    = p.description ? (p.description.length > 80 ? p.description.slice(0, 80) + '…' : p.description) : 'No description';
+
+    // Score badge colour — matches user card logic
+    let badgeColor = '#ef5350';
+    if (score >= 70) badgeColor = '#4caf50';
+    else if (score >= 40) badgeColor = '#ff9800';
+
+    const card = document.createElement('div');
+    card.style.cssText = `
+      display:flex; flex-direction:column; gap:8px;
+      padding:12px 14px; border-radius:12px;
+      background:var(--card-bg, rgba(255,255,255,0.04));
+      border:1px solid var(--border, rgba(255,255,255,0.07));
+      transition:transform .15s, box-shadow .15s;`;
+    card.addEventListener('mouseenter', () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 6px 24px rgba(0,0,0,.25)'; });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; card.style.boxShadow = ''; });
+
+    // Top row: title + score badge
+    const topRow = document.createElement('div');
+    topRow.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:8px;';
+    topRow.innerHTML = `
+      <div style="font-weight:600; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">
+        <i class="fa-solid fa-folder-open" style="color:var(--accent,#DCEF62); margin-right:5px; font-size:0.75rem;"></i>
+        ${p.title || 'Untitled Project'}
+      </div>
+      <span style="
+        font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:20px; flex-shrink:0;
+        background:${badgeColor}22; color:${badgeColor}; border:1px solid ${badgeColor}44;">
+        ${score}% match
+      </span>`;
+
+    // Description
+    const descEl = document.createElement('div');
+    descEl.style.cssText = 'font-size:0.75rem; opacity:0.55; line-height:1.4;';
+    descEl.textContent = desc;
+
+    // Skill chips
+    const chipsRow = document.createElement('div');
+    chipsRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px;';
+    skills.forEach(s => {
+      const chip = document.createElement('span');
+      chip.style.cssText = 'font-size:0.62rem; background:rgba(220,239,98,0.12); color:var(--accent,#DCEF62); border:1px solid rgba(220,239,98,0.25); border-radius:20px; padding:1px 7px; white-space:nowrap;';
+      chip.textContent = s;
+      chipsRow.appendChild(chip);
+    });
+    if (!skills.length && reasons.length) {
+      reasons.forEach(r => {
+        const chip = document.createElement('span');
+        chip.style.cssText = 'font-size:0.62rem; background:#f0f0f0; color:#555; border-radius:20px; padding:1px 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px;';
+        chip.title = r;
+        chip.textContent = r;
+        chipsRow.appendChild(chip);
+      });
+    }
+
+    // Bottom row: members count + View Project button
+    const bottomRow = document.createElement('div');
+    bottomRow.style.cssText = 'display:flex; align-items:center; justify-content:space-between;';
+    bottomRow.innerHTML = `
+      <span style="font-size:0.72rem; opacity:0.45;">
+        <i class="fa-solid fa-users" style="margin-right:3px;"></i>${p.memberCount || 0} member${p.memberCount !== 1 ? 's' : ''}
+      </span>`;
+
+    const viewBtn = document.createElement('button');
+    viewBtn.style.cssText = 'font-size:0.72rem; padding:4px 10px; border-radius:6px; border:none; background:var(--accent,#DCEF62); color:#1a1a1a; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap;';
+    viewBtn.textContent = 'View Project';
+    viewBtn.onclick = () => window.location.href = `board.html?id=${p._id}`;
+    bottomRow.appendChild(viewBtn);
+
+    card.appendChild(topRow);
+    card.appendChild(descEl);
+    if (chipsRow.children.length) card.appendChild(chipsRow);
+    card.appendChild(bottomRow);
+    listWrap.appendChild(card);
+  });
+
+  panel.appendChild(listWrap);
+}
+
+// ── Course Matches ──────────────────────────────────────────────────────────
+async function loadCourseMatches() {
+  const token = localStorage.getItem('token');
+  const panel = document.getElementById('matchTabCourses');
+  if (!panel) return;
+
+  panel.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="skeleton skeleton-card" style="height:80px; border-radius:12px;"></div>
+      <div class="skeleton skeleton-card" style="height:80px; border-radius:12px;"></div>
+    </div>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/matchmaking/courses`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Courses API error');
+    const data = await res.json();
+    renderCourseMatches(data.courses || []);
+  } catch (err) {
+    console.error('[BestMatch] Courses load error:', err);
+    if (panel) panel.innerHTML = `<div style="color:var(--danger);font-size:0.8rem;padding:0.5rem;">Could not load course matches.</div>`;
+  }
+}
+
+function renderCourseMatches(courses) {
+  const panel = document.getElementById('matchTabCourses');
+  if (!panel) return;
+
+  panel.innerHTML = '';
+
+  if (!courses.length) {
+    panel.innerHTML = `
+      <div style="text-align:center; padding:2rem 1rem; color:var(--text-muted); font-size:0.85rem;">
+        <i class="fa-solid fa-graduation-cap" style="font-size:2rem; margin-bottom:0.5rem; display:block; opacity:0.4;"></i>
+        No courses found matching your learning goals yet.<br>
+        <span style="font-size:0.75rem;">Check back later as we add more courses.</span>
+      </div>`;
+    return;
+  }
+
+  const listWrap = document.createElement('div');
+  listWrap.style.cssText = 'display:flex; flex-direction:column; gap:10px;';
+
+  courses.forEach(c => {
+    const score = c.score ?? 0;
+    const reasons = (c.reasons || []).slice(0, 2);
+    const tags  = (c.tags || []).slice(0, 4);
+    const diff  = c.difficulty || 'Beginner';
+
+    let badgeColor = '#ef5350';
+    if (score >= 70) badgeColor = '#4caf50';
+    else if (score >= 40) badgeColor = '#ff9800';
+    
+    let diffColor = '#4caf50';
+    if (diff === 'Intermediate') diffColor = '#ff9800';
+    if (diff === 'Advanced') diffColor = '#ef5350';
+
+    const card = document.createElement('div');
+    card.style.cssText = `
+      display:flex; flex-direction:column; gap:8px;
+      padding:12px 14px; border-radius:12px;
+      background:var(--card-bg, rgba(255,255,255,0.04));
+      border:1px solid var(--border, rgba(255,255,255,0.07));
+      transition:transform .15s, box-shadow .15s;`;
+    card.addEventListener('mouseenter', () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 6px 24px rgba(0,0,0,.25)'; });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; card.style.boxShadow = ''; });
+
+    const topRow = document.createElement('div');
+    topRow.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:8px;';
+    topRow.innerHTML = `
+      <div style="font-weight:600; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">
+        <i class="fa-solid fa-graduation-cap" style="color:var(--accent,#DCEF62); margin-right:5px; font-size:0.75rem;"></i>
+        ${c.title || 'Untitled Course'}
+      </div>
+      <span style="
+        font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:20px; flex-shrink:0;
+        background:${badgeColor}22; color:${badgeColor}; border:1px solid ${badgeColor}44;">
+        ${score}% match
+      </span>`;
+
+    const diffBadge = document.createElement('div');
+    diffBadge.style.cssText = 'font-size:0.75rem;';
+    diffBadge.innerHTML = `<span style="border-radius: 4px; padding: 2px 6px; font-size: 0.65rem; font-weight: 600; background: ${diffColor}22; color: ${diffColor}; text-transform: uppercase;">${diff}</span>`;
+
+    const chipsRow = document.createElement('div');
+    chipsRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; margin-top: 4px;';
+    tags.forEach(s => {
+      const chip = document.createElement('span');
+      chip.style.cssText = 'font-size:0.62rem; background:rgba(220,239,98,0.12); color:var(--accent,#DCEF62); border:1px solid rgba(220,239,98,0.25); border-radius:20px; padding:1px 7px; white-space:nowrap;';
+      chip.textContent = s;
+      chipsRow.appendChild(chip);
+    });
+    if (!tags.length && reasons.length) {
+      reasons.forEach(r => {
+        const chip = document.createElement('span');
+        chip.style.cssText = 'font-size:0.62rem; background:#f0f0f0; color:#555; border-radius:20px; padding:1px 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px;';
+        chip.title = r;
+        chip.textContent = r;
+        chipsRow.appendChild(chip);
+      });
+    }
+
+    const bottomRow = document.createElement('div');
+    bottomRow.style.cssText = 'display:flex; align-items:center; justify-content:flex-end; margin-top: 5px;';
+
+    const viewBtn = document.createElement('button');
+    viewBtn.style.cssText = 'font-size:0.72rem; padding:4px 10px; border-radius:6px; border:none; background:var(--accent,#DCEF62); color:#1a1a1a; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap;';
+    viewBtn.textContent = 'Start Course';
+    viewBtn.onclick = () => { if(c.link) window.open(c.link, '_blank'); else window.location.href = '#'; };
+    bottomRow.appendChild(viewBtn);
+
+    card.appendChild(topRow);
+    card.appendChild(diffBadge);
+    if (chipsRow.children.length) card.appendChild(chipsRow);
+    card.appendChild(bottomRow);
+    listWrap.appendChild(card);
+  });
+
+  panel.appendChild(listWrap);
+}
 
 // ── Match Tab Switching ──
 document.addEventListener('DOMContentLoaded', () => {
@@ -954,6 +1234,68 @@ document.addEventListener('DOMContentLoaded', () => {
       await loadBestMatches({ forceRefresh: true });
       if (icon) icon.style.animation = '';
       refreshBtn.disabled = false;
+    });
+  }
+
+  // ── Preferences Modal ──
+  const prefsBtn = document.getElementById('updatePreferencesBtn');
+  const prefsModal = document.getElementById('preferencesModal');
+  const closePrefsModal = document.getElementById('closePreferencesModal');
+  const prefsForm = document.getElementById('preferencesForm');
+
+  if (prefsBtn && prefsModal) {
+    prefsBtn.addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const { user } = await res.json();
+          const pd = user?.matchmakingData || {};
+          document.getElementById('prefTopSkills').value = (pd.topSkills || []).join(', ');
+          document.getElementById('prefSkillsToLearn').value = (pd.skillsToLearn || []).join(', ');
+          if (pd.weeklyHours) document.getElementById('prefWeeklyHours').value = pd.weeklyHours;
+          if (pd.collabStyle) document.getElementById('prefCollabStyle').value = pd.collabStyle;
+        }
+      } catch (err) { console.error('Failed to load user info', err); }
+      prefsModal.style.display = 'flex';
+    });
+
+    closePrefsModal?.addEventListener('click', () => { prefsModal.style.display = 'none'; });
+    
+    prefsModal.addEventListener('click', (e) => {
+      if (e.target === prefsModal) prefsModal.style.display = 'none';
+    });
+
+    prefsForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('savePreferencesBtn');
+      if (saveBtn) saveBtn.textContent = 'Saving...';
+      
+      const topSkills = document.getElementById('prefTopSkills').value.split(',').map(s=>s.trim()).filter(Boolean);
+      const skillsToLearn = document.getElementById('prefSkillsToLearn').value.split(',').map(s=>s.trim()).filter(Boolean);
+      const weeklyHours = document.getElementById('prefWeeklyHours').value;
+      const collabStyle = document.getElementById('prefCollabStyle').value;
+
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/matchmaking/preferences`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ matchmakingData: { topSkills, skillsToLearn, weeklyHours, collabStyle } })
+        });
+        if (res.ok) {
+          if (typeof showToast === 'function') showToast("Preferences updated! Refreshing your matches...", "success");
+          prefsModal.style.display = 'none';
+          await loadBestMatches({ forceRefresh: true }); // ensure we invalidate client side or rely on backend busting cache
+        } else {
+          const err = await res.json();
+          if (typeof showToast === 'function') showToast(err.message || 'Error saving preferences', 'error');
+        }
+      } catch (err) {
+        console.error('Save preferences error', err);
+      } finally {
+        if (saveBtn) saveBtn.textContent = 'Save Preferences';
+      }
     });
   }
 });
