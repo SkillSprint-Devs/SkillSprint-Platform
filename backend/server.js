@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ quiet: true });
 
 // ── ENV VALIDATION ──────────────────────────────────────────────────────────
 const REQUIRED_ENV = ["MONGO_URI", "JWT_SECRET", "CLIENT_URL"];
