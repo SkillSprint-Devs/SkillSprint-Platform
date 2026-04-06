@@ -21,8 +21,8 @@ backend/scripts/
 backend/seedCourses.js
 backend/seeds/
 backend/cleanup-ghost-credits.js
-backend/services/cleanupService.js
 *.seed.js
+
 tmp/
 
 railway.json

@@ -8,7 +8,9 @@
 import express from 'express';
 import User from '../models/user.js';
 import Board from '../models/board.js';
+import PairProgramming from '../models/pair-programming.js';
 import Course from '../models/course.js';
+
 import Notification from '../models/notification.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { scoreAndSortCandidates, computeProjectMatchScore, computeCourseMatchScore } from '../services/matchmakingService.js';
@@ -163,40 +165,81 @@ router.post('/invalidate', verifyToken, async (req, res) => {
 
 // ── GET /api/matchmaking/projects ─────────────────────────────────────────────
 // Returns top 5 boards scored by skill overlap with the requesting user
+// Returns top 5 boards/pairs scored by skill overlap with the requesting user
 router.get('/projects', verifyToken, async (req, res) => {
   try {
     const meId = req.user.id;
     const me = await User.findById(meId).lean();
     if (!me) return res.status(404).json({ message: 'User not found' });
 
-    // Fetch up to 50 boards to score for project matching
-    const boards = await Board.find({})
+    // 1. Fetch available Boards (Whiteboards) the user doesn't belong to, with owner populated
+    const boards = await Board.find({
+      members: { $nin: [meId] },
+      owner:   { $ne: meId },
+    })
       .select('_id name description requiredSkills members owner')
-      .limit(50)
+      .populate('owner', 'isActive')
+      .limit(30)
       .lean();
 
-    if (!boards.length) {
-      return res.json({ projects: [] });
-    }
+    // 2. Fetch available Pair-Programming projects the user doesn't belong to, with owner populated
+    const pairs = await PairProgramming.find({
+      'members.user': { $nin: [meId] },
+      owner:          { $ne: meId },
+    })
+      .select('_id name description language requiredSkills members owner')
+      .populate('owner', 'isActive')
+      .limit(30)
+      .lean();
 
-    // Score each board against the requesting user
-    const scored = boards
-      .map(board => {
-        const { score, reasons } = computeProjectMatchScore(me, board);
+    // 3. Score and format both types
+    const boardMatches = boards
+      .filter(p => p.owner && p.owner.isActive !== false) // Filter out missing or inactive owners
+      .map(p => {
+        const { score, reasons } = computeProjectMatchScore(me, p);
+        if (score === 0) return null; // Filter out 0% matches
         return {
-          _id: board._id,
-          title: board.name,
-          description: board.description || '',
-          requiredSkills: board.requiredSkills || [],
-          memberCount: (board.members || []).length,
+          _id: p._id,
+          title: p.name,
+          owner: p.owner._id,
+          description: p.description || '',
+          requiredSkills: p.requiredSkills || [],
+          memberCount: (p.members || []).length,
+          type: 'Board',
+          icon: 'fa-chalkboard',
           score,
           reasons,
         };
-      })
+      }).filter(Boolean);
+
+    const pairMatches = pairs
+      .filter(p => p.owner && p.owner.isActive !== false) // Filter out missing or inactive owners
+      .map(p => {
+        // For pair programming, we prioritize both the language and specific required skills
+        const combinedSkills = [...new Set([p.language, ...(p.requiredSkills || [])])];
+        const virtualBoard = { ...p, requiredSkills: combinedSkills };
+        const { score, reasons } = computeProjectMatchScore(me, virtualBoard);
+        if (score === 0) return null; // Filter out 0% matches
+        return {
+          _id: p._id,
+          title: p.name,
+          owner: p.owner._id,
+          description: p.description || '',
+          requiredSkills: combinedSkills,
+          memberCount: (p.members || []).length,
+          type: 'PairProgramming',
+          icon: 'fa-code',
+          score,
+          reasons,
+        };
+      }).filter(Boolean);
+
+    // 4. Merge, Sort by score, and Slice top 5
+    const combined = [...boardMatches, ...pairMatches]
       .sort((a, b) => b.score - a.score)
       .slice(0, 5);
 
-    res.json({ projects: scored });
+    res.json({ projects: combined });
   } catch (err) {
     console.error('[Matchmaking] Projects error:', err);
     res.status(500).json({ message: 'Failed to load project matches', error: err.message });

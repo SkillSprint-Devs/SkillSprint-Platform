@@ -11,18 +11,10 @@ import User from "../models/user.js";
 import Otp from "../models/otp.js";
 import WalletService from "../utils/walletService.js";
 import { updateStreak } from "../utils/streakHelper.js";
-// Cascade delete imports
-import Post from "../models/post.js";
-import Notification from "../models/notification.js";
-import Chat from "../models/chat.js";
-import Invitation from "../models/Invitation.js";
-import PairProgramming from "../models/pair-programming.js";
-import Board from "../models/board.js";
-import Wallet from "../models/wallet.js";
-import WalletTransaction from "../models/walletTransaction.js";
-import QuizAttempt from "../models/quizAttempt.js";
 import Certificate from "../models/certificate.js";
 import Reminder from "../models/reminder.js";
+import { hardDeleteUserData } from "../services/cleanupService.js";
+
 
 dotenv.config();
 
@@ -558,70 +550,26 @@ router.post("/deactivate-account", verifyToken, async (req, res) => {
   }
 });
 
-// Delete Account
+// Delete Account — Now performs a TOTAL HARD DELETE with cascade and member notifications
 router.delete("/delete-account", verifyToken, async (req, res) => {
   const userId = req.user.id;
   try {
-    // Run all cascade deletions in parallel for speed
-    await Promise.all([
-      // User's own content
-      Post.deleteMany({ authorId: userId }),
-      Notification.deleteMany({ user_id: userId }),
-      Chat.deleteMany({ $or: [{ sender: userId }, { recipient: userId }] }),
-      Invitation.deleteMany({ $or: [{ sender: userId }, { recipient: userId }] }),
-      Otp.deleteMany({ email: (await User.findById(userId).select("email").lean())?.email }),
-      Reminder.deleteMany({ user: userId }),
-      QuizAttempt.deleteMany({ userId }),
-      Certificate.deleteMany({ userId }),
-
-      // Wallet cleanup
-      Wallet.deleteOne({ user_id: userId }),
-      WalletTransaction.deleteMany({ user_id: userId }),
-
-      // Delete boards the user OWNS outright
-      PairProgramming.deleteMany({ owner: userId }),
-      Board.deleteMany({ owner: userId }),
-
-      // Remove user from boards they were just a member/editor/viewer of
-      PairProgramming.updateMany(
-        { owner: { $ne: userId } },
-        {
-          $pull: {
-            members: { user: userId },
-            "permissions.editors": userId,
-            "permissions.commenters": userId,
-            "permissions.viewers": userId,
-          }
-        }
-      ),
-      Board.updateMany(
-        { owner: { $ne: userId } },
-        {
-          $pull: {
-            members: userId,
-            "permissions.editors": userId,
-            "permissions.commenters": userId,
-            "permissions.viewers": userId,
-          }
-        }
-      ),
-
-      // Remove user from followers/following lists of other users
-      User.updateMany(
-        { $or: [{ followers: userId }, { following: userId }] },
-        { $pull: { followers: userId, following: userId } }
-      ),
-    ]);
-
-    // Finally delete the user document
-    await User.findByIdAndDelete(userId);
-
-    res.json({ message: "Account and all associated data deleted permanently" });
+    const io = req.app.get('io');
+    
+    // Perform total cascade deletion
+    const result = await hardDeleteUserData(userId, io);
+    
+    if (result.success) {
+      res.json({ message: "Account and all associated data (projects, tasks, posts, achievements, etc.) deleted permanently" });
+    } else {
+      res.status(404).json({ message: result.message || "User not found" });
+    }
   } catch (err) {
-    console.error("Delete account cascade error:", err);
-    res.status(500).json({ message: "Server error during account deletion" });
+    console.error("Delete account error:", err);
+    res.status(500).json({ message: "Server error during account deletion", error: err.message });
   }
 });
+
 
 
 export default router;

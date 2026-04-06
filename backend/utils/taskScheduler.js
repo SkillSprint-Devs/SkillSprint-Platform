@@ -5,6 +5,8 @@ import Notification from '../models/notification.js';
 import Reminder from '../models/reminder.js';
 import User from '../models/user.js';
 import { refreshMatchesForUser } from '../services/matchmakingService.js';
+import { cleanupOrphanedProjects } from '../services/cleanupService.js';
+
 
 /**
  * Task Reminder Scheduler
@@ -190,5 +192,23 @@ export function initTaskScheduler(io) {
     });
 
     console.log('Nightly matchmaking refresh scheduler initialized (runs daily at 2:00 AM)');
+
+    // ── Nightly Orphaned Data Cleanup (3:00 AM) ────────────────────────────────
+    cron.schedule('0 3 * * *', async () => {
+        if (mongoose.connection.readyState !== 1) {
+            console.warn('[Cleanup Cron] Skipping — MongoDB is not connected.');
+            return;
+        }
+        console.log('[Cleanup Cron] Starting nightly data cleanup...');
+        try {
+            await cleanupOrphanedProjects(io);
+            console.log('[Cleanup Cron] Nightly cleanup complete.');
+        } catch (err) {
+            console.error('[Cleanup Cron] Error during cleanup:', err);
+        }
+    });
+
+    console.log('Nightly data cleanup scheduler initialized (runs daily at 3:00 AM)');
     console.log('Minute reminder scheduler initialized');
+
 }

@@ -90,9 +90,12 @@ function extractAttributeVector(userData) {
 function computeSkillTextVectorSim(wantsToLearn, canTeach) {
   if (!wantsToLearn || !canTeach || !wantsToLearn.length || !canTeach.length) return 0;
   
-  const learnTokens = wantsToLearn.map(s => s.toLowerCase());
-  const teachTokens = canTeach.map(s => s.toLowerCase());
+  // Sanitize: filter out nulls/undefined before toLowerCase
+  const learnTokens = wantsToLearn.filter(s => s != null && s !== '').map(s => s.toLowerCase());
+  const teachTokens = canTeach.filter(s => s != null && s !== '').map(s => s.toLowerCase());
   
+  if (!learnTokens.length || !teachTokens.length) return 0;
+
   // Create shared vocabulary space (all unique tokens between both sets)
   const vocab = Array.from(new Set([...learnTokens, ...teachTokens]));
   
@@ -185,14 +188,16 @@ export function computeProjectMatchScore(user, board) {
   const userSkills = [
     ...(userData.topSkills || []),
     ...(userData.skillsToLearn || []),
-  ];
+  ].filter(s => s != null && s !== '');
 
-  // Board's required skills — fall back to tags if field absent
-  const boardSkills = (board.requiredSkills && board.requiredSkills.length)
+
+  // Board's required skills — fall back to tags if field absent. Filter for safety.
+  const boardSkills = ((board.requiredSkills && board.requiredSkills.length)
     ? board.requiredSkills
-    : (board.tags || []);
+    : (board.tags || [])).filter(s => s != null && s !== '');
 
   if (!userSkills.length || !boardSkills.length) {
+
     return { score: 0, reasons: ['No skill data to compare'] };
   }
 

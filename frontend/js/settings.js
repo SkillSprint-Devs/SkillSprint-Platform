@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // First confirmation
         if (!await showConfirm(
             "Delete Account Permanently?",
-            "WARNING: This will PERMANENTLY delete your account and all data. This action cannot be undone.",
+            "WARNING: This will PERMANENTLY delete your account and EVERY piece of data you created (Projects, Tasks, Posts, Achievements, Badges, etc.). This action cannot be undone.",
             "Continue",
             true
         )) return;
@@ -252,10 +252,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Second confirmation for extra safety
         if (!await showConfirm(
             "Are You Absolutely Sure?",
-            "This is your last chance. Your account and ALL data will be permanently deleted. There is no way to recover it.",
-            "Yes, Delete Forever",
+            "This is your last chance. Your account and ALL data will be permanently wiped from our servers. There is no way to recover your progress or data. Proceed?",
+            "Yes, Delete Everything Forever",
             true
         )) return;
+
 
         try {
             const res = await fetch(`${window.API_BASE_URL}/auth/delete-account`, {
