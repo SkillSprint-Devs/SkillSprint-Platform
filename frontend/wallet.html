@@ -18,20 +18,72 @@
 </head>
 
 <body>
-  <div id="navbar-placeholder"></div>
+  <div class="dashboard-container">
+    <!-- SIDEBAR (Standard SkillSprint Sidebar) -->
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <div class="sidebar-header">
+          <div class="logo">SkillSprint</div>
+          <button class="toggle-sidebar-btn" id="toggleSidebar">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        </div>
 
-  <style>
-    body {
-      background: var(--base-bg);
-      min-height: 100vh;
-      height: auto;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-  </style>
+        <nav class="menu">
+          <a href="dashboard.html">
+            <i class="fa-solid fa-table-columns"></i>
+            <span class="label">Dashboard</span>
+          </a>
+          <a href="wallet.html" class="active">
+            <i class="fa-solid fa-wallet"></i>
+            <span class="label">Wallet</span>
+          </a>
+          <a href="library.html">
+            <i class="fa-solid fa-book"></i>
+            <span class="label">Library</span>
+          </a>
+          <a href="achievements.html">
+            <i class="fa-solid fa-award"></i>
+            <span class="label">Achievements</span>
+          </a>
+          <a href="collaborations.html">
+            <i class="fa-solid fa-users"></i>
+            <span class="label">Collaborations</span>
+          </a>
+          <a href="live-history.html">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="label">History</span>
+          </a>
+          <a href="settings.html">
+            <i class="fa-solid fa-gear"></i>
+            <span class="label">Settings</span>
+          </a>
+        </nav>
+      </div>
 
-  <main class="wallet-focused-container">
-    <div class="wallet-layout">
+      <div class="ai-guide" id="aiGuide">
+        <p>Your AI Guide</p>
+        <button type="button">Open Chat</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- Top Nav (Integrated SS Navbar) -->
+      <header class="top-nav">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" placeholder="Search wallet transactions..." />
+        </div>
+
+        <div class="profile" id="userProfile"
+          onclick="window.location.href='profile.html';">
+          <span id="usernameTop" style="font-weight: 600; font-size: 0.9rem;">&nbsp;</span>
+          <img src="assets/images/user-avatar.png" alt="User avatar" id="profileAvatar" />
+        </div>
+      </header>
+
+      <div class="wallet-layout">
       <!-- TOP SECTION: OVERVIEW -->
       <section class="wallet-overview-grid">
         <div class="overview-card primary">
@@ -84,7 +136,9 @@
         <div class="section-header">
           <div class="header-main">
             <h3><i class="fa-solid fa-list-ul"></i> Transaction History</h3>
-            <button class="clear-history-btn" id="clearHistoryBtn">Clear All</button>
+            <button class="clear-history-btn" id="clearHistoryBtn">
+              <i class="fa-solid fa-broom"></i> Clear All
+            </button>
           </div>
           <div class="filter-actions">
             <button class="filter-btn active" data-filter="all">All</button>
@@ -129,9 +183,8 @@
           </ul>
         </div>
       </section>
-    </div>
-  </main>
-  </div>
+    </main> <!-- end main-content -->
+  </div> <!-- end dashboard-container -->
 
   <div id="toast-container"></div>
 
@@ -139,25 +192,27 @@
   <script src="js/config.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/error-tracking.js"></script>
-  <script src="js/navbar-loader.js"></script>
   <script>
+    // Simplified Dashboard-style script for Sidebar toggle
     document.addEventListener('DOMContentLoaded', () => {
-      initNavbar({
-        activePage: 'Wallet',
-        contextIcon: 'fa-wallet',
-        backUrl: 'dashboard.html',
-        showSearch: false,
-        primaryAction: {
-          show: true,
-          label: 'Add Funds',
-          icon: 'fa-plus',
-          onClick: () => showToast("Payment gateway opens in a new tab.", "info")
-        }
-      });
+      const toggle = document.getElementById('toggleSidebar');
+      const sidebar = document.getElementById('sidebar');
+      if (toggle && sidebar) {
+        toggle.addEventListener('click', () => {
+          sidebar.classList.toggle('collapsed');
+          const icon = toggle.querySelector('i');
+          if (sidebar.classList.contains('collapsed')) {
+            icon.classList.replace('fa-arrow-left', 'fa-arrow-right');
+          } else {
+            icon.classList.replace('fa-arrow-right', 'fa-arrow-left');
+          }
+        });
+      }
     });
   </script>
   <script src="js/custom-dialog.js"></script>
   <script src="js/wallet.js"></script>
+  <script src="js/global-auth.js"></script>
 </body>
 
 </html>
