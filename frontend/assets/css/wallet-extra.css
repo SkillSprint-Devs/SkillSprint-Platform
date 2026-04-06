@@ -113,17 +113,27 @@ body {
 .card-icon {
   width: 50px;
   height: 50px;
-  background: rgba(220, 239, 98, 0.1);
+  background: #f8f9fa;
+  border: 1px solid #eee;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  color: var(--accent);
+  font-size: 1.4rem;
+  color: #666;
+  flex-shrink: 0;
 }
 
 .primary .card-icon {
   background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--accent);
+}
+
+.highlight .card-icon {
+  background: rgba(220, 239, 98, 0.1);
+  color: var(--accent);
+  border-color: rgba(220, 239, 98, 0.2);
 }
 
 .card-data .label {
@@ -326,6 +336,128 @@ body {
   margin-bottom: 1rem;
 }
 
+
+/* Action Card (Request Credits) */
+.overview-card.action-card {
+  background: var(--base-bg);
+  border: 1.5px dashed var(--border-color);
+  cursor: help;
+  transition: 0.3s;
+}
+
+.overview-card.action-card.disabled {
+  opacity: 0.8;
+  filter: grayscale(0.5);
+}
+
+.overview-card.action-card .request-btn {
+  background: var(--sidebar-bg);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 8px;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.overview-card.action-card:hover {
+  border-color: var(--accent);
+  background: #fff;
+}
+
+/* Wallet Policy Note */
+.wallet-policy-note {
+  margin-top: 1rem;
+}
+
+.policy-card {
+  background: #fdfdfd;
+  border-left: 4px solid var(--accent);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.policy-card h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+}
+
+.policy-card ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+.policy-card ul li {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.policy-card ul li strong {
+  color: var(--text-dark);
+}
+
+@media (max-width: 1400px) {
+  .wallet-overview-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* History Column Additions */
+.section-header .header-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.clear-history-btn {
+  background: transparent;
+  border: 1px solid #ef5350;
+  color: #ef5350;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.clear-history-btn:hover {
+  background: #ef5350;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(239, 83, 80, 0.2);
+}
+
+/* Row Action */
+.delete-trans-btn {
+  background: transparent;
+  border: none;
+  color: #ccc;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+tr:hover .delete-trans-btn {
+  color: #999;
+}
+
+.delete-trans-btn:hover {
+  background: #ffebee;
+  color: #ef5350 !important;
+}
+
 @media (max-width: 1200px) {
   .wallet-overview-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -342,4 +474,4 @@ body {
     align-items: flex-start;
     gap: 1rem;
   }
-}
+}

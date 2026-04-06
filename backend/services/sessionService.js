@@ -19,45 +19,58 @@ class SessionService {
                 return { success: true, message: "Session already terminated" };
             }
 
-            // 1. Mark as ended
-            session.status = "ended";
+            // 1. Mark as ended or expired
+            const joinedMentees = session.acceptedUserIds?.length || 0;
+            if (joinedMentees === 0) {
+                session.status = "expired";
+            } else {
+                session.status = "ended";
+            }
             session.endedAt = new Date();
 
             // Ensure we have a startTime to calculate duration. 
-
             const startStr = session.firstMenteeJoinedAt || session.startTime || session.scheduledDateTime;
             const actualStart = new Date(startStr);
-            const actualDurationMinutes = Math.max(1, Math.round((session.endedAt - actualStart) / 60000));
+            
+            // LOGIC FIX: Cap at duration + 15 mins to prevent runaway credits if server was down
+            const plannedDuration = session.durationMinutes || 60;
+            const maxAllowedMinutes = plannedDuration + 15;
+            const calculatedDuration = Math.round((session.endedAt - actualStart) / 60000);
+            const actualDurationMinutes = Math.max(0, Math.min(calculatedDuration, maxAllowedMinutes));
 
-            console.log(`[RUNTIME-DEBUG] Attempting DB Save. Status: ended`);
+            console.log(`[RUNTIME-DEBUG] Attempting DB Save. Status: ${session.status}`);
             await session.save();
             console.log(`[RUNTIME-DEBUG] DB SAVE SUCCESS.`);
 
-            // Process Credits          
-            const learners = session.acceptedUserIds || [];
-            for (const learnerId of learners) {
+            // Process Credits - Only if the session was NOT expired (had at least one mentee)
+            if (session.status === "ended" && actualDurationMinutes > 0) {
+                const learners = session.acceptedUserIds || [];
+                for (const learnerId of learners) {
+                    try {
+                        await WalletService.spendCredits(
+                            learnerId,
+                            session._id,
+                            session.sessionName,
+                            actualDurationMinutes,
+                            "Mentor"
+                        );
+                    } catch (err) {
+                        console.error(`[SessionService] Credit deduction failed for user ${learnerId}:`, err.message);
+                    }
+                }
+
                 try {
-                    await WalletService.spendCredits(
-                        learnerId,
+                    await WalletService.earnCredits(
+                        session.mentorId,
                         session._id,
                         session.sessionName,
-                        actualDurationMinutes,
-                        "Mentor"
+                        actualDurationMinutes
                     );
                 } catch (err) {
-                    console.error(`[SessionService] Credit deduction failed for user ${learnerId}:`, err.message);
+                    console.error(`[SessionService] Mentor credit earning failed:`, err.message);
                 }
-            }
-
-            try {
-                await WalletService.earnCredits(
-                    session.mentorId,
-                    session._id,
-                    session.sessionName,
-                    actualDurationMinutes
-                );
-            } catch (err) {
-                console.error(`[SessionService] Mentor credit earning failed:`, err.message);
+            } else if (session.status === "expired") {
+                console.log(`[SessionService] Session ${session._id} was empty (no mentees). Marking as expired without credits.`);
             }
 
             // 3. Notify Everyone

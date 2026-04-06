@@ -53,4 +53,42 @@ router.post("/check-reset", verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * DELETE — Clear full history for user
+ */
+router.delete("/history/clear", verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        await WalletTransaction.deleteMany({ user_id: userId });
+        res.json({ message: "Wallet history cleared successfully", success: true });
+    } catch (error) {
+        console.error("Clear wallet history error:", error);
+        res.status(500).json({ message: "Failed to clear history" });
+    }
+});
+
+/**
+ * DELETE — Delete a specific transaction
+ */
+router.delete("/history/:id", verifyToken, async (req, res) => {
+    try {
+        const transId = req.params.id;
+        const userId = req.user.id;
+
+        const transaction = await WalletTransaction.findById(transId);
+        if (!transaction) return res.status(404).json({ message: "Transaction not found" });
+
+        // Ownership check
+        if (transaction.user_id.toString() !== userId) {
+            return res.status(403).json({ message: "Not authorized to delete this transaction" });
+        }
+
+        await WalletTransaction.findByIdAndDelete(transId);
+        res.json({ message: "Transaction deleted", success: true });
+    } catch (error) {
+        console.error("Delete transaction error:", error);
+        res.status(500).json({ message: "Failed to delete transaction" });
+    }
+});
+
 export default router;

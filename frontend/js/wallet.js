@@ -22,6 +22,8 @@ async function loadWalletData() {
         renderOverview(data);
         renderHistory(data.history);
         setupFilters(data.history);
+        setupRequestAction();
+        setupClearAction();
 
         // Update User info
         const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -103,6 +105,11 @@ function renderHistory(transactions) {
                 : t.mentorName ? `<small>Mentor: ${t.mentorName}</small>` : ''}
                 </div>
             </td>
+            <td>
+                <button class="delete-trans-btn" onclick="deleteTransaction('${t._id}')" title="Delete record">
+                   <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -123,6 +130,84 @@ function setupFilters(allTransactions) {
             }
         });
     });
+}
+
+function setupRequestAction() {
+    const card = document.getElementById("requestCreditsCard");
+    if (card) {
+        card.addEventListener("click", () => {
+            if (typeof showToast === 'function') {
+                showToast("Request feature is coming soon! For now, please contact admin directly.", "info");
+            }
+        });
+    }
+}
+
+function setupClearAction() {
+    const btn = document.getElementById("clearHistoryBtn");
+    if (btn) {
+        btn.onclick = async () => {
+            const confirmed = await showConfirm(
+                "Clear Wallet History?",
+                "This will permanently remove all logs from your transaction history. Your current credit balance will not be affected.",
+                "Yes, Clear All",
+                true // isDanger
+            );
+            
+            if (confirmed) {
+                clearWalletHistory();
+            }
+        };
+    }
+}
+
+async function deleteTransaction(id) {
+    const confirmed = await showConfirm(
+        "Delete Transaction?",
+        "Are you sure you want to remove this record from your history?",
+        "Delete",
+        false 
+    );
+
+    if (confirmed) {
+        executeDeletion(id);
+    }
+}
+
+async function executeDeletion(id) {
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(`${API_BASE}/wallet/history/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+            if (typeof showToast === 'function') showToast("Record removed", "success");
+            loadWalletData(); // Refresh
+        } else {
+            throw new Error("Delete failed");
+        }
+    } catch (err) {
+        if (typeof showToast === 'function') showToast("Failed to delete record", "error");
+    }
+}
+
+async function clearWalletHistory() {
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(`${API_BASE}/wallet/history/clear`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+            if (typeof showToast === 'function') showToast("History cleared", "success");
+            loadWalletData(); // Refresh
+        } else {
+            throw new Error("Clear failed");
+        }
+    } catch (err) {
+        if (typeof showToast === 'function') showToast("Failed to clear history", "error");
+    }
 }
 
 function formatMinutes(mins) {

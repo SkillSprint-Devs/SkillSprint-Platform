@@ -56,7 +56,7 @@ const liveSessionSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["scheduled", "live", "ended", "cancelled"],
+        enum: ["scheduled", "live", "ended", "cancelled", "expired"],
         default: "scheduled",
     },
     createdAt: {

@@ -44,6 +44,7 @@
         </div>
 
         <div class="overview-card">
+          <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
           <div class="card-data">
             <span class="label">Weekly Limit</span>
             <h3 id="weeklyLimit">5h 30m</h3>
@@ -51,6 +52,7 @@
         </div>
 
         <div class="overview-card">
+          <div class="card-icon"><i class="fa-solid fa-history"></i></div>
           <div class="card-data">
             <span class="label">Last Reset</span>
             <h3 id="lastReset">--/--/----</h3>
@@ -58,10 +60,21 @@
         </div>
 
         <div class="overview-card highlight">
+          <div class="card-icon"><i class="fa-solid fa-calendar-check"></i></div>
           <div class="card-data">
             <span class="label">Next Reset</span>
             <h3 id="nextReset">--/--/----</h3>
             <p class="sub-label" id="resetCountdown">Resets in 7 days</p>
+          </div>
+        </div>
+
+        <!-- NEW: Request More Credits Card -->
+        <div class="overview-card action-card disabled" id="requestCreditsCard" title="Feature coming soon">
+          <div class="card-icon"><i class="fa-solid fa-paper-plane"></i></div>
+          <div class="card-data">
+            <span class="label">Request More Credits</span>
+            <button class="request-btn" disabled>Message Admin</button>
+            <p class="sub-label">Need more for a specific project? Ask Admin.</p>
           </div>
         </div>
       </section>
@@ -69,7 +82,10 @@
       <!-- MAIN SECTION: HISTORY -->
       <section class="wallet-history-section">
         <div class="section-header">
-          <h3><i class="fa-solid fa-list-ul"></i> Transaction History</h3>
+          <div class="header-main">
+            <h3><i class="fa-solid fa-list-ul"></i> Transaction History</h3>
+            <button class="clear-history-btn" id="clearHistoryBtn">Clear All</button>
+          </div>
           <div class="filter-actions">
             <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="session-earn">Earned</button>
@@ -88,6 +104,7 @@
                 <th>Amount</th>
                 <th>Date & Time</th>
                 <th>Details</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="transactionHistory">
@@ -98,6 +115,18 @@
             <i class="fa-solid fa-receipt"></i>
             <p>No transactions found</p>
           </div>
+        </div>
+      </section>
+
+      <!-- NEW: Wallet Policy Note -->
+      <section class="wallet-policy-note">
+        <div class="policy-card">
+          <h4><i class="fa-solid fa-circle-info"></i> SkillSprint Credit Policy</h4>
+          <ul>
+            <li><strong>Weekly Grant:</strong> 3 hours (180 minutes) provided automatically every 7 days.</li>
+            <li><strong>Weekly Limit:</strong> 5.5 hours (330 minutes) hard cap. Earn more by mentoring peers!</li>
+            <li><strong>Fair Use:</strong> Credits are only earned for sessions with active learner attendance.</li>
+          </ul>
         </div>
       </section>
     </div>

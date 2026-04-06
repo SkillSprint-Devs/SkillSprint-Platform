@@ -1,5 +1,5 @@
 // frontend/js/public-profile.js
-// Public Profile Screen – SkillSprint
+
 // Renders any user's read-only public profile, fetched from GET /api/users/:userId/public
 
 (function () {
@@ -23,7 +23,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     const targetUserId = urlParams.get('user');
 
-    if (!targetUserId) {
+    // Robust check for missing or 'undefined' ID in URL
+    if (!targetUserId || targetUserId === 'undefined' || targetUserId === 'null') {
         showToastSafe('No user specified. Redirecting to feed…', 'error');
         setTimeout(() => (window.location.href = 'posting.html'), 1200);
         return;
@@ -516,12 +517,12 @@
 
         list.innerHTML = visibleItems.map(item => {
             const iconClass = item.type === 'Document' ? 'fa-solid fa-file-lines' :
-                              item.type === 'Note' ? 'fa-solid fa-note-sticky' :
-                              'fa-solid fa-photo-film';
-            
+                item.type === 'Note' ? 'fa-solid fa-note-sticky' :
+                    'fa-solid fa-photo-film';
+
             const fileUrl = item.file_url ? escAttr(item.file_url) : '#';
             const desc = item.description ? escHtml(item.description) : 'No description provided.';
-            
+
             return `
             <div class="pp-lib-card" title="${escHtml(item.title)}" onclick="window.openLibraryItemViewer('${escAttr(item.title)}', '${escAttr(item.type)}', '${desc}', '${fileUrl}')" style="cursor:pointer">
                 <div class="pp-lib-card-top">
@@ -554,6 +555,8 @@
         try {
             const res = await fetch(`${USERS_API}/${targetUserId}/public`, { headers: authHdr });
             if (res.status === 401 || res.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
                 showToastSafe('Session expired. Please log in again.', 'error');
                 setTimeout(() => window.location.href = 'login.html', 1200);
                 return;
@@ -583,10 +586,10 @@
             document.getElementById('ppLibModalTitle').textContent = title;
             document.getElementById('ppLibModalTag').textContent = type;
             document.getElementById('ppLibModalDesc').textContent = desc;
-            
+
             // Set up download button logic
             const downBtn = document.getElementById('ppLibModalDownloadBtn');
-            if(downBtn) {
+            if (downBtn) {
                 downBtn.href = fileUrl;
                 // Cloudinary files download best if we add fl_attachment. Adjust if the user uses absolute links
                 if (fileUrl.includes('cloudinary.com') && !fileUrl.includes('fl_attachment')) {
@@ -599,7 +602,7 @@
 
             const container = document.getElementById('ppLibPreviewContainer');
             container.innerHTML = '';
-            
+
             if (type === 'Recording') {
                 container.innerHTML = `
                     <video controls style="width:100%; height:100%; max-height:400px; border-radius:8px; background:#000;">
@@ -634,7 +637,7 @@
                     libModal.style.display = 'none';
                     // Stop video playback on close
                     const container = document.getElementById('ppLibPreviewContainer');
-                    if (container) container.innerHTML = ''; 
+                    if (container) container.innerHTML = '';
                 });
             }
         }

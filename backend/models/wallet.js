@@ -9,11 +9,11 @@ const walletSchema = new mongoose.Schema({
   },
   available_credits: {
     type: Number,
-    default: 330, // 5 hours 30 minutes
+    default: 180, // 3h weekly grant
   },
   weekly_limit: {
     type: Number,
-    default: 330,
+    default: 330, // 5h 30m hard cap
   },
   last_reset_date: {
     type: Date,

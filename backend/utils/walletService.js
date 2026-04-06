@@ -12,8 +12,8 @@ class WalletService {
 
         const wallet = new Wallet({
             user_id: userId,
-            available_credits: 330,
-            weekly_limit: 330,
+            available_credits: 180, // Initial 3h grant
+            weekly_limit: 330, // 5h 30m hard cap
             last_reset_date: new Date(),
             next_reset_date: nextReset,
         });
@@ -25,7 +25,7 @@ class WalletService {
             wallet_id: wallet._id,
             user_id: userId,
             type: "weekly-reset",
-            amount: 330,
+            amount: 180,
             role: "system",
         });
 
@@ -45,7 +45,7 @@ class WalletService {
         if (now >= wallet.next_reset_date) {
             const oldCredits = wallet.available_credits;
 
-            wallet.available_credits = wallet.weekly_limit;
+            wallet.available_credits = 180; // Reset to 3h weekly grant
             wallet.last_reset_date = now;
 
             const nextReset = new Date();
@@ -59,12 +59,11 @@ class WalletService {
                 wallet_id: wallet._id,
                 user_id: userId,
                 type: "weekly-reset",
-                amount: wallet.weekly_limit,
+                amount: 180,
                 role: "system",
-                // Additional info for logs
                 extra: {
                     creditsBeforeReset: oldCredits,
-                    creditsAfterReset: wallet.weekly_limit
+                    creditsAfterReset: 180
                 }
             });
         }
@@ -135,22 +134,26 @@ class WalletService {
         const wallet = await this.checkAndResetCredits(userId);
         if (!wallet) throw new Error("Wallet not found");
 
-        const amountToEarn = Math.floor(durationMinutes * 1.0); // 1:1 reward
+        // Calculate how much they can earn before hitting the 330m limit
+        const canEarn = Math.max(0, wallet.weekly_limit - wallet.available_credits);
+        const amountToEarn = Math.min(Math.floor(durationMinutes * 1.0), canEarn); 
 
-        wallet.available_credits += amountToEarn;
-        await wallet.save();
+        if (amountToEarn > 0) {
+            wallet.available_credits += amountToEarn;
+            await wallet.save();
 
-        await this.logTransaction({
-            wallet_id: wallet._id,
-            user_id: userId,
-            sessionId,
-            sessionName,
-            role: "mentor",
-            type: "session-earn",
-            amount: amountToEarn,
-            durationMinutes,
-            mentorName: "Self", // Or lookup mentor name if needed
-        });
+            await this.logTransaction({
+                wallet_id: wallet._id,
+                user_id: userId,
+                sessionId,
+                sessionName,
+                role: "mentor",
+                type: "session-earn",
+                amount: amountToEarn,
+                durationMinutes,
+                mentorName: "Self",
+            });
+        }
     }
 
     /**

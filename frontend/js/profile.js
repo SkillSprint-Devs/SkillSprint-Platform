@@ -1,3 +1,4 @@
+//js/profile.js
 document.addEventListener("DOMContentLoaded", async () => {
 
   window.alert = msg => showToast(msg, "info");
