@@ -1,10 +1,8 @@
-const API_URL = window.API_BASE_URL;
-const token = localStorage.getItem('token');
-const user = JSON.parse(localStorage.getItem('user'));
-
-if (!token || !user) {
-    window.location.href = 'login.html';
-}
+    if (!token || !user) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const myProfileUrl = `public-profile.html?user=${user._id || user.id}`;
 
 // Setup User Info - Fetch fresh data
 document.getElementById('myName').textContent = user.name;
@@ -653,4 +651,11 @@ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = 'login.html';
+}
+
+function goToMyProfile() {
+    const u = JSON.parse(localStorage.getItem('user') || '{}');
+    const id = u._id || u.id;
+    if (id) window.location.href = `public-profile.html?user=${id}`;
+    else window.location.href = 'profile.html';
 }

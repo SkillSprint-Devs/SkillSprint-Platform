@@ -306,6 +306,7 @@ router.put("/update-profile", verifyToken, upload.fields([{ name: 'profile_image
       designation,
       projects,
       education,
+      experience,
       achievements,
       notifications,
     } = req.body;
@@ -389,6 +390,13 @@ router.put("/update-profile", verifyToken, upload.fields([{ name: 'profile_image
         const achievementsParsed = JSON.parse(achievements);
         if (Array.isArray(achievementsParsed)) user.achievements = achievementsParsed;
       } catch (e) { console.error("Error parsing achievements", e); }
+    }
+
+    if (experience !== undefined) {
+      try {
+        const experienceParsed = JSON.parse(experience);
+        if (Array.isArray(experienceParsed)) user.experience = experienceParsed;
+      } catch (e) { console.error("Error parsing experience", e); }
     }
 
     await user.save();

@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password_hash: { type: String, required: true },
   profile_image: { type: String, default: "" },
   banner_image: { type: String, default: "" },
+  emailVerified: { type: Boolean, default: true },
   role: { type: String, enum: ["student", "mentor", "admin"], required: true },
 
   // PERSONAL INFO

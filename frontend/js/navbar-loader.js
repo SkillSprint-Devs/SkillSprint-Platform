@@ -7,7 +7,7 @@ function initNavbar(config = {}) {
     const defaultOptions = {
         activePage: 'Library',
         contextIcon: 'fa-book', // Default icon
-        backUrl: 'dashboard.html',
+        backUrl: 'history',
         showSearch: true,
         searchPlaceholder: 'Search resources, recordings, courses...',
         showSettingsBtn: true, // Default: visible
@@ -28,12 +28,17 @@ function initNavbar(config = {}) {
         primaryAction: { ...defaultOptions.primaryAction, ...(config.primaryAction || {}) }
     };
 
+    // Dynamic back navigation: 'history' uses browser history, anything else is a static URL
+    const backAttrs = options.backUrl === 'history'
+        ? `href="javascript:void(0)" onclick="if(history.length>1){history.back()}else{location.href='dashboard.html'}"`
+        : `href="${options.backUrl}"`;
+
     const navbarHtml = `
 <nav class="navbar" id="standardNavbar">
     <div class="navbar-container">
         <div class="navbar-top">
             <div class="nav-left">
-                <a href="${options.backUrl}" class="brand">
+                <a ${backAttrs} class="brand">
                     <div class="brand-logo">
                         <i class="fa-solid ${options.contextIcon} context-icon"></i>
                         <i class="fa-solid fa-arrow-left-long back-icon"></i>
@@ -63,7 +68,7 @@ function initNavbar(config = {}) {
                     <i class="fa-solid fa-gear"></i>
                 </button>` : ''}
                 ${options.showProfileBtn ? `
-                <button class="icon-btn" title="My Profile" onclick="if(window.goToMyPublicProfile) window.goToMyPublicProfile(); else location.href='profile.html'">
+                <button class="icon-btn" title="My Profile" onclick="if(window.goToMyPublicProfile) window.goToMyPublicProfile(); else { const u = JSON.parse(localStorage.getItem('user') || '{}'); const id = u._id || u.id; location.href = id ? 'public-profile.html?user=' + id : 'profile.html'; }">
                     <i class="fa-solid fa-user"></i>
                 </button>` : ''}
                 ${options.primaryAction.show ? `

@@ -1,6 +1,9 @@
 
 import express from "express";
 import User from "../models/user.js";
+import Board from "../models/board.js";
+import PairProgramming from "../models/pair-programming.js";
+import Achievement from "../models/achievement.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -104,14 +107,6 @@ router.get("/:userId/public", verifyToken, async (req, res) => {
 
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // ---- Privacy filtering ----
-        if (user.privacy && !user.privacy.showSkills) delete user.skills;
-        if (user.privacy && !user.privacy.showStreaks) {
-            delete user.streakCount;
-            delete user.longestStreak;
-        }
-        if (user.privacy && !user.privacy.showAchievements) delete user.achievements;
-
         // ---- Online status (via global socket presence map) ----
         const onlineUsers = req.app.get("onlineUsers") || new Map();
         user.isOnline = onlineUsers.has(userId.toString());
@@ -120,6 +115,16 @@ router.get("/:userId/public", verifyToken, async (req, res) => {
         const viewer = await User.findById(viewerId).select("following skills").lean();
         user.isFollowing = (viewer?.following || []).map(String).includes(userId.toString());
         user.isOwnProfile = viewerId === userId.toString();
+
+        // ---- Privacy filtering (bypassed for owner) ----
+        if (!user.isOwnProfile && user.privacy) {
+            if (!user.privacy.showSkills) delete user.skills;
+            if (!user.privacy.showStreaks) {
+                delete user.streakCount;
+                delete user.longestStreak;
+            }
+            if (!user.privacy.showAchievements) delete user.achievements;
+        }
 
         // ---- Skills in common with the viewer ----
         if (viewer?.skills && user.skills) {
@@ -135,7 +140,7 @@ router.get("/:userId/public", verifyToken, async (req, res) => {
             const Post = (await import("../models/post.js")).default;
             recentPosts = await Post.find({ authorId: userId })
                 .sort({ createdAt: -1 })
-                .limit(5)
+                .limit(10)
                 .select("content media createdAt likes")
                 .lean();
             recentPosts = recentPosts.map(p => ({
@@ -147,6 +152,35 @@ router.get("/:userId/public", verifyToken, async (req, res) => {
         }
 
         user.recentPosts = recentPosts;
+
+        // ---- Collaborative Projects (Board & PairProgramming) ----
+        try {
+            const collaborativeBoards = await Board.find({
+                $or: [{ owner: userId }, { members: userId }]
+            }).select("name description updatedAt _id").limit(10).lean();
+
+            const collaborativePairs = await PairProgramming.find({
+                $or: [{ owner: userId }, { "members.user": userId }]
+            }).select("name description updatedAt _id").limit(10).lean();
+
+            user.collaborativeProjects = [
+                ...collaborativeBoards.map(b => ({ ...b, id: b._id, source: "whiteboard" })),
+                ...collaborativePairs.map(p => ({ ...p, id: p._id, source: "pair-programming" }))
+            ].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        } catch (e) {
+            console.error("Failed to fetch collaborative projects:", e);
+        }
+
+        // ---- Real Achievements (from Achievement model) ----
+        try {
+            const realAchievements = await Achievement.find({ user: userId })
+                .sort({ awardedAt: -1 })
+                .limit(12)
+                .lean();
+            user.realAchievements = realAchievements;
+        } catch (e) {
+            console.error("Failed to fetch real achievements:", e);
+        }
 
         res.json(user);
     } catch (err) {

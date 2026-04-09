@@ -355,7 +355,7 @@ export async function refreshMatchesForUser(userId, io) {
   // 6. Notify user for each new high-score match
   for (const newMatch of newMatches) {
     try {
-      const notification = await Notification.create({
+       const notification = await Notification.create({
         user_id: userId,
         title: 'New Match Found!',
         message: `${newMatch.name} is a great match for you (${newMatch.score}% compatibility)`,

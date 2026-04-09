@@ -191,7 +191,7 @@
     window.initNavbar({
       activePage: 'Smartboard',
       contextIcon: 'fa-puzzle-piece',
-      backUrl: 'collaborations.html',
+      backUrl: 'history',
       showSearch: false,      // Hide search bar in whiteboard
       showSettingsBtn: false, // Hide settings button in whiteboard
       primaryAction: {
