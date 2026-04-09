@@ -13,6 +13,7 @@ function initNavbar(config = {}) {
         showSettingsBtn: true, // Default: visible
         showProfileBtn: false, // Default: hidden
         showNotifications: true, // Default: visible
+        showInviteBtn: false, // Default: hidden
         primaryAction: {
             show: true,
             label: 'Upload',
@@ -54,9 +55,13 @@ function initNavbar(config = {}) {
             </div>
             <div class="nav-right">
                 ${options.showNotifications ? `
-                <button class="icon-btn" title="Notifications">
+                <button class="icon-btn" title="Notifications" id="navbarNotifBtn">
                     <i class="fa-solid fa-bell"></i>
                     <span class="notification-badge" id="navbarNotifBadge" style="display:none;">0</span>
+                </button>` : ''}
+                ${options.showInviteBtn ? `
+                <button class="icon-btn" title="Invite Collaborators" id="navbarInviteBtn">
+                    <i class="fa-solid fa-user-plus"></i>
                 </button>` : ''}
                 ${options.showSettingsBtn ? `
                 <button class="icon-btn" title="Settings" onclick="location.href='settings.html'">
@@ -99,6 +104,14 @@ function initNavbar(config = {}) {
             navbar.classList.remove('scrolled');
         }
     });
+
+    // Invite Button Click
+    if (options.showInviteBtn && options.onInviteClick) {
+        const inviteBtn = document.getElementById('navbarInviteBtn');
+        if (inviteBtn) {
+            inviteBtn.addEventListener('click', options.onInviteClick);
+        }
+    }
 
     // Primary Action Click
     if (options.primaryAction.show && options.primaryAction.onClick) {

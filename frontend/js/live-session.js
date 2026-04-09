@@ -79,20 +79,22 @@ function joinSession() {
 
         if (isMentor) {
             if (data.status === 'scheduled') {
-                document.getElementById("startSessionBtn").style.display = "block";
+                const startBtn = document.getElementById("startSessionBtn");
+                if (startBtn) startBtn.style.display = "block";
             }
-            if (data.status === 'live' || data.status === 'scheduled') {
-                document.getElementById("endSessionBtn").style.display = "block";
-            }
+            // endSessionBtn is now in the top navbar, handled by initNavbar
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Mentor)";
             const pName = document.querySelector(".video-wrapper.local .participant-name");
             pName.style.cursor = 'pointer';
             pName.onclick = () => { if (window.goToMyPublicProfile) window.goToMyPublicProfile(); };
         } else {
             // Mentee UI Restrictions
-            document.getElementById("startSessionBtn").style.display = "none";
-            document.getElementById("endSessionBtn").style.display = "none";
-            document.getElementById("toggleWhiteboard").style.display = "none"; // Mentee can't open it
+            const startBtn = document.getElementById("startSessionBtn");
+            if (startBtn) startBtn.style.display = "none";
+
+            const toggleWb = document.getElementById("toggleWhiteboard");
+            if (toggleWb) toggleWb.style.display = "none"; // Mentee can't open it
+
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Learner)";
             const pName = document.querySelector(".video-wrapper.local .participant-name");
             pName.style.cursor = 'pointer';
@@ -115,7 +117,31 @@ function joinSession() {
             });
         }
 
-        if (data.status === 'live') startTimer();
+        if (data.status === 'live') startTimer(data.sessionStartedAt);
+
+        // Re-initialize navbar to show Invite button if Mentor
+        if (typeof window.initNavbar === 'function') {
+            window.initNavbar({
+                activePage: 'Live Session',
+                contextIcon: 'fa-video',
+                backUrl: 'dashboard.html',
+                showSearch: false,
+                showSettingsBtn: false,
+                showNotifications: false,
+                showInviteBtn: window.isMentor,
+                onInviteClick: () => {
+                    if (window.handleInviteClick) window.handleInviteClick();
+                },
+                primaryAction: {
+                    show: true,
+                    label: 'End Session',
+                    icon: 'fa-phone-slash',
+                    onClick: () => {
+                        if (window.handleEndSession) window.handleEndSession();
+                    }
+                }
+            });
+        }
     });
 
     socket.on("live:chat", (msg) => {
@@ -134,9 +160,9 @@ function joinSession() {
         console.log("[RUNTIME-DEBUG] Socket Event: live:statusChanged ->", status);
         document.getElementById("sessionStatus").textContent = status;
         if (status === 'live') {
-            document.getElementById("startSessionBtn").style.display = "none";
-            if (window.isMentor) document.getElementById("endSessionBtn").style.display = "block";
-            startTimer();
+            const startBtn = document.getElementById("startSessionBtn");
+            if (startBtn) startBtn.style.display = "none";
+            startTimer(new Date());
         } else if (status === 'ended' || status === 'completed') {
             console.log("[LIVE] Session ended status received via socket");
             if (typeof showToast === 'function') showToast("Session ended by Mentor", "info");
@@ -665,15 +691,189 @@ function getMyId() {
 }
 
 let timerInterval;
-function startTimer() {
+function startTimer(startedAt = null) {
     let seconds = 0;
+    if (startedAt) {
+        const start = new Date(startedAt);
+        const now = new Date();
+        seconds = Math.max(0, Math.floor((now - start) / 1000));
+    }
+
     const timerDisplay = document.getElementById("sessionTimer");
+    if (!timerDisplay) return;
+
     clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        seconds++;
+
+    const updateDisplay = () => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
         timerDisplay.textContent = `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    updateDisplay(); // Set initial state immediately
+
+    timerInterval = setInterval(() => {
+        seconds++;
+        updateDisplay();
     }, 1000);
+}
+
+// Global Handlers
+window.handleEndSession = () => {
+    triggerEndSession();
+};
+
+window.handleInviteClick = () => {
+    if (!window.isMentor) return;
+    document.getElementById("inviteModal").classList.add("active");
+    document.getElementById("inviteSearch").value = "";
+    document.getElementById("inviteUserList").innerHTML = `
+        <div style="padding: 40px 20px; text-align: center; color: #999;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+            <p style="margin: 0; font-size: 13px;">Start typing to search users</p>
+        </div>`;
+    document.getElementById("sendInviteBtn").disabled = true;
+    window.selectedInviteeId = null;
+};
+
+// Initialization for Invite Modal
+function initInviteModal() {
+    console.log("[LIVE] Initializing Invite Modal logic...");
+    const inviteSearch = document.getElementById("inviteSearch");
+    const userList = document.getElementById("inviteUserList");
+    const sendBtn = document.getElementById("sendInviteBtn");
+    const closeBtn = document.querySelector(".btn-close-invite");
+
+    if (closeBtn) {
+        closeBtn.onclick = () => document.getElementById("inviteModal").classList.remove("active");
+    }
+
+    if (inviteSearch) {
+        let searchTimeout;
+        inviteSearch.oninput = (e) => {
+            const query = e.target.value.trim();
+            clearTimeout(searchTimeout);
+            if (query.length < 2) {
+                userList.innerHTML = `<p style="padding:20px; text-align:center; color:#999;">Search at least 2 chars</p>`;
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/users/search?query=${query}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const users = await res.json();
+
+                    if (users.length === 0) {
+                        userList.innerHTML = `<p style="padding:20px; text-align:center; color:#999;">No users found</p>`;
+                        return;
+                    }
+
+                    userList.innerHTML = users.map(u => `
+                        <div class="user-item" data-id="${u._id}" onclick="window.selectInvitee('${u._id}', '${u.name}')" 
+                             style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                            <img src="${u.profile_image || 'assets/images/default-avatar.png'}" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px; color: #fff;">${u.name}</div>
+                                <div style="font-size: 11px; color: #aaa;">${u.email}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (err) {
+                    console.error("Search error:", err);
+                }
+            }, 300);
+        };
+    }
+
+    if (sendBtn) {
+        sendBtn.onclick = async () => {
+            if (!window.selectedInviteeId || !sessionId) return;
+            try {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
+                const res = await fetch(`${API_BASE}/live-sessions/invite`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ sessionId, userId: window.selectedInviteeId })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    if (typeof showToast === 'function') showToast("Invitation sent successfully!", "success");
+                    document.getElementById("inviteModal").classList.remove("active");
+                } else {
+                    if (typeof showToast === 'function') showToast(data.message || "Failed to send invite", "error");
+                }
+            } catch (err) {
+                console.error("Invite error:", err);
+                if (typeof showToast === 'function') showToast("Network error", "error");
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Invite';
+            }
+        };
+    }
+}
+
+// Call init once ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInviteModal);
+} else {
+    initInviteModal();
+}
+
+window.selectInvitee = (id, name) => {
+    window.selectedInviteeId = id;
+    document.querySelectorAll(".user-item").forEach(el => el.style.background = "transparent");
+    const selectedEl = document.querySelector(`.user-item[data-id="${id}"]`);
+    if (selectedEl) selectedEl.style.background = "rgba(220, 239, 98, 0.2)";
+    document.getElementById("sendInviteBtn").disabled = false;
+};
+
+async function triggerEndSession() {
+    console.log("[LIVE] triggerEndSession called. SessionID:", sessionId);
+    if (!sessionId) {
+        if (typeof showToast === 'function') showToast("Error: Session ID missing", "error");
+        return;
+    }
+
+    const confirmed = await showConfirm(
+        "End Session?",
+        "Are you sure you want to end this session? This will deduct credits and close the room.",
+        "End Session",
+        true // isDanger
+    );
+
+    if (confirmed) {
+        try {
+            if (typeof showToast === 'function') showToast("Ending session and processing credits...", "info");
+
+            const res = await fetch(`${API_BASE}/live-sessions/end-session`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ sessionId })
+            });
+
+            if (res.ok) {
+                console.log("[LIVE] Session ended successfully via API.");
+                // Socket listener handles redirect
+            } else {
+                const err = await res.json();
+                if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
+            }
+        } catch (err) {
+            console.error("End session API error:", err);
+            socket.emit("live:endSession", { sessionId });
+        }
+    }
 }

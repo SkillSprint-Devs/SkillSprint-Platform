@@ -50,6 +50,8 @@
   <script src="js/config.js"></script>
   <!-- Toast script -->
   <script src="js/toast.js"></script>
+  <!-- Auth Utils -->
+  <script src="js/auth-utils.js"></script>
 
   <script>
     function goBack() {
@@ -79,6 +81,9 @@
 
         if (!email || !password)
           return showToast("Please fill both fields!", "error");
+
+        // Start button freeze protection
+        window.authUtils.freezeButton(loginBtn, 15, "Login", "Please wait {s}s");
 
         try {
           const res = await fetch(`${API_BASE}/auth/login`, {

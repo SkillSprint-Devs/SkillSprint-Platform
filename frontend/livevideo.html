@@ -86,13 +86,35 @@
         <div class="control-divider"></div>
 
         <button id="startSessionBtn" class="action-btn start-btn" style="display:none;">Start Session</button>
-        <button id="endSessionBtn" class="action-btn end-btn" title="End Session"><i
-            class="fa-solid fa-phone-slash"></i></button>
       </div>
     </main>
 
     <!-- RIGHT PANEL: PARTICIPANTS (Removed - moved to navbar) -->
 
+  </div>
+
+  <!-- Invite Modal -->
+  <div id="inviteModal" class="input-modal">
+    <div class="input-box invite-box" style="width: 500px; max-width: 90%;">
+      <h3><i class="fa-solid fa-user-plus"></i> Invite Participants</h3>
+      <div style="margin-bottom: 20px;">
+        <label
+          style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-dark);">Search
+          Users</label>
+        <input type="text" id="inviteSearch" placeholder="Type name or email to search..." style="margin-bottom: 0;" />
+      </div>
+      <div id="inviteUserList" class="user-list"
+        style="max-height: 280px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #eee; border-radius: 8px; background: #f9f9f9;">
+        <div style="padding: 40px 20px; text-align: center; color: #999;">
+          <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+          <p style="margin: 0; font-size: 13px;">Start typing to search users</p>
+        </div>
+      </div>
+      <div class="input-actions">
+        <button id="sendInviteBtn" class="btn-ok" disabled><i class="fa-solid fa-paper-plane"></i> Send Invite</button>
+        <button class="btn-cancel btn-close-invite">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <div id="toast-container"></div>
@@ -109,12 +131,18 @@
         contextIcon: 'fa-video',
         backUrl: 'dashboard.html',
         showSearch: false,
+        showSettingsBtn: false,
+        showNotifications: false,
+        showInviteBtn: window.isMentor,
+        onInviteClick: () => {
+          if (window.handleInviteClick) window.handleInviteClick();
+        },
         primaryAction: {
+          show: true,
           label: 'End Session',
           icon: 'fa-phone-slash',
           onClick: () => {
-            const endBtn = document.getElementById('endSessionBtn');
-            if (endBtn) endBtn.click();
+            if (window.handleEndSession) window.handleEndSession();
           }
         }
       });

@@ -21,9 +21,9 @@ html {
 
 .live-container {
     display: flex;
-    height: calc(100vh - 120px);
+    height: calc(100vh - 80px);
     width: min(1600px, calc(100% - 48px));
-    margin: 0 auto;
+    margin: 10px auto 0;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow-md);
@@ -200,7 +200,7 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 80px 40px 100px 40px;
+    padding: 100px 40px 80px 40px;
 }
 
 .video-grid {
@@ -469,4 +469,136 @@ html {
     display: flex;
     flex-direction: column;
     margin-top: 10px;
+}
+
+/* Invite Modal Styles */
+.input-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.input-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.input-box {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 90%;
+    max-width: 480px;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    transform: scale(0.9);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: #fff;
+}
+
+.input-modal.active .input-box {
+    transform: scale(1);
+}
+
+.input-box h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-box label {
+    color: #aaa !important;
+    margin-bottom: 8px;
+    display: block;
+    font-size: 13px;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-box input:focus {
+    border-color: var(--accent);
+}
+
+.user-list {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.user-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.user-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.user-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.input-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-ok {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+}
+
+.btn-ok:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-ok:not(:disabled):hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
 }

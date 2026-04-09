@@ -59,6 +59,8 @@
   <script src="js/toast.js"></script>
   <!-- Config Script -->
   <script src="js/config.js"></script>
+  <!-- Auth Utils -->
+  <script src="js/auth-utils.js"></script>
 
   <script>
     function goBack() {
@@ -120,6 +122,9 @@
 
       if (!isValid) return;
 
+      // Start button freeze protection
+      window.authUtils.freezeButton(sendBtn, 15, "Send OTP", "Please wait {s}s");
+
       try {
         const res = await fetch(`${API_BASE}/auth/send-otp`, {
           method: "POST",
@@ -153,6 +158,9 @@
       const stored = JSON.parse(localStorage.getItem("pendingSignup"));
       if (!stored) return showToast("Signup info missing!", "error");
       if (!otp) return showToast("Enter OTP first", "warning");
+
+      // Start button freeze protection
+      window.authUtils.freezeButton(verifyBtn, 15, "Verify & Sign Up", "Please wait {s}s");
 
       try {
         const verifyRes = await fetch(

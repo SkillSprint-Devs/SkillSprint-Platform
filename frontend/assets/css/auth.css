@@ -201,7 +201,7 @@ body {
 
 .subtitle {
   color: var(--text-muted);
-  
+
   font-size: 0.9rem;
   margin: 0.5rem 0 0 0;
 }
@@ -219,7 +219,7 @@ input {
   width: 100%;
   padding: 0.875rem 1rem;
   margin-bottom: 1rem;
-  
+
   border: 1.5px solid #d1d5db;
   border-radius: 12px;
   font-size: 0.95rem;
@@ -271,6 +271,14 @@ input::placeholder {
 
 .btn-primary:active {
   transform: translateY(0);
+}
+
+.btn-primary:disabled,
+.button-frozen {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  filter: grayscale(0.5);
 }
 
 /* ===== Extra Text & Links ===== */
