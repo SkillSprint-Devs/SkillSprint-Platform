@@ -14,6 +14,7 @@ class WalletService {
             user_id: userId,
             available_credits: 180, // Initial 3h grant
             weekly_limit: 330, // 5h 30m hard cap
+
             last_reset_date: new Date(),
             next_reset_date: nextReset,
         });
@@ -26,6 +27,7 @@ class WalletService {
             user_id: userId,
             type: "weekly-reset",
             amount: 180,
+
             role: "system",
         });
 
@@ -46,6 +48,7 @@ class WalletService {
             const oldCredits = wallet.available_credits;
 
             wallet.available_credits = 180; // Reset to 3h weekly grant
+
             wallet.last_reset_date = now;
 
             const nextReset = new Date();
@@ -154,6 +157,7 @@ class WalletService {
                 mentorName: "Self",
             });
         }
+
     }
 
     /**

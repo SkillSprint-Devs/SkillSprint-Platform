@@ -8,11 +8,14 @@ function initNavbar(config = {}) {
         activePage: 'Library',
         contextIcon: 'fa-book', // Default icon
         backUrl: 'history',
+
         showSearch: true,
         searchPlaceholder: 'Search resources, recordings, courses...',
         showSettingsBtn: true, // Default: visible
         showProfileBtn: false, // Default: hidden
         showNotifications: true, // Default: visible
+        showInviteBtn: false, // Default: hidden
+
         primaryAction: {
             show: true,
             label: 'Upload',
@@ -39,6 +42,7 @@ function initNavbar(config = {}) {
         <div class="navbar-top">
             <div class="nav-left">
                 <a ${backAttrs} class="brand">
+
                     <div class="brand-logo">
                         <i class="fa-solid ${options.contextIcon} context-icon"></i>
                         <i class="fa-solid fa-arrow-left-long back-icon"></i>
@@ -59,16 +63,18 @@ function initNavbar(config = {}) {
             </div>
             <div class="nav-right">
                 ${options.showNotifications ? `
-                <button class="icon-btn" title="Notifications">
+                <button class="icon-btn" title="Notifications" id="navbarNotifBtn">
                     <i class="fa-solid fa-bell"></i>
                     <span class="notification-badge" id="navbarNotifBadge" style="display:none;">0</span>
                 </button>` : ''}
+
                 ${options.showSettingsBtn ? `
                 <button class="icon-btn" title="Settings" onclick="location.href='settings.html'">
                     <i class="fa-solid fa-gear"></i>
                 </button>` : ''}
                 ${options.showProfileBtn ? `
                 <button class="icon-btn" title="My Profile" onclick="if(window.goToMyPublicProfile) window.goToMyPublicProfile(); else { const u = JSON.parse(localStorage.getItem('user') || '{}'); const id = u._id || u.id; location.href = id ? 'public-profile.html?user=' + id : 'profile.html'; }">
+
                     <i class="fa-solid fa-user"></i>
                 </button>` : ''}
                 ${options.primaryAction.show ? `
@@ -104,6 +110,14 @@ function initNavbar(config = {}) {
             navbar.classList.remove('scrolled');
         }
     });
+
+    // Invite Button Click
+    if (options.showInviteBtn && options.onInviteClick) {
+        const inviteBtn = document.getElementById('navbarInviteBtn');
+        if (inviteBtn) {
+            inviteBtn.addEventListener('click', options.onInviteClick);
+        }
+    }
 
     // Primary Action Click
     if (options.primaryAction.show && options.primaryAction.onClick) {

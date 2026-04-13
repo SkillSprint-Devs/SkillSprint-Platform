@@ -17,15 +17,11 @@ yarn-error.log
 Thumbs.db
 
 # Project Specific
+tmp/
+
+# System-only properties (not for git)
 backend/scripts/
 backend/seedCourses.js
 backend/seeds/
 backend/cleanup-ghost-credits.js
 *.seed.js
-
-tmp/
-
-railway.json
-SkillSprint_Matchmaking_Plan.docx
-matchmaking_status_report.md
-walkthrough.md

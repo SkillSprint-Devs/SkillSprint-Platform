@@ -27,9 +27,8 @@ async function checkConflict(userId, startDateTime, durationMinutes) {
             { acceptedUserIds: userId }
         ],
         $or: [
-            
             { scheduledDateTime: { $gte: bufferedStart, $lt: bufferedEnd } },
-            
+
         ]
     });
 
@@ -227,6 +226,73 @@ router.get("/my-schedule", verifyToken, async (req, res) => {
 });
 
 /**
+ * POST — Invite a user to an existing session (Mentor only)
+ */
+router.post("/invite", verifyToken, async (req, res) => {
+    try {
+        const { sessionId, userId: inviteeId } = req.body;
+        const mentorId = req.user.id;
+
+        const session = await LiveSession.findById(sessionId);
+        if (!session) return res.status(404).json({ message: "Session not found" });
+
+        if (session.mentorId.toString() !== mentorId) {
+            return res.status(403).json({ message: "Only mentors can invite participants" });
+        }
+
+        // Limit check: invitedUserIds should not exceed a reasonable number (e.g., 5 total for scaling, though UI shows 3)
+        // Let's stick to the 3 mentioned in /create
+        if (session.invitedUserIds.length >= 3) {
+            return res.status(400).json({ message: "Max 3 participants allowed for this session type" });
+        }
+
+        if (session.invitedUserIds.some(id => id.toString() === inviteeId.toString())) {
+            return res.status(400).json({ message: "User is already invited" });
+        }
+
+        // Add to invited list
+        session.invitedUserIds.push(inviteeId);
+        await session.save();
+
+        // Notification logic
+        const mentor = await User.findById(mentorId).select("name");
+        const invitee = await User.findById(inviteeId).select("name email");
+
+        if (invitee) {
+            await Notification.create({
+                user_id: inviteeId,
+                type: "invite",
+                title: "Live Session Invitation",
+                message: `You are invited to join "${session.sessionName}" by ${mentor.name}.`,
+                link: `livevideo.html?sessionId=${session._id}`
+            });
+
+            // Email
+            await sendInviteEmail(invitee.email, {
+                sessionName: session.sessionName,
+                mentorName: mentor.name,
+                scheduledDateTime: session.scheduledDateTime,
+                sessionId: session._id
+            });
+
+            // Socket emit
+            const io = req.app.get("io");
+            if (io) {
+                io.to(inviteeId.toString()).emit("notification", {
+                    message: `New Live Invite: ${session.sessionName} by ${mentor.name}`
+                });
+            }
+        }
+
+        res.json({ message: "Invite sent successfully", success: true });
+    } catch (err) {
+        console.error("[INVITE] Error:", err);
+        res.status(500).json({ message: "Failed to send invite" });
+    }
+});
+
+/**
+
  * POST — Respond to Invite (Accept/Decline)
  */
 router.post("/respond-invite", verifyToken, async (req, res) => {

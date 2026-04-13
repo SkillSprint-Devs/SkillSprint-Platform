@@ -56,11 +56,13 @@ body {
     max-width: 1300px;
     margin: 0 auto;
     padding: 1.5rem 1rem 3rem; /* Reduced top padding */
+
 }
 
 @media (min-width: 768px) {
     .pp-wrapper {
         padding: 2.5rem 1.5rem 4rem; /* Reduced significantly for better flow */
+
     }
 }
 
@@ -70,6 +72,7 @@ body {
     border-radius: var(--radius-xl);
     overflow: hidden;
     margin-bottom: 0.75rem; /* Reduced from 1rem */
+
     background: var(--pp-card);
     box-shadow: var(--shadow-card);
     border: 1px solid var(--pp-border);
@@ -271,6 +274,7 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow-card);
     margin-bottom: 0.75rem; /* Reduced from 1rem */
+
     /* consistent gap to next cards */
 }
 
@@ -322,6 +326,7 @@ body {
     display: grid;
     grid-template-columns: 310px 1fr; /* Slightly wider sidebar */
     gap: 1.25rem; /* Reduced from 2rem to 1.25rem for better cohesion */
+
     align-items: start;
 }
 
@@ -349,6 +354,7 @@ body {
     border: 1px solid var(--pp-border);
     border-radius: var(--radius-xl);
     padding: 1.15rem 1.15rem; /* Slightly reduced padding */
+
     box-shadow: var(--shadow-card);
     transition: box-shadow var(--transition), transform var(--transition);
 }
@@ -364,6 +370,7 @@ body {
     letter-spacing: 1.2px;
     color: var(--pp-muted);
     margin-bottom: 0.85rem; /* Reduced margin */
+
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -602,6 +609,7 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -754,12 +762,14 @@ body {
 .pp-empty {
     text-align: center;
     padding: 1.25rem; /* Reduced from 1.5rem */
+
     color: var(--pp-dim);
     font-size: 0.82rem;
 }
 
 .pp-empty i {
     font-size: 1.3rem; /* Reduced from 1.6rem */
+
     margin-bottom: 0.4rem;
     display: block;
     color: #ccc;
@@ -800,7 +810,7 @@ body {
     animation: pp-fade-up 0.4s ease forwards;
 }
 
-/* ── Unified Profile Editing Styles ────────────────────────── */
+/* ── Unified Profile Editing Styles ── */
 
 .pp-mini-btn {
     width: 26px;

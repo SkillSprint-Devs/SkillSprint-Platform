@@ -34,10 +34,90 @@
         activePage: 'History',
         contextIcon: 'fa-history',
         backUrl: 'history',
+
         showSearch: false,
         primaryAction: { show: false }
       });
     });
+
+    // Inject Share + Report buttons after navbar renders
+    setTimeout(() => {
+        // Hide any notification bell rendered by navbar
+        document.querySelectorAll(
+            '.notification-btn, .notif-btn, .bell-btn, [class*="notif-icon"], [data-notif], .nav-notif'
+        ).forEach(el => el.style.display = 'none');
+
+        // Find navbar right area
+        const navbarInner = document.querySelector(
+            '#navbar-placeholder .navbar-right, #navbar-placeholder .nav-right, #navbar-placeholder .nav-actions, #navbar-placeholder nav'
+        );
+
+        const actionsWrap = document.createElement('div');
+        actionsWrap.style.cssText = 'display:flex;align-items:center;gap:0.4rem;margin-right:16px;';
+
+        const shareBtn = document.createElement('button');
+        shareBtn.className = 'pp-nav-icon-btn';
+        shareBtn.title = 'Share Profile';
+        shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
+
+        const reportBtn = document.createElement('button');
+        reportBtn.id = 'ppNavReportBtn';
+        reportBtn.className = 'pp-nav-icon-btn danger';
+        reportBtn.title = 'Report Profile';
+        reportBtn.innerHTML = '<i class="fa-solid fa-flag"></i>';
+
+        actionsWrap.appendChild(shareBtn);
+        actionsWrap.appendChild(reportBtn);
+
+        if (navbarInner) {
+            navbarInner.appendChild(actionsWrap);
+        } else {
+            // Fallback: stick them at end of navbar-placeholder
+            document.getElementById('navbar-placeholder').appendChild(actionsWrap);
+        }
+
+        // Share handler
+        shareBtn.addEventListener('click', () => {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url }).catch(() => { });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    if (typeof showToast === 'function') showToast('Profile link copied!', 'success');
+                });
+            } else {
+                prompt('Copy this link:', url);
+            }
+        });
+
+        // Report handler – open modal
+        reportBtn.addEventListener('click', () => {
+            const modal = document.getElementById('ppReportModal');
+            if (modal) modal.style.display = 'flex';
+        });
+
+        // Report modal cancel
+        document.getElementById('ppReportCancelBtn')?.addEventListener('click', () => {
+            document.getElementById('ppReportModal').style.display = 'none';
+        });
+
+        // Report modal submit
+        document.getElementById('ppReportSubmitBtn')?.addEventListener('click', () => {
+            const chosen = document.querySelector('input[name="ppReason"]:checked');
+            if (!chosen) {
+                if (typeof showToast === 'function') showToast('Please select a reason.', 'error');
+                return;
+            }
+            // In a real app, POST /api/reports here
+            document.getElementById('ppReportModal').style.display = 'none';
+            if (typeof showToast === 'function') showToast('Report submitted. Thank you!', 'success');
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('ppReportModal')?.addEventListener('click', function (e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+    }, 350);
   </script>
 </body>
 

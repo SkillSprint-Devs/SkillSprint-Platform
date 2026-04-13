@@ -43,8 +43,8 @@ class SessionService {
             console.log(`[RUNTIME-DEBUG] DB SAVE SUCCESS.`);
 
             // Process Credits - Only if the session was NOT expired (had at least one mentee)
+            const learners = session.acceptedUserIds || [];
             if (session.status === "ended" && actualDurationMinutes > 0) {
-                const learners = session.acceptedUserIds || [];
                 for (const learnerId of learners) {
                     try {
                         await WalletService.spendCredits(
@@ -71,6 +71,7 @@ class SessionService {
                 }
             } else if (session.status === "expired") {
                 console.log(`[SessionService] Session ${session._id} was empty (no mentees). Marking as expired without credits.`);
+
             }
 
             // 3. Notify Everyone

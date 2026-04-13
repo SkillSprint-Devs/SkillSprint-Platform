@@ -94,7 +94,9 @@ const liveSessionSocket = (io) => {
                     status: session.status,
                     participants: presenceList,
                     isMentor,
-                    grantedPermissions: room.permissions[userId] || {}
+                    grantedPermissions: room.permissions[userId] || {},
+                    sessionStartedAt: session.startTime
+
                 });
 
                 io.to(sessionId).emit("live:presence", presenceList);
@@ -188,6 +190,8 @@ const liveSessionSocket = (io) => {
                 if (session.mentorId.toString() !== userId.toString()) return;
 
                 session.status = "live";
+                session.startTime = new Date();
+
                 await session.save();
                 io.to(sessionId).emit("live:statusChanged", "live");
 

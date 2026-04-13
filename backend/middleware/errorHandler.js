@@ -5,6 +5,7 @@ import ErrorLog from "../models/ErrorLog.js";
 const errorHandler = async (err, req, res, next) => {
     console.error("SERVER ERROR:", err);
 
+    let log = null;
     try {
         const errorData = {
             errorMessage: err.message || "Internal Server Error",
@@ -29,7 +30,7 @@ const errorHandler = async (err, req, res, next) => {
             errorData.stackTrace = maskSensitiveData(errorData.stackTrace);
         }
 
-        const log = await ErrorLog.create(errorData);
+        log = await ErrorLog.create(errorData);
 
         // Emit real-time notification if possible
         const io = req.app.get("io");

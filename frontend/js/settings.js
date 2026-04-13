@@ -245,6 +245,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!await showConfirm(
             "Delete Account Permanently?",
             "WARNING: This will PERMANENTLY delete your account and EVERY piece of data you created (Projects, Tasks, Posts, Achievements, Badges, etc.). This action cannot be undone.",
+
             "Continue",
             true
         )) return;
@@ -256,7 +257,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             "Yes, Delete Everything Forever",
             true
         )) return;
-
 
         try {
             const res = await fetch(`${window.API_BASE_URL}/auth/delete-account`, {

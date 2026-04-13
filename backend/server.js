@@ -123,9 +123,7 @@ mongoose
     serverSelectionTimeoutMS: 5000,
   })
   .then(() => {
-    console.log("Connected to MongoDB Atlas");
-    console.log(`DB Name: ${mongoose.connection.name}`);
-    console.log(`DB Host: ${mongoose.connection.host}`);
+    console.log("[Database] MongoDB connection established.");
   })
   .catch((err) => {
     console.error("CRITICAL: MongoDB Connection Failed!");
@@ -134,6 +132,7 @@ mongoose
       console.error("HINT: This usually means the server IP is not whitelisted in MongoDB Atlas or the URI is incorrect.");
     }
   });
+
 
 // SOCKET.IO SETUP 
 const server = http.createServer(app);

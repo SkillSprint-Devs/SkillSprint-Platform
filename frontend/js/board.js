@@ -192,6 +192,7 @@
       activePage: 'Smartboard',
       contextIcon: 'fa-puzzle-piece',
       backUrl: 'history',
+
       showSearch: false,      // Hide search bar in whiteboard
       showSettingsBtn: false, // Hide settings button in whiteboard
       primaryAction: {

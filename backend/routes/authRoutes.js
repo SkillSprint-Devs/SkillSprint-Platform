@@ -232,6 +232,7 @@ router.post("/login", loginLimiter, async (req, res) => {
       message: isDbError ? "Database connection error. Please try again later." : "Server error during login",
       error: process.env.NODE_ENV === 'development' ? error.message : "Internal technical error",
       info: isDbError ? "The server could not reach the database. Check whitelisting." : undefined
+
     });
   }
 });
@@ -316,6 +317,7 @@ router.put("/update-profile", verifyToken, upload.fields([{ name: 'profile_image
       projects,
       education,
       experience,
+
       achievements,
       notifications,
     } = req.body;
@@ -584,6 +586,7 @@ router.delete("/delete-account", verifyToken, async (req, res) => {
   } catch (err) {
     console.error("Delete account error:", err);
     res.status(500).json({ message: "Server error during account deletion", error: err.message });
+
   }
 });
 

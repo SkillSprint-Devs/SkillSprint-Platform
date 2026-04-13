@@ -3,7 +3,11 @@ if (!token) {
     window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.href);
 }
 const API_BASE = window.API_BASE_URL;
-const SOCKET_URL = window.API_SOCKET_URL; // Empty string for relative path in production
+// Global State
+let currentChatUserId = null;
+let debounceTimer;
+const SOCKET_URL = window.API_SOCKET_URL;
+let makingOffer = false;
 
 const socket = io(SOCKET_URL, {
     auth: { token }
@@ -79,20 +83,22 @@ function joinSession() {
 
         if (isMentor) {
             if (data.status === 'scheduled') {
-                document.getElementById("startSessionBtn").style.display = "block";
+                const startBtn = document.getElementById("startSessionBtn");
+                if (startBtn) startBtn.style.display = "block";
             }
-            if (data.status === 'live' || data.status === 'scheduled') {
-                document.getElementById("endSessionBtn").style.display = "block";
-            }
+            // endSessionBtn is now in the top navbar, handled by initNavbar
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Mentor)";
             const pName = document.querySelector(".video-wrapper.local .participant-name");
             pName.style.cursor = 'pointer';
             pName.onclick = () => { if (window.goToMyPublicProfile) window.goToMyPublicProfile(); };
         } else {
             // Mentee UI Restrictions
-            document.getElementById("startSessionBtn").style.display = "none";
-            document.getElementById("endSessionBtn").style.display = "none";
-            document.getElementById("toggleWhiteboard").style.display = "none"; // Mentee can't open it
+            const startBtn = document.getElementById("startSessionBtn");
+            if (startBtn) startBtn.style.display = "none";
+
+            const toggleWb = document.getElementById("toggleWhiteboard");
+            if (toggleWb) toggleWb.style.display = "none"; // Mentee can't open it
+
             document.querySelector(".video-wrapper.local .participant-name").textContent = "You (Learner)";
             const pName = document.querySelector(".video-wrapper.local .participant-name");
             pName.style.cursor = 'pointer';
@@ -115,7 +121,31 @@ function joinSession() {
             });
         }
 
-        if (data.status === 'live') startTimer();
+        if (data.status === 'live') startTimer(data.sessionStartedAt);
+
+        // Re-initialize navbar to show Invite button if Mentor
+        if (typeof window.initNavbar === 'function') {
+            window.initNavbar({
+                activePage: 'Live Session',
+                contextIcon: 'fa-video',
+                backUrl: 'dashboard.html',
+                showSearch: false,
+                showSettingsBtn: false,
+                showNotifications: false,
+                showInviteBtn: window.isMentor,
+                onInviteClick: () => {
+                    if (window.handleInviteClick) window.handleInviteClick();
+                },
+                primaryAction: {
+                    show: true,
+                    label: 'End Session',
+                    icon: 'fa-phone-slash',
+                    onClick: () => {
+                        if (window.handleEndSession) window.handleEndSession();
+                    }
+                }
+            });
+        }
     });
 
     socket.on("live:chat", (msg) => {
@@ -134,9 +164,9 @@ function joinSession() {
         console.log("[RUNTIME-DEBUG] Socket Event: live:statusChanged ->", status);
         document.getElementById("sessionStatus").textContent = status;
         if (status === 'live') {
-            document.getElementById("startSessionBtn").style.display = "none";
-            if (window.isMentor) document.getElementById("endSessionBtn").style.display = "block";
-            startTimer();
+            const startBtn = document.getElementById("startSessionBtn");
+            if (startBtn) startBtn.style.display = "none";
+            startTimer(new Date());
         } else if (status === 'ended' || status === 'completed') {
             console.log("[LIVE] Session ended status received via socket");
             if (typeof showToast === 'function') showToast("Session ended by Mentor", "info");
@@ -212,18 +242,17 @@ async function createPeerConnection(peerId, isOffer) {
     const pc = new RTCPeerConnection(iceConfig);
     peerConnections[peerId] = pc;
 
-    // IMPORTANT: Only add tracks if we have permission or we are the mentor
-    if (window.isMentor) {
-        if (localStream) {
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-        }
-    } else {
-        // Mentee: Only add tracks that were previously granted
-        if (localStream) {
-            const micTrack = localStream.getAudioTracks()[0];
-            const camTrack = localStream.getVideoTracks()[0];
-            if (micTrack && grantedPermissions.mic) pc.addTrack(micTrack, localStream);
-            if (camTrack && grantedPermissions.cam) pc.addTrack(camTrack, localStream);
+    // IMPORTANT: Add tracks in a deterministic order (Audio then Video) to avoid m-line mismatch
+    if (localStream) {
+        const audioTrack = localStream.getAudioTracks()[0];
+        const videoTrack = localStream.getVideoTracks()[0];
+
+        if (window.isMentor) {
+            if (audioTrack) pc.addTrack(audioTrack, localStream);
+            if (videoTrack) pc.addTrack(videoTrack, localStream);
+        } else {
+            if (audioTrack && grantedPermissions.mic) pc.addTrack(audioTrack, localStream);
+            if (videoTrack && grantedPermissions.cam) pc.addTrack(videoTrack, localStream);
         }
     }
 
@@ -235,11 +264,15 @@ async function createPeerConnection(peerId, isOffer) {
 
     pc.onnegotiationneeded = async () => {
         try {
+            if (makingOffer || pc.signalingState !== 'stable') return;
+            makingOffer = true;
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
             socket.emit("live:signal", { sessionId, targetUserId: peerId, signal: { sdp: pc.localDescription, type: "offer" } });
         } catch (err) {
             console.error("Negotiation error:", err);
+        } finally {
+            makingOffer = false;
         }
     };
 
@@ -434,80 +467,26 @@ function setupEventListeners() {
         }
     });
 
-    document.getElementById("clearBoard").addEventListener("click", () => {
-        socket.emit("live:whiteboardClear", { sessionId });
-    });
+    const clearBtn = document.getElementById("clearBoard");
+    if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+            socket.emit("live:whiteboardClear", { sessionId });
+        });
+    }
 
-    document.getElementById("startSessionBtn").addEventListener("click", () => {
-        socket.emit("live:startSession", { sessionId });
-    });
+    const startBtn = document.getElementById("startSessionBtn");
+    if (startBtn) {
+        startBtn.addEventListener("click", () => {
+            socket.emit("live:startSession", { sessionId });
+        });
+    }
 
-    document.getElementById("endSessionBtn").addEventListener("click", async () => {
-        console.log("[LIVE] End Session clicked. SessionID:", sessionId);
-        if (!sessionId) {
-            console.error("[LIVE] Cannot end session: sessionId is missing from URL");
-            if (typeof showToast === 'function') showToast("Error: Session ID missing", "error");
-            return;
-        }
+    const endBtn = document.getElementById("endSessionBtn");
+    if (endBtn) {
+        endBtn.addEventListener("click", () => triggerEndSession());
+    }
+    // endSessionBtn logic removed here as it is unified in triggerEndSession
 
-
-        // Use the custom confirm function
-        const confirmed = await showConfirm(
-            "End Session?",
-            "Are you sure you want to end this session? This will deduct credits and close the room.",
-            "End Session",
-            true // isDanger
-        );
-
-        if (confirmed) {
-            console.log("[DEBUG] User clicked OK on custom confirm");
-            const btn = document.getElementById("endSessionBtn");
-            console.log("[DEBUG] Button element:", btn);
-
-            if (!btn) {
-                console.error("[DEBUG] CRITICAL: endSessionBtn not found in DOM!");
-                return;
-            }
-
-            const originalHtml = btn.innerHTML;
-
-            try {
-                console.log("[DEBUG] Starting try block");
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                console.log("[RUNTIME-DEBUG] Sending end-session fetch to API...");
-                if (typeof showToast === 'function') showToast("Ending session and processing credits...", "info");
-
-                const res = await fetch(`${API_BASE}/live-sessions/end-session`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ sessionId })
-                });
-
-                console.log("[RUNTIME-DEBUG] End-session API response status:", res.status);
-                if (res.ok) {
-                    console.log("[RUNTIME-DEBUG] Session ended successfully via API. Waiting for socket confirmation...");
-                    // Socket listener will handle the redirect
-                } else {
-                    const err = await res.json();
-                    console.error("[RUNTIME-DEBUG] API End Session Error:", err.message);
-                    if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }
-            } catch (err) {
-                console.error("[RUNTIME-DEBUG] End session API fetch error:", err);
-                if (typeof showToast === 'function') showToast("Network error. Ending via socket...", "warning");
-                // Fallback to socket if API fails
-                socket.emit("live:endSession", { sessionId });
-            }
-        } else {
-            console.log("[DEBUG] User clicked CANCEL on custom confirm");
-        }
-    });
 
     // Tool switching
     document.querySelectorAll(".whiteboard-tools .tool").forEach(btn => {
@@ -614,7 +593,43 @@ async function handlePermissionRequest(userId, type) {
     socket.emit("live:grantPermission", { sessionId, targetUserId: userId, type, granted: confirmed });
 }
 
-function handlePermissionGranted(type, granted, isSilent = false) {
+async function ensureMediaTracks(type) {
+    console.log(`[WEBRTC] Ensuring ${type} tracks are available...`);
+    let track = type === 'mic' ? localStream.getAudioTracks()[0] : localStream.getVideoTracks()[0];
+
+    // Check if it's a real track or a dummy one (canvas-based dummy won't have the right label/kind for some browsers)
+    // Or if it's missing altogether
+    if (!track || track.label.toLowerCase().includes("canvas") || track.readyState === 'ended') {
+        try {
+            console.log(`[WEBRTC] Missing real ${type} track. Requesting hardware access...`);
+            const freshStream = await navigator.mediaDevices.getUserMedia({
+                audio: type === 'mic' || (localStream && localStream.getAudioTracks().length > 0),
+                video: type === 'cam' || (localStream && localStream.getVideoTracks().length > 0)
+            });
+
+            // Update local stream with real hardware tracks
+            if (type === 'mic') {
+                const oldMic = localStream.getAudioTracks()[0];
+                if (oldMic) localStream.removeTrack(oldMic);
+                localStream.addTrack(freshStream.getAudioTracks()[0]);
+            } else {
+                const oldCam = localStream.getVideoTracks()[0];
+                if (oldCam) localStream.removeTrack(oldCam);
+                localStream.addTrack(freshStream.getVideoTracks()[0]);
+            }
+            // Update local preview
+            document.getElementById("localVideo").srcObject = localStream;
+            track = type === 'mic' ? localStream.getAudioTracks()[0] : localStream.getVideoTracks()[0];
+        } catch (err) {
+            console.error(`[WEBRTC] Failed to get hardware for ${type}:`, err);
+            if (typeof showToast === 'function') showToast(`Failed to access ${type}. Please check browser permissions.`, "error");
+            return null;
+        }
+    }
+    return track;
+}
+
+async function handlePermissionGranted(type, granted, isSilent = false) {
     if (!granted) {
         if (!isSilent && typeof showToast === 'function') showToast(`Mentor denied ${type} permission.`, "warning");
         return;
@@ -623,34 +638,28 @@ function handlePermissionGranted(type, granted, isSilent = false) {
     grantedPermissions[type] = true;
     if (!isSilent && typeof showToast === 'function') showToast(`Mentor granted ${type} permission!`, "success");
 
-    if (type === 'mic') {
-        const audioTrack = localStream.getAudioTracks()[0];
-        if (audioTrack) {
-            audioTrack.enabled = true;
-            document.getElementById("toggleMic").classList.remove("off");
+    if (type === 'mic' || type === 'cam') {
+        const track = await ensureMediaTracks(type);
+        if (track) {
+            track.enabled = true;
+            const btnId = type === 'mic' ? "toggleMic" : "toggleCam";
+            document.getElementById(btnId)?.classList.remove("off");
+
             // WebRTC: Add track to active connections
             Object.values(peerConnections).forEach(pc => {
-                if (!pc.getSenders().find(s => s.track === audioTrack)) {
-                    pc.addTrack(audioTrack, localStream);
-                }
-            });
-        }
-    } else if (type === 'cam') {
-        const videoTrack = localStream.getVideoTracks()[0];
-        if (videoTrack) {
-            videoTrack.enabled = true;
-            document.getElementById("toggleCam").classList.remove("off");
-            // WebRTC: Add track to active connections
-            Object.values(peerConnections).forEach(pc => {
-                if (!pc.getSenders().find(s => s.track === videoTrack)) {
-                    pc.addTrack(videoTrack, localStream);
+                const senders = pc.getSenders();
+                const exists = senders.find(s => s.track === track);
+                if (!exists) {
+                    console.log(`[WEBRTC] Injecting ${type} track into connection with peer.`);
+                    pc.addTrack(track, localStream);
                 }
             });
         }
     } else if (type === 'whiteboard') {
         // Allow whiteboard access
         if (!window.isMentor) {
-            document.getElementById("toggleWhiteboard").style.display = "block";
+            const toggleWb = document.getElementById("toggleWhiteboard");
+            if (toggleWb) toggleWb.style.display = "block";
         }
     }
 }
@@ -665,15 +674,205 @@ function getMyId() {
 }
 
 let timerInterval;
-function startTimer() {
+function startTimer(startedAt = null) {
     let seconds = 0;
+    if (startedAt) {
+        const start = new Date(startedAt);
+        const now = new Date();
+        seconds = Math.max(0, Math.floor((now - start) / 1000));
+    }
+
     const timerDisplay = document.getElementById("sessionTimer");
+    if (!timerDisplay) return;
+
     clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        seconds++;
+
+    const updateDisplay = () => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
         timerDisplay.textContent = `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    updateDisplay(); // Set initial state immediately
+
+    timerInterval = setInterval(() => {
+        seconds++;
+        updateDisplay();
     }, 1000);
 }
+
+// Global Handlers
+window.handleEndSession = () => {
+    triggerEndSession();
+};
+
+window.handleInviteClick = () => {
+    if (!window.isMentor) return;
+    document.getElementById("inviteModal").classList.add("active");
+    document.getElementById("inviteSearch").value = "";
+    document.getElementById("inviteUserList").innerHTML = `
+        <div style="padding: 40px 20px; text-align: center; color: #999;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;"></i>
+            <p style="margin: 0; font-size: 13px;">Start typing to search users</p>
+        </div>`;
+    document.getElementById("sendInviteBtn").disabled = true;
+    window.selectedInviteeId = null;
+};
+
+// Initialization for Invite Modal
+function initInviteModal() {
+    console.log("[LIVE] Initializing Invite Modal logic...");
+    const inviteSearch = document.getElementById("inviteSearch");
+    const userList = document.getElementById("inviteUserList");
+    const sendBtn = document.getElementById("sendInviteBtn");
+    const closeBtn = document.querySelector(".btn-close-invite");
+
+    if (closeBtn) {
+        closeBtn.onclick = () => document.getElementById("inviteModal").classList.remove("active");
+    }
+
+    if (inviteSearch) {
+        let searchTimeout;
+        inviteSearch.oninput = (e) => {
+            const query = e.target.value.trim();
+            clearTimeout(searchTimeout);
+            if (query.length < 2) {
+                userList.innerHTML = `<p style="padding:20px; text-align:center; color:#999;">Search at least 2 chars</p>`;
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/users/search?query=${query}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const users = await res.json();
+
+                    if (users.length === 0) {
+                        userList.innerHTML = `<p style="padding:20px; text-align:center; color:#999;">No users found</p>`;
+                        return;
+                    }
+
+                    userList.innerHTML = users.map(u => `
+                        <div class="user-item" data-id="${u._id}" onclick="window.selectInvitee('${u._id}', '${u.name}')" 
+                             style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                            <img src="${u.profile_image || 'assets/images/default-avatar.png'}" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px; color: #fff;">${u.name}</div>
+                                <div style="font-size: 11px; color: #aaa;">${u.email}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (err) {
+                    console.error("Search error:", err);
+                }
+            }, 300);
+        };
+    }
+
+    if (sendBtn) {
+        sendBtn.onclick = async () => {
+            if (!window.selectedInviteeId || !sessionId) return;
+            try {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
+                const res = await fetch(`${API_BASE}/live-sessions/invite`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ sessionId, userId: window.selectedInviteeId })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    if (typeof showToast === 'function') showToast("Invitation sent successfully!", "success");
+                    document.getElementById("inviteModal").classList.remove("active");
+                } else {
+                    if (typeof showToast === 'function') showToast(data.message || "Failed to send invite", "error");
+                }
+            } catch (err) {
+                console.error("Invite error:", err);
+                if (typeof showToast === 'function') showToast("Network error", "error");
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Invite';
+            }
+        };
+    }
+}
+
+// Call init once ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInviteModal);
+} else {
+    initInviteModal();
+}
+
+window.selectInvitee = (id, name) => {
+    window.selectedInviteeId = id;
+    document.querySelectorAll(".user-item").forEach(el => el.style.background = "transparent");
+    const selectedEl = document.querySelector(`.user-item[data-id="${id}"]`);
+    if (selectedEl) selectedEl.style.background = "rgba(220, 239, 98, 0.2)";
+    document.getElementById("sendInviteBtn").disabled = false;
+};
+
+async function triggerEndSession() {
+    console.log("[LIVE] triggerEndSession called. SessionID:", sessionId);
+    if (!sessionId) {
+        if (typeof showToast === 'function') showToast("Error: Session ID missing", "error");
+        return;
+    }
+
+    const confirmed = await showConfirm(
+        "End Session?",
+        "Are you sure you want to end this session? This will deduct credits and close the room.",
+        "End Session",
+        true // isDanger
+    );
+
+    if (confirmed) {
+        const btn = document.getElementById("endSessionBtn");
+        let originalHtml = "";
+        if (btn) {
+            originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        }
+
+        try {
+            if (typeof showToast === 'function') showToast("Ending session and processing credits...", "info");
+
+            const res = await fetch(`${API_BASE}/live-sessions/end-session`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ sessionId })
+            });
+
+            if (res.ok) {
+                console.log("[LIVE] Session ended successfully via API.");
+            } else {
+                const err = await res.json();
+                if (typeof showToast === 'function') showToast(err.message || "Failed to end session", "error");
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+        } catch (err) {
+            console.error("End session error:", err);
+            if (typeof showToast === 'function') showToast("Network error", "error");
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+    }
+}
+

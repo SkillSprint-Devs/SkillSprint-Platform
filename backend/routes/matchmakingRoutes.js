@@ -166,6 +166,7 @@ router.post('/invalidate', verifyToken, async (req, res) => {
 // ── GET /api/matchmaking/projects ─────────────────────────────────────────────
 // Returns top 5 boards scored by skill overlap with the requesting user
 // Returns top 5 boards/pairs scored by skill overlap with the requesting user
+
 router.get('/projects', verifyToken, async (req, res) => {
   try {
     const meId = req.user.id;
@@ -240,6 +241,7 @@ router.get('/projects', verifyToken, async (req, res) => {
       .slice(0, 5);
 
     res.json({ projects: combined });
+
   } catch (err) {
     console.error('[Matchmaking] Projects error:', err);
     res.status(500).json({ message: 'Failed to load project matches', error: err.message });

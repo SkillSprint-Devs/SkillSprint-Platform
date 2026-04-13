@@ -4,6 +4,7 @@ import User from "../models/user.js";
 import Board from "../models/board.js";
 import PairProgramming from "../models/pair-programming.js";
 import Achievement from "../models/achievement.js";
+
 import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -141,6 +142,7 @@ router.get("/:userId/public", verifyToken, async (req, res) => {
             recentPosts = await Post.find({ authorId: userId })
                 .sort({ createdAt: -1 })
                 .limit(10)
+
                 .select("content media createdAt likes")
                 .lean();
             recentPosts = recentPosts.map(p => ({

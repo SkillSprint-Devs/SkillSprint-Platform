@@ -5,62 +5,54 @@
 ## Key Features
 
 ### Collaboration
-- **Pair Programming** — Live, invite-based code collaboration sessions with real-time sync
-- **Interactive Whiteboard** — Collaborative drawing and brainstorming with real-time multi-user presence, color-coded cursors, and comment threads
-- **Live Sessions** — Host and join real-time video/audio collaboration sessions with session history tracking
+- **Pair Programming** — Live, invite-based code collaboration sessions with real-time sync.
+- **Interactive Whiteboard** — Collaborative drawing and brainstorming with real-time multi-user presence, color-coded cursors, and comment threads.
+- **Live Sessions** — Host and join real-time video/audio collaboration sessions with session history tracking.
 
 ### Matchmaking & Discovery
-- **Intelligent Matchmaking** — Algorithm-powered (KNN + Cosine Similarity) developer matching based on tech stack, learning goals, skill level, and experience to find ideal teammates or study partners
-- **Collaborations Feed** — Browse and connect with matched developers and ongoing projects
+- **Intelligent Matchmaking** — Algorithm-powered (KNN + Cosine Similarity) developer matching based on tech stack, learning goals, skill level, and experience to find ideal teammates or study partners.
+- **Collaborations Feed** — Browse and connect with matched developers and ongoing projects.
 
 ### Learning & Growth
-- **Quiz System** — Skill-based quizzes with multiple question types, timed attempts, scoring, and detailed attempt history
-- **Course Seeding** — Pre-seeded course library used to power matchmaking recommendations
-- **Achievements** — Unlock milestones and badges based on platform activity and quiz performance
-- **Certificates** — Generate and download certificates upon completing skill assessments
+- **Quiz System** — Skill-based quizzes with multiple question types, timed attempts, scoring, and detailed attempt history.
+- **Course Seeding** — Pre-seeded course library used to power matchmaking recommendations.
+- **Achievements** — Unlock milestones and badges based on platform activity and quiz performance.
+- **Certificates** — Generate and download certificates upon completing skill assessments.
 
 ### Productivity
-- **Task Management** — Create, assign, and track tasks with calendar views, priority levels, and automated daily reminders (via cron)
-- **Reminders** — Custom reminder system with Nodemailer-powered email alerts
+- **Task Management** — Create, assign, and track tasks with calendar views, priority levels, and automated daily reminders (via cron).
+- **Reminders** — Custom reminder system with Nodemailer-powered email alerts.
 
 ### Social & Communication
-- **Real-time Chat** — Instant messaging with live notifications
-- **Social Feed** — Share posts, follow users, like and comment on content
-- **Public Profiles** — View other developers' profiles, skills, posts, library resources, and activity
-- **Following System** — Follow/unfollow users and track their activity
+- **Real-time Chat** — Instant messaging with live notifications.
+- **Social Feed** — Share posts, follow users, like and comment on content.
+- **Public Profiles** — View other developers' profiles, skills, posts, library resources, and activity.
+- **Following System** — Follow/unfollow users and track their activity.
 
 ### Content & Resources
-- **Library** — Upload, organize, and share learning resources (PDFs, recordings, images) with a modal preview viewer before download
-- **Wallet** — Token-based reward system with transaction history tied to platform achievements and activity
+- **Library** — Upload, organize, and share learning resources (PDFs, recordings, images) with a modal preview viewer before download.
+- **Wallet** — Token-based reward system with transaction history tied to platform achievements and activity.
 
 ### Notifications
-- **Smart Notifications** — Real-time alerts for all platform events including messages, task reminders, social interactions, board invitations, pair programming requests, and collaboration updates
-
-### Administration
-- **Admin Dashboard** — Platform management interface for user oversight and monitoring
-- **Error Logging** — Structured error log capture and admin review system
-- **Onboarding Flow** — Guided multi-step onboarding for new users to set up skills, goals, and preferences
-
-### Coming Soon
-- **MentorBot** — An AI-powered mentorship assistant to provide on-demand code guidance, learning recommendations, and personalized mentorship
+- **Smart Notifications** — Real-time alerts for all platform events including messages, task reminders, social interactions, board invitations, pair programming requests, and collaboration updates.
 
 ---
 
 ## Tech Stack
 
 ### Backend
-- **Node.js** & **Express** — Server framework
-- **MongoDB** & **Mongoose** — Database and ODM
-- **Socket.IO** — Real-time bidirectional communication
-- **JWT** — Authentication and authorization
-- **node-cron** — Automated task and reminder scheduling
-- **Nodemailer** — Email notifications and reminders
-- **Multer** — File upload handling for library resources
+- **Node.js** & **Express** — Server framework.
+- **MongoDB** & **Mongoose** — Database and ODM.
+- **Socket.IO** — Real-time bidirectional communication.
+- **JWT** — Authentication and authorization.
+- **node-cron** — Automated task and reminder scheduling.
+- **Nodemailer** — Email notifications and reminders.
+- **Multer** — File upload handling for library resources.
 
 ### Frontend
-- **HTML5**, **CSS3**, **Vanilla JavaScript** — Core web technologies
-- **Socket.IO Client** — Real-time updates and presence
-- **Responsive Design** — Mobile-friendly interface across all pages
+- **HTML5**, **CSS3**, **Vanilla JavaScript** — Core web technologies.
+- **Socket.IO Client** — Real-time updates and presence.
+- **Responsive Design** — Mobile-friendly interface across all pages.
 
 ---
 
@@ -98,14 +90,13 @@ SkillSprint-Platform/
    cd SkillSprint-Platform
    ```
 
-2. **Install backend dependencies**
+2. **Backend Setup**
    ```bash
    cd backend
    npm install
    ```
 
-3. **Configure environment variables**
-
+3. **Configure Environment Variables**
    Create a `.env` file in the `backend` directory:
    ```env
    MONGO_URI=your_mongodb_connection_string
@@ -125,7 +116,8 @@ SkillSprint-Platform/
    npm start
    ```
 
-6. **Serve the frontend**
+6. **Frontend Setup**
+   Open `frontend/index.html` in your browser or serve it using a local server:
    ```bash
    cd ../frontend
    npx serve
@@ -141,14 +133,10 @@ Run the entire platform using Docker:
 docker-compose up
 ```
 
----
-
 ## Documentation
 
 - [Pair Programming Guide](pair_programming_guide.md)
 - [Pair Programming Audit](pair_programming_audit.md)
-
----
 
 ## Contributing
 

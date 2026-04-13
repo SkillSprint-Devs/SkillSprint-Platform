@@ -25,6 +25,7 @@ async function loadWalletData() {
         setupRequestAction();
         setupClearAction();
 
+
         // Update User info
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         if (user.profile_image && document.getElementById("profileAvatar")) {
@@ -81,12 +82,18 @@ function renderHistory(transactions) {
         const amountPrefix = t.type === "session-earn" || t.type === "weekly-reset" ? "+" : "-";
         const amountClass = t.type === "session-earn" ? "amount-earn" : t.type === "session-spend" ? "amount-spend" : "amount-reset";
 
+        const sessionIdVal = t.sessionId ? (typeof t.sessionId === 'string' ? t.sessionId.substring(0, 8) : (t.sessionId._id ? t.sessionId._id.substring(0, 8) : '---')) : '---';
+        const sessionNameVal = t.sessionName || (t.sessionId?.sessionName) || "N/A";
+        const menteesInfo = (t.role === 'mentor' && t.sessionId?.invitedUserIds && Array.isArray(t.sessionId.invitedUserIds))
+            ? `<small>Mentees: ${t.sessionId.invitedUserIds.filter(u => u && u.name).map(u => u.name).join(', ') || '0'}</small>`
+            : (t.mentorName ? `<small>Mentor: ${t.mentorName}</small>` : '');
+
         tr.innerHTML = `
             <td><span class="type-badge ${typeClass}">${formatType(t.type)}</span></td>
             <td>
                 <div class="session-info">
-                    <strong>${t.sessionName || "N/A"}</strong>
-                    <span class="session-id">ID: ${t.sessionId ? (typeof t.sessionId === 'string' ? t.sessionId.substring(0, 8) : (t.sessionId._id ? t.sessionId._id.substring(0, 8) : '---')) : '---'}</span>
+                    <strong>${sessionNameVal}</strong>
+                    <span class="session-id">ID: ${sessionIdVal}</span>
                 </div>
             </td>
             <td><span class="role-text">${t.role || 'System'}</span></td>
@@ -100,9 +107,7 @@ function renderHistory(transactions) {
             <td>
                 <div class="detail-info">
                     ${t.durationMinutes ? `<span>Dur: ${t.durationMinutes}m</span>` : ''}
-                    ${t.role === 'mentor' && t.sessionId?.invitedUserIds
-                ? `<small>Mentees: ${t.sessionId.invitedUserIds.map(u => u.name).join(', ') || '0'}</small>`
-                : t.mentorName ? `<small>Mentor: ${t.mentorName}</small>` : ''}
+                    ${menteesInfo}
                 </div>
             </td>
             <td>
@@ -217,6 +222,7 @@ function formatMinutes(mins) {
 }
 
 function formatType(type) {
+    if (!type) return "N/A";
     return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
