@@ -28,18 +28,33 @@ const asyncHandler = (fn) => (req, res, next) =>
 function hasPermission(board, userId, roles = []) {
   if (!board || !userId) return false;
   const id = userId.toString();
-  if (roles.includes("owner") && board.owner?.toString() === id) return true;
+
+  // Helper to safely get the string ID regardless of whether the field is populated or a Raw ObjectId
+  const getID = (val) => {
+    if (!val) return null;
+    return (val._id || val).toString();
+  };
+
+  // Check Owner
+  if (roles.includes("owner") && getID(board.owner) === id) return true;
+
   const perm = board.permissions || {};
-  if (roles.includes("editor") && perm.editors?.some((e) => e.toString() === id))
+
+  // Check Editors
+  if (roles.includes("editor") && perm.editors?.some((e) => getID(e) === id))
     return true;
-  if (roles.includes("commenter") && perm.commenters?.some((c) => c.toString() === id))
+
+  // Check Commenters
+  if (roles.includes("commenter") && perm.commenters?.some((c) => getID(c) === id))
     return true;
-  if (
-    roles.includes("viewer") &&
-    (perm.viewers?.some((v) => v.toString() === id) ||
-      board.members?.some((m) => m.toString() === id))
-  )
-    return true;
+
+  // Check Viewers / Members
+  if (roles.includes("viewer")) {
+    const isViewer = perm.viewers?.some((v) => getID(v) === id);
+    const isMember = board.members?.some((m) => getID(m) === id);
+    if (isViewer || isMember) return true;
+  }
+
   return false;
 }
 
@@ -510,7 +525,7 @@ router.get(
   "/:id/notifications",
   verifyToken,
   asyncHandler(async (req, res) => {
-    const board = await Board.findById(req.params.id).select("notifications");
+    const board = await Board.findById(req.params.id).select("notifications owner permissions members");
     if (!board) return res.status(404).json({ success: false, message: "Board not found" });
 
     if (!hasPermission(board, req.user.id, ["owner", "editor", "commenter", "viewer"]))
@@ -703,14 +718,8 @@ router.post(
     if (!board) return res.status(404).json({ success: false, message: "Board not found" });
 
     // DEBUG: Permission Check
-    const userId = req.user.id;
-    const isOwner = board.owner.toString() === userId;
-    const isEditor = board.permissions?.editors?.some(e => e.toString() === userId);
-
-    if (!isOwner && !isEditor) {
+    if (!hasPermission(board, req.user.id, ["owner", "editor"])) {
       console.warn(`[SaveState] Permission Denied for user ${userId} on board ${board._id}`);
-      console.warn(`[SaveState] Owner: ${board.owner}`);
-      console.warn(`[SaveState] Editors: ${board.permissions?.editors}`);
       return res.status(403).json({ success: false, message: "Permission denied (Not Owner/Editor)" });
     }
 
@@ -731,7 +740,7 @@ router.get(
   "/:id/recordings",
   verifyToken,
   asyncHandler(async (req, res) => {
-    const board = await Board.findById(req.params.id).select("recordings");
+    const board = await Board.findById(req.params.id).select("recordings owner permissions members");
     if (!board) return res.status(404).json({ success: false, message: "Board not found" });
 
     if (!hasPermission(board, req.user.id, ["owner", "editor", "commenter", "viewer"]))
