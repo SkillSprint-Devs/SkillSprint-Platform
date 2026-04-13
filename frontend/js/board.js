@@ -815,8 +815,14 @@
   }
 
   function pointerMoveHandler(e) {
-    if (!drawing) return;
     const p = getCoords(e);
+    
+    // Real-time cursor tracking
+    if (window.BoardSocket) {
+      window.BoardSocket.emitCursor(p.x, p.y);
+    }
+
+    if (!drawing) return;
 
     if (['pen', 'highlighter', 'eraser'].includes(tool)) {
       ctx.beginPath();

@@ -251,6 +251,33 @@ io.on("connection", (socket) => {
     }
   });
 
+  // --- Smartboard Real-time Events ---
+  socket.on("board:cursor", (data) => {
+    if (!data.boardId) return;
+    socket.to(data.boardId.toString()).emit("board:cursor", data);
+  });
+
+  socket.on("board:draw", (data) => {
+    if (!data.boardId) return;
+    socket.to(data.boardId.toString()).emit("board:draw", data);
+  });
+
+  socket.on("board:undo", (data) => {
+    if (!data.boardId) return;
+    socket.to(data.boardId.toString()).emit("board:undo", data);
+  });
+
+  socket.on("board:redo", (data) => {
+    if (!data.boardId) return;
+    socket.to(data.boardId.toString()).emit("board:redo", data);
+  });
+
+  socket.on("board:sticky", (data) => {
+    if (!data.boardId) return;
+    socket.to(data.boardId.toString()).emit("board:sticky", data);
+  });
+  // ------------------------------------
+
   // leaveBoard event
   socket.on("leaveBoard", async (payload = {}) => {
     try {
