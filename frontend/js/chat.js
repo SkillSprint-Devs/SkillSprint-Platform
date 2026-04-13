@@ -1,3 +1,10 @@
+(function () {
+    'use strict';
+
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const API_URL = window.API_BASE_URL;
+
     if (!token || !user) {
         window.location.href = 'login.html';
         return;
@@ -503,26 +510,6 @@ window.handleEdit = function (id, btnElement) {
     }
 };
 
-async function deleteMessage(id) {
-    try {
-        const res = await fetch(`${API_URL}/chat/delete/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            const bubble = document.getElementById(`msg-${id}`);
-            if (bubble) bubble.remove();
-            socket.emit('delete_message', { messageId: id, recipientId: currentChatUserId });
-            loadConversations();
-        } else {
-            const err = await res.json();
-            console.error("[CHAT] Delete failed:", err.message);
-            alert("Failed to delete message: " + (err.message || "Unknown error"));
-        }
-    } catch (err) {
-        console.error("[CHAT] Delete error:", err);
-    }
-}
 
 function scrollToBottom() {
     const historyContainer = document.getElementById('chatHistory');
@@ -659,3 +646,5 @@ function goToMyProfile() {
     if (id) window.location.href = `public-profile.html?user=${id}`;
     else window.location.href = 'profile.html';
 }
+
+})();
