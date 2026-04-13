@@ -218,11 +218,20 @@ router.post("/login", loginLimiter, async (req, res) => {
       },
     });
   } catch (error) {
+    // Check for specific common configuration errors
+    if (error.message.includes('secretOrPrivateKey must have a value')) {
+      console.error("[Login] CRITICAL ERROR: JWT_SECRET is not defined in environment variables!");
+    }
+
     console.error("Login error DETAILS:", error);
+    
+    // Check if it's a DB connection error
+    const isDbError = error.name === 'MongoNetworkError' || error.name === 'MongooseServerSelectionError';
+    
     res.status(500).json({
-      message: "Server error during login",
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: isDbError ? "Database connection error. Please try again later." : "Server error during login",
+      error: process.env.NODE_ENV === 'development' ? error.message : "Internal technical error",
+      info: isDbError ? "The server could not reach the database. Check whitelisting." : undefined
     });
   }
 });

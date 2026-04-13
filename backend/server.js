@@ -111,15 +111,29 @@ app.options(/.*/, cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+// PROXY CONFIGURATION 
+// Trust the first proxy (Azure Load Balancer) to ensure correct IP detection
+app.set('trust proxy', 1);
+
 // DATABASE CONNECTION 
 mongoose.set('bufferCommands', false);
 
 mongoose
   .connect(process.env.MONGO_URI, {
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    serverSelectionTimeoutMS: 5000,
   })
-  .then(() => console.log("Connected to MongoDB Atlas"))
-  .catch((err) => console.error("MongoDB Connection Failed:", err));
+  .then(() => {
+    console.log("Connected to MongoDB Atlas");
+    console.log(`DB Name: ${mongoose.connection.name}`);
+    console.log(`DB Host: ${mongoose.connection.host}`);
+  })
+  .catch((err) => {
+    console.error("CRITICAL: MongoDB Connection Failed!");
+    console.error("Message:", err.message);
+    if (err.message.includes('MongooseServerSelectionError')) {
+      console.error("HINT: This usually means the server IP is not whitelisted in MongoDB Atlas or the URI is incorrect.");
+    }
+  });
 
 // SOCKET.IO SETUP 
 const server = http.createServer(app);

@@ -48,10 +48,11 @@ const errorHandler = async (err, req, res, next) => {
     }
 
     res.status(err.status || 500).json({
-        message: process.env.NODE_ENV === 'Production'
+        message: process.env.NODE_ENV === 'Production' || process.env.NODE_ENV === 'production'
             ? "An internal server error occurred"
             : err.message,
-        error: process.env.NODE_ENV === 'Production' ? {} : err
+        errorId: log?._id || null, // Provide ID so admin can search for it in ErrorLog
+        error: process.env.NODE_ENV === 'Production' || process.env.NODE_ENV === 'production' ? {} : err
     });
 };
 
