@@ -405,9 +405,10 @@ html {
 .participant-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
-    padding: 8px;
-    border-radius: 8px;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
     transition: var(--transition);
 }
 
@@ -415,45 +416,87 @@ html {
     background: #f9f9f9;
 }
 
-.p-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.p-info h5 {
-    margin: 0;
-    font-size: 0.85rem;
+.p-info {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
 }
 
-.status-icon {
-    font-size: 0.7rem;
+.p-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee;
+}
+
+.participant-item.online .p-avatar {
+    border-color: #4caf50;
+}
+
+.participant-item.waiting .p-avatar {
+    border-color: #ff9800;
+}
+
+.p-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.p-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
 }
 
 .p-role {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin: 2px 0;
-}
-
-.p-role.mentor {
-    color: #2e7d32;
-}
-
-.p-role.mentee {
-    color: #1565c0;
-}
-
-.p-status-text {
     font-size: 0.7rem;
     color: var(--text-muted);
-    font-style: italic;
+    font-weight: 500;
+}
+
+.p-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.perm-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background: #fff;
+    color: #999;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.perm-btn i {
+    font-size: 0.8rem;
+}
+
+.perm-btn.on {
+    background: var(--accent);
+    color: #1a1a1a;
+    border-color: var(--accent);
+    box-shadow: 0 4px 10px rgba(220, 239, 98, 0.3);
+}
+
+.perm-btn.off {
+    background: #fff;
+    color: #ccc;
+}
+
+.perm-btn:hover:not(.on) {
+    background: #f0f0f0;
+    color: #666;
 }
 
 .tools-section {
@@ -555,6 +598,19 @@ html {
 
 .user-item:hover {
     background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.user-item {
+    cursor: pointer;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.user-item.selected {
+    background: rgba(220, 239, 98, 0.15) !important;
+    border-left: 4px solid var(--accent);
 }
 
 .input-actions {

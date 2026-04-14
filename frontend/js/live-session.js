@@ -12,6 +12,7 @@ let localStream;
 let peerConnections = {}; // peerId -> RTCPeerConnection
 let signalingStates = {}; // peerId -> { makingOffer, ignoreOffer, isSettingRemoteAnswerPending, candidates: [] }
 let grantedPermissions = { mic: false, cam: false, whiteboard: false };
+let roomPermissions = {}; // All users (for mentor)
 let sessionId = new URLSearchParams(window.location.search).get("sessionId");
 let currentTool = 'pen';
 let isDrawing = false;
@@ -88,9 +89,13 @@ function joinSession() {
 
         // Restore Permissions
         if (data.grantedPermissions) {
-            Object.entries(data.grantedPermissions).forEach(([type, granted]) => {
-                if (granted) handlePermissionGranted(type, true, true);
+            grantedPermissions = data.grantedPermissions;
+            Object.entries(grantedPermissions).forEach(([type, granted]) => {
+                updateLocalPermissions(type, granted, true);
             });
+        }
+        if (data.allPermissions) {
+            roomPermissions = data.allPermissions;
         }
 
         if (data.status === 'live') startTimer(data.sessionStartedAt);
@@ -108,6 +113,10 @@ function joinSession() {
             window.initNavbar({
                 activePage: 'Live Session',
                 showInviteBtn: window.isMentor,
+                showSearch: false,
+                showSettingsBtn: false,
+                showNotifications: false,
+                showProfileBtn: false,
                 onInviteClick: () => window.handleInviteClick?.(),
                 primaryAction: {
                     show: true,
@@ -134,6 +143,16 @@ function joinSession() {
     });
 
     socket.on("live:presence", updateParticipants);
+    socket.on("live:permissionsUpdated", ({ type, granted }) => {
+        updateLocalPermissions(type, granted);
+    });
+    socket.on("live:roomPermissions", (allPerms) => {
+        roomPermissions = allPerms;
+        updateParticipants(window.lastParticipants);
+    });
+    socket.on("live:permissionRequest", ({ userId, type }) => {
+        if (window.isMentor) handlePermissionRequest(userId, type);
+    });
 
     socket.on("live:peerJoined", ({ userId }) => {
         if (userId !== getMyId()) {
@@ -393,24 +412,72 @@ function appendChatMessage({ user, message }) {
 }
 
 function updateParticipants(participants) {
+    if (!participants) return;
     window.lastParticipants = participants;
+
+    // 1. Update Navbar avatars (Global status)
     const navContainer = document.getElementById("nav-participants");
-    if (!navContainer) return;
-    navContainer.innerHTML = "";
-    participants.forEach(p => {
-        const wrap = document.createElement("div");
-        wrap.className = "nav-avatar-wrapper";
-        wrap.innerHTML = `<img src="${p.profile_image || 'assets/images/user-avatar.png'}" class="nav-p-avatar ${p.role.toLowerCase()}${p.status === 'Absent' ? ' offline' : ''}" title="${p.name}"><span class="nav-status-dot ${p.status.toLowerCase()}"></span>`;
-        navContainer.appendChild(wrap);
-        const nameEl = document.getElementById(`name-${p.id}`);
-        if (nameEl) nameEl.textContent = p.name;
-    });
+    if (navContainer) {
+        navContainer.innerHTML = "";
+        participants.forEach(p => {
+            const wrap = document.createElement("div");
+            wrap.className = "nav-avatar-wrapper";
+            wrap.innerHTML = `<img src="${p.profile_image || 'assets/images/user-avatar.png'}" class="nav-p-avatar ${p.role.toLowerCase()}${p.status === 'Absent' ? ' offline' : ''}" title="${p.name}"><span class="nav-status-dot ${p.status.toLowerCase()}"></span>`;
+            navContainer.appendChild(wrap);
+            const nameEl = document.getElementById(`name-${p.id}`);
+            if (nameEl) nameEl.textContent = p.name;
+        });
+    }
+
+    // 2. Update Side Panel (Detailed info & Mentor controls)
+    const listContainer = document.getElementById("participantsList");
+    if (listContainer) {
+        listContainer.innerHTML = "";
+        participants.forEach(p => {
+            const isSelf = p.id === getMyId();
+            const perms = roomPermissions[p.id] || { mic: false, cam: false, whiteboard: false };
+
+            const item = document.createElement("div");
+            item.className = `participant-item ${p.status.toLowerCase()}`;
+            item.innerHTML = `
+                <div class="p-info">
+                    <img src="${p.profile_image || 'assets/images/user-avatar.png'}" class="p-avatar">
+                    <div class="p-meta">
+                        <span class="p-name">${p.name} ${isSelf ? '(You)' : ''}</span>
+                        <span class="p-role">${p.role}</span>
+                    </div>
+                </div>
+                ${window.isMentor && !isSelf ? `
+                <div class="p-controls">
+                    <button onclick="toggleUserPermission('${p.id}', 'mic')" class="perm-btn ${perms.mic ? 'on' : 'off'}" title="Mic">
+                        <i class="fa-solid fa-microphone${perms.mic ? '' : '-slash'}"></i>
+                    </button>
+                    <button onclick="toggleUserPermission('${p.id}', 'cam')" class="perm-btn ${perms.cam ? 'on' : 'off'}" title="Camera">
+                        <i class="fa-solid fa-video${perms.cam ? '' : '-slash'}"></i>
+                    </button>
+                    <button onclick="toggleUserPermission('${p.id}', 'whiteboard')" class="perm-btn ${perms.whiteboard ? 'on' : 'off'}" title="Whiteboard">
+                        <i class="fa-solid fa-chalkboard"></i>
+                    </button>
+                </div>
+                ` : ''}
+            `;
+            listContainer.appendChild(item);
+        });
+    }
 }
+
+window.toggleUserPermission = (targetUserId, type) => {
+    const current = (roomPermissions[targetUserId] && roomPermissions[targetUserId][type]) || false;
+    socket.emit("live:togglePermission", { sessionId, targetUserId, type, granted: !current });
+};
 
 async function handlePermissionRequest(userId, type) {
     const user = window.lastParticipants?.find(p => p.id === userId);
-    const confirmed = await showConfirm("Request", `${user ? user.name : "Learner"} wants to use ${type}. Grant?`, "Grant", false);
-    socket.emit("live:grantPermission", { sessionId, targetUserId: userId, type, granted: confirmed });
+    if (!user) return;
+    const confirmed = await showConfirm("Permission Request", `${user.name} wants to use ${type}. Grant access?`, "Grant", false);
+    if (confirmed) {
+        socket.emit("live:togglePermission", { sessionId, targetUserId: userId, type, granted: true });
+    }
 }
 
 async function ensureMediaTracks(type) {
@@ -427,21 +494,43 @@ async function ensureMediaTracks(type) {
     return track;
 }
 
-async function handlePermissionGranted(type, granted, silent = false) {
-    if (!granted) { if (!silent) showToast("Mentor denied " + type, "warning"); return; }
-    grantedPermissions[type] = true;
-    if (!silent) showToast("Mentor granted " + type, "success");
+async function updateLocalPermissions(type, granted, silent = false) {
+    const prev = grantedPermissions[type];
+    grantedPermissions[type] = granted;
+
+    if (!silent) {
+        showToast(`Mentor ${granted ? 'granted' : 'revoked'} ${type} access`, granted ? "success" : "warning");
+    }
+
     if (type === 'mic' || type === 'cam') {
-        const track = await ensureMediaTracks(type);
+        const track = type === 'mic' ? localStream.getAudioTracks()[0] : localStream.getVideoTracks()[0];
         if (track) {
-            track.enabled = true;
-            document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.remove("off");
-            Object.values(peerConnections).forEach(pc => {
-                if (!pc.getSenders().find(s => s.track === track)) pc.addTrack(track, localStream);
-            });
+            if (!granted) {
+                track.enabled = false;
+                document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.add("off");
+            } else {
+                // If it was newly granted, we might need to add it to existing peer connections
+                if (!prev && granted) {
+                    const freshTrack = await ensureMediaTracks(type);
+                    if (freshTrack) {
+                        freshTrack.enabled = true;
+                        document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.remove("off");
+                        Object.values(peerConnections).forEach(pc => {
+                            const senders = pc.getSenders();
+                            if (!senders.find(s => s.track === freshTrack)) {
+                                pc.addTrack(freshTrack, localStream);
+                            }
+                        });
+                    }
+                }
+            }
         }
     } else if (type === 'whiteboard' && !window.isMentor) {
-        document.getElementById("toggleWhiteboard").style.display = "block";
+        document.getElementById("toggleWhiteboard").style.display = granted ? "block" : "none";
+        if (!granted) {
+            document.getElementById("whiteboardContainer").style.display = "none";
+            document.getElementById("toggleWhiteboard").classList.remove("active");
+        }
     }
 }
 
@@ -476,23 +565,50 @@ async function triggerEndSession() {
 
 // Invite logic truncated for brevity as sync was the focus, but it should be standard
 function initInviteModal() {
+    const modal = document.getElementById("inviteModal");
+    const closeBtn = document.querySelector(".btn-close-invite");
     const search = document.getElementById("inviteSearch");
+    const sendBtn = document.getElementById("sendInviteBtn");
+
+    if (closeBtn) closeBtn.onclick = () => modal.classList.remove("active");
+
     if (!search) return;
     search.oninput = async (e) => {
         const query = e.target.value;
         if (query.length < 2) return;
-        const res = await fetch(`${API_BASE}/users/search?query=${query}`, { headers: { Authorization: `Bearer ${token}` } });
-        const users = await res.json();
-        document.getElementById("inviteUserList").innerHTML = users.map(u => `<div onclick="window.selectInvitee('${u._id}')" class="user-item">${u.name}</div>`).join('');
+        try {
+            const res = await fetch(`${API_BASE}/users/search?query=${query}`, { headers: { Authorization: `Bearer ${token}` } });
+            const users = await res.json();
+            document.getElementById("inviteUserList").innerHTML = users.map(u =>
+                `<div onclick="window.selectInvitee('${u._id}', this)" class="user-item">
+                    <span>${u.name}</span>
+                    <span class="user-email" style="font-size: 0.7rem; opacity: 0.6;">${u.email}</span>
+                </div>`
+            ).join('');
+        } catch (err) { console.error("Search error:", err); }
     };
-    document.getElementById("sendInviteBtn").onclick = async () => {
-        await fetch(`${API_BASE}/live-sessions/invite`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ sessionId, userId: window.selectedId })
-        });
-        document.getElementById("inviteModal").classList.remove("active");
-    };
+
+    if (sendBtn) {
+        sendBtn.onclick = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/live-sessions/invite`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ sessionId, userId: window.selectedId })
+                });
+                if (res.ok) {
+                    if (typeof showToast === 'function') showToast("Invite sent!", "success");
+                    modal.classList.remove("active");
+                }
+            } catch (err) { console.error("Invite error:", err); }
+        };
+    }
 }
-window.selectInvitee = (id) => { window.selectedId = id; document.getElementById("sendInviteBtn").disabled = false; };
+
+window.selectInvitee = (id, el) => {
+    window.selectedId = id;
+    document.querySelectorAll(".user-item").forEach(item => item.classList.remove("selected"));
+    el.classList.add("selected");
+    document.getElementById("sendInviteBtn").disabled = false;
+};
 initInviteModal();

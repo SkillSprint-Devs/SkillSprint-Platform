@@ -153,7 +153,7 @@ router.post("/create", verifyToken, async (req, res) => {
                     type: "invite",
                     title: "New Session Invitation",
                     message: `You are invited to "${sessionName}" by ${mentor.name}.`,
-                    link: `live-session.html?sessionId=${session._id}`
+                    link: `livevideo.html?sessionId=${session._id}`
                 });
 
                 // Email

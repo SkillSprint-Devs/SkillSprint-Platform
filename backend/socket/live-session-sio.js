@@ -94,7 +94,8 @@ const liveSessionSocket = (io) => {
                     status: session.status,
                     participants: presenceList,
                     isMentor,
-                    grantedPermissions: room.permissions[userId] || {},
+                    grantedPermissions: room.permissions[userId.toString()] || {},
+                    allPermissions: room.permissions, // Mentor might want to see all
                     sessionStartedAt: session.startTime
 
                 });
@@ -168,15 +169,31 @@ const liveSessionSocket = (io) => {
             });
         });
 
-        socket.on("live:grantPermission", ({ sessionId, targetUserId, type, granted }) => {
+        socket.on("live:togglePermission", async ({ sessionId, targetUserId, type, granted }) => {
             if (!sessionRooms.has(sessionId)) return;
             const room = sessionRooms.get(sessionId);
 
-            if (!room.permissions[targetUserId]) room.permissions[targetUserId] = {};
-            room.permissions[targetUserId][type] = granted;
+            const session = await LiveSession.findById(sessionId).select("mentorId");
+            if (!session || session.mentorId.toString() !== userId.toString()) {
+                console.warn(`[SOCKET] Unauthorized permission attempt by ${userId}`);
+                return;
+            }
 
-            // Forward to specific mentee
-            io.to(targetUserId.toString()).emit("live:permissionGranted", { type, granted });
+            if (!room.permissions[targetUserId.toString()]) room.permissions[targetUserId.toString()] = {};
+            room.permissions[targetUserId.toString()][type] = granted;
+
+            console.log(`[SOCKET] Mentor ${userId} toggled ${type} for ${targetUserId} to ${granted}`);
+
+            // 1. Notify the target mentee
+            io.to(targetUserId.toString()).emit("live:permissionsUpdated", { type, granted });
+
+            // 2. Notify everyone (especially mentor UI) about the change in permission state
+            io.to(sessionId).emit("live:roomPermissions", room.permissions);
+        });
+
+        socket.on("live:grantPermission", ({ sessionId, targetUserId, type, granted }) => {
+            // Keep for backward compatibility if needed, but redirects to toggle
+            socket.emit("live:togglePermission", { sessionId, targetUserId, type, granted });
         });
 
         // WebRTC Signaling

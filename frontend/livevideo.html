@@ -89,7 +89,15 @@
       </div>
     </main>
 
-    <!-- RIGHT PANEL: PARTICIPANTS (Removed - moved to navbar) -->
+    <!-- RIGHT PANEL: PARTICIPANTS -->
+    <aside class="side-panel right-panel">
+      <div class="panel-header">
+        <h3><i class="fa-solid fa-users"></i> Participants</h3>
+      </div>
+      <div id="participantsList" class="participants-list">
+        <!-- Participants with permission controls injected here -->
+      </div>
+    </aside>
 
   </div>
 
@@ -133,6 +141,7 @@
         showSearch: false,
         showSettingsBtn: false,
         showNotifications: false,
+        showProfileBtn: false,
         showInviteBtn: window.isMentor,
         onInviteClick: () => {
           if (window.handleInviteClick) window.handleInviteClick();

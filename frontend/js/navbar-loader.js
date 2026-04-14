@@ -77,6 +77,11 @@ function initNavbar(config = {}) {
 
                     <i class="fa-solid fa-user"></i>
                 </button>` : ''}
+                ${options.showInviteBtn ? `
+                    <button class="icon-btn invite-btn" title="Invite Others" id="navbarInviteBtn">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                ` : ''}
                 ${options.primaryAction.show ? `
                     <button class="primary-btn" id="${options.primaryAction.id}">
                         <i class="fa-solid ${options.primaryAction.icon}"></i>
