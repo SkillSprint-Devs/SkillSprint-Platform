@@ -171,18 +171,19 @@ function joinSession() {
 
             if (description) {
                 // Perfect Negotiation: Check for glare
+                const polite = !window.isMentor;
                 const offerCollision = (description.type === "offer") &&
                     (state.makingOffer || pc.signalingState !== "stable");
 
-                state.ignoreOffer = !window.isMentor && offerCollision; // Mentees are polite
+                state.ignoreOffer = !polite && offerCollision;
                 if (state.ignoreOffer) {
-                    console.warn("[WEBRTC] Glare detected, ignoring offer (polite).");
+                    console.warn("[WEBRTC] Glare detected, ignoring offer.");
                     return;
                 }
 
                 await pc.setRemoteDescription(description);
                 if (description.type === "offer") {
-                    await pc.setLocalDescription(await pc.createAnswer());
+                    await pc.setLocalDescription();
                     socket.emit("live:signal", { sessionId, targetUserId: fromUserId, signal: { sdp: pc.localDescription } });
                 }
 
@@ -192,11 +193,7 @@ function joinSession() {
                 }
             } else if (signal.candidate) {
                 try {
-                    if (pc.remoteDescription) {
-                        await pc.addIceCandidate(signal.candidate);
-                    } else {
-                        state.candidates.push(signal.candidate);
-                    }
+                    await pc.addIceCandidate(signal.candidate);
                 } catch (err) {
                     if (!state.ignoreOffer) throw err;
                 }
@@ -239,8 +236,7 @@ async function createPeerConnection(peerId, isOffer) {
     pc.onnegotiationneeded = async () => {
         try {
             if (pc.signalingState !== 'stable') return;
-            const state = signalingStates[peerId];
-            state.makingOffer = true;
+            signalingStates[peerId].makingOffer = true;
             await pc.setLocalDescription();
             socket.emit("live:signal", { sessionId, targetUserId: peerId, signal: { sdp: pc.localDescription } });
         } catch (err) {
@@ -281,7 +277,8 @@ async function createPeerConnection(peerId, isOffer) {
     };
 
     if (isOffer) {
-        // Initial offer will be triggered by onnegotiationneeded or manually
+        // Ensure onnegotiationneeded fires even if no tracks are added initially
+        pc.createDataChannel("dummy");
     }
 
     return pc;
