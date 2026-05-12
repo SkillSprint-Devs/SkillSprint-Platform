@@ -110,6 +110,9 @@
             const redirectUrl = urlParams.get('redirect');
             if (redirectUrl) {
               window.location.href = redirectUrl;
+            } else if (data.user.role === "admin") {
+              // Admin accounts always go to the admin portal
+              window.location.href = "admin-dashboard.html";
             } else {
               window.location.href = "dashboard.html";
             }

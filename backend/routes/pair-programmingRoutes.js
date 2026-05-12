@@ -6,12 +6,8 @@ import PairProgramming from "../models/pair-programming.js";
 import Notification from "../models/notification.js";
 import { updateStreak } from "../utils/streakHelper.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
-import { exec } from "child_process";
 import { sendProjectInvitation } from "../utils/invitationHelper.js";
 import { sendPairProgrammingInvite } from "../utils/mailService.js";
-import fs from "fs";
-import path from "path";
-import os from "os";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
@@ -894,14 +890,38 @@ router.delete("/:boardId/comments/:commentId", verifyToken, async (req, res) => 
   }
 });
 
-/* ---------------- RUN CODE (FIXED) ---------------- */
+/* ---------------- RUN CODE (SECURE — Docker Execution Service) ------------ */
+
+// Per-user rate limiter: max 10 executions per minute
+const runCodeLimiters = new Map();
+function getUserRateLimiter(userId) {
+  if (!runCodeLimiters.has(userId)) {
+    runCodeLimiters.set(userId, { count: 0, resetAt: Date.now() + 60_000 });
+  }
+  const limiter = runCodeLimiters.get(userId);
+  // Reset window if expired
+  if (Date.now() > limiter.resetAt) {
+    limiter.count = 0;
+    limiter.resetAt = Date.now() + 60_000;
+  }
+  return limiter;
+}
 
 router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, res) => {
   try {
-    console.log("POST /run - Executing code");
-
     const { code, language } = req.body;
 
+    // ── Rate limiting (10 runs per user per minute) ───────────────────────
+    const limiter = getUserRateLimiter(req.user.id);
+    if (limiter.count >= 10) {
+      return res.status(429).json({
+        status: "error",
+        message: "Too many executions. Please wait a moment before running again.",
+      });
+    }
+    limiter.count++;
+
+    // ── Auth & permission checks ──────────────────────────────────────────
     const board = await PairProgramming.findById(req.params.id);
     if (!board) return res.status(404).json({ message: "Board not found" });
 
@@ -914,75 +934,76 @@ router.post("/:id/folder/:folderId/file/:fileId/run", verifyToken, async (req, r
     if (!hasPermission(board, req.user.id, ["owner", "editor"]))
       return res.status(403).json({ message: "Permission denied" });
 
-    // Prepare temp file - FIXED: Use os.tmpdir() instead of /tmp
-    const tempId = uuidv4();
-    let fileExt, command;
+    // ── Forward to execution sidecar (internal Docker network only) ───────
+    const EXECUTION_URL =
+      process.env.EXECUTION_SERVICE_URL || "http://execution-service:4000";
 
-    switch (language) {
-      case "js":
-        fileExt = "js";
-        command = "node";
-        break;
-      case "python":
-        fileExt = "py";
-        command = "python";
-        break;
-      case "php":
-        fileExt = "php";
-        command = "php";
-        break;
-      default:
-        return res.status(400).json({ status: "error", error: "Unsupported language" });
+    let executionResult;
+    try {
+      const response = await fetch(`${EXECUTION_URL}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language, code }),
+        signal: AbortSignal.timeout(25_000), // 25s outer safety net
+      });
+
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}));
+        return res.status(502).json({
+          status: "error",
+          message: errBody.error || "Execution service returned an error",
+        });
+      }
+
+      executionResult = await response.json();
+    } catch (fetchErr) {
+      console.error("[run] Execution service unreachable:", fetchErr.message);
+      return res.status(503).json({
+        status: "error",
+        message: "Code execution service is temporarily unavailable. Please try again shortly.",
+      });
     }
 
-    // FIXED: Use os.tmpdir() for cross-platform compatibility
-    const tempFilePath = path.join(os.tmpdir(), `${tempId}.${fileExt}`);
+    // ── Normalise output ──────────────────────────────────────────────────
+    const { stdout = "", stderr = "", exitCode, timedOut, executionTimeMs } = executionResult;
 
-    console.log("Writing temp file:", tempFilePath);
-    fs.writeFileSync(tempFilePath, code);
+    // Combine stdout + stderr into a single readable output string
+    let output = stdout.trimEnd();
+    if (stderr.trim()) {
+      output += (output ? "\n" : "") + `[stderr]\n${stderr.trimEnd()}`;
+    }
 
-    // Execute code
-    exec(`${command} "${tempFilePath}"`, { timeout: 5000 }, async (err, stdout, stderr) => {
+    const status   = exitCode === 0 && !timedOut ? "success" : "error";
+    const errorMsg = timedOut
+      ? "Execution timed out (10 second limit reached)"
+      : exitCode !== 0
+      ? stderr.trim() || `Process exited with code ${exitCode}`
+      : "";
 
-      // Clean up temp file
-      try {
-        if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
-      } catch (cleanupErr) {
-        console.error("Warning: Failed to delete temp file:", cleanupErr);
-      }
+    // ── Persist run entry & broadcast ─────────────────────────────────────
+    const runEntry = {
+      code,
+      language,
+      output: output.trim(),
+      error: errorMsg,
+      status,
+      executedAt: new Date(),
+      executionTimeMs: executionTimeMs || null,
+    };
 
-      const output = stdout || stderr || "";
-      const status = err ? "error" : "success";
-      const errorMsg = err ? (err.killed ? "Execution timed out" : err.message) : "";
+    file.runs.push(runEntry);
+    await board.save();
 
-      const runEntry = {
-        code,
-        language,
-        output: output.trim(),
-        error: errorMsg,
-        status,
-        executedAt: new Date(),
-      };
-
-      try {
-        file.runs.push(runEntry);
-        await board.save();
-
-        const io = req.app.get("io");
-        emitBoard(io, req.params.id, "file-run", { folderId: folder._id, fileId: file._id, run: runEntry });
-
-        res.status(201).json(runEntry);
-      } catch (saveErr) {
-        console.error("Error saving run result:", saveErr);
-        // If response hasn't been sent yet
-        if (!res.headersSent) {
-          res.status(500).json({ message: "Error saving run result", error: saveErr.message });
-        }
-      }
+    const io = req.app.get("io");
+    emitBoard(io, req.params.id, "file-run", {
+      folderId: folder._id,
+      fileId: file._id,
+      run: runEntry,
     });
 
+    res.status(201).json(runEntry);
   } catch (err) {
-    console.error("Error running code:", err);
+    console.error("[run] Unexpected error:", err);
     res.status(500).json({ message: "Error running code", error: err.message });
   }
 });

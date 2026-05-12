@@ -1,5 +1,7 @@
 version: '3.8'
+
 services:
+  # ── Main SkillSprint Application ─────────────────────────────────────────
   skillsprint:
     build: .
     ports:
@@ -9,5 +11,39 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_SECRET=${TOKEN_SECRET}
       - PORT=5000
+      - EXECUTION_SERVICE_URL=http://execution-service:4000
     volumes:
       - ./backend/uploads:/app/backend/uploads
+    depends_on:
+      execution-service:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # ── Code Execution Sidecar ────────────────────────────────────────────────
+  # INTERNAL ONLY — not exposed to the internet.
+  # Spawns isolated Docker containers for each code run.
+  execution-service:
+    build:
+      context: ./execution-service
+    expose:
+      - "4000"                        # only reachable from app-network
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker (host daemon)
+      - /tmp:/tmp                                   # shared tmp for code files
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+networks:
+  app-network:
+    driver: bridge

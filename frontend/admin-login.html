@@ -58,24 +58,14 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // API_BASE is now global from config.js
       const API_BASE = window.API_BASE_URL;
 
       const adminLoginForm = document.getElementById("adminLoginForm");
       const loginBtn = document.getElementById("loginBtn");
 
-      // HARD-CODED ADMIN (demo only)
-      const HARDCODED_ADMIN = {
-        email: "admin@skillsprint.com",
-        password: "admin.123",
-        role: "admin",
-        name: "SkillSprint Admin",
-      };
-
       adminLoginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Visual feedback
         loginBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
         loginBtn.disabled = true;
 
@@ -88,21 +78,6 @@
           return;
         }
 
-        /* ===== 1️⃣ HARD-CODED ADMIN CHECK ===== */
-        if (
-          email === HARDCODED_ADMIN.email &&
-          password === HARDCODED_ADMIN.password
-        ) {
-          localStorage.setItem("token", "admin-demo-token");
-          localStorage.setItem("adminUser", JSON.stringify(HARDCODED_ADMIN));
-
-          showToast("Authorization Granted. Welcome, Administrator.", "success", 2000, () => {
-            window.location.href = "admin-dashboard.html";
-          });
-          return;
-        }
-
-        /* ===== 2️⃣ BACKEND LOGIN (NORMAL USERS) ===== */
         try {
           const res = await fetch(`${API_BASE}/auth/login`, {
             method: "POST",
@@ -113,7 +88,12 @@
           const data = await res.json();
 
           if (!res.ok) {
-            showToast(data.message || "Invalid security credentials.", "error");
+            // Show rate-limit message explicitly
+            if (res.status === 429) {
+              showToast("Too many login attempts. Please wait and try again.", "error");
+            } else {
+              showToast(data.message || "Invalid security credentials.", "error");
+            }
             resetButton();
             return;
           }
@@ -127,6 +107,7 @@
             return;
           }
 
+          // Store the real signed JWT — never a fake placeholder
           localStorage.setItem("token", data.token);
           localStorage.setItem("adminUser", JSON.stringify(data.user));
 
@@ -135,7 +116,7 @@
           });
         } catch (err) {
           console.error("Login error:", err);
-          showToast("Network intrusion or server timeout detected.", "error");
+          showToast("Network error or server timeout detected.", "error");
           resetButton();
         }
       });

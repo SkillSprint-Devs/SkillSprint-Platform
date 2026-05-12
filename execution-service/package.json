@@ -1,0 +1,15 @@
+{
+  "name": "skillsprint-execution-service",
+  "version": "1.0.0",
+  "description": "Secure Docker-isolated code execution sidecar for SkillSprint",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  }
+}

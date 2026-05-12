@@ -85,11 +85,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     */
 
-    // 3. Authorization Check: Check if user email is in admin list
-    // 3. Authorization Check: Check if user has admin role from token/user object instead of hardcoded list
-    if (user.role !== 'admin' && user.role !== 'owner') {
-        // Optional: Allow viewing errors if debugging
-        // console.warn("User is not explicitly admin");
+    // 3. Authorization Check: Only admin role may view error logs
+    if (user.role !== 'admin') {
+        // Non-admin users are redirected — error logs contain sensitive PII
+        document.body.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;
+                        height:100vh; font-family:sans-serif; background:#0f172a; color:#e2e8f0; text-align:center; gap:1rem;">
+                <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:#f43f5e;"></i>
+                <h1 style="font-size:1.5rem; color:#f43f5e;">Access Denied</h1>
+                <p style="color:#94a3b8;">Error logs contain sensitive data and are restricted to administrators only.</p>
+                <a href="admin-login.html"
+                   style="margin-top:1rem; padding:10px 24px; background:#6366f1; color:white;
+                          text-decoration:none; border-radius:8px; font-weight:600;">
+                    Go to Admin Login
+                </a>
+            </div>`;
+        return;
     }
 
     // 4. Access Granted

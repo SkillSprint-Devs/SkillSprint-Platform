@@ -47,6 +47,15 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
   message: { message: "Too many login attempts. Please wait 15 minutes and try again." }
 });
+
+// Admin login: stricter — max 5 attempts per 15 minutes per IP
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many admin login attempts. Please wait 15 minutes and try again." }
+});
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Logger middleware
@@ -159,7 +168,7 @@ router.post("/verify-signup-otp", async (req, res) => {
 });
 
 //  Login 
-router.post("/login", loginLimiter, async (req, res) => {
+router.post("/login", loginLimiter, adminLoginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)

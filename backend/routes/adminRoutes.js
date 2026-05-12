@@ -1,11 +1,41 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import User from "../models/user.js";
 import LiveSession from "../models/liveSession.js";
 import ActivityLog from "../models/activityLog.js";
 import PairProgramming from "../models/pair-programming.js";
+import AdminAuditLog from "../models/AdminAuditLog.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+// Stricter rate limiter for all admin API routes (5 requests per minute per IP)
+const adminApiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many requests to admin API. Slow down." }
+});
+
+// Helper to write an audit log entry
+async function writeAudit({ adminId, adminEmail, action, targetUserId = null, targetUserEmail = null, details = "", req }) {
+    try {
+        await AdminAuditLog.create({
+            adminId,
+            adminEmail,
+            action,
+            targetUserId,
+            targetUserEmail,
+            details,
+            ipAddress: req?.ip || req?.headers?.["x-forwarded-for"] || null,
+            userAgent: req?.headers?.["user-agent"] || null,
+        });
+    } catch (err) {
+        // Never block the main operation if audit logging fails
+        console.error("[AUDIT LOG FAIL]", err.message);
+    }
+}
 
 // Require valid JWT + admin role on all admin routes
 const requireAdmin = (req, res, next) => {
@@ -15,7 +45,96 @@ const requireAdmin = (req, res, next) => {
     next();
 };
 
-router.use(verifyToken, requireAdmin);
+// Dedicated rate limiter for bootstrap — max 3 attempts per 15 minutes per IP.
+// Prevents brute-force against the bootstrap key.
+const bootstrapLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 3,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many bootstrap attempts. Please wait 15 minutes." }
+});
+
+// POST /api/admin/bootstrap
+// Secure one-time initialization endpoint to create the first admin.
+// Only works if zero admins exist. Secret key must be in x-bootstrap-key header ONLY.
+router.post("/bootstrap", bootstrapLimiter, async (req, res) => {
+    try {
+        // Fix 1: Secret only from header — never from request body
+        const providedKey = req.headers["x-bootstrap-key"];
+        const envKey = process.env.ADMIN_BOOTSTRAP_KEY;
+
+        // Guard: key must be configured server-side with min 16 chars
+        if (!envKey || envKey.length < 16) {
+            return res.status(500).json({
+                success: false,
+                message: "Server configuration error: ADMIN_BOOTSTRAP_KEY is missing or too short."
+            });
+        }
+
+        // Fix 3: Timing-safe comparison to prevent timing attacks
+        const { timingSafeEqual } = await import("crypto");
+        const providedBuf = Buffer.from(providedKey || "", "utf8");
+        const envBuf = Buffer.from(envKey, "utf8");
+        const keysMatch = providedBuf.length === envBuf.length &&
+            timingSafeEqual(providedBuf, envBuf);
+
+        if (!keysMatch) {
+            // Deliberate vague message — do not confirm key format or length
+            return res.status(401).json({ success: false, message: "Unauthorized." });
+        }
+
+        // Fix 5: Return 404 (not 403) if admin already exists.
+        // 403 confirms the endpoint is valid to an attacker. 404 does not.
+        const adminExists = await User.exists({ role: "admin" });
+        if (adminExists) {
+            return res.status(404).json({ success: false, message: "Route not found." });
+        }
+
+        // Fix 4: Normalize email before any DB query
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email of target user required." });
+        }
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const user = await User.findOneAndUpdate(
+            { email: normalizedEmail },
+            { $set: { role: "admin" } },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Target user not found. Register as a regular user first, then bootstrap."
+            });
+        }
+
+        // Immutable audit record for the bootstrap event
+        await AdminAuditLog.create({
+            adminId: user._id,
+            adminEmail: user.email,
+            action: "MAKE_ADMIN",
+            details: "SYSTEM BOOTSTRAP: Initial administrator established via secure one-time endpoint.",
+            ipAddress: req.ip || req.headers["x-forwarded-for"] || null,
+            userAgent: req.headers["user-agent"] || null
+        });
+
+        console.log(`[SECURITY] Bootstrap complete. ${user.email} is now the initial administrator. IP: ${req.ip}`);
+
+        res.json({
+            success: true,
+            message: "Bootstrap complete. Initial administrator established.",
+            user: { name: user.name, email: user.email, role: user.role }
+        });
+
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.use(adminApiLimiter, verifyToken, requireAdmin);
 
 // GET /api/admin/stats
 router.get("/stats", async (req, res) => {
@@ -198,13 +317,17 @@ function formatUptime(seconds) {
 }
 
 // POST /api/admin/make-admin
-// Temporary endpoint to grant admin privileges
+// Grant admin privileges to a user by email. Requires a reason for audit purposes.
 router.post("/make-admin", async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, reason } = req.body;
 
         if (!email) {
             return res.status(400).json({ success: false, message: "Email required" });
+        }
+
+        if (!reason || reason.trim().length < 5) {
+            return res.status(400).json({ success: false, message: "A reason (min 5 characters) is required for privilege escalation audit." });
         }
 
         const user = await User.findOneAndUpdate(
@@ -217,10 +340,57 @@ router.post("/make-admin", async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
+        // Write immutable audit log entry
+        await writeAudit({
+            adminId: req.user.id,
+            adminEmail: req.user.email || "unknown",
+            action: "MAKE_ADMIN",
+            targetUserId: user._id,
+            targetUserEmail: user.email,
+            details: `Reason: ${reason.trim()}`,
+            req,
+        });
+
+        console.log(`[ADMIN AUDIT] ${req.user.email || req.user.id} promoted ${user.email} to admin. Reason: ${reason}`);
+
         res.json({
             success: true,
             message: `User ${user.email} is now an admin`,
             user: { name: user.name, email: user.email, role: user.role }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// GET /api/admin/audit-log
+// View all admin audit entries (most recent first)
+router.get("/audit-log", async (req, res) => {
+    try {
+        const { page = 1, limit = 30, action, adminEmail } = req.query;
+        const query = {};
+        if (action) query.action = action;
+        if (adminEmail) query.adminEmail = { $regex: adminEmail, $options: "i" };
+
+        const [logs, total] = await Promise.all([
+            AdminAuditLog.find(query)
+                .populate("adminId", "name email")
+                .populate("targetUserId", "name email")
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * limit)
+                .limit(parseInt(limit)),
+            AdminAuditLog.countDocuments(query),
+        ]);
+
+        res.json({
+            success: true,
+            logs,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / limit),
+            },
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });

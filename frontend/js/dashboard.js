@@ -190,6 +190,19 @@ async function loadDashboard() {
     return;
   }
 
+  // Prevent admin accounts from accessing the user dashboard
+  try {
+    const stored = localStorage.getItem("user");
+    const user = stored ? JSON.parse(stored) : null;
+    if (user && user.role === "admin") {
+      if (typeof showToast === "function") {
+        showToast("Admin accounts use the Admin Dashboard.", "info");
+      }
+      setTimeout(() => { window.location.href = "admin-dashboard.html"; }, 1200);
+      return;
+    }
+  } catch (_) { /* ignore parse errors */ }
+
   try {
     const res = await fetch(`${API_BASE}/dashboard`, {
       headers: { Authorization: `Bearer ${token}` },
