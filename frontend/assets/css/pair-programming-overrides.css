@@ -600,3 +600,180 @@ html {
 .dark .comment-marker-bubble {
     border: 2px solid rgba(255, 255, 255, 0.2) !important;
 }
+
+/* ── Remote Cursor Widgets (setBookmark-based) ─────────────────────────────── */
+@keyframes pp-cursor-blink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0; }
+}
+
+.pp-remote-cursor-widget {
+    position: relative;
+    display: inline-block;
+    pointer-events: none;
+    z-index: 100;
+    vertical-align: text-bottom;
+    line-height: 0;
+}
+
+.pp-cursor-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    border-radius: 1px;
+    vertical-align: text-bottom;
+    animation: pp-cursor-blink 1s step-end infinite;
+}
+
+.pp-cursor-tag {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 101;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.6;
+    padding: 1px 5px;
+    border-radius: 0 3px 3px 3px;
+    white-space: nowrap;
+    color: #000;
+    pointer-events: none;
+}
+
+/* ── Driver-Request Approve / Deny Dialog ─────────────────────────────────── */
+.pp-drq-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 80px;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.pp-drq-overlay.pp-drq-visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.pp-drq-box {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 40px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(220, 239, 98, 0.25);
+    transform: translateY(-16px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pp-drq-overlay.pp-drq-visible .pp-drq-box {
+    transform: translateY(0);
+}
+
+.pp-drq-icon {
+    font-size: 36px;
+    color: var(--accent, #DCEF62);
+    margin-bottom: 12px;
+}
+
+.pp-drq-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: #111;
+}
+
+.pp-drq-body {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin: 0 0 28px;
+}
+
+.pp-drq-badge {
+    display: inline-block;
+    background: var(--accent, #DCEF62);
+    color: #000;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    text-transform: capitalize;
+    margin: 0 2px;
+}
+
+.pp-drq-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.pp-drq-btn {
+    flex: 1;
+    max-width: 160px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pp-drq-approve {
+    background: var(--accent, #DCEF62);
+    color: #000;
+    box-shadow: 0 4px 14px rgba(220, 239, 98, 0.4);
+}
+
+.pp-drq-approve:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 239, 98, 0.55);
+}
+
+.pp-drq-deny {
+    background: #fff;
+    color: #ef4444;
+    border: 1.5px solid #fca5a5;
+}
+
+.pp-drq-deny:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12);
+}
+
+/* Dark-mode dialog */
+.dark .pp-drq-box {
+    background: #1e1e1e;
+    border-color: rgba(220, 239, 98, 0.2);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+.dark .pp-drq-title { color: #fff; }
+.dark .pp-drq-body  { color: #aaa; }
+
+.dark .pp-drq-deny {
+    background: #2a2a2a;
+    border-color: #7f1d1d;
+    color: #f87171;
+}
+
+.dark .pp-drq-deny:hover {
+    background: #3b1414;
+    border-color: #ef4444;
+}

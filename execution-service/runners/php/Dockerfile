@@ -5,8 +5,23 @@ FROM php:8.3-cli-alpine
 # Create a non-root user to run code
 RUN addgroup -S runner && adduser -S runner -G runner
 
-# Set working dir
-WORKDIR /code
+# Install common PHP tools
+RUN apk add --no-cache \
+    bash \
+    git \
+    gettext \
+    icu-data-full \
+    tzdata \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install \
+    pdo pdo_mysql mysqli intl bcmath opcache
 
-# Drop to non-root
+# Create working dir
+RUN mkdir -p /workspace
+
+# Copy helper scripts
+COPY scripts/* /usr/local/bin/
+
+# Switch to non-root
 USER runner
+WORKDIR /workspace

@@ -1126,8 +1126,75 @@ router.post("/:id/swap-roles", verifyToken, async (req, res) => {
   }
 });
 
+// RESPOND TO DRIVER ROLE REQUEST (OWNER ONLY — approve or deny)
+router.post("/:id/respond-driver-request", verifyToken, async (req, res) => {
+  try {
+    const board = await PairProgramming.findById(req.params.id);
+    if (!board) return res.status(404).json({ message: "Board not found" });
+
+    // Only the owner may respond
+    if (board.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Only the project owner can respond to role requests" });
+    }
+
+    const { requesterId, action } = req.body; // action: "approve" | "deny"
+    if (!requesterId || !["approve", "deny"].includes(action)) {
+      return res.status(400).json({ message: "requesterId and action ('approve'|'deny') are required" });
+    }
+
+    const io = req.app.get("io");
+
+    if (action === "approve") {
+      // Promote requester to driver, demote everyone else to navigator
+      let memberFound = false;
+      board.members.forEach(m => {
+        const uId = (m.user?._id || m.user || m).toString();
+        if (uId === requesterId) {
+          m.role = "driver";
+          memberFound = true;
+        } else {
+          m.role = "navigator";
+        }
+      });
+
+      // Safety: if the requester wasn't in members yet, add them
+      if (!memberFound) {
+        board.members.push({ user: requesterId, role: "driver" });
+      }
+
+      await board.save();
+
+      // Notify entire board room so all clients reload roles immediately
+      emitBoard(io, board._id, "roles-updated", { members: board.members });
+
+      // Also notify the requester with a specific approval event
+      io.to(requesterId).emit("role-request-response", {
+        approved: true,
+        message: "Your request to become Driver was approved!"
+      });
+
+      res.json({ success: true, message: "Request approved — roles updated" });
+
+    } else {
+      // Deny — only notify the requester, no DB change needed
+      io.to(requesterId).emit("role-request-response", {
+        approved: false,
+        message: "Your request to become Driver was denied by the owner."
+      });
+
+      res.json({ success: true, message: "Request denied" });
+    }
+
+  } catch (err) {
+    console.error("Error responding to driver request:", err);
+    res.status(500).json({ message: "Error processing request", error: err.message });
+  }
+});
+
+
 // REQUEST DRIVER ROLE
 router.post("/:id/request-driver", verifyToken, async (req, res) => {
+
   try {
     const board = await PairProgramming.findById(req.params.id).populate("owner");
     if (!board) return res.status(404).json({ message: "Board not found" });

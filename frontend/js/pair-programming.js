@@ -11,13 +11,14 @@ import {
   setCloseTab,
   setShowToast,
   setCurrentUserId,
+  setIsOwner,
   emitTyping,
   emitCursorUpdate,
   emitContentUpdate,
   emitTerminalStart,
   emitTerminalInput,
   emitTerminalKill
-} from "./pair-programming-sio.js";
+} from "./pair-programming-sio.js?v=3";
 
 const API_BASE = `${window.API_BASE_URL}/pair-programming`;
 
@@ -691,9 +692,9 @@ export function initEditor() {
 
   state.editor.on("cursorActivity", () => {
     if (state.active) {
-      const cursor = state.editor.getCursor();
+      const cursor = state.editor.getCursor();   // { line, ch } — structural, not pixels
       const fileId = state.active.split("/")[1];
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const user   = JSON.parse(localStorage.getItem("user") || "{}");
       emitCursorUpdate(boardId, fileId, cursor, user?.colorTag);
     }
   });
@@ -1690,6 +1691,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load initial board data
   await loadBoard();
 
+  // Tell the socket layer whether this client is the board owner
+  // (used to gate the Approve/Deny driver-request dialog)
+  if (state.board && state.userId) {
+    const ownerId = (state.board.owner?._id || state.board.owner).toString().toLowerCase();
+    const myId = state.userId.toString().toLowerCase();
+    setIsOwner(myId === ownerId);
+    console.log("[Main] Owner Check:", { myId, ownerId, isOwner: myId === ownerId });
+  }
+
   // Add self to online users immediately
   if (state.userId) {
     state.onlineUserIds.add(state.userId.toString());
@@ -1703,18 +1713,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   console.log("Initialization complete");
-
-  // Track cursor for real-time presence
-  let cursorThrottle = false;
-  document.addEventListener("mousemove", (e) => {
-    if (!cursorThrottle && boardId) {
-      cursorThrottle = true;
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      emitCursorUpdate(boardId, null, { x: e.clientX, y: e.clientY }, user.colorTag);
-      setTimeout(() => { cursorThrottle = false; }, 100);
-    }
-  });
 });
+
 // Mobile Sidebar Toggle
 const sidebarToggle = document.getElementById("sidebarToggle");
 const folderArea = document.querySelector(".folder-area");

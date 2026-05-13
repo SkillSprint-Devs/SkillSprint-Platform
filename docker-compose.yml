@@ -26,8 +26,8 @@ services:
   execution-service:
     build:
       context: ./execution-service
-    expose:
-      - "4000"                        # only reachable from app-network
+    ports:
+      - "4000:4000"                   # host-bound so bare node server.js can reach it too
     environment:
       - NODE_ENV=production
       - PORT=4000

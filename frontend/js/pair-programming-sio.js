@@ -59,6 +59,12 @@ export function setCurrentUserId(userId) {
   currentUserId = userId;
 }
 
+let _isOwner = false;
+export function setIsOwner(val) {
+  console.log("[SIO] setIsOwner set to:", val);
+  _isOwner = !!val;
+}
+
 export function initSocket(token, boardIdParam) {
   currentBoardId = boardIdParam;
 
@@ -217,52 +223,113 @@ export function initSocket(token, boardIdParam) {
     }
   });
 
-  // Remote Cursors handling for Pair Programming
+  // ── Remote Cursors (setBookmark-based, anchored in CodeMirror) ──────────────
+  // Maps userId → { bookmark, container }
   const remoteCursors = {};
 
   socket.on("cursor-update", ({ userId, name, fileId, cursor, color }) => {
     if (userId === currentUserId) return;
 
-    let cursorEl = remoteCursors[userId];
-    if (!cursorEl) {
-      cursorEl = document.createElement("div");
-      cursorEl.className = "remote-cursor pp-cursor";
-      cursorEl.style.position = "fixed";
-      cursorEl.style.zIndex = "999999";
-      cursorEl.style.pointerEvents = "none";
-      cursorEl.style.transition = "transform 0.1s linear";
-      cursorEl.innerHTML = `
-        <div class="cursor-pointer" style="width:12px; height:20px; background: ${color || '#8C52FF'}; clip-path: polygon(0 0, 100% 70%, 30% 70%, 0 100%);"></div>
-        <div class="cursor-label" style="background:${color || '#8C52FF'}; color:#000; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; white-space:nowrap; margin-top:4px;">${name || 'User'}</div>
-      `;
-      document.body.appendChild(cursorEl);
-      remoteCursors[userId] = cursorEl;
+    const editor = _getEditor();
+    const currentFile = _getCurrentFile();
+
+    // Only render if the sender is editing the currently open file
+    if (!editor || !currentFile || currentFile._id !== fileId) {
+      // Clean up stale bookmark if file changed
+      if (remoteCursors[userId]) {
+        try { remoteCursors[userId].bookmark.clear(); } catch (_) {}
+        delete remoteCursors[userId];
+      }
+      return;
     }
 
-    if (cursor && cursor.x !== undefined && cursor.y !== undefined) {
-      cursorEl.style.display = "flex";
-      cursorEl.style.flexDirection = "column";
-      cursorEl.style.alignItems = "flex-start";
-      cursorEl.style.top = "0";
-      cursorEl.style.left = "0";
-      cursorEl.style.transform = `translate(${cursor.x}px, ${cursor.y}px)`;
+    // cursor is { line, ch } from CodeMirror getCursor()
+    if (!cursor || cursor.line === undefined || cursor.ch === undefined) return;
 
-      // Update label and color on every update
-      const label = cursorEl.querySelector(".cursor-label");
-      const pointer = cursorEl.querySelector(".cursor-pointer");
-      if (label) {
-        label.textContent = name || 'User';
-        label.style.backgroundColor = color || '#8C52FF';
-      }
-      if (pointer) {
-        pointer.style.backgroundColor = color || '#8C52FF';
-      }
+    const col   = color || "#8C52FF";
+    const label = name  || "User";
+
+    // ── Build (or reuse) the cursor widget DOM element ──
+    let entry = remoteCursors[userId];
+    if (!entry) {
+      const container = document.createElement("div");
+      container.className = "pp-remote-cursor-widget";
+      container.style.cssText = [
+        "position:relative",
+        "display:inline-block",
+        "pointer-events:none",
+        "z-index:100"
+      ].join(";");
+
+      // Caret bar
+      const caret = document.createElement("div");
+      caret.className = "pp-cursor-caret";
+      caret.style.cssText = [
+        `background:${col}`,
+        "width:2px",
+        "height:1.2em",
+        "display:inline-block",
+        "vertical-align:text-bottom",
+        "border-radius:1px",
+        "animation:pp-cursor-blink 1s step-end infinite"
+      ].join(";");
+
+      // Name tag — sits directly below the caret bar
+      const tag = document.createElement("div");
+      tag.className = "pp-cursor-tag";
+      tag.textContent = label;
+      tag.style.cssText = [
+        `background:${col}`,
+        "color:#000",
+        "font-size:10px",
+        "font-weight:700",
+        "padding:1px 5px",
+        "border-radius:0 3px 3px 3px",
+        "white-space:nowrap",
+        "position:absolute",
+        "top:100%",
+        "left:0",
+        "z-index:101",
+        "line-height:1.6"
+      ].join(";");
+
+      container.appendChild(caret);
+      container.appendChild(tag);
+
+      // Place the bookmark at the cursor position
+      const pos = { line: cursor.line, ch: cursor.ch };
+      const bookmark = editor.setBookmark(pos, {
+        widget: container,
+        insertLeft: true
+      });
+
+      entry = { bookmark, container };
+      remoteCursors[userId] = entry;
+    } else {
+      // ── Move existing bookmark to new position ──
+      // setBookmark cannot be repositioned; clear and re-create
+      try { entry.bookmark.clear(); } catch (_) {}
+
+      // Update colors / name in case they changed
+      const caret = entry.container.querySelector(".pp-cursor-caret");
+      const tag   = entry.container.querySelector(".pp-cursor-tag");
+      if (caret) caret.style.background = col;
+      if (tag)   { tag.style.background = col; tag.textContent = label; }
+
+      const pos = { line: cursor.line, ch: cursor.ch };
+      entry.bookmark = editor.setBookmark(pos, {
+        widget: entry.container,
+        insertLeft: true
+      });
     }
 
-    clearTimeout(cursorEl.timeout);
-    cursorEl.timeout = setTimeout(() => {
-      cursorEl.remove();
-      delete remoteCursors[userId];
+    // Auto-remove after 5 s of inactivity
+    clearTimeout(entry.hideTimer);
+    entry.hideTimer = setTimeout(() => {
+      if (remoteCursors[userId]) {
+        try { remoteCursors[userId].bookmark.clear(); } catch (_) {}
+        delete remoteCursors[userId];
+      }
     }, 5000);
   });
 
@@ -278,8 +345,41 @@ export function initSocket(token, boardIdParam) {
     _showToast("Roles have been reassigned", "info");
   });
 
-  socket.on("role-request", ({ userName, role }) => {
-    _showToast(`${userName} requested to be ${role}`, "info", 5000);
+  socket.on("role-request", ({ userId: requesterId, userName, role }) => {
+    console.log("[SIO] role-request received:", { 
+      requesterId, 
+      currentUserId, 
+      _isOwner, 
+      userName, 
+      role 
+    });
+
+    // Case-insensitive string comparison for safety
+    const isMe = requesterId && currentUserId && 
+                 requesterId.toString().toLowerCase() === currentUserId.toString().toLowerCase();
+
+    if (isMe) {
+      console.log("[SIO] Skipping dialog: I am the requester");
+      return;
+    }
+
+    if (!_isOwner) {
+      console.log("[SIO] Skipping dialog: I am not marked as owner");
+      // Fallback: if we haven't set _isOwner yet, we might still be the owner.
+      // But for now, we rely on the setIsOwner call from main.js
+      return;
+    }
+
+    console.log("[SIO] Showing Approve/Deny dialog...");
+    _showDriverRequestDialog(requesterId, userName, role);
+  });
+
+  socket.on("role-request-response", ({ approved, message }) => {
+    if (approved) {
+      _showToast(message, "success", 5000);
+    } else {
+      _showToast(message, "error", 5000);
+    }
   });
 
   // Handle board deletion
@@ -291,24 +391,133 @@ export function initSocket(token, boardIdParam) {
   });
 }
 
+// ── Driver-Request Approve / Deny Dialog ─────────────────────────────────────
+function _showDriverRequestDialog(requesterId, userName, role) {
+  // Remove any existing dialog first (avoid duplicates)
+  const existing = document.getElementById("pp-driver-request-dialog");
+  if (existing) existing.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "pp-driver-request-dialog";
+  overlay.className = "pp-drq-overlay";
+
+  overlay.innerHTML = `
+    <div class="pp-drq-box">
+      <div class="pp-drq-icon"><i class="fa-solid fa-steering-wheel"></i></div>
+      <h3 class="pp-drq-title">Driver Role Request</h3>
+      <p class="pp-drq-body">
+        <strong>${userName}</strong> is requesting to become the
+        <span class="pp-drq-badge">${role}</span>.
+        <br>Do you want to approve this?
+      </p>
+      <div class="pp-drq-actions">
+        <button class="pp-drq-btn pp-drq-approve" id="pp-drq-approve">
+          <i class="fa-solid fa-circle-check"></i> Approve
+        </button>
+        <button class="pp-drq-btn pp-drq-deny" id="pp-drq-deny">
+          <i class="fa-solid fa-circle-xmark"></i> Deny
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Animate in
+  requestAnimationFrame(() => overlay.classList.add("pp-drq-visible"));
+
+  const close = () => {
+    overlay.classList.remove("pp-drq-visible");
+    setTimeout(() => overlay.remove(), 300);
+  };
+
+  overlay.querySelector("#pp-drq-approve").addEventListener("click", async () => {
+    close();
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${window.API_BASE_URL}/pair-programming/${currentBoardId}/respond-driver-request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ requesterId, action: "approve" })
+        }
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        _showToast(err.message || "Failed to approve request", "error");
+      }
+    } catch (e) {
+      _showToast("Network error — could not approve request", "error");
+    }
+  });
+
+  overlay.querySelector("#pp-drq-deny").addEventListener("click", async () => {
+    close();
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(
+        `${window.API_BASE_URL}/pair-programming/${currentBoardId}/respond-driver-request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ requesterId, action: "deny" })
+        }
+      );
+    } catch (_) { /* silent */ }
+  });
+
+  // Auto-dismiss after 60 s if owner doesn't respond
+  const autoClose = setTimeout(() => {
+    close();
+    _showToast("Driver request timed out (no response)", "info");
+  }, 60_000);
+
+  // Cancel auto-close if user acts
+  overlay.querySelectorAll(".pp-drq-btn").forEach(btn =>
+    btn.addEventListener("click", () => clearTimeout(autoClose), { once: true })
+  );
+}
+
 // Emitters - ALL FUNCTIONS PROPERLY EXPORTED
+
 export function emitTyping(boardId, fileId, status) {
   if (socket && socket.connected) {
     socket.emit("typing", { boardId, fileId, status });
   }
 }
 
+// ── Throttled cursor emitter (max 1 event per 50 ms ≈ 20 FPS) ────────────────
+let _cursorThrottleTimer = null;
+let _pendingCursorPayload = null;
+
 export function emitCursorUpdate(boardId, fileId, cursor, color) {
-  if (socket && socket.connected) {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    socket.emit("cursor-update", {
-      boardId,
-      fileId,
-      cursor,
-      name: user.name || "User",
-      color: color || user.colorTag || "#8C52FF"
-    });
-  }
+  if (!socket || !socket.connected) return;
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  _pendingCursorPayload = {
+    boardId,
+    fileId,
+    cursor,           // { line, ch } — CodeMirror structural coords
+    name: user.name  || "User",
+    color: color || user.colorTag || "#8C52FF"
+  };
+
+  if (_cursorThrottleTimer !== null) return; // already scheduled
+
+  _cursorThrottleTimer = setTimeout(() => {
+    if (_pendingCursorPayload && socket && socket.connected) {
+      socket.emit("cursor-update", _pendingCursorPayload);
+    }
+    _cursorThrottleTimer  = null;
+    _pendingCursorPayload = null;
+  }, 50);
 }
 
 export function emitContentUpdate(boardId, fileId, patch) {
