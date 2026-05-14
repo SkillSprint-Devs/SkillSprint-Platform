@@ -273,6 +273,30 @@ router.get("/health", async (req, res) => {
             healthy: true
         };
 
+        // 5. Execution Service Check
+        const executionServiceUrl = process.env.EXECUTION_SERVICE_URL || "http://localhost:4000";
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const execHealthRes = await fetch(`${executionServiceUrl}/health`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            const execHealthData = await execHealthRes.json();
+            
+            health.checks.executionService = {
+                status: execHealthRes.ok ? "healthy" : "unhealthy",
+                url: executionServiceUrl,
+                healthy: execHealthRes.ok,
+                details: execHealthData
+            };
+        } catch (execErr) {
+            health.checks.executionService = {
+                status: "critical",
+                url: executionServiceUrl,
+                healthy: false,
+                error: execErr.name === 'AbortError' ? 'Timeout' : execErr.message
+            };
+        }
+
         // Overall Health Status
         const allHealthy = Object.values(health.checks).every(check => check.healthy);
         const anyWarning = Object.values(health.checks).some(check => check.status === "warning");

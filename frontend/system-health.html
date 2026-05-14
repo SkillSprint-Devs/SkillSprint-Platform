@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Health | SkillSprint Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/admin.css" />
+  <style>
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-healthy { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .status-warning { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+    .status-critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .status-unknown { background: rgba(107, 114, 128, 0.2); color: #6b7280; }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.9rem;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--text-muted); }
+    .detail-value { font-family: monospace; font-weight: 500; }
+    
+    .refresh-btn {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: white;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover { background: #f9f9f9; }
+    .refresh-btn i { margin-right: 8px; }
+    
+    .rotating { animation: rotate 1s linear infinite; }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-bolt" style="margin-right: 10px; color: var(--admin-accent);"></i> SkillSprint
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item" onclick="window.location.href='admin-dashboard.html'">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </div>
+      <div class="nav-item">
+        <i class="fa-solid fa-users"></i> Users
+      </div>
+      <div class="nav-item">
+        <i class="fa-solid fa-chalkboard-user"></i> Sessions
+      </div>
+      <div class="nav-item active">
+        <i class="fa-solid fa-heart-pulse"></i> System Health
+      </div>
+      <div class="nav-item" onclick="window.location.href='error-logs.html'">
+        <i class="fa-solid fa-bug"></i> Error Logs
+      </div>
+      <div class="nav-item">
+        <i class="fa-solid fa-gears"></i> Settings
+      </div>
+    </nav>
+    <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <button class="btn" style="width: 100%; background: rgba(255,255,255,0.1); color: white;"
+        onclick="window.location.href='admin-login.html'">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <!-- Top Header -->
+    <header class="admin-header">
+      <h2 class="text-xl">Infrastructure Status</h2>
+      <div class="flex items-center gap-4">
+        <button id="refreshBtn" class="refresh-btn">
+          <i class="fa-solid fa-arrows-rotate"></i> Refresh
+        </button>
+        <div class="flex items-center gap-2">
+          <div style="width: 32px; height: 32px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <span class="font-bold">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="admin-content">
+      
+      <div id="overallStatusCard" class="card mb-6" style="border-left: 5px solid var(--border-color);">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 id="overallStatusText">Loading System Status...</h3>
+            <p id="lastUpdated" class="text-muted text-sm">Last check: --</p>
+          </div>
+          <div id="overallStatusBadge" class="status-badge status-unknown">Checking</div>
+        </div>
+      </div>
+
+      <div class="health-grid">
+        <!-- Database Card -->
+        <div class="card">
+          <div class="flex justify-between items-start mb-4">
+            <h4><i class="fa-solid fa-database mr-2"></i> MongoDB Atlas</h4>
+            <span id="dbBadge" class="status-badge status-unknown">Checking</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span id="dbStatus" class="detail-value">--</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Connection State</span>
+            <span id="dbState" class="detail-value">--</span>
+          </div>
+        </div>
+
+        <!-- Execution Service Card -->
+        <div class="card">
+          <div class="flex justify-between items-start mb-4">
+            <h4><i class="fa-solid fa-code mr-2"></i> Execution Sidecar</h4>
+            <span id="execBadge" class="status-badge status-unknown">Checking</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span id="execStatus" class="detail-value">--</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Endpoint</span>
+            <span id="execUrl" class="detail-value" style="font-size: 0.7rem;">--</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Supported Langs</span>
+            <span id="execLangs" class="detail-value">--</span>
+          </div>
+        </div>
+
+        <!-- System Resources Card -->
+        <div class="card">
+          <div class="flex justify-between items-start mb-4">
+            <h4><i class="fa-solid fa-microchip mr-2"></i> Backend Resources</h4>
+            <span id="sysBadge" class="status-badge status-unknown">Checking</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Heap Memory</span>
+            <span id="memUsage" class="detail-value">-- / -- MB</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Uptime</span>
+            <span id="sysUptime" class="detail-value">--</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Error Rate (1h)</span>
+            <span id="errorRate" class="detail-value">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Startup Diagnostics (Optional/Future) -->
+      <div class="card mt-6">
+        <h3>Startup Diagnostic Logs</h3>
+        <p class="text-muted text-sm mb-4">Captured from the local environment during last boot sequence.</p>
+        <div id="diagnosticLogs" style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; max-height: 300px; overflow-y: auto; line-height: 1.4;">
+          <span style="color: #6a9955;">// Diagnostic system ready. Waiting for live data...</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/error-tracking.js"></script>
+  <script src="js/system-health.js" type="module"></script>
+</body>
+
+</html>
