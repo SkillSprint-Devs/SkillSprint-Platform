@@ -28,7 +28,7 @@ function Cleanup {
     $ErrorActionPreference = $saved
 }
 # Register Ctrl+C handling
-$cancelEvent = Register-EngineEvent PowerShell.Exiting -Action { Cleanup }
+Register-EngineEvent PowerShell.Exiting -Action { Cleanup } | Out-Null
 
 try {
     Write-Log "=== SkillSprint Development Startup ==="
@@ -45,7 +45,7 @@ try {
     Cleanup
 
     # Verify required ports are free (5000 for execution service)
-    function Ensure-PortFree {
+    function Test-PortFree {
         param([int]$Port)
         $conn = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
         if ($conn) {
@@ -63,8 +63,8 @@ try {
             Write-Log "Port $Port is free."
         }
     }
-    Ensure-PortFree -Port 4000
-    Ensure-PortFree -Port 5000
+    Test-PortFree -Port 4000
+    Test-PortFree -Port 5000
 
     # Pull / build required images
     Write-Log "Pulling latest Docker images..."
