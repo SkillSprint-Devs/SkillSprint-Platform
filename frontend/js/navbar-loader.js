@@ -62,16 +62,10 @@ function initNavbar(config = {}) {
                 </div>
             </div>
             <div class="nav-right">
-                ${options.showNotifications ? `
-                <button class="icon-btn" title="Notifications" id="navbarNotifBtn">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="notification-badge" id="navbarNotifBadge" style="display:none;">0</span>
-                </button>` : ''}
-
-                ${options.showSettingsBtn ? `
-                <button class="icon-btn" title="Settings" onclick="location.href='settings.html'">
-                    <i class="fa-solid fa-gear"></i>
-                </button>` : ''}
+                <a href="/ai" class="navbar-ai-mentor-btn" id="navbarAiMentorBtn" title="AI Mentor Workspace">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AI Mentor</span>
+                </a>
                 ${options.showProfileBtn ? `
                 <button class="icon-btn" title="My Profile" onclick="if(window.goToMyPublicProfile) window.goToMyPublicProfile(); else { const u = JSON.parse(localStorage.getItem('user') || '{}'); const id = u._id || u.id; location.href = id ? 'public-profile.html?user=' + id : 'profile.html'; }">
 

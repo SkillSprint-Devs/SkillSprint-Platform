@@ -241,6 +241,9 @@ function showQuizView() {
     resultsView.classList.remove('active');
     quizView.classList.add('active');
 
+    // Lock AI Mentor during quiz
+    if (window.SSAiOrb) window.SSAiOrb.lock();
+
     // Update header
     document.getElementById('quizCourseBadge').textContent = formatCourseName(currentQuiz.course);
     const levelBadge = document.getElementById('quizLevelBadge');
@@ -426,6 +429,9 @@ async function submitQuiz() {
 function showResults(results) {
     quizView.classList.remove('active');
     resultsView.classList.add('active');
+
+    // Unlock AI Mentor after quiz
+    if (window.SSAiOrb) window.SSAiOrb.unlock();
 
     const resultsIcon = document.getElementById('resultsIcon');
     const resultsTitle = document.getElementById('resultsTitle');

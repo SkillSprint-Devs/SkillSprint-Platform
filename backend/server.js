@@ -425,6 +425,11 @@ const frontendPath = path.join(__dirname, "../frontend");
 console.log("Serving static files from:", frontendPath);
 app.use(express.static(frontendPath));
 
+// AI Mentor workspace — primary entry point
+app.get("/ai", (req, res) => {
+  res.sendFile(path.join(frontendPath, "chat-bot.html"));
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });

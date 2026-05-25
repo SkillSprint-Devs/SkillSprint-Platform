@@ -784,7 +784,7 @@ window.MentorBot = {
       : 'AI Mentor');
     a.title = isDisabled ? 'AI Mentor is unavailable during a quiz' : 'AI Mentor';
     a.setAttribute('aria-label', 'AI Mentor');
-    a.innerHTML = '<i class="fa-solid fa-microchip-ai"></i>';
+    a.innerHTML = '<i class="fa-solid fa-robot"></i>';
     container.appendChild(a);
     return a;
   },
@@ -804,7 +804,7 @@ window.MentorBot = {
         Get answers about JavaScript &amp; the SkillSprint platform.
       </div>
       <a href="chat-bot.html" class="ai-guide-open-btn">
-        <i class="fa-solid fa-microchip-ai"></i> Open AI Mentor
+        <i class="fa-solid fa-robot"></i> Open AI Mentor
       </a>`;
   }
 };
@@ -813,6 +813,30 @@ window.MentorBot = {
    INIT
 ================================================================ */
 (function init() {
+  // ── Quiz Lockdown Check ──
+  if (localStorage.getItem('ss_active_quiz') === 'true') {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(10, 10, 10, 0.95); z-index: 99999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #fff; font-family: 'Poppins', sans-serif; text-align: center; padding: 20px;
+    `;
+    overlay.innerHTML = `
+      <i class="fa-solid fa-lock" style="font-size: 3rem; color: #ef4444; margin-bottom: 20px;"></i>
+      <h2 style="font-size: 1.5rem; margin-bottom: 10px; font-weight: 600;">AI Mentor Locked</h2>
+      <p style="color: #aaa; margin-bottom: 24px; max-width: 400px; line-height: 1.5;">
+        AI assistance is strictly disabled while you have an active quiz session. Please complete or exit your quiz to restore access.
+      </p>
+      <button onclick="window.location.href='dashboard.html'" style="
+        background: #DCEF62; color: #000; border: none; padding: 10px 24px; border-radius: 8px;
+        font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.9rem;
+      ">Return to Dashboard</button>
+    `;
+    document.body.appendChild(overlay);
+    return; // Halt further initialization
+  }
+
   renderSuggestionChips();
   setIndicatorState('idle');
 

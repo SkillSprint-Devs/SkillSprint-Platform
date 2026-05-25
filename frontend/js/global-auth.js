@@ -126,5 +126,21 @@
         window.location.href = 'profile.html'; // Fallback if no ID available
     };
 
+    // Auto-inject AI Mentor Orb
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", injectAiOrb);
+    } else {
+        injectAiOrb();
+    }
+
+    function injectAiOrb() {
+        if (document.getElementById('aiOrbScript')) return;
+        const script = document.createElement('script');
+        script.src = '/js/ai-orb.js';
+        script.id = 'aiOrbScript';
+        script.defer = true;
+        document.body.appendChild(script);
+    }
+
     console.log("[GlobalAuth] Initialized");
 })();

@@ -1,0 +1,502 @@
+/* ================================================================
+   SKILLSPRINT AI MENTOR — FLOATING ORB & COMPACT PANEL
+   Rendered via ai-orb.js · Injected globally on all auth'd pages
+================================================================ */
+
+/* ── Orb Button ── */
+.ss-ai-orb {
+  position: fixed;
+  bottom: 110px;
+  right: 28px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e8f87c, #DCEF62 60%, #a8c945);
+  border: none;
+  cursor: pointer;
+  z-index: 9500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  box-shadow:
+    0 8px 32px rgba(220, 239, 98, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              opacity 0.25s ease;
+  animation: orb-pulse 3s ease-in-out infinite;
+  outline: none;
+}
+
+.ss-ai-orb:hover {
+  transform: scale(1.12) translateY(-3px);
+  box-shadow:
+    0 14px 44px rgba(220, 239, 98, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  animation: none;
+}
+
+.ss-ai-orb:active {
+  transform: scale(0.96);
+}
+
+/* Bot mascot inside orb */
+.ss-ai-orb .orb-bot {
+  font-size: 22px;
+  color: #0a0a0a;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.ss-ai-orb:hover .orb-bot {
+  transform: scale(1.1) rotate(-8deg);
+}
+
+/* Pulsing glow ring */
+@keyframes orb-pulse {
+  0%, 100% {
+    box-shadow:
+      0 8px 32px rgba(220, 239, 98, 0.45),
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 8px 44px rgba(220, 239, 98, 0.7),
+      0 0 0 8px rgba(220, 239, 98, 0.1),
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* ── Locked / Quiz-Active State ── */
+.ss-ai-orb.orb-locked {
+  background: radial-gradient(circle at 35% 35%, #555, #3a3a3a);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  cursor: not-allowed;
+  animation: none;
+  opacity: 0.65;
+}
+
+.ss-ai-orb.orb-locked:hover {
+  transform: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.ss-ai-orb.orb-locked .orb-bot {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* Lock icon overlay on the orb */
+.orb-lock-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #fff;
+  border: 2px solid #0a0a0a;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.5);
+  z-index: 1;
+}
+
+.ss-ai-orb.orb-locked .orb-lock-badge {
+  display: flex;
+}
+
+/* ── Tooltip ── */
+.ss-ai-orb-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 9499;
+  width: max-content;
+  max-width: 240px;
+  white-space: normal;
+  text-align: right;
+  line-height: 1.4;
+}
+
+.ss-ai-orb:hover .ss-ai-orb-tooltip,
+.ss-ai-orb:active .ss-ai-orb-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Compact Panel ── */
+.ss-ai-panel {
+  position: fixed;
+  bottom: 176px;
+  right: 28px;
+  width: 360px;
+  max-height: 520px;
+  background: rgba(12, 12, 12, 0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(220, 239, 98, 0.2);
+  border-radius: 20px;
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 60px rgba(220, 239, 98, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9490;
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ss-ai-panel.panel-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+/* Panel Header */
+.sap-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.sap-bot-wrap {
+  flex-shrink: 0;
+}
+
+.sap-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.sap-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sap-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.67rem;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sap-close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sap-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Context Banner */
+.sap-context-banner {
+  padding: 8px 16px;
+  background: rgba(220, 239, 98, 0.07);
+  border-bottom: 1px solid rgba(220, 239, 98, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sap-context-icon {
+  font-size: 0.78rem;
+  color: #DCEF62;
+  flex-shrink: 0;
+}
+
+.sap-context-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(220, 239, 98, 0.8);
+  line-height: 1.35;
+  font-style: italic;
+}
+
+/* Message Feed */
+.sap-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.sap-feed::-webkit-scrollbar {
+  width: 4px;
+}
+.sap-feed::-webkit-scrollbar-track { background: transparent; }
+.sap-feed::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+
+/* Message bubbles */
+.sap-msg {
+  display: flex;
+  gap: 8px;
+  animation: sap-msg-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes sap-msg-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.sap-msg.user {
+  flex-direction: row-reverse;
+}
+
+.sap-msg-bubble {
+  max-width: 80%;
+  padding: 9px 13px;
+  border-radius: 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.sap-msg.bot .sap-msg-bubble {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.82);
+  border-bottom-left-radius: 4px;
+}
+
+.sap-msg.user .sap-msg-bubble {
+  background: #DCEF62;
+  color: #0a0a0a;
+  font-weight: 600;
+  border-bottom-right-radius: 4px;
+}
+
+/* Thinking dots inside panel */
+.sap-thinking .sap-msg-bubble {
+  background: rgba(255, 255, 255, 0.07);
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 12px 14px;
+}
+
+.sap-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #DCEF62;
+  animation: sap-dot-bounce 1.2s ease-in-out infinite;
+}
+.sap-dot:nth-child(2) { animation-delay: 0.2s; }
+.sap-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes sap-dot-bounce {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+  40%            { transform: scale(1);   opacity: 1; }
+}
+
+/* Panel Input Row */
+.sap-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.sap-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 9px 13px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  color: #fff;
+  outline: none;
+  resize: none;
+  min-height: 38px;
+  max-height: 80px;
+  transition: border-color 0.2s;
+  line-height: 1.4;
+}
+
+.sap-input:focus {
+  border-color: rgba(220, 239, 98, 0.4);
+}
+
+.sap-input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.sap-send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: #DCEF62;
+  color: #0a0a0a;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sap-send-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sap-send-btn:not(:disabled):hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(220, 239, 98, 0.4);
+}
+
+/* Open workspace link */
+.sap-workspace-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(220, 239, 98, 0.07);
+  border-top: 1px solid rgba(220, 239, 98, 0.12);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.7rem;
+  color: rgba(220, 239, 98, 0.7);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+
+.sap-workspace-link:hover {
+  background: rgba(220, 239, 98, 0.13);
+  color: #DCEF62;
+}
+
+.sap-workspace-link i {
+  font-size: 0.65rem;
+}
+
+/* ── Navbar AI Mentor Button ── */
+.navbar-ai-mentor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, #DCEF62, #a8c945);
+  color: #0a0a0a;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 14px rgba(220, 239, 98, 0.3);
+  white-space: nowrap;
+}
+
+.navbar-ai-mentor-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(220, 239, 98, 0.5);
+}
+
+.navbar-ai-mentor-btn:active {
+  transform: scale(0.97);
+}
+
+.navbar-ai-mentor-btn.ai-nav-locked {
+  background: linear-gradient(135deg, #444, #333);
+  color: rgba(255, 255, 255, 0.35);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.navbar-ai-mentor-btn.ai-nav-locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.navbar-ai-mentor-btn i {
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .ss-ai-panel {
+    width: calc(100vw - 40px);
+    right: 20px;
+    bottom: 168px;
+  }
+
+  .ss-ai-orb {
+    right: 20px;
+    bottom: 100px;
+  }
+
+  .ss-ai-orb-tooltip {
+    right: 20px;
+    max-width: 200px;
+  }
+}
