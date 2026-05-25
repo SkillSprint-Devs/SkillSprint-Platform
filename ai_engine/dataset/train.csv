@@ -417,3 +417,575 @@ view recent project posts,platform.matchmaking.feed
 how to comment on a project post,platform.matchmaking.feed
 explore collaboration cards,platform.matchmaking.feed
 how to advertise my skills on the feed,platform.matchmaking.feed
+what courses are available to take,platform.quiz.list_courses
+show me my current quiz progress,platform.quiz.list_courses
+can i see a list of learning paths,platform.quiz.list_courses
+where do i find html css and nodejs assessments,platform.quiz.list_courses
+list all courses,platform.quiz.list_courses
+show available quizzes,platform.quiz.list_courses
+what quizzes can i take,platform.quiz.list_courses
+where is the course list,platform.quiz.list_courses
+show me learning paths,platform.quiz.list_courses
+find javascript assessments,platform.quiz.list_courses
+what topics are available for quizzes,platform.quiz.list_courses
+show my course progress,platform.quiz.list_courses
+view all assessments,platform.quiz.list_courses
+where can i find the python quiz,platform.quiz.list_courses
+list of quizzes,platform.quiz.list_courses
+what exams are there,platform.quiz.list_courses
+show courses to enroll,platform.quiz.list_courses
+how many courses are there,platform.quiz.list_courses
+browse quizzes,platform.quiz.list_courses
+show me available exams,platform.quiz.list_courses
+look up learning paths,platform.quiz.list_courses
+what are the assessments,platform.quiz.list_courses
+courses list,platform.quiz.list_courses
+where to find quizzes,platform.quiz.list_courses
+find react course,platform.quiz.list_courses
+how do i start a javascript quiz,platform.quiz.start
+i want to begin the problem solving assessment,platform.quiz.start
+launch the basic level exam,platform.quiz.start
+start my quiz now,platform.quiz.start
+begin quiz,platform.quiz.start
+take quiz,platform.quiz.start
+how to start the exam,platform.quiz.start
+i want to take the python assessment,platform.quiz.start
+start course,platform.quiz.start
+begin assessment,platform.quiz.start
+launch quiz,platform.quiz.start
+open the javascript exam,platform.quiz.start
+start test,platform.quiz.start
+how do i begin my quiz,platform.quiz.start
+start nodejs assessment,platform.quiz.start
+i am ready to take the quiz,platform.quiz.start
+start the evaluation,platform.quiz.start
+begin the test now,platform.quiz.start
+how to take a quiz,platform.quiz.start
+start the html exam,platform.quiz.start
+enter quiz session,platform.quiz.start
+begin my assessment,platform.quiz.start
+take the evaluation,platform.quiz.start
+start skill test,platform.quiz.start
+commence quiz,platform.quiz.start
+does the quiz auto save my answers,platform.quiz.save_resume
+can i resume an active quiz if my browser closes,platform.quiz.save_resume
+where is my in progress quiz session,platform.quiz.save_resume
+is my answer progress saved automatically,platform.quiz.save_resume
+resume my quiz,platform.quiz.save_resume
+how to continue my exam,platform.quiz.save_resume
+did my quiz save,platform.quiz.save_resume
+i accidentally closed the quiz,platform.quiz.save_resume
+can i pause the assessment,platform.quiz.save_resume
+resume assessment,platform.quiz.save_resume
+how to get back to my quiz,platform.quiz.save_resume
+is the test auto saving,platform.quiz.save_resume
+where is the saved quiz,platform.quiz.save_resume
+continue exam,platform.quiz.save_resume
+i need to resume my test,platform.quiz.save_resume
+reopen active quiz,platform.quiz.save_resume
+will my answers be saved,platform.quiz.save_resume
+how to pause and resume,platform.quiz.save_resume
+restore my quiz session,platform.quiz.save_resume
+recover my answers,platform.quiz.save_resume
+where can i resume the test,platform.quiz.save_resume
+auto save working,platform.quiz.save_resume
+continue the javascript quiz,platform.quiz.save_resume
+my browser crashed during quiz,platform.quiz.save_resume
+how to resume paused assessment,platform.quiz.save_resume
+how many quiz attempts do i get,platform.quiz.limits
+why does it say daily limit reached,platform.quiz.limits
+can i bypass the 3 attempts per day constraint,platform.quiz.limits
+when do my quiz attempts reset,platform.quiz.limits
+quiz attempts left,platform.quiz.limits
+how many times can i take the quiz,platform.quiz.limits
+daily attempt cap,platform.quiz.limits
+i ran out of attempts,platform.quiz.limits
+what is the quiz limit,platform.quiz.limits
+why cant i retake the quiz,platform.quiz.limits
+when can i try again,platform.quiz.limits
+how many retries,platform.quiz.limits
+is there a limit on exams,platform.quiz.limits
+check attempts left,platform.quiz.limits
+reset quiz limit,platform.quiz.limits
+i hit the max attempts,platform.quiz.limits
+daily limit for quizzes,platform.quiz.limits
+how long until i can retake,platform.quiz.limits
+attempt constraint,platform.quiz.limits
+max tries for quiz,platform.quiz.limits
+can i get more attempts,platform.quiz.limits
+why am i blocked from quiz,platform.quiz.limits
+when do retries reset,platform.quiz.limits
+quiz limit reached error,platform.quiz.limits
+how to reset tries,platform.quiz.limits
+why is the advanced quiz locked,platform.quiz.unlocks
+how do i unlock the intermediate quiz,platform.quiz.unlocks
+must i pass basic first before moving on,platform.quiz.unlocks
+unlock conditions for other courses,platform.quiz.unlocks
+how to access advanced level,platform.quiz.unlocks
+quiz is locked,platform.quiz.unlocks
+why cant i take the intermediate exam,platform.quiz.unlocks
+how to unlock the next level,platform.quiz.unlocks
+do i have to pass the first quiz,platform.quiz.unlocks
+level unlock requirements,platform.quiz.unlocks
+why is this course locked,platform.quiz.unlocks
+how to progress to next difficulty,platform.quiz.unlocks
+unlock the hard quiz,platform.quiz.unlocks
+what is the passing score to unlock,platform.quiz.unlocks
+i cant click on advanced,platform.quiz.unlocks
+open locked quizzes,platform.quiz.unlocks
+prerequisites for intermediate,platform.quiz.unlocks
+how to get past basic level,platform.quiz.unlocks
+why are higher levels greyed out,platform.quiz.unlocks
+unlock criteria,platform.quiz.unlocks
+do i need 100 to unlock,platform.quiz.unlocks
+how to unblock the next assessment,platform.quiz.unlocks
+level restricted,platform.quiz.unlocks
+unlock conditions,platform.quiz.unlocks
+how is my quiz score calculated,platform.quiz.feedback
+show me detailed feedback for my last attempt,platform.quiz.feedback
+what topics did i fail in the mongodb quiz,platform.quiz.feedback
+where is the review of correct answers,platform.quiz.feedback
+see quiz results,platform.quiz.feedback
+check my score,platform.quiz.feedback
+why did i fail the test,platform.quiz.feedback
+show answers for quiz,platform.quiz.feedback
+how did i do on the exam,platform.quiz.feedback
+quiz feedback,platform.quiz.feedback
+review test results,platform.quiz.feedback
+where are the correct answers,platform.quiz.feedback
+what were my mistakes,platform.quiz.feedback
+explain my quiz grade,platform.quiz.feedback
+detailed exam review,platform.quiz.feedback
+i want to review my attempt,platform.quiz.feedback
+show me what i got wrong,platform.quiz.feedback
+grading details,platform.quiz.feedback
+how to see quiz score,platform.quiz.feedback
+did i pass,platform.quiz.feedback
+where is the assessment feedback,platform.quiz.feedback
+review answers,platform.quiz.feedback
+can i see the right answers,platform.quiz.feedback
+exam results,platform.quiz.feedback
+score breakdown,platform.quiz.feedback
+where are my badges,platform.cert.list_badges
+how do i get a gold tier achievement,platform.cert.list_badges
+show me my completed milestones,platform.cert.list_badges
+what are the badge tiers available,platform.cert.list_badges
+view my badges,platform.cert.list_badges
+see achievements,platform.cert.list_badges
+how to earn badges,platform.cert.list_badges
+where is my trophy room,platform.cert.list_badges
+show my milestones,platform.cert.list_badges
+what badges do i have,platform.cert.list_badges
+list my achievements,platform.cert.list_badges
+how do i get more trophies,platform.cert.list_badges
+what is the gold badge,platform.cert.list_badges
+check my badges,platform.cert.list_badges
+view earned achievements,platform.cert.list_badges
+show badge progress,platform.cert.list_badges
+how to unlock achievements,platform.cert.list_badges
+display my medals,platform.cert.list_badges
+where to find rewards,platform.cert.list_badges
+what milestones are there,platform.cert.list_badges
+see completed goals,platform.cert.list_badges
+what achievements can i earn,platform.cert.list_badges
+my badge collection,platform.cert.list_badges
+how to get platinum badge,platform.cert.list_badges
+achievements list,platform.cert.list_badges
+how do i download my certificate,platform.cert.view
+where is my javascript completion certificate,platform.cert.view
+show my certificates list,platform.cert.view
+can i save a pdf of my certificate,platform.cert.view
+view my certificate,platform.cert.view
+download cert,platform.cert.view
+where to get the certificate,platform.cert.view
+how to print certificate,platform.cert.view
+show me my diploma,platform.cert.view
+i want my completion certificate,platform.cert.view
+save certificate as pdf,platform.cert.view
+get my course cert,platform.cert.view
+where is the graduation certificate,platform.cert.view
+how to claim my certificate,platform.cert.view
+view my course completion,platform.cert.view
+where are my certificates stored,platform.cert.view
+download my python cert,platform.cert.view
+how to access certificate,platform.cert.view
+view diploma,platform.cert.view
+can i download my achievement cert,platform.cert.view
+export certificate,platform.cert.view
+show completion doc,platform.cert.view
+where is my cert,platform.cert.view
+how to find my digital certificate,platform.cert.view
+view passing certificate,platform.cert.view
+how to verify my certificate publicly,platform.cert.verify
+where is the verification url,platform.cert.verify
+what is my certificate id,platform.cert.verify
+validate my completion credentials,platform.cert.verify
+verify my cert,platform.cert.verify
+how to prove i passed,platform.cert.verify
+is this certificate valid,platform.cert.verify
+certificate validation link,platform.cert.verify
+check my cert id,platform.cert.verify
+where to verify diploma,platform.cert.verify
+public link for certificate,platform.cert.verify
+validate my certificate,platform.cert.verify
+how to share verified cert,platform.cert.verify
+find certificate id,platform.cert.verify
+verify completion,platform.cert.verify
+how to authenticate my certificate,platform.cert.verify
+is there a verify page,platform.cert.verify
+can employers verify my cert,platform.cert.verify
+show verification link,platform.cert.verify
+check certificate authenticity,platform.cert.verify
+verify course completion,platform.cert.verify
+where is the public validation,platform.cert.verify
+get verification code,platform.cert.verify
+validate my credentials,platform.cert.verify
+verify diploma id,platform.cert.verify
+
+how do i upload a pdf to the library,platform.library.upload
+where can i upload my session recording,platform.library.upload
+add new slides to the resource folder,platform.library.upload
+i want to share a zip file with the community,platform.library.upload
+upload file to library,platform.library.upload
+how to add resources,platform.library.upload
+where upload btn,platform.library.upload
+where can i share my document,platform.library.upload
+upload my notes,platform.library.upload
+how to submit a pdf file,platform.library.upload
+share my study materials,platform.library.upload
+add files to platform,platform.library.upload
+where do i drop my files,platform.library.upload
+upload code snippets zip,platform.library.upload
+can i upload a video recording,platform.library.upload
+how to add a presentation to library,platform.library.upload
+upload resource button missing,platform.library.upload
+share document,platform.library.upload
+upload to public library,platform.library.upload
+i need to upload an image,platform.library.upload
+how to attach files,platform.library.upload
+uploading my assignment,platform.library.upload
+put my file in the library,platform.library.upload
+how do i share files,platform.library.upload
+uploading resources,platform.library.upload
+can i preview a document without downloading it,platform.library.preview
+how does the modal file viewer work,platform.library.preview
+let me inspect this image before download,platform.library.preview
+the library preview is not loading,platform.library.preview
+how to view file in browser,platform.library.preview
+preview pdf,platform.library.preview
+open file without downloading,platform.library.preview
+is there a way to preview slides,platform.library.preview
+modal viewer broken,platform.library.preview
+i cant preview the image,platform.library.preview
+show me the file preview,platform.library.preview
+how to use file viewer,platform.library.preview
+can i read this document online,platform.library.preview
+preview zip contents,platform.library.preview
+where is the preview button,platform.library.preview
+let me see the file first,platform.library.preview
+preview not working,platform.library.preview
+how to inspect document,platform.library.preview
+open modal viewer,platform.library.preview
+i want to read it before downloading,platform.library.preview
+preview is blank,platform.library.preview
+why cant i preview this file type,platform.library.preview
+how to preview resources,platform.library.preview
+load file preview,platform.library.preview
+show preview of pdf,platform.library.preview
+how do i search for js resources,platform.library.search
+find the git tutorial slides,platform.library.search
+filter files by category in the library,platform.library.search
+where to search uploaded documents,platform.library.search
+search library,platform.library.search
+find resources on python,platform.library.search
+how to filter documents,platform.library.search
+look for pdf notes,platform.library.search
+search shared files,platform.library.search
+find uploaded videos,platform.library.search
+how do i find study materials,platform.library.search
+where is the library search bar,platform.library.search
+filter by video,platform.library.search
+find my uploaded files,platform.library.search
+search for react tutorial,platform.library.search
+how to find community resources,platform.library.search
+look up notes,platform.library.search
+find zip file,platform.library.search
+how to search the repository,platform.library.search
+find javascript documents,platform.library.search
+where are the css slides,platform.library.search
+search for resources by name,platform.library.search
+find materials,platform.library.search
+how to look up a document,platform.library.search
+find file in library,platform.library.search
+how many credits do i have left,platform.wallet.balance
+what is my weekly wallet limit,platform.wallet.balance
+how to check my transaction history,platform.wallet.balance
+where do i view my virtual tokens,platform.wallet.balance
+check balance,platform.wallet.balance
+wallet balance,platform.wallet.balance
+how many tokens remain,platform.wallet.balance
+view credit limit,platform.wallet.balance
+where is my wallet,platform.wallet.balance
+show me my credits,platform.wallet.balance
+how much money is in wallet,platform.wallet.balance
+what is my token count,platform.wallet.balance
+check transaction log,platform.wallet.balance
+how many virtual credits do i have,platform.wallet.balance
+show my remaining balance,platform.wallet.balance
+where can i see my wallet balance,platform.wallet.balance
+view transactions,platform.wallet.balance
+what are my available credits,platform.wallet.balance
+how to see token history,platform.wallet.balance
+check my limit,platform.wallet.balance
+how to view my weekly allowance,platform.wallet.balance
+do i have enough credits,platform.wallet.balance
+wallet tokens,platform.wallet.balance
+how many coins left,platform.wallet.balance
+check virtual balance,platform.wallet.balance
+when does my weekly credit balance reset,platform.wallet.reset
+can i run a manual wallet check reset,platform.wallet.reset
+why did my credits reset today,platform.wallet.reset
+next reset date for credits,platform.wallet.reset
+when do credits reload,platform.wallet.reset
+when will my tokens refresh,platform.wallet.reset
+wallet reset time,platform.wallet.reset
+how often do credits reset,platform.wallet.reset
+do tokens refill every week,platform.wallet.reset
+when do i get more credits,platform.wallet.reset
+why is my balance reset,platform.wallet.reset
+when does the wallet reset happen,platform.wallet.reset
+how to force a reset,platform.wallet.reset
+can i get a credit reload now,platform.wallet.reset
+is today the reset day,platform.wallet.reset
+when are tokens replenished,platform.wallet.reset
+weekly reset schedule,platform.wallet.reset
+when is the next refill,platform.wallet.reset
+why did my tokens disappear,platform.wallet.reset
+wallet refresh cycle,platform.wallet.reset
+do credits roll over,platform.wallet.reset
+when do i get my allowance back,platform.wallet.reset
+wallet reset timer,platform.wallet.reset
+how to check next reset,platform.wallet.reset
+are credits reset on monday,platform.wallet.reset
+how do i clear my transaction history,platform.wallet.clear
+can i delete a specific transaction record,platform.wallet.clear
+remove wallet log entries,platform.wallet.clear
+wipe my credit log clean,platform.wallet.clear
+clear wallet history,platform.wallet.clear
+delete transaction log,platform.wallet.clear
+how to hide past transactions,platform.wallet.clear
+clear my balance history,platform.wallet.clear
+erase wallet logs,platform.wallet.clear
+can i clear the transaction table,platform.wallet.clear
+how to remove a token entry,platform.wallet.clear
+wipe transaction history,platform.wallet.clear
+clean up my wallet records,platform.wallet.clear
+delete credit history,platform.wallet.clear
+remove log,platform.wallet.clear
+how to reset transaction list,platform.wallet.clear
+clear out wallet data,platform.wallet.clear
+delete old transactions,platform.wallet.clear
+how to erase my token logs,platform.wallet.clear
+empty the transaction log,platform.wallet.clear
+can i delete my payment history,platform.wallet.clear
+remove entries from wallet,platform.wallet.clear
+clear history button,platform.wallet.clear
+how to purge transaction records,platform.wallet.clear
+delete all logs,platform.wallet.clear
+
+how do i add a task to my calendar,platform.task.create
+create a new item with high priority,platform.task.create
+set up a todo task for my project,platform.task.create
+where is my task calendar,platform.task.create
+add new todo,platform.task.create
+how to make a task,platform.task.create
+create task,platform.task.create
+schedule a task,platform.task.create
+i need to add a reminder to my calendar,platform.task.create
+add item to to do list,platform.task.create
+where can i create tasks,platform.task.create
+make a high priority task,platform.task.create
+how to add items to my list,platform.task.create
+put a task on my schedule,platform.task.create
+new calendar event,platform.task.create
+create project task,platform.task.create
+add to my planner,platform.task.create
+how to track my todos,platform.task.create
+where is the todo list,platform.task.create
+create a new calendar entry,platform.task.create
+how to set a deadline,platform.task.create
+add a low priority task,platform.task.create
+make a checklist item,platform.task.create
+schedule my work,platform.task.create
+new todo list item,platform.task.create
+how to get email reminders for tasks,platform.task.reminder
+why didnt i receive my daily reminder email,platform.task.reminder
+set up notification alert times,platform.task.reminder
+configuring automated email alerts,platform.task.reminder
+email alert settings,platform.task.reminder
+how to change reminder time,platform.task.reminder
+i want to get an email before task is due,platform.task.reminder
+turn on task alerts,platform.task.reminder
+my reminders are not working,platform.task.reminder
+set reminder for my task,platform.task.reminder
+when will i get reminded,platform.task.reminder
+how do email alerts work,platform.task.reminder
+change my notification schedule,platform.task.reminder
+enable daily email reminders,platform.task.reminder
+stop sending me task emails,platform.task.reminder
+how to configure alerts,platform.task.reminder
+set alert for tomorrow,platform.task.reminder
+where are reminder settings,platform.task.reminder
+adjust email notification times,platform.task.reminder
+i missed my task alert,platform.task.reminder
+send me a reminder at 9am,platform.task.reminder
+turn off calendar reminders,platform.task.reminder
+how to set up push notifications for tasks,platform.task.reminder
+automated reminders configuration,platform.task.reminder
+fix email alerts,platform.task.reminder
+how do i share a post on the feed,platform.social.post
+where do i publish my learning updates,platform.social.post
+can i delete my feed post,platform.social.post
+write a social post,platform.social.post
+create new post,platform.social.post
+how to publish an update,platform.social.post
+share my progress on the wall,platform.social.post
+where can i post my thoughts,platform.social.post
+make a feed announcement,platform.social.post
+how to post on social network,platform.social.post
+i want to share an update,platform.social.post
+delete my recent post,platform.social.post
+how to edit a feed post,platform.social.post
+where is the post button,platform.social.post
+share a link on my feed,platform.social.post
+how do i broadcast a message,platform.social.post
+post to community,platform.social.post
+publish my project update,platform.social.post
+can i add an image to my post,platform.social.post
+write on the social feed,platform.social.post
+remove my post,platform.social.post
+post an update,platform.social.post
+share my achievement,platform.social.post
+how to write a new feed entry,platform.social.post
+publish to my followers,platform.social.post
+how do i like a colleagues post,platform.social.interact
+can i reply to a feed comment,platform.social.interact
+who commented on my updates,platform.social.interact
+leave a review on a social feed card,platform.social.interact
+how to comment on posts,platform.social.interact
+like a post,platform.social.interact
+where are my post likes,platform.social.interact
+reply to someone,platform.social.interact
+how to interact with the feed,platform.social.interact
+like button missing,platform.social.interact
+leave a comment,platform.social.interact
+how to tag a user in a comment,platform.social.interact
+can i dislike a post,platform.social.interact
+see who liked my update,platform.social.interact
+respond to a feed post,platform.social.interact
+how to upvote a post,platform.social.interact
+check my post comments,platform.social.interact
+how to delete my comment,platform.social.interact
+reply to thread,platform.social.interact
+comment on social feed,platform.social.interact
+i cant reply to this user,platform.social.interact
+like colleagues update,platform.social.interact
+view post interactions,platform.social.interact
+who interacted with my post,platform.social.interact
+how do i follow a developer,platform.social.follow
+where do i see my followers list,platform.social.follow
+how to view another users public profile,platform.social.follow
+track updates of developers i follow,platform.social.follow
+follow user,platform.social.follow
+how to unfollow someone,platform.social.follow
+who is following me,platform.social.follow
+find developers to follow,platform.social.follow
+show my followers,platform.social.follow
+view profile of a colleague,platform.social.follow
+how to subscribe to a users feed,platform.social.follow
+see who i follow,platform.social.follow
+follow a mentor,platform.social.follow
+where is the follow button,platform.social.follow
+how to find public profiles,platform.social.follow
+check my following count,platform.social.follow
+look at user profile,platform.social.follow
+how to get more followers,platform.social.follow
+track a users posts,platform.social.follow
+how to connect with developers,platform.social.follow
+view peer profile,platform.social.follow
+unfollow user,platform.social.follow
+manage my followers,platform.social.follow
+where is their profile page,platform.social.follow
+who do i follow,platform.social.follow
+i cannot login to my account,platform.help.auth
+how do i sign up for the platform,platform.help.auth
+where do i reset my account password,platform.help.auth
+my jwt session token expired,platform.help.auth
+help me login,platform.help.auth
+forgot password,platform.help.auth
+cant sign in,platform.help.auth
+how to create an account,platform.help.auth
+reset password link,platform.help.auth
+my login is not working,platform.help.auth
+session expired error,platform.help.auth
+how to log out,platform.help.auth
+where is the sign up page,platform.help.auth
+recover my account,platform.help.auth
+authentication failed,platform.help.auth
+cant access my profile,platform.help.auth
+how to change my password,platform.help.auth
+login issues,platform.help.auth
+jwt token error,platform.help.auth
+register new account,platform.help.auth
+invalid credentials,platform.help.auth
+help me reset password,platform.help.auth
+cant authenticate,platform.help.auth
+sign in page,platform.help.auth
+where are my account notification settings,platform.help.notifications
+how to enable push alerts in the browser,platform.help.notifications
+stop sending me real time notifications,platform.help.notifications
+how to access the alerts inbox,platform.help.notifications
+turn off notifications,platform.help.notifications
+notification preferences,platform.help.notifications
+disable push alerts,platform.help.notifications
+where is my inbox,platform.help.notifications
+how to silence alerts,platform.help.notifications
+change notification settings,platform.help.notifications
+i am getting too many alerts,platform.help.notifications
+how to enable browser notifications,platform.help.notifications
+manage alerts,platform.help.notifications
+view notification history,platform.help.notifications
+mute platform sounds,platform.help.notifications
+where are the global settings for alerts,platform.help.notifications
+turn on notifications,platform.help.notifications
+how to stop popup alerts,platform.help.notifications
+check my recent notifications,platform.help.notifications
+modify alert preferences,platform.help.notifications
+disable bell icon,platform.help.notifications
+why am i not getting notifications,platform.help.notifications
+alerts are annoying,platform.help.notifications
+how to read my messages,platform.help.notifications
+where is the system health dashboard,platform.help.system_health
+is the development server running,platform.help.system_health
+why cant i connect to port 5000,platform.help.system_health
+check the backend container status,platform.help.system_health
+platform status,platform.help.system_health
+is the server down,platform.help.system_health
+system health check,platform.help.system_health
+why is the platform so slow,platform.help.system_health
+check server status,platform.help.system_health
+backend is not responding,platform.help.system_health
+where to see system uptime,platform.help.system_health
+connection refused error,platform.help.system_health
+is the api down,platform.help.system_health
+diagnostic dashboard,platform.help.system_health
+how to check platform health,platform.help.system_health
+server 500 error,platform.help.system_health
+why is the app crashing,platform.help.system_health
+verify container health,platform.help.system_health
+is the database offline,platform.help.system_health
+view server diagnostics,platform.help.system_health
+system status page,platform.help.system_health
+troubleshoot server connection,platform.help.system_health
+check if backend is up,platform.help.system_health
+how to monitor server health,platform.help.system_health

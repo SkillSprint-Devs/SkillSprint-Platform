@@ -84,3 +84,120 @@ check the project feed,platform.matchmaking.feed
 accept a match offer,platform.matchmaking.feed
 where are the team listings,platform.matchmaking.feed
 view open dev requests,platform.matchmaking.feed
+where are all the courses,platform.quiz.list_courses
+show me the available quizzes,platform.quiz.list_courses
+how many learning paths do we have,platform.quiz.list_courses
+find the nodejs assessments,platform.quiz.list_courses
+what exams can i enroll in,platform.quiz.list_courses
+start the python quiz,platform.quiz.start
+i want to take an assessment now,platform.quiz.start
+begin the intermediate test,platform.quiz.start
+how to launch an exam,platform.quiz.start
+commence the javascript test,platform.quiz.start
+how do i continue my saved quiz,platform.quiz.save_resume
+did my answers auto save,platform.quiz.save_resume
+i need to pause the assessment,platform.quiz.save_resume
+where is my paused quiz,platform.quiz.save_resume
+resume the test from where i left off,platform.quiz.save_resume
+when can i retry the quiz,platform.quiz.limits
+why did i hit the limit,platform.quiz.limits
+daily quiz retries,platform.quiz.limits
+what is the attempt constraint,platform.quiz.limits
+how to bypass quiz limit,platform.quiz.limits
+how to access the locked quizzes,platform.quiz.unlocks
+why cant i take the advanced level,platform.quiz.unlocks
+do i need to pass basic first,platform.quiz.unlocks
+unlocking next difficulty,platform.quiz.unlocks
+what is the passing grade to unlock,platform.quiz.unlocks
+show me the answers for the exam,platform.quiz.feedback
+where can i review my mistakes,platform.quiz.feedback
+what was my final score,platform.quiz.feedback
+explain my test results,platform.quiz.feedback
+detailed feedback for my attempt,platform.quiz.feedback
+how to earn a platinum badge,platform.cert.list_badges
+where is the achievements page,platform.cert.list_badges
+show my collected trophies,platform.cert.list_badges
+what milestones have i hit,platform.cert.list_badges
+see my badge collection,platform.cert.list_badges
+how do i download the pdf certificate,platform.cert.view
+where can i find my diploma,platform.cert.view
+view my completion certificate,platform.cert.view
+save my cert to computer,platform.cert.view
+i want to print my certificate,platform.cert.view
+what is the url to verify my cert,platform.cert.verify
+how can someone validate my certificate,platform.cert.verify
+where do i find the cert id,platform.cert.verify
+prove that my certificate is authentic,platform.cert.verify
+public verification link,platform.cert.verify
+
+how to upload my notes to the library,platform.library.upload
+can i add a zip folder of code,platform.library.upload
+where is the upload document button,platform.library.upload
+share my study guide pdf,platform.library.upload
+i need to upload a presentation,platform.library.upload
+can i see the pdf without downloading it,platform.library.preview
+the document preview modal is broken,platform.library.preview
+how to read the file in the browser,platform.library.preview
+is there a way to preview this image,platform.library.preview
+open file preview,platform.library.preview
+search for database tutorials in library,platform.library.search
+how do i find python slides,platform.library.search
+filter library by pdf documents,platform.library.search
+where to look for community resources,platform.library.search
+find uploaded zip files,platform.library.search
+how do i check my token balance,platform.wallet.balance
+where is my virtual wallet,platform.wallet.balance
+show me how many credits i have,platform.wallet.balance
+what is my transaction limit,platform.wallet.balance
+view my token history,platform.wallet.balance
+when do my weekly tokens reset,platform.wallet.reset
+what day does the wallet refresh,platform.wallet.reset
+why did my balance go back to zero,platform.wallet.reset
+how to trigger a credit refill,platform.wallet.reset
+when will i receive more credits,platform.wallet.reset
+how to delete all my transaction records,platform.wallet.clear
+can i erase a token log,platform.wallet.clear
+clear my wallet history now,platform.wallet.clear
+remove past transactions,platform.wallet.clear
+wipe out the credit log,platform.wallet.clear
+
+how to create a task in the calendar,platform.task.create
+add a new todo item for tomorrow,platform.task.create
+where is the project checklist,platform.task.create
+i need to schedule a new work item,platform.task.create
+make a task on my planner,platform.task.create
+how to set up email alerts for tasks,platform.task.reminder
+why did my reminder not trigger,platform.task.reminder
+change my task notification time,platform.task.reminder
+turn off automated reminder emails,platform.task.reminder
+how to get reminded about my deadline,platform.task.reminder
+post an update to the community feed,platform.social.post
+how to publish my recent project,platform.social.post
+delete a post from my wall,platform.social.post
+where can i share my progress,platform.social.post
+add a new entry to the social feed,platform.social.post
+how to like a post on the feed,platform.social.interact
+reply to my colleagues comment,platform.social.interact
+who left a review on my post,platform.social.interact
+interact with a social card,platform.social.interact
+how do i see likes on my update,platform.social.interact
+how to follow a peer developer,platform.social.follow
+where can i view my followers,platform.social.follow
+check the profile of another user,platform.social.follow
+unfollow this person,platform.social.follow
+find interesting developers to follow,platform.social.follow
+i forgot my password,platform.help.auth
+how to register for the platform,platform.help.auth
+my session expired and i cannot login,platform.help.auth
+reset my account credentials,platform.help.auth
+cant access the sign in page,platform.help.auth
+where to disable push notifications,platform.help.notifications
+turn off all platform alerts,platform.help.notifications
+how to open my notifications inbox,platform.help.notifications
+i want to manage my alert settings,platform.help.notifications
+stop browser popups from the app,platform.help.notifications
+is the backend server offline,platform.help.system_health
+check the health of the system containers,platform.help.system_health
+why am i getting a connection error,platform.help.system_health
+view the system diagnostics page,platform.help.system_health
+is there a platform outage today,platform.help.system_health
