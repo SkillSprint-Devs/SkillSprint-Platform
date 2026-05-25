@@ -2,80 +2,237 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tasks | SkillSprint</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Mentor | SkillSprint</title>
+  <meta name="description"
+    content="SkillSprint AI Mentor — a structured intent-classification assistant for JavaScript learning and platform help." />
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Styles -->
   <link rel="stylesheet" href="assets/css/variables.css" />
-  <link rel="stylesheet" href="assets/css/dashboard.css" />
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous" />
+  <link rel="stylesheet" href="assets/css/chat-bot.css" />
+  <link rel="stylesheet" href="assets/css/bot-animations.css" />
 </head>
 
 <body>
-  <div class="placeholder-page">
-    <div class="content">
-      <i class="fa-solid fa-list-check"></i>
-      <h1>Task Screen</h1>
-      <p>This section is under development.</p>
-      <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
-    </div>
+  <div class="mentor-shell" id="mentorShell">
+
+    <!-- ═══════════════════════════════════════════
+         LEFT SIDEBAR — Navigation System
+    ═══════════════════════════════════════════ -->
+    <aside class="mentor-sidebar" id="mentorSidebar">
+
+      <!-- Sidebar Header -->
+      <div class="msb-header">
+        <a href="dashboard.html" class="msb-back-link" title="Back to Dashboard">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <span class="msb-brand">SkillSprint</span>
+        <button class="msb-close-btn" id="msbCloseBtn" title="Close sidebar" aria-label="Close sidebar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- New Chat CTA -->
+      <button class="msb-new-chat" id="newChatBtn">
+        <i class="fa-solid fa-plus"></i>
+        <span>New Chat</span>
+      </button>
+
+      <!-- Navigation Sections -->
+      <nav class="msb-nav">
+
+        <div class="msb-nav-group">
+          <span class="msb-nav-label">Workspace</span>
+          <a href="#" class="msb-nav-item active" id="navRecentChats" data-section="recent">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Recent Chats</span>
+          </a>
+        </div>
+
+        <div class="msb-nav-group">
+          <span class="msb-nav-label">Topics</span>
+          <a href="#" class="msb-nav-item" id="navPlatformHelp" data-section="platform">
+            <i class="fa-solid fa-circle-question"></i>
+            <span>Platform Help</span>
+            <span class="msb-nav-badge">28</span>
+          </a>
+          <a href="#" class="msb-nav-item" id="navJsLearning" data-section="javascript">
+            <i class="fa-brands fa-js"></i>
+            <span>JavaScript</span>
+            <span class="msb-nav-badge">42</span>
+          </a>
+        </div>
+
+        <div class="msb-nav-group">
+          <span class="msb-nav-label">Library</span>
+          <a href="#" class="msb-nav-item" id="navSavedQueries" data-section="saved">
+            <i class="fa-solid fa-bookmark"></i>
+            <span>Saved Queries</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="msb-footer">
+        <div class="msb-system-badge">
+          <span class="msb-sys-dot"></span>
+          <span>SkillSprint AI · Always learning</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════════
+         SIDEBAR OVERLAY (mobile)
+    ═══════════════════════════════════════════ -->
+    <div class="msb-overlay" id="msbOverlay"></div>
+
+    <!-- ═══════════════════════════════════════════
+         CENTER PANEL — AI Response Engine
+    ═══════════════════════════════════════════ -->
+    <main class="mentor-main" id="mentorMain">
+
+      <!-- Top Bar -->
+      <header class="mentor-topbar">
+        <button class="mtp-menu-btn" id="msbToggleBtn" aria-label="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="mtp-title-group">
+          <div class="ss-bot size-sm" data-state="idle">
+            <div class="ss-bot-head">
+              <div class="ss-bot-eyes">
+                <div class="ss-bot-eye left"></div>
+                <div class="ss-bot-eye right"></div>
+              </div>
+              <div class="ss-bot-mouth"></div>
+            </div>
+          </div>
+          <div>
+            <h1 class="mtp-title">AI Mentor</h1>
+            <p class="mtp-subtitle">Your learning assistant</p>
+          </div>
+        </div>
+        <div class="mtp-actions">
+          <div class="mtp-confidence-meter" id="confidenceMeter">
+            <span class="mtp-conf-label">Confidence</span>
+            <div class="mtp-conf-bar">
+              <div class="mtp-conf-fill" id="confidenceFill" style="width: 0%"></div>
+            </div>
+            <span class="mtp-conf-value" id="confidenceValue">—</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Response Area -->
+      <div class="mentor-body" id="mentorBody">
+
+        <!-- ── EMPTY STATE ── -->
+        <div class="mentor-empty-state" id="emptyState">
+          <div class="mes-icon-wrap" style="border: none; background: transparent;">
+            <div class="ss-bot size-lg" data-state="wave">
+              <div class="ss-bot-head">
+                <div class="ss-bot-eyes">
+                  <div class="ss-bot-eye left"></div>
+                  <div class="ss-bot-eye right"></div>
+                </div>
+                <div class="ss-bot-mouth"></div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="mes-heading">What can I help you with?</h2>
+          <p class="mes-sub">
+            Ask me anything about JavaScript or the SkillSprint platform.<br />
+            I'll find the best answer for you.
+          </p>
+
+          <!-- Topic Tags -->
+          <div class="mes-scope-row">
+            <span class="mes-scope-tag">
+              <i class="fa-solid fa-circle-check"></i> Platform Help
+            </span>
+            <span class="mes-scope-tag">
+              <i class="fa-brands fa-js"></i> JavaScript
+            </span>
+            <span class="mes-scope-tag mes-scope-disabled">
+              <i class="fa-solid fa-circle-xmark"></i> Out-of-scope queries blocked
+            </span>
+          </div>
+
+          <!-- Suggestion Chips -->
+          <div class="mes-chips-label">Try asking</div>
+          <div class="mes-chips" id="suggestionChips">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- ── RESPONSE THREAD ── -->
+        <div class="mentor-thread" id="mentorThread">
+          <!-- Response cards injected here by JS -->
+        </div>
+
+      </div>
+
+      <!-- ── INPUT SYSTEM ── -->
+      <div class="mentor-input-zone" id="mentorInputZone">
+
+        <!-- Inline suggestion chips (only in empty state) -->
+        <div class="miz-chips-row" id="inlineChipsRow">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Input Row -->
+        <div class="miz-input-row">
+
+          <!-- AI State Indicator -->
+          <div class="ss-bot size-sm miz-bot-indicator" id="aiIndicator" data-state="idle" title="AI Engine Status" style="margin-right: 12px; margin-left: 10px;">
+            <div class="ss-bot-head">
+              <div class="ss-bot-eyes">
+                <div class="ss-bot-eye left"></div>
+                <div class="ss-bot-eye right"></div>
+              </div>
+              <div class="ss-bot-mouth"></div>
+            </div>
+          </div>
+
+          <div class="miz-field-wrap">
+            <textarea class="miz-input" id="mentorInput"
+              placeholder="Ask about JavaScript or the SkillSprint platform..." rows="1" autocomplete="off"
+              spellcheck="false" aria-label="Query input"></textarea>
+          </div>
+
+          <button class="miz-send-btn" id="sendBtn" title="Send query" disabled>
+            <i class="fa-solid fa-arrow-up"></i>
+          </button>
+        </div>
+
+        <!-- Footer note -->
+        <p class="miz-footer-note">
+          Responses are limited to SkillSprint platform topics and JavaScript.
+          <span class="miz-threshold-note">Confidence threshold: 0.70</span>
+        </p>
+      </div>
+
+    </main>
   </div>
 
-  <script src="js/config.js"></script>
-  <script src="js/bottomNav.js"></script>
+  <!-- Toast container -->
+  <div id="toast-container"></div>
 
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/global-auth.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/chat-bot.js"></script>
 </body>
 
 </html>
-
-
-<style>
-  body {
-    background-color: #F9F8D9;
-    font-family: "Poppins", sans-serif;
-    color: #1A1A1A;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  .placeholder-page .content {
-    text-align: center;
-  }
-
-  .placeholder-page i {
-    font-size: 3rem;
-    color: #DCEF7E;
-    margin-bottom: 1rem;
-  }
-
-  .placeholder-page h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-
-  .placeholder-page p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 1.5rem;
-  }
-
-  .back-btn {
-    display: inline-block;
-    background-color: #1A1A1A;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: 0.3s;
-  }
-
-  .back-btn:hover {
-    background-color: #333;
-  }
-</style>

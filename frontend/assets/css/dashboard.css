@@ -267,6 +267,96 @@ body {
   justify-content: center;
 }
 
+/* ── Upgraded AI Guide Block (premium dark card in sidebar) ── */
+.ai-guide-upgraded {
+  background: linear-gradient(140deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px solid rgba(220, 239, 98, 0.18);
+  border-radius: 14px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-guide-upgraded::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(220, 239, 98, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ai-guide-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  margin-bottom: 6px;
+}
+
+.ai-guide-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.ai-guide-desc {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.33);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.ai-guide-open-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px;
+  background: var(--accent);
+  color: var(--text-dark);
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.ai-guide-open-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(220, 239, 98, 0.4);
+}
+
+/* Collapsed sidebar — compact icon */
+.sidebar.collapsed .ai-guide-upgraded {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.sidebar.collapsed .ai-guide-label,
+.sidebar.collapsed .ai-guide-title,
+.sidebar.collapsed .ai-guide-desc {
+  display: none;
+}
+
+.sidebar.collapsed .ai-guide-open-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 1rem;
+}
+
 /* ===============================================
    MAIN CONTENT
 ================================================== */
