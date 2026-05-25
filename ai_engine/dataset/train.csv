@@ -1,0 +1,419 @@
+text,intent
+how do i join the meeting,platform.session.join
+where is the button to join the session,platform.session.join
+how to enter the live call,platform.session.join
+i want to jump into the collaborative session,platform.session.join
+session join not working,platform.session.join
+how do i joim session,platform.session.join
+connect to meeting,platform.session.join
+join active call,platform.session.join
+where to join,platform.session.join
+im trying to join the live session,platform.session.join
+how do i connect to the video call,platform.session.join
+where do i click to join,platform.session.join
+cant join room,platform.session.join
+take me to the live session,platform.session.join
+help me join the current meeting,platform.session.join
+how can i enter the meeting room,platform.session.join
+joining the audio call,platform.session.join
+where is the join button,platform.session.join
+jump into live room,platform.session.join
+open the meeting,platform.session.join
+how do i hop in the call,platform.session.join
+enter meeting now,platform.session.join
+i cant find the join link,platform.session.join
+join video call,platform.session.join
+how to log into the meeting,platform.session.join
+how do i start a live session,platform.session.create
+i want to launch a video call with my partner,platform.session.create
+where can i create a new collaboration room,platform.session.create
+start a new audio session,platform.session.create
+create meeting,platform.session.create
+start video call,platform.session.create
+how to host a session,platform.session.create
+make a new meeting room,platform.session.create
+i need to start a live call,platform.session.create
+begin live session,platform.session.create
+how do i open a new meeting,platform.session.create
+start a collaboration session,platform.session.create
+create new room,platform.session.create
+launch session,platform.session.create
+i wanna start a video call,platform.session.create
+how to initiate a meeting,platform.session.create
+start a call with my team,platform.session.create
+create a live audio room,platform.session.create
+how do i set up a new meeting now,platform.session.create
+open a new session,platform.session.create
+i want to create a live room,platform.session.create
+start session,platform.session.create
+make new video room,platform.session.create
+start audio,platform.session.create
+host a meeting,platform.session.create
+can i schedule a session for tomorrow,platform.session.schedule
+how do i book a mentor session,platform.session.schedule
+set up a meeting with my teammate for friday,platform.session.schedule
+how to reschedule an upcoming call,platform.session.schedule
+schedule meeting,platform.session.schedule
+book a session,platform.session.schedule
+i need to schedule a call,platform.session.schedule
+how to book a meeting for later,platform.session.schedule
+set up a meeting,platform.session.schedule
+reschedule my session,platform.session.schedule
+change meeting time,platform.session.schedule
+how do i schedule a video call,platform.session.schedule
+can we meet tomorrow,platform.session.schedule
+book a time slot,platform.session.schedule
+schedule a live room,platform.session.schedule
+how do i postpone a meeting,platform.session.schedule
+plan a meeting for next week,platform.session.schedule
+book mentor for tuesday,platform.session.schedule
+how to set a meeting,platform.session.schedule
+schedule audio call,platform.session.schedule
+arrange a session,platform.session.schedule
+can i book a meeting,platform.session.schedule
+schedule an appointment,platform.session.schedule
+book my session,platform.session.schedule
+where is my session history,platform.session.history
+can i see who i met with last week,platform.session.history
+show me my past collaboration records,platform.session.history
+how to view completed session logs,platform.session.history
+past meetings,platform.session.history
+session history,platform.session.history
+who did i meet yesterday,platform.session.history
+show past calls,platform.session.history
+where can i find old sessions,platform.session.history
+view previous meetings,platform.session.history
+look at past sessions,platform.session.history
+meeting history,platform.session.history
+can i see my previous calls,platform.session.history
+how to access old meeting logs,platform.session.history
+show my session history,platform.session.history
+where are past meeting records,platform.session.history
+find my old meetings,platform.session.history
+history of calls,platform.session.history
+past sessions list,platform.session.history
+view meeting history,platform.session.history
+check past records,platform.session.history
+completed meetings,platform.session.history
+old video calls,platform.session.history
+show me previous sessions,platform.session.history
+my camera is not working in the session,platform.session.troubleshoot
+how do i enable microphone permissions,platform.session.troubleshoot
+the audio is lagging in the meeting room,platform.session.troubleshoot
+why cant i hear my teammate,platform.session.troubleshoot
+mic not wrking,platform.session.troubleshoot
+cant hear audio in meeting,platform.session.troubleshoot
+video is frozen,platform.session.troubleshoot
+audio glitching,platform.session.troubleshoot
+camera wont turn on,platform.session.troubleshoot
+microphone broken,platform.session.troubleshoot
+i cant see my partner,platform.session.troubleshoot
+why is the video lagging,platform.session.troubleshoot
+how to fix audio issues,platform.session.troubleshoot
+meeting disconnected,platform.session.troubleshoot
+my mic is muted and i cant unmute,platform.session.troubleshoot
+no sound in session,platform.session.troubleshoot
+camera permission denied,platform.session.troubleshoot
+why is the call dropping,platform.session.troubleshoot
+poor connection in meeting,platform.session.troubleshoot
+audio not working,platform.session.troubleshoot
+fix camera issue,platform.session.troubleshoot
+mic is not picking up voice,platform.session.troubleshoot
+troubleshoot video call,platform.session.troubleshoot
+cant connect to audio,platform.session.troubleshoot
+screen sharing is broken,platform.session.troubleshoot
+how do i start a pair programming session,platform.pair_prog.create
+create a new javascript board,platform.pair_prog.create
+where do i open a live code workspace,platform.pair_prog.create
+i want to make a shared editor,platform.pair_prog.create
+start pair programming,platform.pair_prog.create
+create coding board,platform.pair_prog.create
+new workspace,platform.pair_prog.create
+open shared editor,platform.pair_prog.create
+how to create a python board,platform.pair_prog.create
+start a coding session,platform.pair_prog.create
+make a new code workspace,platform.pair_prog.create
+launch pair programming,platform.pair_prog.create
+i wanna open a shared code editor,platform.pair_prog.create
+create python workspace,platform.pair_prog.create
+new pair prog session,platform.pair_prog.create
+start collaborative coding,platform.pair_prog.create
+how to open code board,platform.pair_prog.create
+create java code environment,platform.pair_prog.create
+i need a new pair programming room,platform.pair_prog.create
+start code editor,platform.pair_prog.create
+new coding board,platform.pair_prog.create
+create shared workspace,platform.pair_prog.create
+open a new coding room,platform.pair_prog.create
+start coding session,platform.pair_prog.create
+make a workspace,platform.pair_prog.create
+how do i invite users to my board,platform.pair_prog.invite
+can i add my follower to this workspace,platform.pair_prog.invite
+send a pair programming invitation to alex,platform.pair_prog.invite
+how to add developers to my code session,platform.pair_prog.invite
+invite to board,platform.pair_prog.invite
+add user to workspace,platform.pair_prog.invite
+how to invite someone to code,platform.pair_prog.invite
+send invite for pair programming,platform.pair_prog.invite
+add my teammate to editor,platform.pair_prog.invite
+how do i send an invite link,platform.pair_prog.invite
+invite user to code board,platform.pair_prog.invite
+add collaborator,platform.pair_prog.invite
+can i invite a friend to my workspace,platform.pair_prog.invite
+share access with user,platform.pair_prog.invite
+how to give someone access to board,platform.pair_prog.invite
+invite dev to my session,platform.pair_prog.invite
+add someone to pair programming,platform.pair_prog.invite
+how to add friend to code,platform.pair_prog.invite
+invite someone,platform.pair_prog.invite
+let my partner join the board,platform.pair_prog.invite
+add colleague to workspace,platform.pair_prog.invite
+send a code invite,platform.pair_prog.invite
+invite another developer,platform.pair_prog.invite
+how to add more people to code room,platform.pair_prog.invite
+how do we swap roles in pair programming,platform.pair_prog.roles
+what is the difference between driver and navigator,platform.pair_prog.roles
+how do i approve editing rights,platform.pair_prog.roles
+why cant i edit the code driver permission,platform.pair_prog.roles
+swap roles,platform.pair_prog.roles
+change to driver,platform.pair_prog.roles
+how to become navigator,platform.pair_prog.roles
+request edit access,platform.pair_prog.roles
+i want to be the driver,platform.pair_prog.roles
+how to switch roles,platform.pair_prog.roles
+give me edit permission,platform.pair_prog.roles
+change driver navigator,platform.pair_prog.roles
+how to approve driver request,platform.pair_prog.roles
+why am i navigator,platform.pair_prog.roles
+let me type code,platform.pair_prog.roles
+how do roles work in pair programming,platform.pair_prog.roles
+switch to driver role,platform.pair_prog.roles
+manage roles,platform.pair_prog.roles
+how to get edit rights,platform.pair_prog.roles
+make me driver,platform.pair_prog.roles
+cant edit code role,platform.pair_prog.roles
+change from navigator to driver,platform.pair_prog.roles
+how to swap driver and navigator,platform.pair_prog.roles
+assign driver role,platform.pair_prog.roles
+how do i run my javascript code here,platform.pair_prog.execute
+where is the console output for the code,platform.pair_prog.execute
+compile and execute the main file,platform.pair_prog.execute
+my code isnt running in the sandbox,platform.pair_prog.execute
+run code,platform.pair_prog.execute
+execute script,platform.pair_prog.execute
+where to see console,platform.pair_prog.execute
+how to run python,platform.pair_prog.execute
+run code snippet,platform.pair_prog.execute
+compile my code,platform.pair_prog.execute
+why is the code not running,platform.pair_prog.execute
+how to see output,platform.pair_prog.execute
+run the current file,platform.pair_prog.execute
+execute board code,platform.pair_prog.execute
+where is terminal output,platform.pair_prog.execute
+run this code,platform.pair_prog.execute
+how do i execute my program,platform.pair_prog.execute
+check code output,platform.pair_prog.execute
+start compilation,platform.pair_prog.execute
+how to run the app,platform.pair_prog.execute
+run java code,platform.pair_prog.execute
+execute script in sandbox,platform.pair_prog.execute
+see the console logs,platform.pair_prog.execute
+run my code now,platform.pair_prog.execute
+can i get a shareable link for my editor,platform.pair_prog.share_link
+how to generate a join token,platform.pair_prog.share_link
+how to invite external developers to view my code,platform.pair_prog.share_link
+send me the url for this pair programming room,platform.pair_prog.share_link
+get share link,platform.pair_prog.share_link
+generate token,platform.pair_prog.share_link
+copy workspace url,platform.pair_prog.share_link
+how to share my code board,platform.pair_prog.share_link
+create a shareable link,platform.pair_prog.share_link
+get the join link,platform.pair_prog.share_link
+where is the link to share,platform.pair_prog.share_link
+share url,platform.pair_prog.share_link
+how to generate access token,platform.pair_prog.share_link
+get link for external dev,platform.pair_prog.share_link
+send link to this room,platform.pair_prog.share_link
+copy link to clipboard,platform.pair_prog.share_link
+how to share the workspace,platform.pair_prog.share_link
+generate a link,platform.pair_prog.share_link
+give me the share url,platform.pair_prog.share_link
+share code editor link,platform.pair_prog.share_link
+get room token,platform.pair_prog.share_link
+generate workspace url,platform.pair_prog.share_link
+how to create invite link,platform.pair_prog.share_link
+where is the token,platform.pair_prog.share_link
+how do i leave a comment on line 12,platform.pair_prog.comment
+where are the workspace comments,platform.pair_prog.comment
+add a feedback note to index.js,platform.pair_prog.comment
+how do line level reviews work,platform.pair_prog.comment
+leave comment,platform.pair_prog.comment
+add note to code,platform.pair_prog.comment
+comment on this file,platform.pair_prog.comment
+how to review code,platform.pair_prog.comment
+where to add comments,platform.pair_prog.comment
+comment on line 5,platform.pair_prog.comment
+how do i add a code comment,platform.pair_prog.comment
+leave feedback on code,platform.pair_prog.comment
+where can i see comments,platform.pair_prog.comment
+how to write a review note,platform.pair_prog.comment
+add a comment to line 10,platform.pair_prog.comment
+commenting on code,platform.pair_prog.comment
+how to leave a note,platform.pair_prog.comment
+where are the code reviews,platform.pair_prog.comment
+add line comment,platform.pair_prog.comment
+how do i write a comment,platform.pair_prog.comment
+leave review comment,platform.pair_prog.comment
+add feedback to line,platform.pair_prog.comment
+where do i leave code feedback,platform.pair_prog.comment
+commenting feature,platform.pair_prog.comment
+how do i open the interactive whiteboard,platform.whiteboard.join
+where is the collaborative drawing board,platform.whiteboard.join
+i want to start a sketching session,platform.whiteboard.join
+launch the board page,platform.whiteboard.join
+open whiteboard,platform.whiteboard.join
+start whiteboard session,platform.whiteboard.join
+where can i draw,platform.whiteboard.join
+take me to the drawing board,platform.whiteboard.join
+how to access whiteboard,platform.whiteboard.join
+open drawing tool,platform.whiteboard.join
+join whiteboard,platform.whiteboard.join
+i wanna sketch with my partner,platform.whiteboard.join
+launch drawing board,platform.whiteboard.join
+how do i start the whiteboard,platform.whiteboard.join
+where is the sketch pad,platform.whiteboard.join
+open the collaborative board,platform.whiteboard.join
+start drawing session,platform.whiteboard.join
+can we use a whiteboard,platform.whiteboard.join
+how to enter drawing mode,platform.whiteboard.join
+i need to draw a diagram,platform.whiteboard.join
+where is the visual board,platform.whiteboard.join
+open shared whiteboard,platform.whiteboard.join
+launch interactive board,platform.whiteboard.join
+go to whiteboard,platform.whiteboard.join
+how to launch sketch page,platform.whiteboard.join
+how do i change the drawing color,platform.whiteboard.tools
+can i add rectangles and text to the board,platform.whiteboard.tools
+where is the eraser tool,platform.whiteboard.tools
+how to adjust brush thickness,platform.whiteboard.tools
+change brush size,platform.whiteboard.tools
+how to draw shapes,platform.whiteboard.tools
+where are the drawing tools,platform.whiteboard.tools
+how do i erase,platform.whiteboard.tools
+add text to whiteboard,platform.whiteboard.tools
+can i draw a circle,platform.whiteboard.tools
+change pen color,platform.whiteboard.tools
+how to use the eraser,platform.whiteboard.tools
+select rectangle tool,platform.whiteboard.tools
+make brush thicker,platform.whiteboard.tools
+how to type text on board,platform.whiteboard.tools
+where is the color palette,platform.whiteboard.tools
+i need to draw a line,platform.whiteboard.tools
+how to delete a drawing,platform.whiteboard.tools
+use different colors,platform.whiteboard.tools
+where is the text box tool,platform.whiteboard.tools
+how to add sticky notes,platform.whiteboard.tools
+change ink color,platform.whiteboard.tools
+how to clear the board,platform.whiteboard.tools
+adjust drawing tools,platform.whiteboard.tools
+where are the shapes,platform.whiteboard.tools
+why cant i see my partners cursor,platform.whiteboard.presence
+are whiteboard cursors color coded,platform.whiteboard.presence
+how do multi user board comments work,platform.whiteboard.presence
+can we draw at the same time,platform.whiteboard.presence
+i cant see who is drawing,platform.whiteboard.presence
+where is my teammate cursor,platform.whiteboard.presence
+how to see other users cursor,platform.whiteboard.presence
+can they see what i draw instantly,platform.whiteboard.presence
+live presence not working,platform.whiteboard.presence
+show collaborator cursors,platform.whiteboard.presence
+partner cursor disappeared,platform.whiteboard.presence
+is the board real time,platform.whiteboard.presence
+why is the drawing lagging for others,platform.whiteboard.presence
+how do i know who is sketching,platform.whiteboard.presence
+can we both draw,platform.whiteboard.presence
+multiplayer drawing issues,platform.whiteboard.presence
+i dont see their mouse,platform.whiteboard.presence
+who drew this line,platform.whiteboard.presence
+is cursor tracking enabled,platform.whiteboard.presence
+how to enable live cursors,platform.whiteboard.presence
+cursor colors meaning,platform.whiteboard.presence
+find my partner on board,platform.whiteboard.presence
+why are cursors not syncing,platform.whiteboard.presence
+can everyone draw simultaneously,platform.whiteboard.presence
+realtime cursors frozen,platform.whiteboard.presence
+find me a study partner,platform.matchmaking.find
+how do i match with other javascript developers,platform.matchmaking.find
+match me with a mentor,platform.matchmaking.find
+where can i find ideal teammates,platform.matchmaking.find
+look for study buddy,platform.matchmaking.find
+find someone to code with,platform.matchmaking.find
+match with developers,platform.matchmaking.find
+how to find a partner,platform.matchmaking.find
+i need a mentor for python,platform.matchmaking.find
+find teammates,platform.matchmaking.find
+where to look for team members,platform.matchmaking.find
+connect with other devs,platform.matchmaking.find
+find react developer,platform.matchmaking.find
+how do i get matched,platform.matchmaking.find
+looking for a mentor,platform.matchmaking.find
+find peers with same skills,platform.matchmaking.find
+match me up,platform.matchmaking.find
+how to search for a study partner,platform.matchmaking.find
+i want to collaborate with someone,platform.matchmaking.find
+find a coding buddy,platform.matchmaking.find
+who is available to pair program,platform.matchmaking.find
+get a mentor,platform.matchmaking.find
+find users to collaborate with,platform.matchmaking.find
+search for teammates,platform.matchmaking.find
+match me with a frontend dev,platform.matchmaking.find
+how does the matchmaking system find peers,platform.matchmaking.algorithm
+what is knn and cosine similarity in matching,platform.matchmaking.algorithm
+why did i get recommended to this user,platform.matchmaking.algorithm
+how are skills used in the matching score,platform.matchmaking.algorithm
+explain matchmaking score,platform.matchmaking.algorithm
+why was this user suggested,platform.matchmaking.algorithm
+how does the matching algorithm work,platform.matchmaking.algorithm
+what is my compatibility score,platform.matchmaking.algorithm
+how do you match users,platform.matchmaking.algorithm
+why is my match percentage low,platform.matchmaking.algorithm
+how do skills affect matching,platform.matchmaking.algorithm
+matching criteria explained,platform.matchmaking.algorithm
+how are mentors chosen for me,platform.matchmaking.algorithm
+how does knn work here,platform.matchmaking.algorithm
+understanding the match score,platform.matchmaking.algorithm
+what metrics are used for matchmaking,platform.matchmaking.algorithm
+why did we match,platform.matchmaking.algorithm
+is matchmaking based on languages,platform.matchmaking.algorithm
+how is cosine similarity applied,platform.matchmaking.algorithm
+explain peer recommendations,platform.matchmaking.algorithm
+how does the system know my level,platform.matchmaking.algorithm
+algorithm for finding partners,platform.matchmaking.algorithm
+why no good matches,platform.matchmaking.algorithm
+how to improve my match score,platform.matchmaking.algorithm
+what determines a good match,platform.matchmaking.algorithm
+where do i see project request cards,platform.matchmaking.feed
+how do i accept a collaboration offer,platform.matchmaking.feed
+browse ongoing project listings,platform.matchmaking.feed
+how do i post my stack to the feed,platform.matchmaking.feed
+view project feed,platform.matchmaking.feed
+check collaboration requests,platform.matchmaking.feed
+how to post a project,platform.matchmaking.feed
+where are the dev requests,platform.matchmaking.feed
+accept study request,platform.matchmaking.feed
+look at the collaboration feed,platform.matchmaking.feed
+how do i find open projects,platform.matchmaking.feed
+post to feed,platform.matchmaking.feed
+how to join a project on the feed,platform.matchmaking.feed
+see feed updates,platform.matchmaking.feed
+how to respond to an offer,platform.matchmaking.feed
+view team requests,platform.matchmaking.feed
+where do people post projects,platform.matchmaking.feed
+browse dev feed,platform.matchmaking.feed
+publish my stack on feed,platform.matchmaking.feed
+how to send a request on feed,platform.matchmaking.feed
+accept team invitation,platform.matchmaking.feed
+view recent project posts,platform.matchmaking.feed
+how to comment on a project post,platform.matchmaking.feed
+explore collaboration cards,platform.matchmaking.feed
+how to advertise my skills on the feed,platform.matchmaking.feed

@@ -1,0 +1,86 @@
+text,intent
+enter my live room,platform.session.join
+im trying to join the active meeting,platform.session.join
+can i jump into the call now,platform.session.join
+where is the link to enter session,platform.session.join
+join meeting,platform.session.join
+i want to host a new call,platform.session.create
+let us start a video session,platform.session.create
+create a live meeting now,platform.session.create
+how to begin an audio room,platform.session.create
+start a new session here,platform.session.create
+can we meet up later,platform.session.schedule
+how to set up a meeting for tomorrow,platform.session.schedule
+book a time to talk,platform.session.schedule
+reschedule the upcoming call,platform.session.schedule
+schedule a new video chat,platform.session.schedule
+show me the old meetings,platform.session.history
+i want to see my past sessions,platform.session.history
+where can i view the session records,platform.session.history
+look up my previous calls,platform.session.history
+did i have a meeting yesterday,platform.session.history
+my video is not showing up,platform.session.troubleshoot
+microphone permissions denied,platform.session.troubleshoot
+why is the meeting lagging so much,platform.session.troubleshoot
+i cant unmute my mic,platform.session.troubleshoot
+camera broken in meeting,platform.session.troubleshoot
+open a new coding session,platform.pair_prog.create
+how to make a shared python editor,platform.pair_prog.create
+create a live coding board,platform.pair_prog.create
+start my pair programming workspace,platform.pair_prog.create
+launch a code room,platform.pair_prog.create
+send an invite to my teammate,platform.pair_prog.invite
+how do i add users to this board,platform.pair_prog.invite
+can i invite alex to code,platform.pair_prog.invite
+share access to this code session,platform.pair_prog.invite
+add developer to my workspace,platform.pair_prog.invite
+what is a driver role,platform.pair_prog.roles
+how to become the navigator,platform.pair_prog.roles
+swap coding roles,platform.pair_prog.roles
+why do i not have edit access,platform.pair_prog.roles
+change role to driver,platform.pair_prog.roles
+how to execute the java code,platform.pair_prog.execute
+run the script in the terminal,platform.pair_prog.execute
+why is the console empty,platform.pair_prog.execute
+compile the python file,platform.pair_prog.execute
+how to run my program,platform.pair_prog.execute
+generate a url for this workspace,platform.pair_prog.share_link
+where do i get the share token,platform.pair_prog.share_link
+copy the shareable link,platform.pair_prog.share_link
+create a join link for my board,platform.pair_prog.share_link
+how to get an invite url,platform.pair_prog.share_link
+leave a note on this code line,platform.pair_prog.comment
+how to add code review comments,platform.pair_prog.comment
+where are the feedback notes,platform.pair_prog.comment
+comment on the javascript file,platform.pair_prog.comment
+write a comment on line 15,platform.pair_prog.comment
+how to get to the whiteboard,platform.whiteboard.join
+open the sketching tool,platform.whiteboard.join
+where can we draw together,platform.whiteboard.join
+start collaborative drawing,platform.whiteboard.join
+launch sketchpad,platform.whiteboard.join
+where is the drawing pen,platform.whiteboard.tools
+how to change shapes,platform.whiteboard.tools
+add a text label to the board,platform.whiteboard.tools
+make the eraser bigger,platform.whiteboard.tools
+select green color,platform.whiteboard.tools
+my partner cursor is frozen,platform.whiteboard.presence
+can multiple people draw,platform.whiteboard.presence
+why cant i see their mouse movements,platform.whiteboard.presence
+live drawing delay,platform.whiteboard.presence
+who is currently drawing on the board,platform.whiteboard.presence
+find me a python study buddy,platform.matchmaking.find
+match with a backend dev,platform.matchmaking.find
+i need a programming partner,platform.matchmaking.find
+search for a mentor,platform.matchmaking.find
+connect with users,platform.matchmaking.find
+why did the algorithm recommend them,platform.matchmaking.algorithm
+how is match compatibility calculated,platform.matchmaking.algorithm
+explain the knn matching,platform.matchmaking.algorithm
+what skills influence my matches,platform.matchmaking.algorithm
+why is my similarity score 80,platform.matchmaking.algorithm
+how to post a collaboration request,platform.matchmaking.feed
+check the project feed,platform.matchmaking.feed
+accept a match offer,platform.matchmaking.feed
+where are the team listings,platform.matchmaking.feed
+view open dev requests,platform.matchmaking.feed
