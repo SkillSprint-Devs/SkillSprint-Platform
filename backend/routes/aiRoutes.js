@@ -1,12 +1,19 @@
 import express from "express";
 import fetch from "node-fetch"; // Node 18 has native fetch, but we can use the global fetch
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 
-const AI_ENGINE_URL = process.env.AI_ENGINE_URL || "http://127.0.0.0:5050";
+const aiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20, // limit each IP to 20 requests per windowMs
+  message: { error: "Too many requests to the AI Mentor, please try again later.", intent: "error", response: "Too many requests. Please try again later.", confidence: 0 }
+});
+
+const AI_ENGINE_URL = process.env.AI_ENGINE_URL || "http://127.0.0.1:5050";
 // Wait, typically it's http://127.0.0.1:5050 locally or http://ai-engine:5050 in docker.
 
-router.post("/predict", async (req, res) => {
+router.post("/predict", aiLimiter, async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) {

@@ -148,8 +148,9 @@ class IntentResolver:
 
         for token in query_tokens:
             for kw, intent_list in self._keyword_index.items():
-                # Exact match or substring containment
-                if token == kw or token in kw or kw in token:
+                kw_tokens = set(kw.split())
+                # Exact match or token is one of the keyword words
+                if token == kw or token in kw_tokens:
                     # IDF weight: rarer keywords count more
                     idf = math.log(total_intents / (1 + len(intent_list)))
                     weight = 1.0 if token == kw else 0.5  # exact vs partial

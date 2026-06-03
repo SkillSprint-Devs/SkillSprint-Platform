@@ -131,10 +131,12 @@ class TfidfVectorizer:
             doc_len = len(tokens) if tokens else 1
             for term, count in tf.items():
                 idx = self.vocabulary_[term]
-                tf_val = count / doc_len
+                # Use raw count for sublinear tf
+                tf_val = count
                 if self.sublinear_tf and tf_val > 0:
                     tf_val = 1 + math.log(tf_val)
-                vec[idx] = tf_val * self.idf_[term]
+                # Apply document length normalization and IDF
+                vec[idx] = (tf_val / doc_len) * self.idf_[term]
 
             # L2 normalize
             norm = math.sqrt(sum(v * v for v in vec.values())) or 1.0

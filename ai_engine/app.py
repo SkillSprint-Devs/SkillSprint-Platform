@@ -195,7 +195,7 @@ def log_failed_query(raw_text: str, predicted_intent: str,
 # ---------------------------------------------------------------------------
 # Simple HTTP Server (stdlib only — no Flask dependency)
 # ---------------------------------------------------------------------------
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import urllib.parse
 
 
@@ -220,7 +220,10 @@ class AIRequestHandler(BaseHTTPRequestHandler):
         if length == 0:
             return {}
         raw = self.rfile.read(length)
-        return json.loads(raw.decode("utf-8"))
+        try:
+            return json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError:
+            return {}
 
     # ── OPTIONS (CORS preflight) ──────────────────────────────────────
     def do_OPTIONS(self):
@@ -306,6 +309,11 @@ class AIRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"categories": summary})
 
     def _handle_admin_summary(self):
+        auth_header = self.headers.get("Authorization", "")
+        if auth_header != "Bearer " + os.environ.get("ADMIN_TOKEN", "skillsprint_admin_secret"):
+            self._send_json({"error": "Unauthorized. Invalid Admin Token."}, 401)
+            return
+            
         if not _resolver:
             self._send_json({"error": "Resolver not loaded"}, 503)
             return
@@ -345,8 +353,8 @@ def main():
         print("    Train first: python -m training.train_model")
 
     # Start server
-    server = HTTPServer(("0.0.0.0", PORT), AIRequestHandler)
-    print(f"\n  Server running on http://0.0.0.0:{PORT}")
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), AIRequestHandler)
+    print(f"\n  Server running on http://0.0.0.0:{PORT} (ThreadingHTTPServer)")
     print(f"  Endpoints:")
     print(f"    POST /predict         — predict intent")
     print(f"    GET  /health          — health check")
