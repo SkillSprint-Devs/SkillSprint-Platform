@@ -387,9 +387,10 @@ def train():
     train_clean = clean_batch(train_texts)
     val_clean   = clean_batch(val_texts)
 
-    # Show sample
-    for i in range(min(3, len(train_texts))):
-        print(f"  '{train_texts[i]}' → '{train_clean[i]}'")
+    if train_texts:
+        print(f"  '{train_texts[0]}' -> '{train_clean[0]}'")
+    if len(train_texts) > 1:
+        print(f"  '{train_texts[-1]}' -> '{train_clean[-1]}'")
 
     # ── 3. Vectorize ──────────────────────────────────────────────────
     print("\n[3/6] Fitting TF-IDF vectorizer...")

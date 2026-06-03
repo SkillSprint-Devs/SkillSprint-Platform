@@ -434,3 +434,67 @@ is it possible to refuse a match,platform.new.can_reject_match
 how do i manage unwanted matches,platform.new.can_reject_match
 what happens if i reject a match,platform.new.can_reject_match
 can i dismiss a suggested match,platform.new.can_reject_match
+what is lexical scope and closures,js.closures
+how to create an object in javascript,js.objects
+how to avoid callback hell,js.callbacks
+how to filter an array in javascript,js.arrays
+what is callback hell,js.callbacks
+what is proxy in javascript,js.proxy_reflect
+how to extract part of a string,js.string_methods
+how to get current date and time,js.date
+how do closures work,js.closures
+how to pad a number with zeros,js.string_methods
+nullish coalescing with optional chaining,js.nullish_coalescing
+event loop with settimeout and promises,js.event_loop
+how to loop through an array,js.loops
+what is the scope chain,js.scope
+how do functions work in javascript,js.functions
+what is destructuring in javascript,js.destructuring
+how do callbacks work,js.callbacks
+how to select an element in javascript,js.dom
+explain first class functions,js.functions
+what are first class functions,js.higher_order_functions
+what is implicit and explicit binding,js.this_keyword
+difference between const and object.freeze,js.object_immutability
+what are proxy traps,js.proxy_reflect
+explain function scope vs block scope,js.scope
+how to run multiple awaits in parallel,js.async_await
+what is try catch finally,js.error_handling
+what happens if you dont catch an error,js.error_handling
+what is a closure in javascript,js.closures
+how to return a function from another function,js.higher_order_functions
+how to make a post request with fetch,js.fetch_api
+how to use localstorage in javascript,js.local_storage
+what is dynamic import in javascript,js.modules
+how to copy an object with spread,js.spread_rest
+what are static methods in javascript,js.classes
+how to generate a random integer between two numbers,js.math
+export default vs named export,js.modules
+why does fetch not throw on 404,js.fetch_api
+explain array map filter reduce in javascript,js.arrays
+what does block scoped mean,js.variables
+what is the microtask queue,js.event_loop
+what is symbol.iterator,js.symbols
+spread operator in object javascript,js.spread_rest
+how does symbol.iterator work,js.iterators
+how to use async await with fetch,js.fetch_api
+how to rename a destructured variable,js.destructuring
+how to round a number in javascript,js.math
+how many data types does javascript have,js.data_types
+what is a tagged template literal,js.template_literals
+how does while loop work,js.loops
+how to use rest parameters in a function,js.spread_rest
+can an arrow function be a constructor,js.arrow_functions
+why does 1 plus 2 equal 12 in javascript,js.type_coercion
+difference between == and === javascript,js.type_coercion
+how does for of use iterators,js.iterators
+how to make a get request in javascript,js.fetch_api
+difference between arrow function and regular function,js.arrow_functions
+is const truly immutable,js.object_immutability
+why does my inner function remember variables,js.closures
+javascript prototype chain explained,js.prototypes
+what is a for loop in javascript,js.loops
+how to use then and catch,js.promises
+how does the javascript event loop work,js.event_loop
+what is a symbol in javascript,js.data_types
+what does this mean in javascript,js.this_keyword

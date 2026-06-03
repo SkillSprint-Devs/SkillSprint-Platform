@@ -59,23 +59,42 @@ MODELS_DIR     = os.path.join(_BASE_DIR, "models")
 DATASET_DIR    = os.path.join(_BASE_DIR, "dataset")
 FAILED_JSON    = os.path.join(DATASET_DIR, "failed_queries.json")
 TRAIN_CSV      = os.path.join(DATASET_DIR, "train.csv")
+JS_INTENTS_PATH = os.path.join(DATASET_DIR, "js_intents.json")
 
 # Confidence thresholds
 CONFIDENCE_THRESHOLD_LOG = 0.65
 CONFIDENCE_THRESHOLD_FALLBACK = 0.45
 
+# ---------------------------------------------------------------------------
+# Pre-routing heuristic — JS keyword signals
+# ---------------------------------------------------------------------------
+# If the cleaned user query contains any of these tokens, the engine will
+# attempt the JS resolver first (before ML classification), reducing
+# misclassification for JavaScript questions.
+_JS_SIGNAL_TOKENS = {
+    "javascript", "js", "closure", "closures", "prototype", "hoisting",
+    "hoist", "async", "await", "promise", "promises", "callback",
+    "callbacks", "arrow", "destructuring", "spread", "rest",
+    "generator", "iterator", "symbol", "proxy", "reflect",
+    "typeof", "coercion", "fetch", "dom", "event loop", "eventloop",
+    "microtask", "macrotask", "currying", "curry", "higher order",
+    "template literal", "localStorage", "localstorage", "regex",
+    "map set", "weakmap", "weakset", "es6", "es2015", "ecmascript",
+}
+
 
 # ---------------------------------------------------------------------------
 # Model Loading
 # ---------------------------------------------------------------------------
-_vectorizer = None
-_classifier = None
-_resolver   = None
+_vectorizer  = None
+_classifier  = None
+_resolver    = None   # platform intents
+_js_resolver = None   # javascript knowledge layer
 
 
 def load_models():
-    """Load trained model artifacts and intent resolver."""
-    global _vectorizer, _classifier, _resolver
+    """Load trained model artifacts and both intent resolvers."""
+    global _vectorizer, _classifier, _resolver, _js_resolver
 
     vec_path = os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl")
     clf_path = os.path.join(MODELS_DIR, "intent_classifier.pkl")
@@ -86,31 +105,98 @@ def load_models():
         return False
 
     with open(vec_path, "rb") as f:
+        # Pickle workaround for classes trained in __main__
+        import sys
+        try:
+            from training.train_model import TfidfVectorizer, LogisticRegressionOVR
+            sys.modules['__main__'].TfidfVectorizer = TfidfVectorizer
+            sys.modules['__main__'].LogisticRegressionOVR = LogisticRegressionOVR
+        except ImportError:
+            pass
         _vectorizer = pickle.load(f)
     with open(clf_path, "rb") as f:
         _classifier = pickle.load(f)
 
+    # Platform resolver (intents.json)
     _resolver = IntentResolver()
+
+    # JavaScript knowledge resolver (js_intents.json)
+    if os.path.exists(JS_INTENTS_PATH):
+        _js_resolver = IntentResolver(intents_path=JS_INTENTS_PATH)
+        print(f"[OK] JS resolver loaded: {_js_resolver.intent_count} JS intents")
+    else:
+        print("[WARNING] js_intents.json not found — JS knowledge layer disabled.")
 
     print(f"[OK] Models loaded: {_vectorizer.n_features} features, "
           f"{len(_classifier.classes_)} classes, "
-          f"{_resolver.intent_count} intents in registry")
+          f"{_resolver.intent_count} platform intents")
     return True
 
 
 # ---------------------------------------------------------------------------
 # Prediction Core
 # ---------------------------------------------------------------------------
+def _detect_js_signals(cleaned_text: str) -> bool:
+    """
+    Pre-routing heuristic: check if the cleaned query contains
+    JavaScript-specific signal tokens before running ML classification.
+    Returns True if JS resolver should be tried first.
+    """
+    tokens = set(cleaned_text.lower().split())
+    return bool(tokens & _JS_SIGNAL_TOKENS)
+
+
+def _resolve_by_tier(intent_label: str, cleaned: str):
+    """
+    Route an intent label to the correct resolver tier:
+      - js.*        → JS knowledge resolver
+      - platform.*  → Platform intent resolver
+      - anything else → platform resolver (which has fallback)
+    """
+    if intent_label.startswith("js.") and _js_resolver:
+        resolved = _js_resolver.resolve(intent_label)
+        # Enrich the response with the code_example field if present
+        # (stored in the raw intents data, not surfaced by resolve())
+        resolved["code_example"] = _js_resolver._intents.get(
+            intent_label, {}
+        ).get("code_example", None)
+        resolved["topic_level"] = _js_resolver._intents.get(
+            intent_label, {}
+        ).get("topic_level", "")
+        resolved["response_type"] = _js_resolver._intents.get(
+            intent_label, {}
+        ).get("response_type", "explanation")
+        resolved["domain"] = "javascript"
+        return resolved
+    else:
+        resolved = _resolver.resolve(intent_label)
+        resolved["domain"] = "platform"
+        return resolved
+
+
 def predict_intent(raw_text: str) -> dict:
     """
-    Full prediction pipeline.
+    Full prediction pipeline — two-tier resolution.
+
+    Tier 1 (pre-routing heuristic):
+        If the query contains JS signal tokens, try the JS resolver
+        via semantic_boost first. This catches high-confidence JS
+        questions before ML even runs.
+
+    Tier 2 (ML + semantic fallback):
+        Standard TF-IDF + Logistic Regression pipeline, followed by
+        hybrid semantic boosting if confidence is low.
+
+    Tier routing (after ML):
+        js.*       → _js_resolver  (JavaScript knowledge)
+        platform.* → _resolver     (Platform help)
 
     Args:
         raw_text: Raw user message
 
     Returns:
         Dict with: intent, confidence, response, route, category,
-        keywords, admin_notes, method
+        keywords, admin_notes, code_example, domain, method
     """
     if not _vectorizer or not _classifier or not _resolver:
         return {
@@ -127,53 +213,79 @@ def predict_intent(raw_text: str) -> dict:
         resolved["confidence"] = 0.0
         resolved["cleaned_text"] = ""
         resolved["method"] = "fallback"
+        resolved["domain"] = "platform"
         return resolved
 
-    # 2. Vectorize
+    # 2. Pre-routing heuristic — JS signal detection
+    if _js_resolver and _detect_js_signals(cleaned):
+        js_boosted = _js_resolver.semantic_boost(cleaned, top_k=3)
+        if js_boosted and js_boosted[0][1] > 0.5:  # threshold for heuristic confidence
+            best_intent  = js_boosted[0][0]
+            best_confidence = min(0.80, 0.50 + js_boosted[0][1] * 0.1)  # scaled synthetic confidence
+            resolved = _resolve_by_tier(best_intent, cleaned)
+            resolved["confidence"] = round(best_confidence, 4)
+            resolved["cleaned_text"] = cleaned
+            resolved["method"] = "js_heuristic_boost"
+            resolved["alternatives"] = [
+                {"intent": label, "confidence": round(score, 4)}
+                for label, score in js_boosted[1:3]
+            ]
+            return resolved
+
+    # 3. Vectorize
     X = _vectorizer.transform([cleaned])
 
-    # 3. Predict with probabilities
+    # 4. Predict with probabilities
     top_predictions = _classifier.predict_top_k(X[0], k=3)
     best_intent, best_confidence = top_predictions[0]
 
-    # 4. Decide: ML prediction vs semantic boost
+    # 5. Decide: ML prediction vs semantic boost
     method = "ml_primary"
 
     if best_confidence < CONFIDENCE_THRESHOLD_LOG:
-        # Try semantic boosting from intents.json keywords
-        boosted = _resolver.semantic_boost(cleaned, top_k=3)
-        if boosted and boosted[0][1] > 0:
-            # Combine ML + semantic signals
-            ml_scores = {label: score for label, score in top_predictions}
-            combined = {}
-            for label, sem_score in boosted:
-                ml_score = ml_scores.get(label, 0)
-                combined[label] = 0.4 * ml_score + 0.6 * (sem_score / (boosted[0][1] or 1))
-            for label, ml_score in ml_scores.items():
-                if label not in combined:
-                    combined[label] = 0.4 * ml_score
+        # Try semantic boosting — search BOTH resolvers
+        platform_boosted = _resolver.semantic_boost(cleaned, top_k=3)
+        js_boosted       = _js_resolver.semantic_boost(cleaned, top_k=3) if _js_resolver else []
 
-            best_intent = max(combined, key=combined.get)
-            best_confidence = max(best_confidence, 0.45)  # adjusted confidence
-            method = "hybrid_boosted"
+        all_boosted = platform_boosted + js_boosted
+        if all_boosted:
+            # Sort combined results by score
+            all_boosted.sort(key=lambda x: x[1], reverse=True)
+            top_boost_intent, top_boost_score = all_boosted[0]
 
-    # If it is below LOG threshold, log it
+            if top_boost_score > 0:
+                # Combine ML + semantic signals
+                ml_scores = {label: score for label, score in top_predictions}
+                combined = {}
+                for label, sem_score in all_boosted[:5]:
+                    ml_score = ml_scores.get(label, 0)
+                    combined[label] = 0.4 * ml_score + 0.6 * (sem_score / (top_boost_score or 1))
+                for label, ml_score in ml_scores.items():
+                    if label not in combined:
+                        combined[label] = 0.4 * ml_score
+
+                best_intent     = max(combined, key=combined.get)
+                best_confidence = max(best_confidence, 0.45)
+                method = "hybrid_boosted"
+
+    # 6. Log low-confidence predictions
     if best_confidence < CONFIDENCE_THRESHOLD_LOG:
         log_failed_query(raw_text, best_intent, float(best_confidence))
-        
+
     if best_confidence < CONFIDENCE_THRESHOLD_FALLBACK:
         resolved = _resolver.resolve("platform.unknown.fallback")
         resolved["confidence"] = round(best_confidence, 4)
         resolved["cleaned_text"] = cleaned
         resolved["method"] = "fallback_low_confidence"
+        resolved["domain"] = "platform"
         resolved["alternatives"] = [
             {"intent": label, "confidence": round(score, 4)}
-            for label, score in top_predictions[:3] # Show the top 3 as suggestions
+            for label, score in top_predictions[:3]
         ]
         return resolved
 
-    # 5. Resolve intent → response, route, category
-    resolved = _resolver.resolve(best_intent)
+    # 7. Resolve intent → response via correct tier
+    resolved = _resolve_by_tier(best_intent, cleaned)
     resolved["confidence"] = round(best_confidence, 4)
     resolved["cleaned_text"] = cleaned
     resolved["method"] = method
@@ -301,10 +413,12 @@ class AIRequestHandler(BaseHTTPRequestHandler):
     def _handle_health(self):
         models_loaded = _vectorizer is not None and _classifier is not None
         self._send_json({
-            "status":        "healthy" if models_loaded else "degraded",
-            "models_loaded": models_loaded,
-            "intents_count": _resolver.intent_count if _resolver else 0,
-            "timestamp":     datetime.utcnow().isoformat(),
+            "status":             "healthy" if models_loaded else "degraded",
+            "models_loaded":      models_loaded,
+            "platform_intents":   _resolver.intent_count if _resolver else 0,
+            "js_intents":         _js_resolver.intent_count if _js_resolver else 0,
+            "js_resolver_active": _js_resolver is not None,
+            "timestamp":          datetime.utcnow().isoformat(),
         })
 
     def _handle_predict(self):

@@ -237,6 +237,16 @@ async function submitQuery() {
     let answer = data.response || "I'm not sure how to answer that.";
     let route = ROUTE_MAP[data.route] || data.route || null;
     let related = (data.keywords || []).slice(0, 4).map(k => ({ label: k, icon: 'fa-solid fa-magnifying-glass' }));
+    const domain = data.domain || 'platform';
+
+    // Build code card data if the API returned a code_example (JS knowledge responses)
+    let codeCard = null;
+    if (data.code_example) {
+      codeCard = {
+        lang: 'JavaScript',
+        source: escHtmlCode(data.code_example)
+      };
+    }
     
     // Implement 3-tier confidence response
     const conf = data.confidence || 0;
@@ -260,8 +270,10 @@ async function submitQuery() {
       confidence: conf,
       answer: answer,
       route: route,
-      code: null, // Stub for future code execution features
+      code: codeCard,
       related: related,
+      domain: domain,
+      topicLevel: data.topic_level || '',
       isFallback: data.method && data.method.startsWith('fallback')
     };
 
@@ -463,15 +475,49 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+/**
+ * escHtmlCode — same as escHtml but preserves indentation-significant
+ * whitespace (for <code> blocks). Does NOT escape newlines.
+ */
+function escHtmlCode(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function stripHtml(html) {
   const tmp = document.createElement('div');
   tmp.innerHTML = html;
   return tmp.textContent || tmp.innerText || '';
 }
 
+/**
+ * formatAnswer — render the response text with basic markdown-like formatting.
+ * Converts:
+ *   • \n\n  → paragraph breaks
+ *   • \n    → <br>
+ *   • Lines starting with •  → styled bullet list items
+ * Preserves inline HTML already in the string (e.g., <em>, <ul>/<li>).
+ */
 function formatAnswer(text) {
-  // Convert newlines to <br>, preserve inline HTML from mock data
-  return text.replace(/\n/g, '<br />');
+  // Split into paragraphs on double newlines
+  const paragraphs = text.split(/\n\n+/);
+  return paragraphs.map(para => {
+    // Check if this paragraph is a bullet list block
+    if (para.trim().startsWith('•')) {
+      const items = para.split('\n').filter(l => l.trim());
+      const listItems = items.map(item => {
+        const content = item.replace(/^\s*•\s*/, '');
+        // Bold the part before the first em-dash or colon
+        const formatted = content.replace(/^([^—:]+[—:])/, '<strong>$1</strong>');
+        return `<li>${formatted}</li>`;
+      }).join('');
+      return `<ul class="resp-bullet-list">${listItems}</ul>`;
+    }
+    // Regular paragraph — convert single \n to <br>
+    return `<p>${para.replace(/\n/g, '<br>')}</p>`;
+  }).join('');
 }
 
 function scrollToBottom() {

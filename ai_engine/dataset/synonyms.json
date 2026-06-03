@@ -1588,5 +1588,227 @@
     "ignore match",
     "dismiss match",
     "turn down match"
+  ],
+
+  "_js_section": "JavaScript Knowledge Layer Synonyms",
+
+  "closure": [
+    "lexical closure",
+    "inner function scope",
+    "enclosed variable",
+    "closures"
+  ],
+  "async": [
+    "asynchronous",
+    "non-blocking",
+    "background task",
+    "async function"
+  ],
+  "await": [
+    "wait for promise",
+    "async wait",
+    "awaiting"
+  ],
+  "promise": [
+    "deferred",
+    "thenable",
+    "future value",
+    "pending result"
+  ],
+  "arrow function": [
+    "fat arrow",
+    "lambda",
+    "es6 function",
+    "concise function",
+    "=>"
+  ],
+  "prototype": [
+    "proto chain",
+    "prototype chain",
+    "inheritance chain",
+    "__proto__",
+    "prototypal"
+  ],
+  "hoisting": [
+    "hoist",
+    "variable hoisting",
+    "function hoisting",
+    "declaration hoisting"
+  ],
+  "temporal dead zone": [
+    "tdz",
+    "dead zone",
+    "let hoisting issue"
+  ],
+  "callback": [
+    "callback function",
+    "handler function",
+    "listener function",
+    "on complete"
+  ],
+  "event loop": [
+    "eventloop",
+    "js event loop",
+    "javascript concurrency",
+    "call stack"
+  ],
+  "microtask": [
+    "micro task",
+    "promise callback",
+    "queueMicrotask"
+  ],
+  "macrotask": [
+    "macro task",
+    "setTimeout callback",
+    "setInterval callback",
+    "task queue"
+  ],
+  "destructuring": [
+    "destructure",
+    "object destructure",
+    "array destructure",
+    "unpack"
+  ],
+  "spread": [
+    "spread operator",
+    "three dots",
+    "...",
+    "expand",
+    "unpack array"
+  ],
+  "rest parameter": [
+    "rest params",
+    "rest arguments",
+    "gather arguments"
+  ],
+  "template literal": [
+    "backtick string",
+    "template string",
+    "string interpolation",
+    "backtick"
+  ],
+  "optional chaining": [
+    "?.",
+    "safe access",
+    "null safe",
+    "optional access"
+  ],
+  "nullish coalescing": [
+    "??",
+    "null coalescing",
+    "default value operator",
+    "nullish"
+  ],
+  "type coercion": [
+    "coercion",
+    "implicit conversion",
+    "type conversion",
+    "type casting"
+  ],
+  "higher order function": [
+    "hof",
+    "function as argument",
+    "function factory",
+    "first class function"
+  ],
+  "generator": [
+    "generator function",
+    "function*",
+    "yield function",
+    "iterator factory"
+  ],
+  "symbol": [
+    "Symbol()",
+    "unique identifier",
+    "js symbol"
+  ],
+  "proxy": [
+    "Proxy object",
+    "js proxy",
+    "object wrapper",
+    "interceptor"
+  ],
+  "currying": [
+    "curry",
+    "partial application",
+    "function currying"
+  ],
+  "dom": [
+    "document object model",
+    "html element",
+    "dom tree",
+    "web page elements"
+  ],
+  "event delegation": [
+    "delegated event",
+    "parent listener",
+    "bubbling handler"
+  ],
+  "fetch api": [
+    "fetch",
+    "http request",
+    "api call",
+    "web request"
+  ],
+  "localStorage": [
+    "local storage",
+    "browser storage",
+    "web storage",
+    "localstorage"
+  ],
+  "map": [
+    "Map object",
+    "key value map",
+    "dictionary"
+  ],
+  "set": [
+    "Set object",
+    "unique collection",
+    "deduplicate"
+  ],
+  "regex": [
+    "regular expression",
+    "regexp",
+    "pattern matching",
+    "string pattern"
+  ],
+  "class": [
+    "es6 class",
+    "javascript class",
+    "oop class",
+    "class definition"
+  ],
+  "super": [
+    "parent class",
+    "base class call",
+    "super constructor"
+  ],
+  "immutability": [
+    "immutable",
+    "freeze object",
+    "readonly",
+    "cannot change"
+  ],
+  "data types": [
+    "javascript types",
+    "primitive types",
+    "value types",
+    "type system"
+  ],
+  "scope chain": [
+    "scope lookup",
+    "variable lookup",
+    "lexical environment"
+  ],
+  "block scope": [
+    "block scoped",
+    "curly braces scope",
+    "if block scope",
+    "for loop scope"
+  ],
+  "function scope": [
+    "function scoped",
+    "local scope",
+    "var scope"
   ]
 }
