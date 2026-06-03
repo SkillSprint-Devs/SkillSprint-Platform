@@ -1,0 +1,1592 @@
+{
+  "_meta": {
+    "description": "Synonym expansion map for the SkillSprint AI Engine semantic boost layer.",
+    "usage": "Each key is a canonical keyword from intents.json. Its value is a list of synonyms that should resolve to the same semantic meaning.",
+    "version": "1.0"
+  },
+  "join": [
+    "enter",
+    "access",
+    "go to",
+    "open",
+    "attend",
+    "connect",
+    "hop in",
+    "get into",
+    "participate"
+  ],
+  "session": [
+    "class",
+    "meeting",
+    "call",
+    "room",
+    "lecture",
+    "webinar",
+    "hangout",
+    "conference",
+    "lesson"
+  ],
+  "live class": [
+    "live session",
+    "live call",
+    "live meeting",
+    "online class",
+    "video class"
+  ],
+  "video call": [
+    "video chat",
+    "video conference",
+    "webcam call",
+    "video room",
+    "zoom call"
+  ],
+  "connect": [
+    "link up",
+    "network",
+    "access",
+    "interface"
+  ],
+  "create": [
+    "make",
+    "build",
+    "set up",
+    "start",
+    "begin",
+    "launch",
+    "initiate",
+    "open",
+    "new",
+    "generate",
+    "spin up"
+  ],
+  "host": [
+    "run",
+    "lead",
+    "manage",
+    "own",
+    "organise",
+    "organize"
+  ],
+  "start": [
+    "begin",
+    "initiate",
+    "launch",
+    "kick off",
+    "open",
+    "create"
+  ],
+  "schedule": [
+    "book",
+    "plan",
+    "arrange",
+    "set up",
+    "calendar",
+    "reserve",
+    "timetable",
+    "pencil in"
+  ],
+  "book": [
+    "schedule",
+    "reserve",
+    "plan",
+    "appoint",
+    "register"
+  ],
+  "appointment": [
+    "meeting",
+    "session",
+    "booking",
+    "reservation",
+    "slot"
+  ],
+  "history": [
+    "past",
+    "previous",
+    "old",
+    "archived",
+    "records",
+    "logs",
+    "prior",
+    "earlier"
+  ],
+  "logs": [
+    "records",
+    "history",
+    "audit",
+    "trace",
+    "entries"
+  ],
+  "records": [
+    "history",
+    "logs",
+    "past sessions",
+    "archive",
+    "data"
+  ],
+  "camera": [
+    "webcam",
+    "video",
+    "cam",
+    "lens"
+  ],
+  "microphone": [
+    "mic",
+    "audio input",
+    "sound input",
+    "speaker"
+  ],
+  "audio": [
+    "sound",
+    "voice",
+    "speaker",
+    "microphone",
+    "volume"
+  ],
+  "broken": [
+    "not working",
+    "failing",
+    "bugged",
+    "glitching",
+    "crashed",
+    "erroring"
+  ],
+  "troubleshoot": [
+    "fix",
+    "debug",
+    "solve",
+    "repair",
+    "investigate",
+    "diagnose",
+    "resolve issue"
+  ],
+  "lagging": [
+    "slow",
+    "delay",
+    "latency",
+    "freezing",
+    "buffering",
+    "choppy"
+  ],
+  "frozen": [
+    "stuck",
+    "unresponsive",
+    "hanging",
+    "crashed",
+    "not responding"
+  ],
+  "pair programming": [
+    "collab coding",
+    "collaborative coding",
+    "shared editor",
+    "code together",
+    "code session",
+    "code pairing"
+  ],
+  "workspace": [
+    "editor",
+    "board",
+    "environment",
+    "room",
+    "coding area",
+    "playground"
+  ],
+  "shared editor": [
+    "code editor",
+    "collaboration editor",
+    "pair editor"
+  ],
+  "code editor": [
+    "ide",
+    "editor",
+    "coding environment",
+    "workspace"
+  ],
+  "invite": [
+    "add",
+    "include",
+    "welcome",
+    "bring in",
+    "request",
+    "call"
+  ],
+  "collaborator": [
+    "teammate",
+    "partner",
+    "co-coder",
+    "peer",
+    "co-developer"
+  ],
+  "teammate": [
+    "partner",
+    "collaborator",
+    "colleague",
+    "co-developer",
+    "peer"
+  ],
+  "driver": [
+    "editor",
+    "typer",
+    "coder",
+    "active user",
+    "pilot"
+  ],
+  "navigator": [
+    "reviewer",
+    "observer",
+    "watcher",
+    "guide",
+    "viewer"
+  ],
+  "swap": [
+    "switch",
+    "change",
+    "rotate",
+    "flip",
+    "exchange",
+    "transfer"
+  ],
+  "roles": [
+    "permissions",
+    "access",
+    "rights",
+    "capabilities"
+  ],
+  "run": [
+    "execute",
+    "compile",
+    "build",
+    "play",
+    "launch code",
+    "test"
+  ],
+  "execute": [
+    "run",
+    "compile",
+    "process",
+    "evaluate"
+  ],
+  "compile": [
+    "build",
+    "run",
+    "process",
+    "generate",
+    "execute"
+  ],
+  "output": [
+    "result",
+    "console",
+    "response",
+    "terminal output",
+    "return value"
+  ],
+  "terminal": [
+    "console",
+    "shell",
+    "command line",
+    "output panel"
+  ],
+  "sandbox": [
+    "safe environment",
+    "isolated",
+    "container",
+    "execution environment"
+  ],
+  "share link": [
+    "invite link",
+    "share url",
+    "join url",
+    "collaboration link",
+    "access link"
+  ],
+  "url": [
+    "link",
+    "address",
+    "href",
+    "web address",
+    "path"
+  ],
+  "token": [
+    "key",
+    "code",
+    "access code",
+    "pin",
+    "identifier"
+  ],
+  "comment": [
+    "reply",
+    "respond",
+    "write",
+    "feedback"
+  ],
+  "annotation": [
+    "comment",
+    "note",
+    "label",
+    "mark",
+    "tag"
+  ],
+  "code review": [
+    "review",
+    "check code",
+    "inspect",
+    "examine code"
+  ],
+  "feedback": [
+    "review",
+    "critique",
+    "comments",
+    "suggestions",
+    "rating",
+    "score"
+  ],
+  "whiteboard": [
+    "smartboard",
+    "canvas",
+    "drawing board",
+    "board",
+    "sketch pad",
+    "diagram board"
+  ],
+  "canvas": [
+    "whiteboard",
+    "drawing area",
+    "board",
+    "sketch surface"
+  ],
+  "drawing": [
+    "sketching",
+    "doodling",
+    "illustrating",
+    "diagramming",
+    "creating"
+  ],
+  "sketch": [
+    "draw",
+    "design",
+    "diagram",
+    "illustrate",
+    "draft"
+  ],
+  "diagram": [
+    "chart",
+    "flowchart",
+    "sketch",
+    "drawing",
+    "map",
+    "graph"
+  ],
+  "pen": [
+    "brush",
+    "marker",
+    "pencil",
+    "draw tool",
+    "stylus"
+  ],
+  "eraser": [
+    "delete",
+    "clear",
+    "undo",
+    "remove",
+    "wipe"
+  ],
+  "brush": [
+    "pen",
+    "paint",
+    "tool",
+    "marker"
+  ],
+  "color": [
+    "colour",
+    "hue",
+    "shade",
+    "tint",
+    "fill"
+  ],
+  "shapes": [
+    "rectangle",
+    "circle",
+    "line",
+    "polygon",
+    "triangle",
+    "box"
+  ],
+  "tools": [
+    "toolbar",
+    "features",
+    "options",
+    "controls",
+    "palette"
+  ],
+  "cursor": [
+    "pointer",
+    "mouse",
+    "indicator",
+    "caret",
+    "position"
+  ],
+  "presence": [
+    "live users",
+    "online users",
+    "who's online",
+    "active users",
+    "who is there"
+  ],
+  "real-time": [
+    "live",
+    "instant",
+    "synchronous",
+    "concurrent",
+    "immediate"
+  ],
+  "sync": [
+    "synchronise",
+    "synchronize",
+    "update",
+    "refresh",
+    "realtime",
+    "align"
+  ],
+  "multiplayer": [
+    "collaborative",
+    "multi-user",
+    "shared",
+    "group",
+    "co-op"
+  ],
+  "find": [
+    "search",
+    "discover",
+    "locate",
+    "look for",
+    "browse",
+    "explore",
+    "get"
+  ],
+  "match": [
+    "suggestion",
+    "recommendation",
+    "pairing",
+    "candidate",
+    "compatible"
+  ],
+  "partner": [
+    "collaborator",
+    "teammate",
+    "buddy",
+    "co-learner",
+    "peer",
+    "colleague"
+  ],
+  "mentor": [
+    "coach",
+    "teacher",
+    "guide",
+    "trainer",
+    "instructor",
+    "tutor",
+    "advisor"
+  ],
+  "coach": [
+    "mentor",
+    "teacher",
+    "trainer",
+    "guide",
+    "instructor"
+  ],
+  "teacher": [
+    "mentor",
+    "coach",
+    "instructor",
+    "educator",
+    "tutor",
+    "guide"
+  ],
+  "instructor": [
+    "mentor",
+    "teacher",
+    "tutor",
+    "coach",
+    "educator"
+  ],
+  "tutor": [
+    "mentor",
+    "teacher",
+    "instructor",
+    "coach",
+    "guide"
+  ],
+  "guide": [
+    "mentor",
+    "coach",
+    "teacher",
+    "assist",
+    "helper"
+  ],
+  "trainer": [
+    "mentor",
+    "coach",
+    "teacher",
+    "instructor"
+  ],
+  "study buddy": [
+    "partner",
+    "collaborator",
+    "peer",
+    "teammate",
+    "co-learner"
+  ],
+  "peers": [
+    "colleagues",
+    "classmates",
+    "co-learners",
+    "fellow developers",
+    "community"
+  ],
+  "collaborate": [
+    "work together",
+    "partner",
+    "team up",
+    "cooperate",
+    "join forces"
+  ],
+  "algorithm": [
+    "logic",
+    "method",
+    "approach",
+    "technique",
+    "system",
+    "process"
+  ],
+  "knn": [
+    "k nearest neighbors",
+    "nearest neighbor",
+    "similarity matching"
+  ],
+  "compatibility": [
+    "match score",
+    "how well matched",
+    "fit",
+    "alignment",
+    "affinity"
+  ],
+  "feed": [
+    "timeline",
+    "stream",
+    "board",
+    "wall",
+    "listings",
+    "community"
+  ],
+  "project": [
+    "collaboration",
+    "board",
+    "workspace",
+    "work",
+    "task"
+  ],
+  "offer": [
+    "proposal",
+    "invitation",
+    "post",
+    "listing",
+    "request"
+  ],
+  "browse": [
+    "explore",
+    "look",
+    "search",
+    "scroll",
+    "discover"
+  ],
+  "courses": [
+    "subjects",
+    "modules",
+    "lessons",
+    "tracks",
+    "classes",
+    "curriculum"
+  ],
+  "quizzes": [
+    "tests",
+    "exams",
+    "assessments",
+    "evaluations",
+    "questions"
+  ],
+  "assessments": [
+    "quizzes",
+    "tests",
+    "exams",
+    "evaluations"
+  ],
+  "learning paths": [
+    "curriculum",
+    "course track",
+    "study plan",
+    "roadmap"
+  ],
+  "progress": [
+    "advancement",
+    "completion",
+    "streak",
+    "tracking",
+    "growth"
+  ],
+  "start quiz": [
+    "begin quiz",
+    "take test",
+    "start test",
+    "open quiz",
+    "attempt"
+  ],
+  "exam": [
+    "test",
+    "quiz",
+    "assessment",
+    "evaluation",
+    "assignment"
+  ],
+  "test": [
+    "quiz",
+    "exam",
+    "assessment",
+    "check"
+  ],
+  "take": [
+    "start",
+    "begin",
+    "attempt",
+    "do",
+    "complete"
+  ],
+  "save": [
+    "auto save",
+    "preserve",
+    "store",
+    "backup",
+    "keep"
+  ],
+  "resume": [
+    "continue",
+    "pick up",
+    "recover",
+    "restart from where",
+    "carry on"
+  ],
+  "pause": [
+    "stop",
+    "save and exit",
+    "halt",
+    "suspend"
+  ],
+  "restore": [
+    "recover",
+    "resume",
+    "bring back",
+    "load"
+  ],
+  "attempts": [
+    "tries",
+    "retries",
+    "chances",
+    "turns"
+  ],
+  "limit": [
+    "cap",
+    "max",
+    "restriction",
+    "threshold",
+    "ceiling"
+  ],
+  "daily": [
+    "per day",
+    "every day",
+    "each day"
+  ],
+  "retries": [
+    "attempts",
+    "tries",
+    "re-attempts"
+  ],
+  "reset": [
+    "refresh",
+    "reload",
+    "replenish",
+    "restart",
+    "clear",
+    "refill"
+  ],
+  "blocked": [
+    "locked out",
+    "restricted",
+    "denied",
+    "prevented"
+  ],
+  "unlock": [
+    "open",
+    "access",
+    "get access to",
+    "gain",
+    "enable"
+  ],
+  "locked": [
+    "unavailable",
+    "inaccessible",
+    "greyed out",
+    "disabled",
+    "blocked"
+  ],
+  "advanced": [
+    "hard",
+    "difficult",
+    "expert",
+    "pro level",
+    "higher level"
+  ],
+  "intermediate": [
+    "mid level",
+    "medium",
+    "moderate",
+    "level 2"
+  ],
+  "prerequisites": [
+    "requirements",
+    "conditions",
+    "what i need first",
+    "unlock conditions"
+  ],
+  "progression": [
+    "level up",
+    "advance",
+    "unlock",
+    "move forward"
+  ],
+  "score": [
+    "result",
+    "grade",
+    "marks",
+    "percentage",
+    "rating",
+    "points"
+  ],
+  "results": [
+    "scores",
+    "grades",
+    "outcome",
+    "feedback",
+    "performance"
+  ],
+  "grade": [
+    "score",
+    "result",
+    "mark",
+    "evaluation"
+  ],
+  "mistakes": [
+    "wrong answers",
+    "errors",
+    "incorrect",
+    "faults",
+    "failures"
+  ],
+  "pass": [
+    "succeed",
+    "clear",
+    "get through",
+    "complete",
+    "achieve"
+  ],
+  "fail": [
+    "not pass",
+    "unable to clear",
+    "below threshold",
+    "wrong"
+  ],
+  "answers": [
+    "solutions",
+    "responses",
+    "correct answers",
+    "key"
+  ],
+  "badges": [
+    "achievements",
+    "medals",
+    "trophies",
+    "awards",
+    "milestones"
+  ],
+  "achievements": [
+    "badges",
+    "trophies",
+    "rewards",
+    "accomplishments"
+  ],
+  "trophies": [
+    "badges",
+    "medals",
+    "awards",
+    "achievements"
+  ],
+  "rewards": [
+    "badges",
+    "tokens",
+    "credits",
+    "points",
+    "incentives"
+  ],
+  "milestones": [
+    "goals",
+    "achievements",
+    "checkpoints",
+    "targets"
+  ],
+  "tier": [
+    "level",
+    "rank",
+    "grade",
+    "category"
+  ],
+  "certificate": [
+    "diploma",
+    "certification",
+    "credential",
+    "completion cert",
+    "award letter"
+  ],
+  "diploma": [
+    "certificate",
+    "certification",
+    "credential"
+  ],
+  "download": [
+    "export",
+    "save as",
+    "get file",
+    "retrieve",
+    "pull"
+  ],
+  "pdf": [
+    "document",
+    "file",
+    "printable",
+    "report"
+  ],
+  "print": [
+    "download",
+    "export",
+    "physical copy"
+  ],
+  "credentials": [
+    "username and password",
+    "login details",
+    "sign in info"
+  ],
+  "verify": [
+    "validate",
+    "confirm",
+    "authenticate",
+    "check",
+    "prove"
+  ],
+  "authenticity": [
+    "validity",
+    "legitimacy",
+    "genuineness",
+    "realness"
+  ],
+  "employer": [
+    "company",
+    "recruiter",
+    "hr",
+    "hiring manager",
+    "organization"
+  ],
+  "upload": [
+    "add file",
+    "submit",
+    "attach",
+    "import",
+    "put",
+    "share file"
+  ],
+  "file": [
+    "document",
+    "resource",
+    "attachment",
+    "material",
+    "pdf"
+  ],
+  "resource": [
+    "material",
+    "file",
+    "document",
+    "content",
+    "learning material"
+  ],
+  "document": [
+    "file",
+    "pdf",
+    "resource",
+    "paper"
+  ],
+  "submit": [
+    "upload",
+    "send",
+    "post",
+    "add"
+  ],
+  "add files": [
+    "upload",
+    "attach files",
+    "import"
+  ],
+  "preview": [
+    "view",
+    "open",
+    "read",
+    "look at",
+    "inspect"
+  ],
+  "view": [
+    "see",
+    "open",
+    "look at",
+    "read",
+    "check",
+    "display"
+  ],
+  "inspect": [
+    "view",
+    "examine",
+    "look at",
+    "check"
+  ],
+  "file viewer": [
+    "document viewer",
+    "preview panel",
+    "reader"
+  ],
+  "search": [
+    "find",
+    "look up",
+    "query",
+    "seek",
+    "browse",
+    "filter"
+  ],
+  "filter": [
+    "sort",
+    "narrow down",
+    "search by",
+    "limit",
+    "refine"
+  ],
+  "look up": [
+    "search",
+    "find",
+    "query"
+  ],
+  "materials": [
+    "resources",
+    "files",
+    "documents",
+    "content"
+  ],
+  "documents": [
+    "files",
+    "resources",
+    "materials",
+    "pdfs"
+  ],
+  "balance": [
+    "credits",
+    "tokens",
+    "wallet amount",
+    "remaining credits",
+    "funds"
+  ],
+  "credits": [
+    "balance",
+    "tokens",
+    "coins",
+    "wallet credits",
+    "funds",
+    "points"
+  ],
+  "tokens": [
+    "credits",
+    "coins",
+    "balance",
+    "currency"
+  ],
+  "coins": [
+    "credits",
+    "tokens",
+    "balance",
+    "wallet"
+  ],
+  "remaining": [
+    "left",
+    "available",
+    "current balance",
+    "how many credits"
+  ],
+  "transactions": [
+    "history",
+    "activity",
+    "log",
+    "records",
+    "purchases"
+  ],
+  "wallet": [
+    "credits",
+    "balance",
+    "funds",
+    "tokens",
+    "coins"
+  ],
+  "refill": [
+    "reset",
+    "reload",
+    "replenish",
+    "top up",
+    "add credits"
+  ],
+  "replenish": [
+    "refill",
+    "reload",
+    "reset",
+    "top up"
+  ],
+  "rollover": [
+    "carry over",
+    "roll over",
+    "keep",
+    "transfer"
+  ],
+  "weekly": [
+    "per week",
+    "every week",
+    "each week",
+    "7 days"
+  ],
+  "clear": [
+    "delete",
+    "remove",
+    "wipe",
+    "erase",
+    "clean",
+    "purge"
+  ],
+  "delete": [
+    "remove",
+    "clear",
+    "wipe",
+    "erase"
+  ],
+  "wipe": [
+    "clear",
+    "delete",
+    "remove",
+    "erase"
+  ],
+  "purge": [
+    "delete",
+    "wipe",
+    "clear",
+    "remove"
+  ],
+  "task": [
+    "todo",
+    "assignment",
+    "work item",
+    "action",
+    "activity"
+  ],
+  "todo": [
+    "task",
+    "to-do",
+    "item",
+    "assignment"
+  ],
+  "calendar": [
+    "planner",
+    "schedule",
+    "timetable",
+    "agenda",
+    "organiser"
+  ],
+  "priority": [
+    "urgency",
+    "importance",
+    "rank",
+    "order",
+    "level"
+  ],
+  "deadline": [
+    "due date",
+    "end date",
+    "cutoff",
+    "last date"
+  ],
+  "planner": [
+    "calendar",
+    "scheduler",
+    "organizer",
+    "agenda"
+  ],
+  "reminder": [
+    "alert",
+    "notification",
+    "nudge",
+    "ping",
+    "notify me",
+    "alarm"
+  ],
+  "email": [
+    "mail",
+    "message",
+    "inbox",
+    "email notification"
+  ],
+  "alert": [
+    "reminder",
+    "notification",
+    "warning",
+    "ping"
+  ],
+  "notify": [
+    "remind",
+    "alert",
+    "send message",
+    "inform"
+  ],
+  "automated": [
+    "automatic",
+    "scheduled",
+    "system-generated",
+    "auto"
+  ],
+  "post": [
+    "share",
+    "publish",
+    "write",
+    "announce",
+    "create post"
+  ],
+  "share": [
+    "post",
+    "distribute",
+    "broadcast",
+    "publish"
+  ],
+  "publish": [
+    "post",
+    "share",
+    "release",
+    "submit",
+    "push live"
+  ],
+  "announcement": [
+    "post",
+    "update",
+    "news",
+    "notice"
+  ],
+  "wall": [
+    "feed",
+    "timeline",
+    "profile board",
+    "social feed"
+  ],
+  "like": [
+    "heart",
+    "upvote",
+    "favourite",
+    "react",
+    "thumbs up"
+  ],
+  "reply": [
+    "respond",
+    "comment",
+    "answer",
+    "write back"
+  ],
+  "react": [
+    "like",
+    "respond",
+    "interact",
+    "engage"
+  ],
+  "thread": [
+    "conversation",
+    "discussion",
+    "replies",
+    "comments"
+  ],
+  "upvote": [
+    "like",
+    "vote",
+    "react",
+    "heart"
+  ],
+  "follow": [
+    "subscribe",
+    "connect",
+    "add friend",
+    "track"
+  ],
+  "unfollow": [
+    "disconnect",
+    "unsubscribe",
+    "remove"
+  ],
+  "subscribe": [
+    "follow",
+    "connect",
+    "add"
+  ],
+  "followers": [
+    "audience",
+    "people who follow me",
+    "network"
+  ],
+  "profile": [
+    "account",
+    "user page",
+    "bio",
+    "page"
+  ],
+  "developer": [
+    "programmer",
+    "coder",
+    "engineer",
+    "dev"
+  ],
+  "login": [
+    "sign in",
+    "log in",
+    "authenticate",
+    "access account",
+    "enter"
+  ],
+  "sign up": [
+    "register",
+    "create account",
+    "join",
+    "enroll"
+  ],
+  "password": [
+    "passphrase",
+    "pin",
+    "secret",
+    "credentials",
+    "key"
+  ],
+  "register": [
+    "sign up",
+    "create account",
+    "join"
+  ],
+  "forgot": [
+    "lost password",
+    "reset password",
+    "can't log in",
+    "locked out"
+  ],
+  "authentication": [
+    "login",
+    "sign in",
+    "auth",
+    "access"
+  ],
+  "session expired": [
+    "logged out",
+    "token expired",
+    "need to log in again"
+  ],
+  "notifications": [
+    "alerts",
+    "pings",
+    "messages",
+    "inbox",
+    "updates"
+  ],
+  "alerts": [
+    "notifications",
+    "reminders",
+    "warnings",
+    "pings"
+  ],
+  "push": [
+    "push notification",
+    "browser notification",
+    "popup alert"
+  ],
+  "mute": [
+    "silence",
+    "disable notifications",
+    "turn off",
+    "snooze"
+  ],
+  "silence": [
+    "mute",
+    "disable",
+    "turn off",
+    "quiet"
+  ],
+  "preferences": [
+    "settings",
+    "options",
+    "configuration",
+    "choices"
+  ],
+  "settings": [
+    "preferences",
+    "configuration",
+    "options",
+    "profile settings"
+  ],
+  "server": [
+    "backend",
+    "system",
+    "platform",
+    "api"
+  ],
+  "status": [
+    "health",
+    "uptime",
+    "state",
+    "condition"
+  ],
+  "health": [
+    "status",
+    "uptime",
+    "diagnostics",
+    "system check"
+  ],
+  "down": [
+    "offline",
+    "unreachable",
+    "broken",
+    "not working",
+    "unavailable"
+  ],
+  "crashed": [
+    "down",
+    "broken",
+    "offline",
+    "failed",
+    "errored"
+  ],
+  "uptime": [
+    "availability",
+    "status",
+    "how long running"
+  ],
+  "diagnostics": [
+    "health check",
+    "system check",
+    "status page",
+    "monitoring"
+  ],
+  "error": [
+    "issue",
+    "problem",
+    "bug",
+    "failure",
+    "crash"
+  ],
+  "500": [
+    "server error",
+    "internal error",
+    "critical error"
+  ],
+  "connection": [
+    "network",
+    "internet",
+    "connectivity",
+    "link"
+  ],
+  "skillsprint": [
+    "platform",
+    "application",
+    "service",
+    "website"
+  ],
+  "verify email": [
+    "confirm email",
+    "validate email",
+    "email verification",
+    "email confirmation"
+  ],
+  "update profile": [
+    "edit profile",
+    "change profile",
+    "modify profile",
+    "profile settings"
+  ],
+  "invite external": [
+    "guest access",
+    "non-user",
+    "outsider",
+    "non-member",
+    "outside user"
+  ],
+  "available tools": [
+    "session tools",
+    "features available",
+    "live session tools",
+    "functionalities"
+  ],
+  "delete message": [
+    "remove message",
+    "erase message",
+    "unsend message",
+    "clear message"
+  ],
+  "missing tasks": [
+    "tasks hidden",
+    "task visibility",
+    "find tasks",
+    "see tasks"
+  ],
+  "shared library": [
+    "shared repository",
+    "document library",
+    "file sharing",
+    "shared storage"
+  ],
+  "enter workspace": [
+    "join workspace",
+    "access workspace",
+    "open workspace",
+    "workspace login"
+  ],
+  "library loading": [
+    "library broken",
+    "library stuck",
+    "library empty",
+    "library not opening"
+  ],
+  "message stranger": [
+    "dm stranger",
+    "message non-follower",
+    "chat without following"
+  ],
+  "save code": [
+    "export code",
+    "download code",
+    "backup code",
+    "store code",
+    "retain code"
+  ],
+  "save whiteboard": [
+    "export whiteboard",
+    "download whiteboard",
+    "save sketches",
+    "keep whiteboard"
+  ],
+  "delete account": [
+    "remove account",
+    "close account",
+    "deactivate account",
+    "cancel account"
+  ],
+  "earn certificates": [
+    "get certified",
+    "receive certificates",
+    "claim certificates"
+  ],
+  "wallet feature": [
+    "digital wallet",
+    "wallet balance",
+    "wallet credits",
+    "payment wallet"
+  ],
+  "join late": [
+    "arrive late",
+    "enter late",
+    "miss start",
+    "join halfway"
+  ],
+  "mic off": [
+    "muted",
+    "microphone disabled",
+    "silent",
+    "without speaking",
+    "no audio"
+  ],
+  "leave politely": [
+    "exit gracefully",
+    "leave respectfully",
+    "quit politely",
+    "sign out properly"
+  ],
+  "chat during session": [
+    "session chat",
+    "live chat",
+    "messaging in session",
+    "text during meeting"
+  ],
+  "screen share fail": [
+    "screen sharing broken",
+    "cant share screen",
+    "screen share error"
+  ],
+  "drawing disappears": [
+    "sketch vanishes",
+    "whiteboard clears",
+    "lost drawing",
+    "missing whiteboard"
+  ],
+  "post missing": [
+    "invisible post",
+    "post failed",
+    "feed update issue",
+    "post not showing"
+  ],
+  "edit comment": [
+    "modify comment",
+    "change comment",
+    "update reply",
+    "revise comment"
+  ],
+  "cant see posts": [
+    "feed not updating",
+    "timeline stuck",
+    "missing feed",
+    "no new posts"
+  ],
+  "like own post": [
+    "self like",
+    "react to own",
+    "upvote own",
+    "own content interaction"
+  ],
+  "duplicate task": [
+    "clone task",
+    "copy task",
+    "replicate task",
+    "reuse task template"
+  ],
+  "sort tasks": [
+    "order by priority",
+    "arrange by urgency",
+    "rank tasks",
+    "filter high priority"
+  ],
+  "complete early": [
+    "finish early",
+    "done ahead of time",
+    "early submission",
+    "close before deadline"
+  ],
+  "reject match": [
+    "decline match",
+    "refuse match",
+    "ignore match",
+    "dismiss match",
+    "turn down match"
+  ]
+}

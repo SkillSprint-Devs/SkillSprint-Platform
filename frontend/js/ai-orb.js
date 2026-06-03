@@ -393,11 +393,44 @@
 
       thinkEl.remove();
       
-      const answerText = data.response || "I'm not sure how to answer that.";
-      // Format simple links if a route exists
+      let answerText = data.response || "I'm not sure how to answer that.";
+      
+      const ROUTE_MAP = {
+        "LIVE_SESSIONS": "/dashboard/live-sessions.html",
+        "PAIR_PROGRAMMING": "/dashboard/pair-programming.html",
+        "WHITEBOARD": "/dashboard/whiteboard.html",
+        "MATCHMAKING": "/dashboard/matchmaking.html",
+        "QUIZZES": "/dashboard/quizzes.html",
+        "CERTIFICATES": "/dashboard/certificates.html",
+        "LIBRARY": "/dashboard/library.html",
+        "WALLET": "/dashboard/wallet.html",
+        "TASKS": "/dashboard/tasks.html",
+        "SOCIAL": "/dashboard/social.html",
+        "HELP_AUTH": "/help/authentication.html",
+        "SETTINGS": "/dashboard/settings.html",
+        "SYSTEM_HEALTH": "/help/system-health.html",
+        "NONE": ""
+      };
+      
+      let route = ROUTE_MAP[data.route] || data.route || null;
+      
+      // Confidence Tiers
+      const conf = data.confidence || 0;
+      if (conf >= 0.75) {
+        // High confidence
+      } else if (conf >= 0.50 && conf < 0.75) {
+        answerText = `<em>I think you're asking about this:</em><br><br>${answerText}`;
+      } else {
+        if (data.alternatives && data.alternatives.length > 0) {
+          answerText = `I'm not entirely sure. Try one of these topics:<ul>` + 
+            data.alternatives.map(alt => `<li>${alt.intent}</li>`).join('') + `</ul>`;
+          route = null;
+        }
+      }
+
       let finalHtml = answerText.replace(/\n/g, '<br />');
-      if (data.route) {
-        finalHtml += `<br><br><a href="${data.route}" style="color:#DCEF62;text-decoration:underline;">Click here to go there</a>`;
+      if (route) {
+        finalHtml += `<br><br><a href="${route}" style="color:#DCEF62;text-decoration:underline;">Click here to go there</a>`;
       }
       
       appendBotMsg(finalHtml);

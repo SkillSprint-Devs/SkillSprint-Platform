@@ -42,6 +42,22 @@ const SUGGESTION_POOL = [
 /* Chips shown in empty state (centre + inline) */
 const CHIP_DISPLAY_COUNT = 7;
 
+const ROUTE_MAP = {
+  "LIVE_SESSIONS": "/dashboard/live-sessions.html",
+  "PAIR_PROGRAMMING": "/dashboard/pair-programming.html",
+  "WHITEBOARD": "/dashboard/whiteboard.html",
+  "MATCHMAKING": "/dashboard/matchmaking.html",
+  "QUIZZES": "/dashboard/quizzes.html",
+  "CERTIFICATES": "/dashboard/certificates.html",
+  "LIBRARY": "/dashboard/library.html",
+  "WALLET": "/dashboard/wallet.html",
+  "TASKS": "/dashboard/tasks.html",
+  "SOCIAL": "/dashboard/social.html",
+  "HELP_AUTH": "/help/authentication.html",
+  "SETTINGS": "/dashboard/settings.html",
+  "SYSTEM_HEALTH": "/help/system-health.html",
+  "NONE": ""
+};
 
 
 /* ================================================================
@@ -218,15 +234,35 @@ async function submitQuery() {
     if (!res.ok) throw new Error('API error');
     const data = await res.json();
 
+    let answer = data.response || "I'm not sure how to answer that.";
+    let route = ROUTE_MAP[data.route] || data.route || null;
+    let related = (data.keywords || []).slice(0, 4).map(k => ({ label: k, icon: 'fa-solid fa-magnifying-glass' }));
+    
+    // Implement 3-tier confidence response
+    const conf = data.confidence || 0;
+    if (conf >= 0.75) {
+      // High Confidence: Direct answer (Keep original response)
+    } else if (conf >= 0.50 && conf < 0.75) {
+      // Medium Confidence: Add a prefix
+      answer = `<em>I think you're asking about this:</em><br><br>${answer}`;
+    } else {
+      // Low Confidence: Try one of these
+      if (data.alternatives && data.alternatives.length > 0) {
+        answer = `I'm not entirely sure. Try one of these topics:<ul>` + 
+          data.alternatives.map(alt => `<li>${alt.intent}</li>`).join('') + `</ul>`;
+        route = null;
+      }
+    }
+
     // Map Python API format to UI format
     const response = {
       intent: data.intent || 'fallback',
-      confidence: data.confidence || 0,
-      answer: data.response || "I'm not sure how to answer that.",
-      route: data.route || null,
+      confidence: conf,
+      answer: answer,
+      route: route,
       code: null, // Stub for future code execution features
-      related: (data.keywords || []).slice(0, 4).map(k => ({ label: k, icon: 'fa-solid fa-magnifying-glass' })),
-      isFallback: data.method === 'fallback' || data.intent === 'empty_input'
+      related: related,
+      isFallback: data.method && data.method.startsWith('fallback')
     };
 
     thinkEl.remove();

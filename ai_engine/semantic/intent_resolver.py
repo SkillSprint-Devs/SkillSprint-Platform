@@ -37,20 +37,29 @@ from collections import Counter
 # Path to intents.json (relative to ai_engine/)
 # ---------------------------------------------------------------------------
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_INTENTS_PATH = os.path.join(_BASE_DIR, "dataset", "intents.json")
+_INTENTS_PATH  = os.path.join(_BASE_DIR, "dataset", "intents.json")
+_SYNONYMS_PATH = os.path.join(_BASE_DIR, "dataset", "synonyms.json")
 
 
 class IntentResolver:
     """
-    Loads intents.json and provides resolution + semantic boosting.
+    Loads intents.json + synonyms.json and provides resolution + semantic boosting.
+
+    Synonym Expansion:
+        When a user query token matches a synonym in synonyms.json, it is
+        transparently expanded to its canonical form before keyword matching.
+        Example: "coach" → "mentor", "tutor" → "mentor"
     """
 
-    def __init__(self, intents_path: str = None):
-        self._path = intents_path or _INTENTS_PATH
-        self._intents = {}
-        self._keyword_index = {}          # keyword → [intent_label, ...]
-        self._category_index = {}         # category → [intent_label, ...]
+    def __init__(self, intents_path: str = None, synonyms_path: str = None):
+        self._path          = intents_path or _INTENTS_PATH
+        self._synonyms_path = synonyms_path or _SYNONYMS_PATH
+        self._intents        = {}
+        self._keyword_index  = {}   # keyword → [intent_label, ...]
+        self._category_index = {}   # category → [intent_label, ...]
+        self._synonym_map    = {}   # synonym_token → canonical_keyword
         self._load()
+        self._load_synonyms()
 
     # ── Load & Index ──────────────────────────────────────────────────────
 
@@ -80,7 +89,50 @@ class IntentResolver:
                 self._category_index[category] = []
             self._category_index[category].append(intent_label)
 
-    # ── Core Resolution ───────────────────────────────────────────────────
+    def _load_synonyms(self):
+        """
+        Load synonyms.json and build a flat reverse lookup:
+            synonym_token → canonical_keyword
+
+        Example entry in synonyms.json:
+            "mentor": ["coach", "teacher", "guide", "trainer"]
+
+        Builds:
+            { "coach": "mentor", "teacher": "mentor", "guide": "mentor", ... }
+        """
+        self._synonym_map = {}
+        if not os.path.exists(self._synonyms_path):
+            return  # Graceful degradation — synonyms are optional
+
+        with open(self._synonyms_path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+
+        for canonical, synonyms in raw.items():
+            if canonical.startswith("_"):  # skip meta keys
+                continue
+            for syn in synonyms:
+                # Store each synonym word mapped back to its canonical
+                syn_lower = syn.strip().lower()
+                if syn_lower and syn_lower not in self._synonym_map:
+                    self._synonym_map[syn_lower] = canonical.lower()
+
+    def _expand_tokens(self, tokens: set) -> set:
+        """
+        Expand a set of query tokens by resolving synonyms to their
+        canonical forms. Both the original token AND its canonical
+        equivalent are included for maximum coverage.
+
+        Example:
+            {"coach"} → {"coach", "mentor"}
+        """
+        expanded = set(tokens)
+        for token in tokens:
+            canonical = self._synonym_map.get(token)
+            if canonical:
+                expanded.add(canonical)
+        return expanded
+
+
 
     def resolve(self, intent_label: str) -> dict:
         """
@@ -142,6 +194,11 @@ class IntentResolver:
             List of (intent_label, score) tuples, sorted by score desc.
         """
         query_tokens = set(query.lower().split())
+
+        # ── Synonym expansion ────────────────────────────────────────────
+        query_tokens = self._expand_tokens(query_tokens)
+        # ─────────────────────────────────────────────────────────────────
+
         scores = Counter()
 
         total_intents = len(self._intents)
@@ -205,13 +262,15 @@ class IntentResolver:
             Dict with stats suitable for an admin dashboard.
         """
         return {
-            "total_intents":    self.intent_count,
-            "total_categories": self.category_count,
+            "total_intents":     self.intent_count,
+            "total_categories":  self.category_count,
             "categories": {
                 cat: len(intents)
                 for cat, intents in self._category_index.items()
             },
-            "total_keywords":   len(self._keyword_index),
+            "total_keywords":    len(self._keyword_index),
+            "total_synonyms":    len(self._synonym_map),
+            "synonyms_loaded":   bool(self._synonym_map),
             "intents_with_admin_notes": sum(
                 1 for m in self._intents.values() if m.get("admin_notes")
             ),
@@ -232,6 +291,7 @@ if __name__ == "__main__":
     print(f"\n  Total intents:    {summary['total_intents']}")
     print(f"  Total categories: {summary['total_categories']}")
     print(f"  Total keywords:   {summary['total_keywords']}")
+    print(f"  Total synonyms:   {summary['total_synonyms']}")
     print(f"  With admin notes: {summary['intents_with_admin_notes']}")
 
     print(f"\n  Category breakdown:")
@@ -247,12 +307,36 @@ if __name__ == "__main__":
     ]
     for label in test_intents:
         result = resolver.resolve(label)
-        status = "✓" if result["resolved"] else "✗"
-        print(f"    {status} {label}")
-        print(f"      → {result['response'][:80]}...")
-        print(f"      → route: {result['route']}")
+        status = "OK" if result["resolved"] else "MISS"
+        print(f"    [{status}] {label}")
+        print(f"      Response: {result['response'][:80]}...")
+        print(f"      Route:    {result['route']}")
         print()
 
-    print(f"  Semantic boost for 'join meeting room':")
-    for intent, score in resolver.semantic_boost("join meeting room", top_k=5):
-        print(f"    {intent}: {score:.3f}")
+    print(f"  Synonym expansion demo:")
+    test_queries = [
+        ("coach",       "mentor"),
+        ("trainer",     "mentor"),
+        ("tutor",       "mentor"),
+        ("exam",        "quiz/test"),
+        ("diploma",     "certificate"),
+        ("mic",         "microphone"),
+        ("sketching",   "drawing"),
+    ]
+    for user_word, expected_canonical in test_queries:
+        canonical = resolver._synonym_map.get(user_word, "(no mapping)")
+        status = "OK" if canonical != "(no mapping)" else "MISS"
+        print(f"    [{status}] '{user_word}' -> '{canonical}' (expected: '{expected_canonical}')")
+
+    print(f"\n  Semantic boost with synonym expansion:")
+    queries = [
+        "I need a coach to guide me",
+        "how do I reach my tutor",
+        "I want to take an exam",
+        "my mic is broken during the call",
+    ]
+    for q in queries:
+        print(f"\n    Query: '{q}'")
+        for intent, score in resolver.semantic_boost(q, top_k=3):
+            print(f"      -> {intent}: {score:.3f}")
+

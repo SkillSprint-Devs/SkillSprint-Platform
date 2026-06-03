@@ -1,14 +1,44 @@
 {
-  "training_time_seconds": 6.34,
-  "train_samples": 988,
-  "val_samples": 200,
-  "n_classes": 40,
-  "n_features": 552,
-  "train_accuracy": 0.9585,
-  "train_macro_f1": 0.9592,
-  "val_accuracy": 0.905,
-  "val_macro_f1": 0.9047,
+  "training_time_seconds": 10.3,
+  "train_samples": 1113,
+  "val_samples": 225,
+  "n_classes": 45,
+  "n_features": 591,
+  "train_accuracy": 0.9748,
+  "train_macro_f1": 0.9749,
+  "val_accuracy": 0.9333,
+  "val_macro_f1": 0.9337,
   "val_per_class": {
+    "platform.ai.ask": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.ai.capabilities": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.ai.feedback": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.ai.history": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.ai.saved_queries": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
     "platform.cert.list_badges": {
       "precision": 1.0,
       "recall": 1.0,
@@ -40,9 +70,9 @@
       "support": 5
     },
     "platform.help.system_health": {
-      "precision": 0.7143,
+      "precision": 0.8333,
       "recall": 1.0,
-      "f1": 0.8333,
+      "f1": 0.9091,
       "support": 5
     },
     "platform.library.preview": {
@@ -65,8 +95,8 @@
     },
     "platform.matchmaking.algorithm": {
       "precision": 1.0,
-      "recall": 0.6,
-      "f1": 0.75,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.matchmaking.feed": {
@@ -76,9 +106,9 @@
       "support": 5
     },
     "platform.matchmaking.find": {
-      "precision": 0.5714,
+      "precision": 0.6667,
       "recall": 0.8,
-      "f1": 0.6667,
+      "f1": 0.7273,
       "support": 5
     },
     "platform.pair_prog.comment": {
@@ -118,9 +148,9 @@
       "support": 5
     },
     "platform.quiz.feedback": {
-      "precision": 0.8333,
+      "precision": 0.7143,
       "recall": 1.0,
-      "f1": 0.9091,
+      "f1": 0.8333,
       "support": 5
     },
     "platform.quiz.limits": {
@@ -131,8 +161,8 @@
     },
     "platform.quiz.list_courses": {
       "precision": 1.0,
-      "recall": 0.6,
-      "f1": 0.75,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.quiz.save_resume": {
@@ -142,9 +172,9 @@
       "support": 5
     },
     "platform.quiz.start": {
-      "precision": 0.7143,
+      "precision": 0.8333,
       "recall": 1.0,
-      "f1": 0.8333,
+      "f1": 0.9091,
       "support": 5
     },
     "platform.quiz.unlocks": {
@@ -214,9 +244,9 @@
       "support": 5
     },
     "platform.wallet.balance": {
-      "precision": 0.8333,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1": 0.9091,
+      "f1": 1.0,
       "support": 5
     },
     "platform.wallet.clear": {
@@ -227,8 +257,8 @@
     },
     "platform.wallet.reset": {
       "precision": 1.0,
-      "recall": 0.8,
-      "f1": 0.8889,
+      "recall": 1.0,
+      "f1": 1.0,
       "support": 5
     },
     "platform.whiteboard.join": {
@@ -238,15 +268,15 @@
       "support": 5
     },
     "platform.whiteboard.presence": {
-      "precision": 1.0,
-      "recall": 0.6,
-      "f1": 0.75,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
       "support": 5
     },
     "platform.whiteboard.tools": {
-      "precision": 0.6667,
+      "precision": 1.0,
       "recall": 0.8,
-      "f1": 0.7273,
+      "f1": 0.8889,
       "support": 5
     }
   },
@@ -263,6 +293,11 @@
     "C": 1.0
   },
   "classes": [
+    "platform.ai.ask",
+    "platform.ai.capabilities",
+    "platform.ai.feedback",
+    "platform.ai.history",
+    "platform.ai.saved_queries",
     "platform.cert.list_badges",
     "platform.cert.verify",
     "platform.cert.view",

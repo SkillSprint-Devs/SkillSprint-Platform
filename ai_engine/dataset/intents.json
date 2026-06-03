@@ -2,328 +2,1490 @@
   "platform.session.join": {
     "category": "Live Sessions",
     "response": "To join a live session, open the Live Collaboration page and click the 'Join Now' button on any active session card.",
-    "route": "/dashboard/live-sessions",
-    "keywords": ["join", "session", "meeting", "live class", "video call", "connect", "enter"],
-    "admin_notes": "Most common session intent. Users often confuse 'join' with 'create'. Typo-heavy input expected (e.g. 'joim', 'jion')."
+    "route": "LIVE_SESSIONS",
+    "keywords": [
+      "join",
+      "session",
+      "meeting",
+      "live class",
+      "video call",
+      "connect",
+      "enter"
+    ],
+    "admin_notes": "Most common session intent. Users often confuse 'join' with 'create'. Typo-heavy input expected (e.g. 'joim', 'jion').",
+    "examples": [
+      "how do i join the meeting",
+      "where is the button to join the session",
+      "how to enter the live call",
+      "i want to jump into the collaborative session"
+    ]
   },
-
   "platform.session.create": {
     "category": "Live Sessions",
     "response": "To start a new live session, go to the Live Sessions page and click 'Create Session'. You can choose between video, audio, or screen-sharing modes.",
-    "route": "/dashboard/live-sessions",
-    "keywords": ["create", "start", "launch", "host", "new session", "begin", "video call"],
-    "admin_notes": "Often confused with session.join. Users say 'start a call' meaning either create or join."
+    "route": "LIVE_SESSIONS",
+    "keywords": [
+      "create",
+      "start",
+      "launch",
+      "host",
+      "new session",
+      "begin",
+      "video call"
+    ],
+    "admin_notes": "Often confused with session.join. Users say 'start a call' meaning either create or join.",
+    "examples": [
+      "how do i start a live session",
+      "i want to launch a video call with my partner",
+      "where can i create a new collaboration room",
+      "start a new audio session"
+    ]
   },
-
   "platform.session.schedule": {
     "category": "Live Sessions",
     "response": "You can schedule a future session from the Live Sessions page. Click 'Schedule' and pick a date, time, and invite participants.",
-    "route": "/dashboard/live-sessions",
-    "keywords": ["schedule", "book", "reschedule", "meeting time", "appointment", "plan", "arrange"],
-    "admin_notes": "Overlaps with task.create when users say 'set up a meeting'. Context disambiguation needed."
+    "route": "LIVE_SESSIONS",
+    "keywords": [
+      "schedule",
+      "book",
+      "reschedule",
+      "meeting time",
+      "appointment",
+      "plan",
+      "arrange"
+    ],
+    "admin_notes": "Overlaps with task.create when users say 'set up a meeting'. Context disambiguation needed.",
+    "examples": [
+      "can i schedule a session for tomorrow",
+      "how do i book a mentor session",
+      "set up a meeting with my teammate for friday",
+      "how to reschedule an upcoming call"
+    ]
   },
-
   "platform.session.history": {
     "category": "Live Sessions",
     "response": "Your past session records are available on the Live Sessions page under the 'History' tab. You can view timestamps, participants, and durations.",
-    "route": "/dashboard/live-sessions",
-    "keywords": ["history", "past", "previous", "completed", "old meetings", "records", "logs"],
-    "admin_notes": "Read-only intent. Users sometimes want to re-join an ended session — redirect to session.create if that's the case."
+    "route": "LIVE_SESSIONS",
+    "keywords": [
+      "history",
+      "past",
+      "previous",
+      "completed",
+      "old meetings",
+      "records",
+      "logs"
+    ],
+    "admin_notes": "Read-only intent. Users sometimes want to re-join an ended session \u2014 redirect to session.create if that's the case.",
+    "examples": [
+      "where is my session history",
+      "can i see who i met with last week",
+      "show me my past collaboration records",
+      "how to view completed session logs"
+    ]
   },
-
   "platform.session.troubleshoot": {
     "category": "Live Sessions",
     "response": "For audio/video issues, check your browser permissions for camera and microphone access. Ensure you're using a supported browser (Chrome or Firefox). Try refreshing the page or rejoining the session.",
-    "route": "/dashboard/live-sessions",
-    "keywords": ["camera", "microphone", "audio", "video", "lagging", "frozen", "broken", "troubleshoot", "not working"],
-    "admin_notes": "High-frustration intent. Immediate, actionable steps are critical. Browser permission denials are the #1 root cause."
+    "route": "LIVE_SESSIONS",
+    "keywords": [
+      "camera",
+      "microphone",
+      "audio",
+      "video",
+      "lagging",
+      "frozen",
+      "broken",
+      "troubleshoot",
+      "not working"
+    ],
+    "admin_notes": "High-frustration intent. Immediate, actionable steps are critical. Browser permission denials are the #1 root cause.",
+    "examples": [
+      "my camera is not working in the session",
+      "how do i enable microphone permissions",
+      "the audio is lagging in the meeting room",
+      "why cant i hear my teammate"
+    ]
   },
-
   "platform.pair_prog.create": {
     "category": "Pair Programming",
     "response": "To start a pair programming session, go to the Pair Programming page and click 'Create Board'. Choose your language (JavaScript, Python, Java, etc.) to get a preconfigured workspace.",
-    "route": "/dashboard/pair-programming",
-    "keywords": ["pair programming", "create board", "workspace", "code editor", "shared editor", "coding session"],
-    "admin_notes": "Core feature intent. Language selection happens at board creation time."
+    "route": "PAIR_PROGRAMMING",
+    "keywords": [
+      "pair programming",
+      "create board",
+      "workspace",
+      "code editor",
+      "shared editor",
+      "coding session"
+    ],
+    "admin_notes": "Core feature intent. Language selection happens at board creation time.",
+    "examples": [
+      "how do i start a pair programming session",
+      "create a new javascript board",
+      "where do i open a live code workspace",
+      "i want to make a shared editor"
+    ]
   },
-
   "platform.pair_prog.invite": {
     "category": "Pair Programming",
     "response": "To invite someone to your board, click the 'Invite' button in the top toolbar. You can search for users by name or send an invite link directly.",
-    "route": "/dashboard/pair-programming",
-    "keywords": ["invite", "add user", "collaborator", "teammate", "share access", "send invite"],
-    "admin_notes": "Users may also ask about share_link — similar but different. Invite is user-to-user; share_link is URL-based."
+    "route": "PAIR_PROGRAMMING",
+    "keywords": [
+      "invite",
+      "add user",
+      "collaborator",
+      "teammate",
+      "share access",
+      "send invite"
+    ],
+    "admin_notes": "Users may also ask about share_link \u2014 similar but different. Invite is user-to-user; share_link is URL-based.",
+    "examples": [
+      "how do i invite users to my board",
+      "can i add my follower to this workspace",
+      "send a pair programming invitation to alex",
+      "how to add developers to my code session"
+    ]
   },
-
   "platform.pair_prog.roles": {
     "category": "Pair Programming",
     "response": "In pair programming, the 'Driver' has edit access while the 'Navigator' reviews in real-time. To swap roles, click the 'Swap Roles' button in the toolbar. The current driver must approve the swap request.",
-    "route": "/dashboard/pair-programming",
-    "keywords": ["driver", "navigator", "swap", "roles", "edit permission", "edit access", "switch roles"],
-    "admin_notes": "Users frequently frustrated when they can't edit — they're in Navigator mode. Explain the approval flow clearly."
+    "route": "PAIR_PROGRAMMING",
+    "keywords": [
+      "driver",
+      "navigator",
+      "swap",
+      "roles",
+      "edit permission",
+      "edit access",
+      "switch roles"
+    ],
+    "admin_notes": "Users frequently frustrated when they can't edit \u2014 they're in Navigator mode. Explain the approval flow clearly.",
+    "examples": [
+      "how do we swap roles in pair programming",
+      "what is the difference between driver and navigator",
+      "how do i approve editing rights",
+      "why cant i edit the code driver permission"
+    ]
   },
-
   "platform.pair_prog.execute": {
     "category": "Pair Programming",
-    "response": "To run your code, click the '▶ Run' button in the board toolbar. Console output appears in the bottom panel. Supported languages: JavaScript, Python, Java, C++.",
-    "route": "/dashboard/pair-programming",
-    "keywords": ["run", "execute", "compile", "console", "output", "terminal", "sandbox"],
-    "admin_notes": "Execution is sandboxed. Timeout is 30 seconds. Users with infinite loops may see blank output — that's expected."
+    "response": "To run your code, click the '\u25b6 Run' button in the board toolbar. Console output appears in the bottom panel. Supported languages: JavaScript, Python, Java, C++.",
+    "route": "PAIR_PROGRAMMING",
+    "keywords": [
+      "run",
+      "execute",
+      "compile",
+      "console",
+      "output",
+      "terminal",
+      "sandbox"
+    ],
+    "admin_notes": "Execution is sandboxed. Timeout is 30 seconds. Users with infinite loops may see blank output \u2014 that's expected.",
+    "examples": [
+      "how do i run my javascript code here",
+      "where is the console output for the code",
+      "compile and execute the main file",
+      "my code isnt running in the sandbox"
+    ]
   },
-
   "platform.pair_prog.share_link": {
     "category": "Pair Programming",
     "response": "To share your workspace, click 'Share Link' in the toolbar to generate a unique URL or join token. Anyone with the link can join as a Navigator by default.",
-    "route": "/dashboard/pair-programming",
-    "keywords": ["share link", "url", "token", "join link", "shareable", "clipboard", "external"],
-    "admin_notes": "Distinct from pair_prog.invite which is internal user search. Share links expire after 24 hours."
+    "route": "PAIR_PROGRAMMING",
+    "keywords": [
+      "share link",
+      "url",
+      "token",
+      "join link",
+      "shareable",
+      "clipboard",
+      "external"
+    ],
+    "admin_notes": "Distinct from pair_prog.invite which is internal user search. Share links expire after 24 hours.",
+    "examples": [
+      "can i get a shareable link for my editor",
+      "how to generate a join token",
+      "how to invite external developers to view my code",
+      "send me the url for this pair programming room"
+    ]
   },
-
   "platform.pair_prog.comment": {
     "category": "Pair Programming",
     "response": "To leave a code comment, click on any line number in the editor and select 'Add Comment'. Your comments appear in the right panel and are visible to all participants.",
-    "route": "/dashboard/pair-programming",
-    "keywords": ["comment", "review", "feedback", "note", "line comment", "code review", "annotation"],
-    "admin_notes": "Line-level commenting is the primary review mechanism. Comments persist after the session ends."
+    "route": "PAIR_PROGRAMMING",
+    "keywords": [
+      "comment",
+      "review",
+      "feedback",
+      "note",
+      "line comment",
+      "code review",
+      "annotation"
+    ],
+    "admin_notes": "Line-level commenting is the primary review mechanism. Comments persist after the session ends.",
+    "examples": [
+      "how do i leave a comment on line 12",
+      "where are the workspace comments",
+      "add a feedback note to index.js",
+      "how do line level reviews work"
+    ]
   },
-
   "platform.whiteboard.join": {
     "category": "Whiteboard",
     "response": "To open the interactive whiteboard, navigate to the Whiteboard page from the sidebar. You can create a new board or join an existing one shared by your partner.",
-    "route": "/dashboard/whiteboard",
-    "keywords": ["whiteboard", "drawing", "sketch", "board", "canvas", "collaborative board", "diagram"],
-    "admin_notes": "Whiteboard is real-time via WebSocket. Users on slow connections may experience lag — see whiteboard.presence."
+    "route": "WHITEBOARD",
+    "keywords": [
+      "whiteboard",
+      "drawing",
+      "sketch",
+      "board",
+      "canvas",
+      "collaborative board",
+      "diagram"
+    ],
+    "admin_notes": "Whiteboard is real-time via WebSocket. Users on slow connections may experience lag \u2014 see whiteboard.presence.",
+    "examples": [
+      "how do i open the interactive whiteboard",
+      "where is the collaborative drawing board",
+      "i want to start a sketching session",
+      "launch the board page"
+    ]
   },
-
   "platform.whiteboard.tools": {
     "category": "Whiteboard",
     "response": "The whiteboard toolbar includes: Pen, Eraser, Shapes (rectangle, circle, line), Text, Color Picker, and Brush Size slider. Select any tool from the top toolbar to start drawing.",
-    "route": "/dashboard/whiteboard",
-    "keywords": ["pen", "eraser", "shapes", "color", "brush", "text", "tools", "rectangle", "circle"],
-    "admin_notes": "Feature-rich but users often miss the toolbar on mobile. Responsive layout may hide some tools behind a menu."
+    "route": "WHITEBOARD",
+    "keywords": [
+      "pen",
+      "eraser",
+      "shapes",
+      "color",
+      "brush",
+      "text",
+      "tools",
+      "rectangle",
+      "circle"
+    ],
+    "admin_notes": "Feature-rich but users often miss the toolbar on mobile. Responsive layout may hide some tools behind a menu.",
+    "examples": [
+      "how do i change the drawing color",
+      "can i add rectangles and text to the board",
+      "where is the eraser tool",
+      "how to adjust brush thickness"
+    ]
   },
-
   "platform.whiteboard.presence": {
     "category": "Whiteboard",
     "response": "Live cursors show where each participant is drawing in real-time, color-coded by user. If cursors aren't visible, check your connection or refresh the page.",
-    "route": "/dashboard/whiteboard",
-    "keywords": ["cursor", "presence", "real-time", "live", "sync", "multiplayer", "partner cursor"],
-    "admin_notes": "Presence relies on WebSocket. Cursor sync issues are almost always network-related. Polling fallback exists but is slower."
+    "route": "WHITEBOARD",
+    "keywords": [
+      "cursor",
+      "presence",
+      "real-time",
+      "live",
+      "sync",
+      "multiplayer",
+      "partner cursor"
+    ],
+    "admin_notes": "Presence relies on WebSocket. Cursor sync issues are almost always network-related. Polling fallback exists but is slower.",
+    "examples": [
+      "why cant i see my partners cursor",
+      "are whiteboard cursors color coded",
+      "how do multi user board comments work",
+      "can we draw at the same time"
+    ]
   },
-
   "platform.matchmaking.find": {
     "category": "Matchmaking",
     "response": "To find a study partner or mentor, go to the Matchmaking page and click 'Find Match'. The system uses your skill profile and learning goals to suggest compatible peers.",
-    "route": "/dashboard/matchmaking",
-    "keywords": ["find", "match", "partner", "mentor", "study buddy", "teammate", "collaborate", "peers"],
-    "admin_notes": "Primary matchmaking entry point. Users with incomplete profiles get poor matches — encourage profile completion."
+    "route": "MATCHMAKING",
+    "keywords": [
+      "find",
+      "match",
+      "partner",
+      "mentor",
+      "study buddy",
+      "teammate",
+      "collaborate",
+      "peers"
+    ],
+    "admin_notes": "Primary matchmaking entry point. Users with incomplete profiles get poor matches \u2014 encourage profile completion.",
+    "examples": [
+      "find me a study partner",
+      "how do i match with other javascript developers",
+      "match me with a mentor",
+      "where can i find ideal teammates"
+    ]
   },
-
   "platform.matchmaking.algorithm": {
     "category": "Matchmaking",
     "response": "Our matchmaking uses a KNN (K-Nearest Neighbors) algorithm with cosine similarity to compare your skill vector against other users. Scores factor in: shared languages, experience level, timezone overlap, and learning goals.",
-    "route": "/dashboard/matchmaking",
-    "keywords": ["algorithm", "knn", "cosine similarity", "score", "compatibility", "matching criteria", "how matching works"],
-    "admin_notes": "Technical explainability intent. Important for panel — shows AI/ML depth. KNN with k=5, cosine similarity on TF-IDF skill vectors."
+    "route": "MATCHMAKING",
+    "keywords": [
+      "algorithm",
+      "knn",
+      "cosine similarity",
+      "score",
+      "compatibility",
+      "matching criteria",
+      "how matching works"
+    ],
+    "admin_notes": "Technical explainability intent. Important for panel \u2014 shows AI/ML depth. KNN with k=5, cosine similarity on TF-IDF skill vectors.",
+    "examples": [
+      "how does the matchmaking system find peers",
+      "what is knn and cosine similarity in matching",
+      "why did i get recommended to this user",
+      "how are skills used in the matching score"
+    ]
   },
-
   "platform.matchmaking.feed": {
     "category": "Matchmaking",
     "response": "The Collaboration Feed shows project requests and open collaboration offers from the community. You can browse, post your own stack, or accept invitations directly from the feed.",
-    "route": "/dashboard/matchmaking",
-    "keywords": ["feed", "project", "collaboration", "request", "offer", "post", "browse", "listings"],
-    "admin_notes": "Feed is public within the platform. Posts auto-expire after 7 days. Distinct from social.post — this is project-focused."
+    "route": "MATCHMAKING",
+    "keywords": [
+      "feed",
+      "project",
+      "collaboration",
+      "request",
+      "offer",
+      "post",
+      "browse",
+      "listings"
+    ],
+    "admin_notes": "Feed is public within the platform. Posts auto-expire after 7 days. Distinct from social.post \u2014 this is project-focused.",
+    "examples": [
+      "where do i see project request cards",
+      "how do i accept a collaboration offer",
+      "browse ongoing project listings",
+      "how do i post my stack to the feed"
+    ]
   },
-
   "platform.quiz.list_courses": {
     "category": "Quiz System",
     "response": "View all available courses and quizzes from the Quizzes page. Courses include JavaScript, Python, HTML/CSS, Node.js, React, MongoDB, and more. Your progress is tracked per course.",
-    "route": "/dashboard/quizzes",
-    "keywords": ["courses", "list", "available", "quizzes", "learning paths", "assessments", "topics", "progress"],
-    "admin_notes": "Gateway intent to the quiz system. Show progress bars and locked/unlocked states clearly."
+    "route": "QUIZZES",
+    "keywords": [
+      "courses",
+      "list",
+      "available",
+      "quizzes",
+      "learning paths",
+      "assessments",
+      "topics",
+      "progress"
+    ],
+    "admin_notes": "Gateway intent to the quiz system. Show progress bars and locked/unlocked states clearly.",
+    "examples": [
+      "what courses are available to take",
+      "show me my current quiz progress",
+      "can i see a list of learning paths",
+      "where do i find html css and nodejs assessments"
+    ]
   },
-
   "platform.quiz.start": {
     "category": "Quiz System",
     "response": "To start a quiz, select a course from the Quizzes page and click 'Start Quiz'. Each quiz has a time limit and your progress auto-saves as you answer.",
-    "route": "/dashboard/quizzes",
-    "keywords": ["start", "begin", "take", "launch", "exam", "assessment", "test"],
-    "admin_notes": "Check quiz.limits before starting — users may have exhausted daily attempts. Auto-save is enabled by default."
+    "route": "QUIZZES",
+    "keywords": [
+      "start",
+      "begin",
+      "take",
+      "launch",
+      "exam",
+      "assessment",
+      "test"
+    ],
+    "admin_notes": "Check quiz.limits before starting \u2014 users may have exhausted daily attempts. Auto-save is enabled by default.",
+    "examples": [
+      "how do i start a javascript quiz",
+      "i want to begin the problem solving assessment",
+      "launch the basic level exam",
+      "start my quiz now"
+    ]
   },
-
   "platform.quiz.save_resume": {
     "category": "Quiz System",
     "response": "Your quiz progress auto-saves after each answer. If your browser closes, return to the Quizzes page and click 'Resume' on your active quiz to continue where you left off.",
-    "route": "/dashboard/quizzes",
-    "keywords": ["save", "resume", "continue", "auto save", "pause", "browser closed", "recover", "restore"],
-    "admin_notes": "Auto-save uses localStorage + server sync. If localStorage is cleared, server-side state is the fallback. Sessions expire after 24 hours."
+    "route": "QUIZZES",
+    "keywords": [
+      "save",
+      "resume",
+      "continue",
+      "auto save",
+      "pause",
+      "browser closed",
+      "recover",
+      "restore"
+    ],
+    "admin_notes": "Auto-save uses localStorage + server sync. If localStorage is cleared, server-side state is the fallback. Sessions expire after 24 hours.",
+    "examples": [
+      "does the quiz auto save my answers",
+      "can i resume an active quiz if my browser closes",
+      "where is my in progress quiz session",
+      "is my answer progress saved automatically"
+    ]
   },
-
   "platform.quiz.limits": {
     "category": "Quiz System",
     "response": "You have 3 quiz attempts per course per day. Attempts reset at midnight (UTC). If you've reached the limit, you'll need to wait until the next day to retry.",
-    "route": "/dashboard/quizzes",
-    "keywords": ["attempts", "limit", "daily", "retries", "reset", "blocked", "max tries", "cap"],
-    "admin_notes": "Most frequent frustration point in quiz system. Consider showing a countdown timer to next reset."
+    "route": "QUIZZES",
+    "keywords": [
+      "attempts",
+      "limit",
+      "daily",
+      "retries",
+      "reset",
+      "blocked",
+      "max tries",
+      "cap"
+    ],
+    "admin_notes": "Most frequent frustration point in quiz system. Consider showing a countdown timer to next reset.",
+    "examples": [
+      "how many quiz attempts do i get",
+      "why does it say daily limit reached",
+      "can i bypass the 3 attempts per day constraint",
+      "when do my quiz attempts reset"
+    ]
   },
-
   "platform.quiz.unlocks": {
     "category": "Quiz System",
     "response": "Advanced quizzes unlock after successfully passing the previous difficulty level. You need a minimum passing score of 70% on the Basic quiz to unlock Intermediate, and 70% on Intermediate to unlock Advanced.",
-    "route": "/dashboard/quizzes",
-    "keywords": ["unlock", "locked", "advanced", "intermediate", "prerequisites", "level", "progression", "greyed out"],
-    "admin_notes": "Passing threshold is 70%. Users often don't realize they need to pass — not just attempt. Show unlock requirements on the card."
+    "route": "QUIZZES",
+    "keywords": [
+      "unlock",
+      "locked",
+      "advanced",
+      "intermediate",
+      "prerequisites",
+      "level",
+      "progression",
+      "greyed out"
+    ],
+    "admin_notes": "Passing threshold is 70%. Users often don't realize they need to pass \u2014 not just attempt. Show unlock requirements on the card.",
+    "examples": [
+      "why is the advanced quiz locked",
+      "how do i unlock the intermediate quiz",
+      "must i pass basic first before moving on",
+      "unlock conditions for other courses"
+    ]
   },
-
   "platform.quiz.feedback": {
     "category": "Quiz System",
     "response": "After completing a quiz, your score breakdown and detailed feedback are available on the results page. You can review correct answers, see which topics need improvement, and track your progress over time.",
-    "route": "/dashboard/quizzes",
-    "keywords": ["score", "results", "feedback", "answers", "grade", "review", "mistakes", "pass", "fail"],
-    "admin_notes": "Post-quiz UX is critical for learning. Show per-topic breakdown, not just a total score."
+    "route": "QUIZZES",
+    "keywords": [
+      "score",
+      "results",
+      "feedback",
+      "answers",
+      "grade",
+      "review",
+      "mistakes",
+      "pass",
+      "fail"
+    ],
+    "admin_notes": "Post-quiz UX is critical for learning. Show per-topic breakdown, not just a total score.",
+    "examples": [
+      "how is my quiz score calculated",
+      "show me detailed feedback for my last attempt",
+      "what topics did i fail in the mongodb quiz",
+      "where is the review of correct answers"
+    ]
   },
-
   "platform.cert.list_badges": {
     "category": "Certificates & Badges",
     "response": "View your earned badges and achievements on the Certificates page. Badge tiers include Bronze, Silver, Gold, and Platinum, awarded based on milestones like course completions, streaks, and collaboration hours.",
-    "route": "/dashboard/certificates",
-    "keywords": ["badges", "achievements", "milestones", "trophies", "rewards", "medals", "tier", "goals"],
-    "admin_notes": "Gamification layer. Badge criteria are server-enforced. Badge art assets are in /assets/badges/."
+    "route": "CERTIFICATES",
+    "keywords": [
+      "badges",
+      "achievements",
+      "milestones",
+      "trophies",
+      "rewards",
+      "medals",
+      "tier",
+      "goals"
+    ],
+    "admin_notes": "Gamification layer. Badge criteria are server-enforced. Badge art assets are in /assets/badges/.",
+    "examples": [
+      "where are my badges",
+      "how do i get a gold tier achievement",
+      "show me my completed milestones",
+      "what are the badge tiers available"
+    ]
   },
-
   "platform.cert.view": {
     "category": "Certificates & Badges",
     "response": "To view or download your certificate, go to the Certificates page and click on any earned certificate. You can download it as a PDF or share a public verification link.",
-    "route": "/dashboard/certificates",
-    "keywords": ["certificate", "download", "pdf", "diploma", "completion", "print", "export", "view cert"],
-    "admin_notes": "Certificates are generated as PDF on-demand. Ensure the user has actually passed the course before showing the download button."
+    "route": "CERTIFICATES",
+    "keywords": [
+      "certificate",
+      "download",
+      "pdf",
+      "diploma",
+      "completion",
+      "print",
+      "export",
+      "view cert"
+    ],
+    "admin_notes": "Certificates are generated as PDF on-demand. Ensure the user has actually passed the course before showing the download button.",
+    "examples": [
+      "how do i download my certificate",
+      "where is my javascript completion certificate",
+      "show my certificates list",
+      "can i save a pdf of my certificate"
+    ]
   },
-
   "platform.cert.verify": {
     "category": "Certificates & Badges",
-    "response": "Each certificate has a unique verification ID. Share the public verification URL with employers or institutions — they can verify authenticity without needing a platform account.",
-    "route": "/dashboard/certificates",
-    "keywords": ["verify", "validation", "authenticity", "certificate id", "public link", "employer", "credentials"],
-    "admin_notes": "Public verification endpoint: /verify/:certId. No auth required for verification. Important for credibility."
+    "response": "Each certificate has a unique verification ID. Share the public verification URL with employers or institutions \u2014 they can verify authenticity without needing a platform account.",
+    "route": "CERTIFICATES",
+    "keywords": [
+      "verify",
+      "validation",
+      "authenticity",
+      "certificate id",
+      "public link",
+      "employer",
+      "credentials"
+    ],
+    "admin_notes": "Public verification endpoint: /verify/:certId. No auth required for verification. Important for credibility.",
+    "examples": [
+      "how to verify my certificate publicly",
+      "where is the verification url",
+      "what is my certificate id",
+      "validate my completion credentials"
+    ]
   },
-
   "platform.library.upload": {
     "category": "Resource Library",
     "response": "To upload a resource, go to the Library page and click the 'Upload' button. Supported formats: PDF, images, ZIP, video recordings, and presentations. Max file size: 50MB.",
-    "route": "/dashboard/library",
-    "keywords": ["upload", "file", "pdf", "resource", "share", "document", "submit", "add files"],
-    "admin_notes": "File size limit is 50MB. Supported MIME types are server-validated. Video uploads may take longer due to processing."
+    "route": "LIBRARY",
+    "keywords": [
+      "upload",
+      "file",
+      "pdf",
+      "resource",
+      "share",
+      "document",
+      "submit",
+      "add files"
+    ],
+    "admin_notes": "File size limit is 50MB. Supported MIME types are server-validated. Video uploads may take longer due to processing.",
+    "examples": [
+      "how do i upload a pdf to the library",
+      "where can i upload my session recording",
+      "add new slides to the resource folder",
+      "i want to share a zip file with the community"
+    ]
   },
-
   "platform.library.preview": {
     "category": "Resource Library",
     "response": "You can preview most files directly in the browser without downloading. Click the 'Preview' button on any resource card. Supported preview types: PDF, images, and text files.",
-    "route": "/dashboard/library",
-    "keywords": ["preview", "view", "modal", "inspect", "read online", "file viewer", "open without download"],
-    "admin_notes": "ZIP and video previews are limited. PDF preview uses an iframe renderer. Preview modal may not work on older browsers."
+    "route": "LIBRARY",
+    "keywords": [
+      "preview",
+      "view",
+      "modal",
+      "inspect",
+      "read online",
+      "file viewer",
+      "open without download"
+    ],
+    "admin_notes": "ZIP and video previews are limited. PDF preview uses an iframe renderer. Preview modal may not work on older browsers.",
+    "examples": [
+      "can i preview a document without downloading it",
+      "how does the modal file viewer work",
+      "let me inspect this image before download",
+      "the library preview is not loading"
+    ]
   },
-
   "platform.library.search": {
     "category": "Resource Library",
     "response": "Use the search bar on the Library page to find resources by name, type, or category. You can also filter by file type (PDF, video, slides) and sort by date or popularity.",
-    "route": "/dashboard/library",
-    "keywords": ["search", "find", "filter", "look up", "browse", "resources", "materials", "documents"],
-    "admin_notes": "Search is keyword-based currently. Full-text search inside PDFs is a planned feature."
+    "route": "LIBRARY",
+    "keywords": [
+      "search",
+      "find",
+      "filter",
+      "look up",
+      "browse",
+      "resources",
+      "materials",
+      "documents"
+    ],
+    "admin_notes": "Search is keyword-based currently. Full-text search inside PDFs is a planned feature.",
+    "examples": [
+      "how do i search for js resources",
+      "find the git tutorial slides",
+      "filter files by category in the library",
+      "where to search uploaded documents"
+    ]
   },
-
   "platform.wallet.balance": {
     "category": "Wallet",
     "response": "You can view your remaining credits and transaction history from the Wallet Dashboard. Your balance shows available tokens, weekly limit, and recent transactions.",
-    "route": "/dashboard/wallet",
-    "keywords": ["balance", "credits", "tokens", "wallet", "remaining", "limit", "transactions", "coins"],
-    "admin_notes": "Frequently confused with wallet.reset intent. Users asking 'how many credits' want balance; 'when do credits come back' want reset."
+    "route": "WALLET",
+    "keywords": [
+      "balance",
+      "credits",
+      "tokens",
+      "wallet",
+      "remaining",
+      "limit",
+      "transactions",
+      "coins"
+    ],
+    "admin_notes": "Frequently confused with wallet.reset intent. Users asking 'how many credits' want balance; 'when do credits come back' want reset.",
+    "examples": [
+      "how many credits do i have left",
+      "what is my weekly wallet limit",
+      "how to check my transaction history",
+      "where do i view my virtual tokens"
+    ]
   },
-
   "platform.wallet.reset": {
     "category": "Wallet",
     "response": "Your wallet credits reset automatically every Monday at midnight (UTC). Unused credits do not roll over to the next week. Check the Wallet page for your next reset countdown.",
-    "route": "/dashboard/wallet",
-    "keywords": ["reset", "refresh", "reload", "replenish", "refill", "weekly", "rollover", "next reset"],
-    "admin_notes": "Reset is server-side cron job (Monday 00:00 UTC). Credits do NOT roll over. Users frequently ask if they can force a reset — they cannot."
+    "route": "WALLET",
+    "keywords": [
+      "reset",
+      "refresh",
+      "reload",
+      "replenish",
+      "refill",
+      "weekly",
+      "rollover",
+      "next reset"
+    ],
+    "admin_notes": "Reset is server-side cron job (Monday 00:00 UTC). Credits do NOT roll over. Users frequently ask if they can force a reset \u2014 they cannot.",
+    "examples": [
+      "when does my weekly credit balance reset",
+      "can i run a manual wallet check reset",
+      "why did my credits reset today",
+      "next reset date for credits"
+    ]
   },
-
   "platform.wallet.clear": {
     "category": "Wallet",
     "response": "To clear your transaction history, go to the Wallet page and click 'Clear History'. This removes the visual log but does not affect your actual credit balance.",
-    "route": "/dashboard/wallet",
-    "keywords": ["clear", "delete", "remove", "wipe", "erase", "history", "logs", "purge", "transactions"],
-    "admin_notes": "Soft delete only — records are retained server-side for audit purposes. UI clears but backend maintains full history."
+    "route": "WALLET",
+    "keywords": [
+      "clear",
+      "delete",
+      "remove",
+      "wipe",
+      "erase",
+      "history",
+      "logs",
+      "purge",
+      "transactions"
+    ],
+    "admin_notes": "Soft delete only \u2014 records are retained server-side for audit purposes. UI clears but backend maintains full history.",
+    "examples": [
+      "how do i clear my transaction history",
+      "can i delete a specific transaction record",
+      "remove wallet log entries",
+      "wipe my credit log clean"
+    ]
   },
-
   "platform.task.create": {
     "category": "Task Management",
     "response": "To create a new task, go to the Tasks page and click 'Add Task'. Set a title, priority level (Low, Medium, High), due date, and optional description. Tasks appear on your calendar view.",
-    "route": "/dashboard/tasks",
-    "keywords": ["task", "todo", "create", "add", "calendar", "schedule", "priority", "planner", "deadline"],
-    "admin_notes": "Overlaps with session.schedule for 'meeting' type tasks. Task system is personal — not shared with other users."
+    "route": "TASKS",
+    "keywords": [
+      "task",
+      "todo",
+      "create",
+      "add",
+      "calendar",
+      "schedule",
+      "priority",
+      "planner",
+      "deadline"
+    ],
+    "admin_notes": "Overlaps with session.schedule for 'meeting' type tasks. Task system is personal \u2014 not shared with other users.",
+    "examples": [
+      "how do i add a task to my calendar",
+      "create a new item with high priority",
+      "set up a todo task for my project",
+      "where is my task calendar"
+    ]
   },
-
   "platform.task.reminder": {
     "category": "Task Management",
     "response": "Email reminders are sent automatically before your task deadlines. You can configure reminder timing and frequency from the Tasks page under 'Reminder Settings'. Options: 1 hour, 1 day, or 3 days before due date.",
-    "route": "/dashboard/tasks",
-    "keywords": ["reminder", "email", "alert", "notification", "notify", "automated", "daily reminder"],
-    "admin_notes": "Email delivery depends on verified email. Users with unverified emails won't receive reminders — check email verification status first."
+    "route": "TASKS",
+    "keywords": [
+      "reminder",
+      "email",
+      "alert",
+      "notification",
+      "notify",
+      "automated",
+      "daily reminder"
+    ],
+    "admin_notes": "Email delivery depends on verified email. Users with unverified emails won't receive reminders \u2014 check email verification status first.",
+    "examples": [
+      "how to get email reminders for tasks",
+      "why didnt i receive my daily reminder email",
+      "set up notification alert times",
+      "configuring automated email alerts"
+    ]
   },
-
   "platform.social.post": {
     "category": "Social Network",
     "response": "To share a post, go to the Social Feed and click 'Create Post'. You can write text updates, share achievements, attach images, or link to your projects. Posts are visible to your followers.",
-    "route": "/dashboard/social",
-    "keywords": ["post", "share", "publish", "update", "feed", "write", "announcement", "wall"],
-    "admin_notes": "Posts support text + single image. No multi-image or video attachments yet. Character limit: 500."
+    "route": "SOCIAL",
+    "keywords": [
+      "post",
+      "share",
+      "publish",
+      "update",
+      "feed",
+      "write",
+      "announcement",
+      "wall"
+    ],
+    "admin_notes": "Posts support text + single image. No multi-image or video attachments yet. Character limit: 500.",
+    "examples": [
+      "how do i share a post on the feed",
+      "where do i publish my learning updates",
+      "can i delete my feed post",
+      "write a social post"
+    ]
   },
-
   "platform.social.interact": {
     "category": "Social Network",
     "response": "You can like, comment, and reply to posts on the Social Feed. Click the heart icon to like, or click 'Comment' to start a conversation thread under any post.",
-    "route": "/dashboard/social",
-    "keywords": ["like", "comment", "reply", "interact", "upvote", "react", "respond", "thread"],
-    "admin_notes": "No dislike/downvote feature. Comments are flat (no nested threads). Users can delete their own comments only."
+    "route": "SOCIAL",
+    "keywords": [
+      "like",
+      "comment",
+      "reply",
+      "interact",
+      "upvote",
+      "react",
+      "respond",
+      "thread"
+    ],
+    "admin_notes": "No dislike/downvote feature. Comments are flat (no nested threads). Users can delete their own comments only.",
+    "examples": [
+      "how do i like a colleagues post",
+      "can i reply to a feed comment",
+      "who commented on my updates",
+      "leave a review on a social feed card"
+    ]
   },
-
   "platform.social.follow": {
     "category": "Social Network",
     "response": "To follow a developer, visit their profile and click the 'Follow' button. You'll see their posts in your feed. View your followers and following lists from your own profile page.",
-    "route": "/dashboard/social",
-    "keywords": ["follow", "unfollow", "followers", "profile", "subscribe", "connect", "developer"],
-    "admin_notes": "Following is one-directional (like Twitter). No approval required. Follower count is public on profiles."
+    "route": "SOCIAL",
+    "keywords": [
+      "follow",
+      "unfollow",
+      "followers",
+      "profile",
+      "subscribe",
+      "connect",
+      "developer"
+    ],
+    "admin_notes": "Following is one-directional (like Twitter). No approval required. Follower count is public on profiles.",
+    "examples": [
+      "how do i follow a developer",
+      "where do i see my followers list",
+      "how to view another users public profile",
+      "track updates of developers i follow"
+    ]
   },
-
   "platform.help.auth": {
     "category": "Help & Support",
     "response": "For login issues, try resetting your password from the Sign In page. If your session expired, simply log in again. For new accounts, click 'Sign Up' on the landing page. Contact support if you're still locked out.",
-    "route": "/help/authentication",
-    "keywords": ["login", "sign up", "password", "register", "forgot", "authentication", "session expired", "jwt", "credentials"],
-    "admin_notes": "JWT tokens expire after 7 days. Common issue: users on multiple devices have stale tokens. Password reset sends email — check spam folder."
+    "route": "HELP_AUTH",
+    "keywords": [
+      "login",
+      "sign up",
+      "password",
+      "register",
+      "forgot",
+      "authentication",
+      "session expired",
+      "jwt",
+      "credentials"
+    ],
+    "admin_notes": "JWT tokens expire after 7 days. Common issue: users on multiple devices have stale tokens. Password reset sends email \u2014 check spam folder.",
+    "examples": [
+      "i cannot login to my account",
+      "how do i sign up for the platform",
+      "where do i reset my account password",
+      "my jwt session token expired"
+    ]
   },
-
   "platform.help.notifications": {
     "category": "Help & Support",
     "response": "Manage your notification preferences from the Settings page. You can toggle push notifications, email alerts, sound effects, and in-app notification types individually.",
-    "route": "/dashboard/settings",
-    "keywords": ["notifications", "alerts", "push", "email", "inbox", "mute", "silence", "preferences", "settings"],
-    "admin_notes": "Browser push notifications require explicit permission grant. Users who denied the permission need to reset it in browser settings."
+    "route": "SETTINGS",
+    "keywords": [
+      "notifications",
+      "alerts",
+      "push",
+      "email",
+      "inbox",
+      "mute",
+      "silence",
+      "preferences",
+      "settings"
+    ],
+    "admin_notes": "Browser push notifications require explicit permission grant. Users who denied the permission need to reset it in browser settings.",
+    "examples": [
+      "where are my account notification settings",
+      "how to enable push alerts in the browser",
+      "stop sending me real time notifications",
+      "how to access the alerts inbox"
+    ]
   },
-
   "platform.help.system_health": {
     "category": "Help & Support",
     "response": "Check the platform status on the System Health page. It shows server uptime, API response times, database connectivity, and any ongoing incidents. If the platform is down, check back in a few minutes.",
-    "route": "/help/system-health",
-    "keywords": ["server", "status", "health", "down", "error", "crashed", "connection", "uptime", "diagnostics", "500"],
-    "admin_notes": "System health endpoint: /api/health. 500 errors are auto-logged. Common cause: Docker container restart or DB connection pool exhaustion."
+    "route": "SYSTEM_HEALTH",
+    "keywords": [
+      "server",
+      "status",
+      "health",
+      "down",
+      "error",
+      "crashed",
+      "connection",
+      "uptime",
+      "diagnostics",
+      "500"
+    ],
+    "admin_notes": "System health endpoint: /api/health. 500 errors are auto-logged. Common cause: Docker container restart or DB connection pool exhaustion.",
+    "examples": [
+      "where is the system health dashboard",
+      "is the development server running",
+      "why cant i connect to port 5000",
+      "check the backend container status"
+    ]
   },
-
   "platform.unknown.fallback": {
     "category": "Unknown",
     "response": "I'm not fully trained for this yet. Try asking about SkillSprint platform features or JavaScript topics.",
-    "route": "",
+    "route": "NONE",
     "keywords": [],
-    "admin_notes": "Triggered when confidence < 0.65. Stored in failed_queries.json for retraining."
+    "admin_notes": "Triggered when confidence < 0.65. Stored in failed_queries.json for retraining.",
+    "examples": []
+  },
+  "platform.ai.ask": {
+    "category": "AI Mentor",
+    "response": "You can ask me questions about programming, SkillSprint platform features, or any errors you are facing. I'm here to help!",
+    "route": "NONE",
+    "keywords": [
+      "ask",
+      "question",
+      "help",
+      "mentor",
+      "what can you do",
+      "assist",
+      "ai"
+    ],
+    "admin_notes": "General capability inquiry.",
+    "examples": [
+      "what can you help me with",
+      "can I ask you a programming question",
+      "how do I use the ai mentor",
+      "what do you do"
+    ]
+  },
+  "platform.ai.feedback": {
+    "category": "AI Mentor",
+    "response": "If I give you an incorrect answer, you can click the thumbs down icon to log a failed query. Our team reviews these to improve my accuracy over time.",
+    "route": "NONE",
+    "keywords": [
+      "feedback",
+      "wrong",
+      "incorrect",
+      "report",
+      "thumbs down",
+      "bad answer",
+      "fail"
+    ],
+    "admin_notes": "Users reporting bad AI responses.",
+    "examples": [
+      "your answer was wrong",
+      "how do I report a bad response",
+      "you didn't answer my question correctly",
+      "where do I leave feedback on this ai"
+    ]
+  },
+  "platform.ai.history": {
+    "category": "AI Mentor",
+    "response": "Your recent conversation history is saved in your browser and will appear in the Recent Queries panel of the AI workspace.",
+    "route": "NONE",
+    "keywords": [
+      "history",
+      "previous chats",
+      "old messages",
+      "recent queries",
+      "log",
+      "conversation"
+    ],
+    "admin_notes": "Session history is currently localStorage based.",
+    "examples": [
+      "where are my old chats",
+      "how can I see my previous questions",
+      "show me my chat history",
+      "can I view past conversations"
+    ]
+  },
+  "platform.ai.saved_queries": {
+    "category": "AI Mentor",
+    "response": "You can click the 'Bookmark' icon on any response to save it. Saved queries appear in the 'Saved' tab of the AI workspace for quick reference later.",
+    "route": "NONE",
+    "keywords": [
+      "save",
+      "bookmark",
+      "saved queries",
+      "keep",
+      "favorite",
+      "star"
+    ],
+    "admin_notes": "Feature for bookmarking AI answers.",
+    "examples": [
+      "how do I save this answer",
+      "can I bookmark your response",
+      "where are my saved queries",
+      "how to favorite a chat"
+    ]
+  },
+  "platform.ai.capabilities": {
+    "category": "AI Mentor",
+    "response": "I can explain programming concepts (like closures or promises), guide you around the platform (like how to join a session), and help troubleshoot basic issues.",
+    "route": "NONE",
+    "keywords": [
+      "capabilities",
+      "features",
+      "what else",
+      "understand",
+      "knowledge",
+      "skills"
+    ],
+    "admin_notes": "Explaining AI limits.",
+    "examples": [
+      "what are your capabilities",
+      "what do you know",
+      "what features do you support",
+      "what kind of questions can you answer"
+    ]
+  },
+  "platform.new.what_skillsprint": {
+    "category": "New Features",
+    "response": "Placeholder response for: what is skillsprint",
+    "route": "NONE",
+    "keywords": [
+      "skillsprint",
+      "platform description",
+      "what is"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "can you explain what skillsprint is",
+      "what problem does skillsprint solve",
+      "what kind of experience does skillsprint provide to users",
+      "what is the purpose of skillsprint"
+    ]
+  },
+  "platform.new.how_verify_email_after": {
+    "category": "New Features",
+    "response": "Placeholder response for: how do i verify my email after signing up",
+    "route": "NONE",
+    "keywords": [
+      "verify email",
+      "confirm email",
+      "email verification"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what happens if i do not verify my email",
+      "how do i verify my email after signing up",
+      "how long does email verification take",
+      "where is the verification email sent"
+    ]
+  },
+  "platform.new.how_update_profile_information": {
+    "category": "New Features",
+    "response": "Placeholder response for: how do i update my profile information",
+    "route": "NONE",
+    "keywords": [
+      "update profile",
+      "edit profile",
+      "change profile"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i manage my profile information",
+      "can i edit my profile after registration",
+      "how can i customize my profile information",
+      "can i modify my profile anytime"
+    ]
+  },
+  "platform.new.can_invite_someone_outside": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i invite someone outside skillsprint to pair program",
+    "route": "NONE",
+    "keywords": [
+      "invite external",
+      "outside user",
+      "guest access"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "can i collaborate with users outside system",
+      "does pair programming allow external participants",
+      "does pair programming support public access",
+      "can i share session link with non users"
+    ]
+  },
+  "platform.new.what_tools_are_available": {
+    "category": "New Features",
+    "response": "Placeholder response for: what tools are available during live sessions",
+    "route": "NONE",
+    "keywords": [
+      "available tools",
+      "session tools",
+      "features"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what can i access in a live session",
+      "what features are enabled during live classes",
+      "what tools are included in online sessions",
+      "what tools do participants get in live sessions"
+    ]
+  },
+  "platform.new.how_delete_chat_message": {
+    "category": "New Features",
+    "response": "Placeholder response for: how do i delete a chat message",
+    "route": "NONE",
+    "keywords": [
+      "delete message",
+      "remove message",
+      "unsend message"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what option deletes chat messages",
+      "how do i remove unwanted messages",
+      "can i delete sent messages",
+      "can i delete messages after sending"
+    ]
+  },
+  "platform.new.why_cant_see_tasks": {
+    "category": "New Features",
+    "response": "Placeholder response for: why cant i see my tasks",
+    "route": "NONE",
+    "keywords": [
+      "see tasks",
+      "missing tasks",
+      "tasks hidden"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how can i recover missing tasks",
+      "how do i refresh task list",
+      "what causes tasks not to show up",
+      "how do i fix task display issue"
+    ]
+  },
+  "platform.new.what_the_shared_library": {
+    "category": "New Features",
+    "response": "Placeholder response for: what is the shared library feature",
+    "route": "NONE",
+    "keywords": [
+      "shared library",
+      "document library",
+      "shared repository"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what is file repository feature",
+      "how does shared storage system work",
+      "what is resource sharing feature",
+      "what does shared library mean"
+    ]
+  },
+  "platform.new.why_the_enter_workspace": {
+    "category": "New Features",
+    "response": "Placeholder response for: why is the enter workspace button not working",
+    "route": "NONE",
+    "keywords": [
+      "enter workspace",
+      "workspace login",
+      "join workspace"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i troubleshoot workspace access problem",
+      "why is workspace login not working",
+      "what causes workspace button failure",
+      "what should i do if workspace wont open"
+    ]
+  },
+  "platform.new.what_should_the_shared": {
+    "category": "New Features",
+    "response": "Placeholder response for: what should i do if the shared library is not loading",
+    "route": "NONE",
+    "keywords": [
+      "library loading",
+      "library stuck",
+      "library broken"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "why cant i access shared library",
+      "how do i troubleshoot shared library issue",
+      "what causes shared library to freeze",
+      "what should i check if shared library does not open"
+    ]
+  },
+  "platform.new.can_message_someone_not": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i message someone im not following",
+    "route": "NONE",
+    "keywords": [
+      "message stranger",
+      "message non-follower",
+      "dm stranger"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "can i message any member",
+      "can i chat with someone without following them",
+      "can i start conversation without follow",
+      "can i message without being connected"
+    ]
+  },
+  "platform.new.can_save_the_code": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i save the code from a pair programming session",
+    "route": "NONE",
+    "keywords": [
+      "save code",
+      "export code",
+      "download code"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i save code written in pair programming",
+      "can i export code from collaborative coding",
+      "can i save changes in real time coding",
+      "how do i keep code after session ends"
+    ]
+  },
+  "platform.new.can_save_whiteboard_drawings": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i save my whiteboard drawings",
+    "route": "NONE",
+    "keywords": [
+      "save whiteboard",
+      "export whiteboard",
+      "save drawings"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what is the method to save whiteboard",
+      "can i preserve whiteboard notes",
+      "what happens to whiteboard drawings after session",
+      "is whiteboard history saved"
+    ]
+  },
+  "platform.new.how_delete_account": {
+    "category": "New Features",
+    "response": "Placeholder response for: how do i delete my account",
+    "route": "NONE",
+    "keywords": [
+      "delete account",
+      "remove account",
+      "close account"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "is there a delete account option",
+      "how do i delete my account",
+      "can i shut down my account",
+      "how do i close my account"
+    ]
+  },
+  "platform.new.can_earn_certificates": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i earn certificates",
+    "route": "NONE",
+    "keywords": [
+      "earn certificates",
+      "get certified",
+      "claim certificates"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "do i get certificates on completion",
+      "are certificates provided on platform",
+      "is certification available",
+      "do tasks give certification"
+    ]
+  },
+  "platform.new.what_the_wallet_feature": {
+    "category": "New Features",
+    "response": "Placeholder response for: what is the wallet feature",
+    "route": "NONE",
+    "keywords": [
+      "wallet feature",
+      "digital wallet",
+      "wallet balance"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i access wallet",
+      "how do wallet transactions work",
+      "what is included in wallet feature",
+      "how does wallet system work"
+    ]
+  },
+  "platform.new.what_join_live_session": {
+    "category": "New Features",
+    "response": "Placeholder response for: what if i join a live session late",
+    "route": "NONE",
+    "keywords": [
+      "join late",
+      "arrive late",
+      "miss start"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what if i join a live session late",
+      "what do i do if i arrive late to a session",
+      "can i view missed part of session later",
+      "can i enter a session after it has begun"
+    ]
+  },
+  "platform.new.can_join_session_without": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i join a session without turning on my mic",
+    "route": "NONE",
+    "keywords": [
+      "mic off",
+      "muted",
+      "no audio"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "is audio required for participation",
+      "is it possible to join without enabling mic",
+      "can I join and just watch session",
+      "can i enter session with mic disabled"
+    ]
+  },
+  "platform.new.how_leave_live_session": {
+    "category": "New Features",
+    "response": "Placeholder response for: how do i leave a live session politely",
+    "route": "NONE",
+    "keywords": [
+      "leave politely",
+      "exit gracefully",
+      "quit politely"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i politely disconnect from live room",
+      "what is the correct way to leave meeting",
+      "what is the proper session exit method",
+      "what is the etiquette for leaving live session"
+    ]
+  },
+  "platform.new.can_chat_during_live": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i chat during a live session",
+    "route": "NONE",
+    "keywords": [
+      "chat during session",
+      "live chat",
+      "session messaging"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "is real time chat supported in session",
+      "can i talk using chat panel",
+      "can I send quick messages in session",
+      "how do i interact using chat in session"
+    ]
+  },
+  "platform.new.what_screen_sharing_fails": {
+    "category": "New Features",
+    "response": "Placeholder response for: what if my screen sharing fails",
+    "route": "NONE",
+    "keywords": [
+      "screen share fail",
+      "screen sharing broken",
+      "cant share screen"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i recover screen sharing in session",
+      "what is solution for screen share error",
+      "what causes screen share failure",
+      "can i rejoin session if screen share breaks"
+    ]
+  },
+  "platform.new.what_drawing_disappears_the": {
+    "category": "New Features",
+    "response": "Placeholder response for: what if my drawing disappears on the whiteboard",
+    "route": "NONE",
+    "keywords": [
+      "drawing disappears",
+      "sketch vanishes",
+      "lost drawing"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do I recover session drawings",
+      "why did my whiteboard drawing disappear",
+      "what causes whiteboard reset",
+      "what is solution for lost whiteboard content"
+    ]
+  },
+  "platform.new.what_post_doesnt_appear": {
+    "category": "New Features",
+    "response": "Placeholder response for: what if my post doesnt appear after publishing",
+    "route": "NONE",
+    "keywords": [
+      "post missing",
+      "invisible post",
+      "post failed"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what if my post disappears after publishing",
+      "why is my content absent from feed",
+      "why is my post not showing after publishing",
+      "how do i troubleshoot feed posting issues"
+    ]
+  },
+  "platform.new.can_edit_comment_after": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i edit my comment after posting",
+    "route": "NONE",
+    "keywords": [
+      "edit comment",
+      "modify comment",
+      "revise reply"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "can i update my comment after submission",
+      "can i edit comments in social feed",
+      "are comments editable after publication",
+      "how do i save changes to a comment"
+    ]
+  },
+  "platform.new.what_cant_see_new": {
+    "category": "New Features",
+    "response": "Placeholder response for: what if i cant see new posts",
+    "route": "NONE",
+    "keywords": [
+      "cant see posts",
+      "feed not updating",
+      "missing feed"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "what should i check if feed is not refreshing",
+      "how do i fix missing new posts",
+      "why are new updates not visible",
+      "how do i refresh social feed manually"
+    ]
+  },
+  "platform.new.can_like_own_post": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i like my own post",
+    "route": "NONE",
+    "keywords": [
+      "like own post",
+      "self like",
+      "upvote own"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "do i have the option to like my own updates",
+      "can i increase likes by liking my own post",
+      "what happens if i try to like my own post",
+      "is liking my own post possible"
+    ]
+  },
+  "platform.new.can_duplicate_task": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i duplicate a task",
+    "route": "NONE",
+    "keywords": [
+      "duplicate task",
+      "clone task",
+      "copy task"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i clone task data",
+      "can i reuse a completed task setup",
+      "can i generate a copy of a task",
+      "is task copying available"
+    ]
+  },
+  "platform.new.can_sort_tasks_priority": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i sort tasks by priority",
+    "route": "NONE",
+    "keywords": [
+      "sort tasks",
+      "order by priority",
+      "rank tasks"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "is task sorting by priority available",
+      "can i arrange tasks by priority level",
+      "is there a priority sorting feature",
+      "can i view high priority tasks first"
+    ]
+  },
+  "platform.new.what_complete_task_early": {
+    "category": "New Features",
+    "response": "Placeholder response for: what if i complete a task early",
+    "route": "NONE",
+    "keywords": [
+      "complete early",
+      "finish early",
+      "early submission"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "how do i update progress after finishing early",
+      "what happens when a task is completed ahead of schedule",
+      "can i submit a task early",
+      "can i finish tasks in advance"
+    ]
+  },
+  "platform.new.can_reject_match": {
+    "category": "New Features",
+    "response": "Placeholder response for: can i reject a match",
+    "route": "NONE",
+    "keywords": [
+      "reject match",
+      "decline match",
+      "refuse match"
+    ],
+    "admin_notes": "Automatically extracted from user queries.",
+    "examples": [
+      "can i opt out of a match",
+      "is declining a match possible",
+      "can i reject a recommended connection",
+      "how do i reject a suggested match"
+    ]
   }
 }

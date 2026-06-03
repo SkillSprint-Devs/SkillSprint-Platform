@@ -129,7 +129,6 @@ how can someone validate my certificate,platform.cert.verify
 where do i find the cert id,platform.cert.verify
 prove that my certificate is authentic,platform.cert.verify
 public verification link,platform.cert.verify
-
 how to upload my notes to the library,platform.library.upload
 can i add a zip folder of code,platform.library.upload
 where is the upload document button,platform.library.upload
@@ -160,7 +159,6 @@ can i erase a token log,platform.wallet.clear
 clear my wallet history now,platform.wallet.clear
 remove past transactions,platform.wallet.clear
 wipe out the credit log,platform.wallet.clear
-
 how to create a task in the calendar,platform.task.create
 add a new todo item for tomorrow,platform.task.create
 where is the project checklist,platform.task.create
@@ -201,3 +199,238 @@ check the health of the system containers,platform.help.system_health
 why am i getting a connection error,platform.help.system_health
 view the system diagnostics page,platform.help.system_health
 is there a platform outage today,platform.help.system_health
+i want to help you,platform.ai.ask
+how to query the ai,platform.ai.ask
+please help me with this,platform.ai.ask
+is it possible to help something,platform.ai.ask
+i need to assist a question,platform.ai.ask
+where to leave failing feedback,platform.ai.feedback
+how to report failing,platform.ai.feedback
+where to leave terrible feedback,platform.ai.feedback
+how to report terrible,platform.ai.feedback
+giving broken rating,platform.ai.feedback
+can i see my history,platform.ai.history
+i lost my chat log,platform.ai.history
+find my chat log,platform.ai.history
+show my past chats,platform.ai.history
+how to view old messages,platform.ai.history
+list my save,platform.ai.saved_queries
+where are star located,platform.ai.saved_queries
+show me my save,platform.ai.saved_queries
+show me my star,platform.ai.saved_queries
+i want to star it,platform.ai.saved_queries
+what features do you possess,platform.ai.capabilities
+list your knowledge,platform.ai.capabilities
+explain your knowledge,platform.ai.capabilities
+show me your capabilities,platform.ai.capabilities
+what are your skills,platform.ai.capabilities
+what services does skillsprint provide,platform.new.what_skillsprint
+what is the main idea behind skillsprint,platform.new.what_skillsprint
+what can users do on skillsprint,platform.new.what_skillsprint
+what does skillsprint do,platform.new.what_skillsprint
+what benefits does skillsprint offer,platform.new.what_skillsprint
+what makes skillsprint different from other platforms,platform.new.what_skillsprint
+why was skillsprint created,platform.new.what_skillsprint
+what should i do after receiving the verification email,platform.new.how_verify_email_after
+how can i confirm my registered email address,platform.new.how_verify_email_after
+why do i need to verify my email,platform.new.how_verify_email_after
+what is required to verify my email address,platform.new.how_verify_email_after
+how do i activate my account after signup,platform.new.how_verify_email_after
+how can i activate my account through email verification,platform.new.how_verify_email_after
+how do i validate my email after creating an account,platform.new.how_verify_email_after
+how do i keep my profile information updated,platform.new.how_update_profile_information
+how do i update my profile information,platform.new.how_update_profile_information
+where do i go to change my profile information,platform.new.how_update_profile_information
+how do i update information linked to my account,platform.new.how_update_profile_information
+where can i change my profile details,platform.new.how_update_profile_information
+how can i change my personal information,platform.new.how_update_profile_information
+what should i do to edit my account details,platform.new.how_update_profile_information
+can external developers join my session,platform.new.can_invite_someone_outside
+are non platform users allowed in collaboration,platform.new.can_invite_someone_outside
+can outsiders access pair programming sessions,platform.new.can_invite_someone_outside
+can i bring non registered users into pair programming,platform.new.can_invite_someone_outside
+can users without account join session,platform.new.can_invite_someone_outside
+can someone join without skillsprint account,platform.new.can_invite_someone_outside
+is external collaboration possible in skill sprint,platform.new.can_invite_someone_outside
+what features are provided in live sessions,platform.new.what_tools_are_available
+what interactive tools are included in sessions,platform.new.what_tools_are_available
+what editing tools are available during sessions,platform.new.what_tools_are_available
+what tools are provided for real time sessions,platform.new.what_tools_are_available
+what tools support collaboration in live sessions,platform.new.what_tools_are_available
+what tools help with pair collaboration in sessions,platform.new.what_tools_are_available
+what features support communication in live sessions,platform.new.what_tools_are_available
+what is the process to delete a message,platform.new.how_delete_chat_message
+how do i remove messages from conversation,platform.new.how_delete_chat_message
+how do i edit or delete chat messages,platform.new.how_delete_chat_message
+how do i permanently delete a message,platform.new.how_delete_chat_message
+how can i remove a message from chat,platform.new.how_delete_chat_message
+how do i delete an individual message,platform.new.how_delete_chat_message
+how can i clear chat history,platform.new.how_delete_chat_message
+what do i do if task data is missing,platform.new.why_cant_see_tasks
+why are tasks not visible in dashboard,platform.new.why_cant_see_tasks
+how do i troubleshoot missing tasks,platform.new.why_cant_see_tasks
+what is wrong if tasks do not show,platform.new.why_cant_see_tasks
+how do i troubleshoot task visibility,platform.new.why_cant_see_tasks
+why is task list empty,platform.new.why_cant_see_tasks
+how do i fix missing tasks issue,platform.new.why_cant_see_tasks
+how does shared library work,platform.new.what_the_shared_library
+what is used shared storage for,platform.new.what_the_shared_library
+what is central document storage,platform.new.what_the_shared_library
+how do users share documents in library,platform.new.what_the_shared_library
+what is the purpose of shared library,platform.new.what_the_shared_library
+what is shared document system,platform.new.what_the_shared_library
+what is workspace library feature,platform.new.what_the_shared_library
+why cant i enter my workspace,platform.new.why_the_enter_workspace
+how do i resolve workspace access error,platform.new.why_the_enter_workspace
+why is workspace access denied,platform.new.why_the_enter_workspace
+how do i troubleshoot enter workspace button,platform.new.why_the_enter_workspace
+why is workspace button inactive,platform.new.why_the_enter_workspace
+why is workspace entry not loading,platform.new.why_the_enter_workspace
+how do i repair workspace entry issue,platform.new.why_the_enter_workspace
+what causes library to not display content,platform.new.what_should_the_shared
+why is shared library broken,platform.new.what_should_the_shared
+what is preventing shared library from opening,platform.new.what_should_the_shared
+how do i troubleshoot library not working,platform.new.what_should_the_shared
+how do i fix shared library not opening,platform.new.what_should_the_shared
+how do i repair shared library access,platform.new.what_should_the_shared
+what causes shared library failure,platform.new.what_should_the_shared
+can i start chat without following a user,platform.new.can_message_someone_not
+can i send message without mutual follow,platform.new.can_message_someone_not
+is messaging open to all users,platform.new.can_message_someone_not
+can i contact users directly without follow,platform.new.can_message_someone_not
+do i need connection to chat,platform.new.can_message_someone_not
+can i send message to user without following them,platform.new.can_message_someone_not
+is messaging allowed without following,platform.new.can_message_someone_not
+can i copy code from pair programming,platform.new.can_save_the_code
+what happens to code after session ends,platform.new.can_save_the_code
+how do i backup pair programming code,platform.new.can_save_the_code
+can session code be exported later,platform.new.can_save_the_code
+how do i retain code after live session,platform.new.can_save_the_code
+can i download pair programming output,platform.new.can_save_the_code
+what is the process to save session code,platform.new.can_save_the_code
+how do i save collaborative drawings,platform.new.can_save_whiteboard_drawings
+can users save drawings in session,platform.new.can_save_whiteboard_drawings
+can whiteboard content be saved,platform.new.can_save_whiteboard_drawings
+is whiteboard saved automatically,platform.new.can_save_whiteboard_drawings
+how do i export whiteboard file,platform.new.can_save_whiteboard_drawings
+can i access old whiteboard work,platform.new.can_save_whiteboard_drawings
+can i export whiteboard sketches,platform.new.can_save_whiteboard_drawings
+can i permanently remove profile,platform.new.how_delete_account
+can i deactivate profile permanently,platform.new.how_delete_account
+how do i end my account,platform.new.how_delete_account
+how do i cancel my account,platform.new.how_delete_account
+how can i remove my account,platform.new.how_delete_account
+how do i erase my profile,platform.new.how_delete_account
+what is the process to delete account,platform.new.how_delete_account
+do i get proof of learning,platform.new.can_earn_certificates
+can I receive certificate for courses,platform.new.can_earn_certificates
+do i get recognition for completing work,platform.new.can_earn_certificates
+how can i get verified certificate,platform.new.can_earn_certificates
+what rewards do i get for completing modules,platform.new.can_earn_certificates
+what is the certificate feature,platform.new.can_earn_certificates
+can users receive certificates,platform.new.can_earn_certificates
+what is reward wallet feature,platform.new.what_the_wallet_feature
+what is wallet account feature,platform.new.what_the_wallet_feature
+what features are in wallet system,platform.new.what_the_wallet_feature
+how does wallet help users,platform.new.what_the_wallet_feature
+what is wallet balance system,platform.new.what_the_wallet_feature
+what is digital wallet in system,platform.new.what_the_wallet_feature
+what does wallet feature do,platform.new.what_the_wallet_feature
+can i join ongoing collaboration sessions,platform.new.what_join_live_session
+what happens when user joins late,platform.new.what_join_live_session
+can i still join if the session has already started,platform.new.what_join_live_session
+can I enter live meeting after start time,platform.new.what_join_live_session
+can i still interact if i join late,platform.new.what_join_live_session
+how do late users catch up in session,platform.new.what_join_live_session
+how do i access content if i join after start,platform.new.what_join_live_session
+is mic required for live sessions,platform.new.can_join_session_without
+can i join meeting without voice,platform.new.can_join_session_without
+do i need to turn on mic to join session,platform.new.can_join_session_without
+can I join as silent participant,platform.new.can_join_session_without
+can i join a session without turning on my mic,platform.new.can_join_session_without
+can I disable mic and still join,platform.new.can_join_session_without
+how do i join a session silently,platform.new.can_join_session_without
+how do i disconnect from live session properly,platform.new.how_leave_live_session
+how do i exit a live class without disturbing others,platform.new.how_leave_live_session
+how do i sign out of a session properly,platform.new.how_leave_live_session
+what steps should i follow before leaving session,platform.new.how_leave_live_session
+what is the proper way to exit a live session,platform.new.how_leave_live_session
+what should i say before leaving session,platform.new.how_leave_live_session
+how can i leave without disturbing class,platform.new.how_leave_live_session
+how do i type messages during session,platform.new.can_chat_during_live
+is there chat feature in live class,platform.new.can_chat_during_live
+how do I open chat window in session,platform.new.can_chat_during_live
+how do i use chat in live session,platform.new.can_chat_during_live
+can I ask questions via chat box,platform.new.can_chat_during_live
+how does chat work in live session,platform.new.can_chat_during_live
+can users message during live session,platform.new.can_chat_during_live
+how do I restart presentation mode,platform.new.what_screen_sharing_fails
+why is my screen not sharing,platform.new.what_screen_sharing_fails
+how can I restore screen sharing,platform.new.what_screen_sharing_fails
+how do i restart screen sharing,platform.new.what_screen_sharing_fails
+what happens if screen sharing stops working,platform.new.what_screen_sharing_fails
+how do i enable screen sharing properly,platform.new.what_screen_sharing_fails
+how can i fix screen share error,platform.new.what_screen_sharing_fails
+can i recover unsaved drawings,platform.new.what_drawing_disappears_the
+how do i backup whiteboard work,platform.new.what_drawing_disappears_the
+why is my whiteboard empty suddenly,platform.new.what_drawing_disappears_the
+how do I restore collaborative whiteboard,platform.new.what_drawing_disappears_the
+why did my sketch disappear,platform.new.what_drawing_disappears_the
+how can i restore session drawings,platform.new.what_drawing_disappears_the
+what should i do if drawing is gone,platform.new.what_drawing_disappears_the
+how do i fix a post that does not appear,platform.new.what_post_doesnt_appear
+what can prevent a post from appearing,platform.new.what_post_doesnt_appear
+why is my post delayed in appearing,platform.new.what_post_doesnt_appear
+why is my social post not visible,platform.new.what_post_doesnt_appear
+how do i troubleshoot missing posts,platform.new.what_post_doesnt_appear
+why is my update not appearing in feed,platform.new.what_post_doesnt_appear
+how do i refresh a missing post,platform.new.what_post_doesnt_appear
+can i change my reply after posting,platform.new.can_edit_comment_after
+can users revise comments after posting,platform.new.can_edit_comment_after
+what is the way to update a comment,platform.new.can_edit_comment_after
+can i make corrections to a comment,platform.new.can_edit_comment_after
+how do i update a comment in discussion,platform.new.can_edit_comment_after
+can i update discussion replies later,platform.new.can_edit_comment_after
+what is the process to edit a comment,platform.new.can_edit_comment_after
+why are current posts not showing,platform.new.what_cant_see_new
+why are recent posts missing,platform.new.what_cant_see_new
+how do i view the latest posts,platform.new.what_cant_see_new
+how do i resolve missing post updates,platform.new.what_cant_see_new
+how do i refresh my feed to see new posts,platform.new.what_cant_see_new
+how can i see newly published content,platform.new.what_cant_see_new
+what if i cant see new posts,platform.new.what_cant_see_new
+can i use like button on my own post,platform.new.can_like_own_post
+can authors like their own posts,platform.new.can_like_own_post
+can i interact with my own content using likes,platform.new.can_like_own_post
+can i react to my own post,platform.new.can_like_own_post
+can i give a like to content i posted,platform.new.can_like_own_post
+am i able to react to my own feed post,platform.new.can_like_own_post
+is self liking supported on the platform,platform.new.can_like_own_post
+can i duplicate work items,platform.new.can_duplicate_task
+how do i reuse an existing task,platform.new.can_duplicate_task
+can i copy task details into a new task,platform.new.can_duplicate_task
+can i clone a task,platform.new.can_duplicate_task
+how do i duplicate task records,platform.new.can_duplicate_task
+what is the process to duplicate a task,platform.new.can_duplicate_task
+can users duplicate tasks,platform.new.can_duplicate_task
+how do i arrange urgent tasks first,platform.new.can_sort_tasks_priority
+how do i organize tasks based on priority,platform.new.can_sort_tasks_priority
+can i sort task board using priority settings,platform.new.can_sort_tasks_priority
+how do i filter high priority tasks,platform.new.can_sort_tasks_priority
+can i sort tasks by priority,platform.new.can_sort_tasks_priority
+how do i manage tasks using priority levels,platform.new.can_sort_tasks_priority
+can i group tasks by priority,platform.new.can_sort_tasks_priority
+can i close a task before deadline,platform.new.what_complete_task_early
+how do i mark work as finished ahead of time,platform.new.what_complete_task_early
+what if i complete assigned work sooner than expected,platform.new.what_complete_task_early
+what does system do when task is finished early,platform.new.what_complete_task_early
+can i receive credit for finishing early,platform.new.what_complete_task_early
+what are the benefits of early completion,platform.new.what_complete_task_early
+can i update task status if completed early,platform.new.what_complete_task_early
+can i refuse to connect with a matched user,platform.new.can_reject_match
+can i reject matching requests,platform.new.can_reject_match
+can i choose not to accept a match,platform.new.can_reject_match
+is it possible to refuse a match,platform.new.can_reject_match
+how do i manage unwanted matches,platform.new.can_reject_match
+what happens if i reject a match,platform.new.can_reject_match
+can i dismiss a suggested match,platform.new.can_reject_match

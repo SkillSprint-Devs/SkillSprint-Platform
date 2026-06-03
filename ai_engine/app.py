@@ -161,12 +161,15 @@ def predict_intent(raw_text: str) -> dict:
     if best_confidence < CONFIDENCE_THRESHOLD_LOG:
         log_failed_query(raw_text, best_intent, float(best_confidence))
         
-    # If it is below FALLBACK threshold, trigger failed query fallback
     if best_confidence < CONFIDENCE_THRESHOLD_FALLBACK:
         resolved = _resolver.resolve("platform.unknown.fallback")
         resolved["confidence"] = round(best_confidence, 4)
         resolved["cleaned_text"] = cleaned
         resolved["method"] = "fallback_low_confidence"
+        resolved["alternatives"] = [
+            {"intent": label, "confidence": round(score, 4)}
+            for label, score in top_predictions[:3] # Show the top 3 as suggestions
+        ]
         return resolved
 
     # 5. Resolve intent → response, route, category
