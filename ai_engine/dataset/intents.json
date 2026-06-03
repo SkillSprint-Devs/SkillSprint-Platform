@@ -317,5 +317,13 @@
     "route": "/help/system-health",
     "keywords": ["server", "status", "health", "down", "error", "crashed", "connection", "uptime", "diagnostics", "500"],
     "admin_notes": "System health endpoint: /api/health. 500 errors are auto-logged. Common cause: Docker container restart or DB connection pool exhaustion."
+  },
+
+  "platform.unknown.fallback": {
+    "category": "Unknown",
+    "response": "I'm not fully trained for this yet. Try asking about SkillSprint platform features or JavaScript topics.",
+    "route": "",
+    "keywords": [],
+    "admin_notes": "Triggered when confidence < 0.65. Stored in failed_queries.json for retraining."
   }
 }

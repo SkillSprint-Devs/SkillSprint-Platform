@@ -57,10 +57,12 @@ from semantic.intent_resolver import IntentResolver
 PORT           = int(os.environ.get("AI_ENGINE_PORT", 5050))
 MODELS_DIR     = os.path.join(_BASE_DIR, "models")
 DATASET_DIR    = os.path.join(_BASE_DIR, "dataset")
-FAILED_CSV     = os.path.join(DATASET_DIR, "failed_queries.csv")
+FAILED_JSON    = os.path.join(DATASET_DIR, "failed_queries.json")
+TRAIN_CSV      = os.path.join(DATASET_DIR, "train.csv")
 
-# Confidence threshold — below this, use semantic boosting
-CONFIDENCE_THRESHOLD = 0.60
+# Confidence thresholds
+CONFIDENCE_THRESHOLD_LOG = 0.65
+CONFIDENCE_THRESHOLD_FALLBACK = 0.45
 
 
 # ---------------------------------------------------------------------------
@@ -137,7 +139,7 @@ def predict_intent(raw_text: str) -> dict:
     # 4. Decide: ML prediction vs semantic boost
     method = "ml_primary"
 
-    if best_confidence < CONFIDENCE_THRESHOLD:
+    if best_confidence < CONFIDENCE_THRESHOLD_LOG:
         # Try semantic boosting from intents.json keywords
         boosted = _resolver.semantic_boost(cleaned, top_k=3)
         if boosted and boosted[0][1] > 0:
@@ -155,6 +157,18 @@ def predict_intent(raw_text: str) -> dict:
             best_confidence = max(best_confidence, 0.45)  # adjusted confidence
             method = "hybrid_boosted"
 
+    # If it is below LOG threshold, log it
+    if best_confidence < CONFIDENCE_THRESHOLD_LOG:
+        log_failed_query(raw_text, best_intent, float(best_confidence))
+        
+    # If it is below FALLBACK threshold, trigger failed query fallback
+    if best_confidence < CONFIDENCE_THRESHOLD_FALLBACK:
+        resolved = _resolver.resolve("platform.unknown.fallback")
+        resolved["confidence"] = round(best_confidence, 4)
+        resolved["cleaned_text"] = cleaned
+        resolved["method"] = "fallback_low_confidence"
+        return resolved
+
     # 5. Resolve intent → response, route, category
     resolved = _resolver.resolve(best_intent)
     resolved["confidence"] = round(best_confidence, 4)
@@ -171,25 +185,34 @@ def predict_intent(raw_text: str) -> dict:
 # ---------------------------------------------------------------------------
 # Failed Query Logging
 # ---------------------------------------------------------------------------
-def log_failed_query(raw_text: str, predicted_intent: str,
-                     correct_intent: str = "", user_feedback: str = ""):
-    """Log a failed or misclassified query for retraining."""
+import uuid
+
+def log_failed_query(raw_text: str, predicted_intent: str, confidence: float, resolved_status: bool = False):
+    """Log a failed or misclassified query for retraining to JSON."""
     try:
-        file_exists = os.path.exists(FAILED_CSV) and os.path.getsize(FAILED_CSV) > 0
-        with open(FAILED_CSV, "a", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            if not file_exists:
-                writer.writerow(["timestamp", "raw_text", "predicted_intent",
-                                 "correct_intent", "user_feedback"])
-            writer.writerow([
-                datetime.utcnow().isoformat(),
-                raw_text,
-                predicted_intent,
-                correct_intent,
-                user_feedback,
-            ])
+        data = []
+        if os.path.exists(FAILED_JSON) and os.path.getsize(FAILED_JSON) > 0:
+            with open(FAILED_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        
+        new_entry = {
+            "id": f"fq_{uuid.uuid4().hex[:8]}",
+            "query": raw_text,
+            "predicted_intent": predicted_intent,
+            "assigned_intent": "",
+            "confidence": round(confidence, 4),
+            "resolved": resolved_status,
+            "added_to_dataset": False,
+            "reviewed_by": "",
+            "reviewed_at": "",
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+        data.append(new_entry)
+        
+        with open(FAILED_JSON, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
     except Exception as e:
-        print(f"[ERROR] Failed to log query: {e}")
+        print(f"[ERROR] Failed to log query to JSON: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -249,6 +272,8 @@ class AIRequestHandler(BaseHTTPRequestHandler):
             self._handle_categories()
         elif path == "/admin/summary":
             self._handle_admin_summary()
+        elif path == "/admin/failed_queries":
+            self._handle_failed_queries()
         else:
             self._send_json({"error": "Not found"}, 404)
 
@@ -261,6 +286,10 @@ class AIRequestHandler(BaseHTTPRequestHandler):
             self._handle_predict()
         elif path == "/feedback":
             self._handle_feedback()
+        elif path == "/admin/add_to_dataset":
+            self._handle_add_to_dataset()
+        elif path == "/admin/retrain":
+            self._handle_retrain()
         else:
             self._send_json({"error": "Not found"}, 404)
 
@@ -319,18 +348,105 @@ class AIRequestHandler(BaseHTTPRequestHandler):
             return
         self._send_json(_resolver.admin_summary())
 
+    def _handle_failed_queries(self):
+        auth_header = self.headers.get("Authorization", "")
+        if auth_header != "Bearer " + os.environ.get("ADMIN_TOKEN", "skillsprint_admin_secret"):
+            self._send_json({"error": "Unauthorized. Invalid Admin Token."}, 401)
+            return
+            
+        data = []
+        if os.path.exists(FAILED_JSON):
+            with open(FAILED_JSON, "r", encoding="utf-8") as f:
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    pass
+        self._send_json({"failed_queries": data})
+
+    def _handle_add_to_dataset(self):
+        auth_header = self.headers.get("Authorization", "")
+        if auth_header != "Bearer " + os.environ.get("ADMIN_TOKEN", "skillsprint_admin_secret"):
+            self._send_json({"error": "Unauthorized. Invalid Admin Token."}, 401)
+            return
+            
+        body = self._read_body()
+        query_id = body.get("id")
+        intent = body.get("intent")
+        
+        if not query_id or not intent:
+            self._send_json({"error": "Missing id or intent"}, 400)
+            return
+            
+        # Update JSON and CSV
+        if os.path.exists(FAILED_JSON):
+            with open(FAILED_JSON, "r", encoding="utf-8") as f:
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    data = []
+                    
+            query_text = ""
+            for item in data:
+                if item.get("id") == query_id:
+                    item["added_to_dataset"] = True
+                    item["resolved"] = True
+                    item["assigned_intent"] = intent
+                    item["reviewed_by"] = "admin"
+                    item["reviewed_at"] = datetime.utcnow().isoformat() + "Z"
+                    query_text = item.get("query", "")
+                    break
+            
+            with open(FAILED_JSON, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+                
+            # Append to train.csv
+            if query_text:
+                with open(TRAIN_CSV, "a", newline="", encoding="utf-8") as f:
+                    writer = csv.writer(f)
+                    writer.writerow([query_text, intent])
+                    
+                self._send_json({"status": "success", "message": f"Added '{query_text}' to dataset as '{intent}'"})
+            else:
+                self._send_json({"error": "Query ID not found"}, 404)
+        else:
+            self._send_json({"error": "Failed queries file not found"}, 404)
+
+    def _handle_retrain(self):
+        auth_header = self.headers.get("Authorization", "")
+        if auth_header != "Bearer " + os.environ.get("ADMIN_TOKEN", "skillsprint_admin_secret"):
+            self._send_json({"error": "Unauthorized. Invalid Admin Token."}, 401)
+            return
+            
+        try:
+            import subprocess
+            train_script = os.path.join(_BASE_DIR, "training", "train_model.py")
+            process = subprocess.run(
+                [sys.executable, train_script], 
+                capture_output=True, text=True, cwd=_BASE_DIR
+            )
+            
+            if process.returncode != 0:
+                self._send_json({"error": "Retraining failed", "details": process.stderr}, 500)
+                return
+                
+            # Reload models
+            load_models()
+            
+            self._send_json({"status": "success", "message": "Model retrained and reloaded successfully"})
+        except Exception as e:
+            self._send_json({"error": "Retraining error", "details": str(e)}, 500)
+
     def _handle_feedback(self):
         body = self._read_body()
         raw_text = body.get("message", "")
         predicted = body.get("predicted_intent", "")
-        correct = body.get("correct_intent", "")
-        feedback = body.get("feedback", "")
+        confidence = body.get("confidence", 0.0)
 
         if not raw_text:
             self._send_json({"error": "Missing 'message' field"}, 400)
             return
 
-        log_failed_query(raw_text, predicted, correct, feedback)
+        log_failed_query(raw_text, predicted, confidence)
         self._send_json({"status": "logged", "message": "Feedback recorded"})
 
     # ── Suppress default logs for cleaner output ──────────────────────
@@ -362,6 +478,9 @@ def main():
     print(f"    GET  /intents/<label> — get intent metadata")
     print(f"    GET  /categories      — list categories")
     print(f"    GET  /admin/summary   — admin analytics")
+    print(f"    GET  /admin/failed_queries — list failed queries")
+    print(f"    POST /admin/add_to_dataset — add failed query to train.csv")
+    print(f"    POST /admin/retrain   — trigger model retraining")
     print(f"    POST /feedback        — log failed queries")
     print(f"\n  Press Ctrl+C to stop.\n")
 
