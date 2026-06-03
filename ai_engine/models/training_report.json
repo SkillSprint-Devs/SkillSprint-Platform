@@ -1,0 +1,307 @@
+{
+  "training_time_seconds": 6.34,
+  "train_samples": 988,
+  "val_samples": 200,
+  "n_classes": 40,
+  "n_features": 552,
+  "train_accuracy": 0.9585,
+  "train_macro_f1": 0.9592,
+  "val_accuracy": 0.905,
+  "val_macro_f1": 0.9047,
+  "val_per_class": {
+    "platform.cert.list_badges": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.cert.verify": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.cert.view": {
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "support": 5
+    },
+    "platform.help.auth": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.help.notifications": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.help.system_health": {
+      "precision": 0.7143,
+      "recall": 1.0,
+      "f1": 0.8333,
+      "support": 5
+    },
+    "platform.library.preview": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.library.search": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.library.upload": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.matchmaking.algorithm": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
+      "support": 5
+    },
+    "platform.matchmaking.feed": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+    },
+    "platform.matchmaking.find": {
+      "precision": 0.5714,
+      "recall": 0.8,
+      "f1": 0.6667,
+      "support": 5
+    },
+    "platform.pair_prog.comment": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.pair_prog.create": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.pair_prog.execute": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.pair_prog.invite": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.pair_prog.roles": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.pair_prog.share_link": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.quiz.feedback": {
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "support": 5
+    },
+    "platform.quiz.limits": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.quiz.list_courses": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
+      "support": 5
+    },
+    "platform.quiz.save_resume": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.quiz.start": {
+      "precision": 0.7143,
+      "recall": 1.0,
+      "f1": 0.8333,
+      "support": 5
+    },
+    "platform.quiz.unlocks": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.session.create": {
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "support": 5
+    },
+    "platform.session.history": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+    },
+    "platform.session.join": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.session.schedule": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+    },
+    "platform.session.troubleshoot": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.social.follow": {
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "support": 5
+    },
+    "platform.social.interact": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.social.post": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.task.create": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.task.reminder": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.wallet.balance": {
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
+      "support": 5
+    },
+    "platform.wallet.clear": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.wallet.reset": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.whiteboard.join": {
+      "precision": 0.6,
+      "recall": 0.6,
+      "f1": 0.6,
+      "support": 5
+    },
+    "platform.whiteboard.presence": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
+      "support": 5
+    },
+    "platform.whiteboard.tools": {
+      "precision": 0.6667,
+      "recall": 0.8,
+      "f1": 0.7273,
+      "support": 5
+    }
+  },
+  "hyperparameters": {
+    "max_features": 5000,
+    "ngram_range": [
+      1,
+      2
+    ],
+    "min_df": 2,
+    "sublinear_tf": true,
+    "learning_rate": 0.15,
+    "epochs": 60,
+    "C": 1.0
+  },
+  "classes": [
+    "platform.cert.list_badges",
+    "platform.cert.verify",
+    "platform.cert.view",
+    "platform.help.auth",
+    "platform.help.notifications",
+    "platform.help.system_health",
+    "platform.library.preview",
+    "platform.library.search",
+    "platform.library.upload",
+    "platform.matchmaking.algorithm",
+    "platform.matchmaking.feed",
+    "platform.matchmaking.find",
+    "platform.pair_prog.comment",
+    "platform.pair_prog.create",
+    "platform.pair_prog.execute",
+    "platform.pair_prog.invite",
+    "platform.pair_prog.roles",
+    "platform.pair_prog.share_link",
+    "platform.quiz.feedback",
+    "platform.quiz.limits",
+    "platform.quiz.list_courses",
+    "platform.quiz.save_resume",
+    "platform.quiz.start",
+    "platform.quiz.unlocks",
+    "platform.session.create",
+    "platform.session.history",
+    "platform.session.join",
+    "platform.session.schedule",
+    "platform.session.troubleshoot",
+    "platform.social.follow",
+    "platform.social.interact",
+    "platform.social.post",
+    "platform.task.create",
+    "platform.task.reminder",
+    "platform.wallet.balance",
+    "platform.wallet.clear",
+    "platform.wallet.reset",
+    "platform.whiteboard.join",
+    "platform.whiteboard.presence",
+    "platform.whiteboard.tools"
+  ]
+}

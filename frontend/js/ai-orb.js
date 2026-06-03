@@ -105,34 +105,7 @@
     };
   }
 
-  /* ── Mock Responses (mirrors chat-bot.js stubs) ── */
-  const COMPACT_RESPONSES = {
-    'js.closures': {
-      confidence: 0.93,
-      text: 'A <strong>closure</strong> is a function that retains access to its outer scope even after the outer function has returned. It lets inner functions "remember" variables from where they were defined.'
-    },
-    'js.promises': {
-      confidence: 0.91,
-      text: 'A <strong>Promise</strong> represents a future value — either fulfilled, rejected, or pending. Chain <code>.then()</code> and <code>.catch()</code> to handle results asynchronously.'
-    },
-    'platform.sessions': {
-      confidence: 0.88,
-      text: 'Go to your <strong>Dashboard → Upcoming Sessions</strong> and click the <strong>Join</strong> button. Make sure your camera and microphone are enabled in the browser.'
-    },
-    'fallback': {
-      confidence: 0.42,
-      text: "I couldn't find a close match. Try rephrasing, or <a href='" + AI_URL + "' style='color:#DCEF62;'>open the full AI workspace</a> for more detailed help."
-    }
-  };
 
-  function orbClassify(q) {
-    const s = q.toLowerCase();
-    if (s.includes('closure'))                               return 'js.closures';
-    if (s.includes('promise'))                               return 'js.promises';
-    if (s.includes('async') || s.includes('await'))         return 'js.promises';
-    if (s.includes('session') || s.includes('join'))        return 'platform.sessions';
-    return 'fallback';
-  }
 
   /* ── State ── */
   let panelOpen = false;
@@ -395,7 +368,7 @@
   }
 
   /* ── Chat ── */
-  function handleSend() {
+  async function handleSend() {
     const input = document.getElementById('sapInput');
     const query = input.value.trim();
     if (!query) return;
@@ -408,15 +381,34 @@
     setBotState('thinking');
     const thinkEl = appendThinking();
 
-    const delay = 700 + Math.random() * 400;
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/ai/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: query })
+      });
+
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+
       thinkEl.remove();
-      const key  = orbClassify(query);
-      const resp = COMPACT_RESPONSES[key] || COMPACT_RESPONSES.fallback;
-      appendBotMsg(resp.text);
+      
+      const answerText = data.response || "I'm not sure how to answer that.";
+      // Format simple links if a route exists
+      let finalHtml = answerText.replace(/\n/g, '<br />');
+      if (data.route) {
+        finalHtml += `<br><br><a href="${data.route}" style="color:#DCEF62;text-decoration:underline;">Click here to go there</a>`;
+      }
+      
+      appendBotMsg(finalHtml);
       setBotState('success');
       setTimeout(() => setBotState('idle'), 1600);
-    }, delay);
+    } catch (err) {
+      console.error('Orb AI Predict Error:', err);
+      thinkEl.remove();
+      appendBotMsg("I'm sorry, I'm currently unreachable. Please try again later.");
+      setBotState('idle');
+    }
   }
 
   function appendUserMsg(text) {

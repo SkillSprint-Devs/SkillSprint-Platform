@@ -1,0 +1,321 @@
+{
+  "platform.session.join": {
+    "category": "Live Sessions",
+    "response": "To join a live session, open the Live Collaboration page and click the 'Join Now' button on any active session card.",
+    "route": "/dashboard/live-sessions",
+    "keywords": ["join", "session", "meeting", "live class", "video call", "connect", "enter"],
+    "admin_notes": "Most common session intent. Users often confuse 'join' with 'create'. Typo-heavy input expected (e.g. 'joim', 'jion')."
+  },
+
+  "platform.session.create": {
+    "category": "Live Sessions",
+    "response": "To start a new live session, go to the Live Sessions page and click 'Create Session'. You can choose between video, audio, or screen-sharing modes.",
+    "route": "/dashboard/live-sessions",
+    "keywords": ["create", "start", "launch", "host", "new session", "begin", "video call"],
+    "admin_notes": "Often confused with session.join. Users say 'start a call' meaning either create or join."
+  },
+
+  "platform.session.schedule": {
+    "category": "Live Sessions",
+    "response": "You can schedule a future session from the Live Sessions page. Click 'Schedule' and pick a date, time, and invite participants.",
+    "route": "/dashboard/live-sessions",
+    "keywords": ["schedule", "book", "reschedule", "meeting time", "appointment", "plan", "arrange"],
+    "admin_notes": "Overlaps with task.create when users say 'set up a meeting'. Context disambiguation needed."
+  },
+
+  "platform.session.history": {
+    "category": "Live Sessions",
+    "response": "Your past session records are available on the Live Sessions page under the 'History' tab. You can view timestamps, participants, and durations.",
+    "route": "/dashboard/live-sessions",
+    "keywords": ["history", "past", "previous", "completed", "old meetings", "records", "logs"],
+    "admin_notes": "Read-only intent. Users sometimes want to re-join an ended session — redirect to session.create if that's the case."
+  },
+
+  "platform.session.troubleshoot": {
+    "category": "Live Sessions",
+    "response": "For audio/video issues, check your browser permissions for camera and microphone access. Ensure you're using a supported browser (Chrome or Firefox). Try refreshing the page or rejoining the session.",
+    "route": "/dashboard/live-sessions",
+    "keywords": ["camera", "microphone", "audio", "video", "lagging", "frozen", "broken", "troubleshoot", "not working"],
+    "admin_notes": "High-frustration intent. Immediate, actionable steps are critical. Browser permission denials are the #1 root cause."
+  },
+
+  "platform.pair_prog.create": {
+    "category": "Pair Programming",
+    "response": "To start a pair programming session, go to the Pair Programming page and click 'Create Board'. Choose your language (JavaScript, Python, Java, etc.) to get a preconfigured workspace.",
+    "route": "/dashboard/pair-programming",
+    "keywords": ["pair programming", "create board", "workspace", "code editor", "shared editor", "coding session"],
+    "admin_notes": "Core feature intent. Language selection happens at board creation time."
+  },
+
+  "platform.pair_prog.invite": {
+    "category": "Pair Programming",
+    "response": "To invite someone to your board, click the 'Invite' button in the top toolbar. You can search for users by name or send an invite link directly.",
+    "route": "/dashboard/pair-programming",
+    "keywords": ["invite", "add user", "collaborator", "teammate", "share access", "send invite"],
+    "admin_notes": "Users may also ask about share_link — similar but different. Invite is user-to-user; share_link is URL-based."
+  },
+
+  "platform.pair_prog.roles": {
+    "category": "Pair Programming",
+    "response": "In pair programming, the 'Driver' has edit access while the 'Navigator' reviews in real-time. To swap roles, click the 'Swap Roles' button in the toolbar. The current driver must approve the swap request.",
+    "route": "/dashboard/pair-programming",
+    "keywords": ["driver", "navigator", "swap", "roles", "edit permission", "edit access", "switch roles"],
+    "admin_notes": "Users frequently frustrated when they can't edit — they're in Navigator mode. Explain the approval flow clearly."
+  },
+
+  "platform.pair_prog.execute": {
+    "category": "Pair Programming",
+    "response": "To run your code, click the '▶ Run' button in the board toolbar. Console output appears in the bottom panel. Supported languages: JavaScript, Python, Java, C++.",
+    "route": "/dashboard/pair-programming",
+    "keywords": ["run", "execute", "compile", "console", "output", "terminal", "sandbox"],
+    "admin_notes": "Execution is sandboxed. Timeout is 30 seconds. Users with infinite loops may see blank output — that's expected."
+  },
+
+  "platform.pair_prog.share_link": {
+    "category": "Pair Programming",
+    "response": "To share your workspace, click 'Share Link' in the toolbar to generate a unique URL or join token. Anyone with the link can join as a Navigator by default.",
+    "route": "/dashboard/pair-programming",
+    "keywords": ["share link", "url", "token", "join link", "shareable", "clipboard", "external"],
+    "admin_notes": "Distinct from pair_prog.invite which is internal user search. Share links expire after 24 hours."
+  },
+
+  "platform.pair_prog.comment": {
+    "category": "Pair Programming",
+    "response": "To leave a code comment, click on any line number in the editor and select 'Add Comment'. Your comments appear in the right panel and are visible to all participants.",
+    "route": "/dashboard/pair-programming",
+    "keywords": ["comment", "review", "feedback", "note", "line comment", "code review", "annotation"],
+    "admin_notes": "Line-level commenting is the primary review mechanism. Comments persist after the session ends."
+  },
+
+  "platform.whiteboard.join": {
+    "category": "Whiteboard",
+    "response": "To open the interactive whiteboard, navigate to the Whiteboard page from the sidebar. You can create a new board or join an existing one shared by your partner.",
+    "route": "/dashboard/whiteboard",
+    "keywords": ["whiteboard", "drawing", "sketch", "board", "canvas", "collaborative board", "diagram"],
+    "admin_notes": "Whiteboard is real-time via WebSocket. Users on slow connections may experience lag — see whiteboard.presence."
+  },
+
+  "platform.whiteboard.tools": {
+    "category": "Whiteboard",
+    "response": "The whiteboard toolbar includes: Pen, Eraser, Shapes (rectangle, circle, line), Text, Color Picker, and Brush Size slider. Select any tool from the top toolbar to start drawing.",
+    "route": "/dashboard/whiteboard",
+    "keywords": ["pen", "eraser", "shapes", "color", "brush", "text", "tools", "rectangle", "circle"],
+    "admin_notes": "Feature-rich but users often miss the toolbar on mobile. Responsive layout may hide some tools behind a menu."
+  },
+
+  "platform.whiteboard.presence": {
+    "category": "Whiteboard",
+    "response": "Live cursors show where each participant is drawing in real-time, color-coded by user. If cursors aren't visible, check your connection or refresh the page.",
+    "route": "/dashboard/whiteboard",
+    "keywords": ["cursor", "presence", "real-time", "live", "sync", "multiplayer", "partner cursor"],
+    "admin_notes": "Presence relies on WebSocket. Cursor sync issues are almost always network-related. Polling fallback exists but is slower."
+  },
+
+  "platform.matchmaking.find": {
+    "category": "Matchmaking",
+    "response": "To find a study partner or mentor, go to the Matchmaking page and click 'Find Match'. The system uses your skill profile and learning goals to suggest compatible peers.",
+    "route": "/dashboard/matchmaking",
+    "keywords": ["find", "match", "partner", "mentor", "study buddy", "teammate", "collaborate", "peers"],
+    "admin_notes": "Primary matchmaking entry point. Users with incomplete profiles get poor matches — encourage profile completion."
+  },
+
+  "platform.matchmaking.algorithm": {
+    "category": "Matchmaking",
+    "response": "Our matchmaking uses a KNN (K-Nearest Neighbors) algorithm with cosine similarity to compare your skill vector against other users. Scores factor in: shared languages, experience level, timezone overlap, and learning goals.",
+    "route": "/dashboard/matchmaking",
+    "keywords": ["algorithm", "knn", "cosine similarity", "score", "compatibility", "matching criteria", "how matching works"],
+    "admin_notes": "Technical explainability intent. Important for panel — shows AI/ML depth. KNN with k=5, cosine similarity on TF-IDF skill vectors."
+  },
+
+  "platform.matchmaking.feed": {
+    "category": "Matchmaking",
+    "response": "The Collaboration Feed shows project requests and open collaboration offers from the community. You can browse, post your own stack, or accept invitations directly from the feed.",
+    "route": "/dashboard/matchmaking",
+    "keywords": ["feed", "project", "collaboration", "request", "offer", "post", "browse", "listings"],
+    "admin_notes": "Feed is public within the platform. Posts auto-expire after 7 days. Distinct from social.post — this is project-focused."
+  },
+
+  "platform.quiz.list_courses": {
+    "category": "Quiz System",
+    "response": "View all available courses and quizzes from the Quizzes page. Courses include JavaScript, Python, HTML/CSS, Node.js, React, MongoDB, and more. Your progress is tracked per course.",
+    "route": "/dashboard/quizzes",
+    "keywords": ["courses", "list", "available", "quizzes", "learning paths", "assessments", "topics", "progress"],
+    "admin_notes": "Gateway intent to the quiz system. Show progress bars and locked/unlocked states clearly."
+  },
+
+  "platform.quiz.start": {
+    "category": "Quiz System",
+    "response": "To start a quiz, select a course from the Quizzes page and click 'Start Quiz'. Each quiz has a time limit and your progress auto-saves as you answer.",
+    "route": "/dashboard/quizzes",
+    "keywords": ["start", "begin", "take", "launch", "exam", "assessment", "test"],
+    "admin_notes": "Check quiz.limits before starting — users may have exhausted daily attempts. Auto-save is enabled by default."
+  },
+
+  "platform.quiz.save_resume": {
+    "category": "Quiz System",
+    "response": "Your quiz progress auto-saves after each answer. If your browser closes, return to the Quizzes page and click 'Resume' on your active quiz to continue where you left off.",
+    "route": "/dashboard/quizzes",
+    "keywords": ["save", "resume", "continue", "auto save", "pause", "browser closed", "recover", "restore"],
+    "admin_notes": "Auto-save uses localStorage + server sync. If localStorage is cleared, server-side state is the fallback. Sessions expire after 24 hours."
+  },
+
+  "platform.quiz.limits": {
+    "category": "Quiz System",
+    "response": "You have 3 quiz attempts per course per day. Attempts reset at midnight (UTC). If you've reached the limit, you'll need to wait until the next day to retry.",
+    "route": "/dashboard/quizzes",
+    "keywords": ["attempts", "limit", "daily", "retries", "reset", "blocked", "max tries", "cap"],
+    "admin_notes": "Most frequent frustration point in quiz system. Consider showing a countdown timer to next reset."
+  },
+
+  "platform.quiz.unlocks": {
+    "category": "Quiz System",
+    "response": "Advanced quizzes unlock after successfully passing the previous difficulty level. You need a minimum passing score of 70% on the Basic quiz to unlock Intermediate, and 70% on Intermediate to unlock Advanced.",
+    "route": "/dashboard/quizzes",
+    "keywords": ["unlock", "locked", "advanced", "intermediate", "prerequisites", "level", "progression", "greyed out"],
+    "admin_notes": "Passing threshold is 70%. Users often don't realize they need to pass — not just attempt. Show unlock requirements on the card."
+  },
+
+  "platform.quiz.feedback": {
+    "category": "Quiz System",
+    "response": "After completing a quiz, your score breakdown and detailed feedback are available on the results page. You can review correct answers, see which topics need improvement, and track your progress over time.",
+    "route": "/dashboard/quizzes",
+    "keywords": ["score", "results", "feedback", "answers", "grade", "review", "mistakes", "pass", "fail"],
+    "admin_notes": "Post-quiz UX is critical for learning. Show per-topic breakdown, not just a total score."
+  },
+
+  "platform.cert.list_badges": {
+    "category": "Certificates & Badges",
+    "response": "View your earned badges and achievements on the Certificates page. Badge tiers include Bronze, Silver, Gold, and Platinum, awarded based on milestones like course completions, streaks, and collaboration hours.",
+    "route": "/dashboard/certificates",
+    "keywords": ["badges", "achievements", "milestones", "trophies", "rewards", "medals", "tier", "goals"],
+    "admin_notes": "Gamification layer. Badge criteria are server-enforced. Badge art assets are in /assets/badges/."
+  },
+
+  "platform.cert.view": {
+    "category": "Certificates & Badges",
+    "response": "To view or download your certificate, go to the Certificates page and click on any earned certificate. You can download it as a PDF or share a public verification link.",
+    "route": "/dashboard/certificates",
+    "keywords": ["certificate", "download", "pdf", "diploma", "completion", "print", "export", "view cert"],
+    "admin_notes": "Certificates are generated as PDF on-demand. Ensure the user has actually passed the course before showing the download button."
+  },
+
+  "platform.cert.verify": {
+    "category": "Certificates & Badges",
+    "response": "Each certificate has a unique verification ID. Share the public verification URL with employers or institutions — they can verify authenticity without needing a platform account.",
+    "route": "/dashboard/certificates",
+    "keywords": ["verify", "validation", "authenticity", "certificate id", "public link", "employer", "credentials"],
+    "admin_notes": "Public verification endpoint: /verify/:certId. No auth required for verification. Important for credibility."
+  },
+
+  "platform.library.upload": {
+    "category": "Resource Library",
+    "response": "To upload a resource, go to the Library page and click the 'Upload' button. Supported formats: PDF, images, ZIP, video recordings, and presentations. Max file size: 50MB.",
+    "route": "/dashboard/library",
+    "keywords": ["upload", "file", "pdf", "resource", "share", "document", "submit", "add files"],
+    "admin_notes": "File size limit is 50MB. Supported MIME types are server-validated. Video uploads may take longer due to processing."
+  },
+
+  "platform.library.preview": {
+    "category": "Resource Library",
+    "response": "You can preview most files directly in the browser without downloading. Click the 'Preview' button on any resource card. Supported preview types: PDF, images, and text files.",
+    "route": "/dashboard/library",
+    "keywords": ["preview", "view", "modal", "inspect", "read online", "file viewer", "open without download"],
+    "admin_notes": "ZIP and video previews are limited. PDF preview uses an iframe renderer. Preview modal may not work on older browsers."
+  },
+
+  "platform.library.search": {
+    "category": "Resource Library",
+    "response": "Use the search bar on the Library page to find resources by name, type, or category. You can also filter by file type (PDF, video, slides) and sort by date or popularity.",
+    "route": "/dashboard/library",
+    "keywords": ["search", "find", "filter", "look up", "browse", "resources", "materials", "documents"],
+    "admin_notes": "Search is keyword-based currently. Full-text search inside PDFs is a planned feature."
+  },
+
+  "platform.wallet.balance": {
+    "category": "Wallet",
+    "response": "You can view your remaining credits and transaction history from the Wallet Dashboard. Your balance shows available tokens, weekly limit, and recent transactions.",
+    "route": "/dashboard/wallet",
+    "keywords": ["balance", "credits", "tokens", "wallet", "remaining", "limit", "transactions", "coins"],
+    "admin_notes": "Frequently confused with wallet.reset intent. Users asking 'how many credits' want balance; 'when do credits come back' want reset."
+  },
+
+  "platform.wallet.reset": {
+    "category": "Wallet",
+    "response": "Your wallet credits reset automatically every Monday at midnight (UTC). Unused credits do not roll over to the next week. Check the Wallet page for your next reset countdown.",
+    "route": "/dashboard/wallet",
+    "keywords": ["reset", "refresh", "reload", "replenish", "refill", "weekly", "rollover", "next reset"],
+    "admin_notes": "Reset is server-side cron job (Monday 00:00 UTC). Credits do NOT roll over. Users frequently ask if they can force a reset — they cannot."
+  },
+
+  "platform.wallet.clear": {
+    "category": "Wallet",
+    "response": "To clear your transaction history, go to the Wallet page and click 'Clear History'. This removes the visual log but does not affect your actual credit balance.",
+    "route": "/dashboard/wallet",
+    "keywords": ["clear", "delete", "remove", "wipe", "erase", "history", "logs", "purge", "transactions"],
+    "admin_notes": "Soft delete only — records are retained server-side for audit purposes. UI clears but backend maintains full history."
+  },
+
+  "platform.task.create": {
+    "category": "Task Management",
+    "response": "To create a new task, go to the Tasks page and click 'Add Task'. Set a title, priority level (Low, Medium, High), due date, and optional description. Tasks appear on your calendar view.",
+    "route": "/dashboard/tasks",
+    "keywords": ["task", "todo", "create", "add", "calendar", "schedule", "priority", "planner", "deadline"],
+    "admin_notes": "Overlaps with session.schedule for 'meeting' type tasks. Task system is personal — not shared with other users."
+  },
+
+  "platform.task.reminder": {
+    "category": "Task Management",
+    "response": "Email reminders are sent automatically before your task deadlines. You can configure reminder timing and frequency from the Tasks page under 'Reminder Settings'. Options: 1 hour, 1 day, or 3 days before due date.",
+    "route": "/dashboard/tasks",
+    "keywords": ["reminder", "email", "alert", "notification", "notify", "automated", "daily reminder"],
+    "admin_notes": "Email delivery depends on verified email. Users with unverified emails won't receive reminders — check email verification status first."
+  },
+
+  "platform.social.post": {
+    "category": "Social Network",
+    "response": "To share a post, go to the Social Feed and click 'Create Post'. You can write text updates, share achievements, attach images, or link to your projects. Posts are visible to your followers.",
+    "route": "/dashboard/social",
+    "keywords": ["post", "share", "publish", "update", "feed", "write", "announcement", "wall"],
+    "admin_notes": "Posts support text + single image. No multi-image or video attachments yet. Character limit: 500."
+  },
+
+  "platform.social.interact": {
+    "category": "Social Network",
+    "response": "You can like, comment, and reply to posts on the Social Feed. Click the heart icon to like, or click 'Comment' to start a conversation thread under any post.",
+    "route": "/dashboard/social",
+    "keywords": ["like", "comment", "reply", "interact", "upvote", "react", "respond", "thread"],
+    "admin_notes": "No dislike/downvote feature. Comments are flat (no nested threads). Users can delete their own comments only."
+  },
+
+  "platform.social.follow": {
+    "category": "Social Network",
+    "response": "To follow a developer, visit their profile and click the 'Follow' button. You'll see their posts in your feed. View your followers and following lists from your own profile page.",
+    "route": "/dashboard/social",
+    "keywords": ["follow", "unfollow", "followers", "profile", "subscribe", "connect", "developer"],
+    "admin_notes": "Following is one-directional (like Twitter). No approval required. Follower count is public on profiles."
+  },
+
+  "platform.help.auth": {
+    "category": "Help & Support",
+    "response": "For login issues, try resetting your password from the Sign In page. If your session expired, simply log in again. For new accounts, click 'Sign Up' on the landing page. Contact support if you're still locked out.",
+    "route": "/help/authentication",
+    "keywords": ["login", "sign up", "password", "register", "forgot", "authentication", "session expired", "jwt", "credentials"],
+    "admin_notes": "JWT tokens expire after 7 days. Common issue: users on multiple devices have stale tokens. Password reset sends email — check spam folder."
+  },
+
+  "platform.help.notifications": {
+    "category": "Help & Support",
+    "response": "Manage your notification preferences from the Settings page. You can toggle push notifications, email alerts, sound effects, and in-app notification types individually.",
+    "route": "/dashboard/settings",
+    "keywords": ["notifications", "alerts", "push", "email", "inbox", "mute", "silence", "preferences", "settings"],
+    "admin_notes": "Browser push notifications require explicit permission grant. Users who denied the permission need to reset it in browser settings."
+  },
+
+  "platform.help.system_health": {
+    "category": "Help & Support",
+    "response": "Check the platform status on the System Health page. It shows server uptime, API response times, database connectivity, and any ongoing incidents. If the platform is down, check back in a few minutes.",
+    "route": "/help/system-health",
+    "keywords": ["server", "status", "health", "down", "error", "crashed", "connection", "uptime", "diagnostics", "500"],
+    "admin_notes": "System health endpoint: /api/health. 500 errors are auto-logged. Common cause: Docker container restart or DB connection pool exhaustion."
+  }
+}

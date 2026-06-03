@@ -42,103 +42,7 @@ const SUGGESTION_POOL = [
 /* Chips shown in empty state (centre + inline) */
 const CHIP_DISPLAY_COUNT = 7;
 
-/* ================================================================
-   MOCK RESPONSE DATA
-   Stub responses keyed by intent — will be replaced by ai-client.js
-================================================================ */
-const MOCK_RESPONSES = {
-  'js.closures': {
-    intent:     'js.closures',
-    confidence: 0.93,
-    answer: `A <strong>closure</strong> in JavaScript is a function that retains access to its outer (enclosing) lexical scope even after the outer function has returned.\n\nEvery function in JavaScript forms a closure over the environment in which it was created. This means the inner function can read and write variables from the outer scope, even when called later or in a different context.`,
-    code: {
-      lang: 'JavaScript',
-      source: `<span class="tok-kw">function</span> <span class="tok-fn">makeCounter</span>() {
-  <span class="tok-kw">let</span> count <span class="tok-op">=</span> <span class="tok-num">0</span><span class="tok-punc">;</span>        <span class="tok-cmt">// private variable (closure)</span>
 
-  <span class="tok-kw">return</span> {
-    increment<span class="tok-punc">:</span> () <span class="tok-op">=></span> <span class="tok-punc">{</span> count<span class="tok-op">++</span><span class="tok-punc">;</span> <span class="tok-punc">},</span>
-    decrement<span class="tok-punc">:</span> () <span class="tok-op">=></span> <span class="tok-punc">{</span> count<span class="tok-op">--</span><span class="tok-punc">;</span> <span class="tok-punc">},</span>
-    value<span class="tok-punc">:</span>     () <span class="tok-op">=></span> count
-  <span class="tok-punc">};</span>
-<span class="tok-punc">}</span>
-
-<span class="tok-kw">const</span> counter <span class="tok-op">=</span> <span class="tok-fn">makeCounter</span>()<span class="tok-punc">;</span>
-counter<span class="tok-punc">.</span><span class="tok-fn">increment</span>()<span class="tok-punc">;</span>
-counter<span class="tok-punc">.</span><span class="tok-fn">increment</span>()<span class="tok-punc">;</span>
-console<span class="tok-punc">.</span><span class="tok-fn">log</span>(counter<span class="tok-punc">.</span><span class="tok-fn">value</span>())<span class="tok-punc">;</span>  <span class="tok-cmt">// → 2</span>`
-    },
-    related: [
-      { label: 'What are higher-order functions?',    icon: 'fa-brands fa-js'           },
-      { label: 'Explain the scope chain in JS',       icon: 'fa-brands fa-js'           },
-      { label: 'What is a JavaScript prototype?',     icon: 'fa-brands fa-js'           },
-      { label: 'Closures vs classes',                 icon: 'fa-brands fa-js'           },
-    ]
-  },
-
-  'platform.sessions': {
-    intent:     'platform.sessions',
-    confidence: 0.88,
-    answer: `To <strong>join a SkillSprint session</strong>, navigate to your Dashboard and locate the <strong>Upcoming Sessions</strong> section. Click the <strong>Join</strong> button on the relevant session card.\n\nIf the session hasn't started yet, the button will be disabled and a countdown will be shown. Make sure your camera and microphone are enabled in your browser before joining.`,
-    code: null,
-    related: [
-      { label: 'How do I book a mentor session?',  icon: 'fa-solid fa-calendar-check' },
-      { label: 'How do wallet credits work?',       icon: 'fa-solid fa-wallet'         },
-      { label: 'How do I start pair programming?',  icon: 'fa-solid fa-code'           },
-      { label: 'Can I reschedule a session?',       icon: 'fa-solid fa-clock-rotate-left' },
-    ]
-  },
-
-  'js.promises': {
-    intent:     'js.promises',
-    confidence: 0.91,
-    answer: `A <strong>Promise</strong> in JavaScript represents a value that may be available now, in the future, or never. It is an object that wraps an asynchronous operation and provides <code>.then()</code>, <code>.catch()</code>, and <code>.finally()</code> methods to handle the result.\n\nA Promise exists in one of three states:\n<strong>Pending</strong> → initial state\n<strong>Fulfilled</strong> → operation completed successfully\n<strong>Rejected</strong> → operation failed`,
-    code: {
-      lang: 'JavaScript',
-      source: `<span class="tok-kw">const</span> fetchUser <span class="tok-op">=</span> (id) <span class="tok-op">=></span>
-  <span class="tok-kw">new</span> <span class="tok-fn">Promise</span>((resolve, reject) <span class="tok-op">=></span> <span class="tok-punc">{</span>
-    <span class="tok-fn">setTimeout</span>(() <span class="tok-op">=></span> <span class="tok-punc">{</span>
-      <span class="tok-kw">if</span> (id <span class="tok-op">></span> <span class="tok-num">0</span>) resolve(<span class="tok-punc">{</span> id, name<span class="tok-punc">:</span> <span class="tok-str">'Alex'</span> <span class="tok-punc">}</span>)<span class="tok-punc">;</span>
-      <span class="tok-kw">else</span>        reject(<span class="tok-kw">new</span> <span class="tok-fn">Error</span>(<span class="tok-str">'Invalid ID'</span>))<span class="tok-punc">;</span>
-    <span class="tok-punc">},</span> <span class="tok-num">500</span>)<span class="tok-punc">;</span>
-  <span class="tok-punc">}</span>)<span class="tok-punc">;</span>
-
-<span class="tok-fn">fetchUser</span>(<span class="tok-num">1</span>)
-  <span class="tok-punc">.</span><span class="tok-fn">then</span>(user  <span class="tok-op">=></span> console<span class="tok-punc">.</span><span class="tok-fn">log</span>(user<span class="tok-punc">.</span>name))  <span class="tok-cmt">// 'Alex'</span>
-  <span class="tok-punc">.</span><span class="tok-fn">catch</span>(err   <span class="tok-op">=></span> console<span class="tok-punc">.</span><span class="tok-fn">error</span>(err))<span class="tok-punc">;</span>`
-    },
-    related: [
-      { label: 'What is async/await?',            icon: 'fa-brands fa-js' },
-      { label: 'Promise.all vs Promise.race',     icon: 'fa-brands fa-js' },
-      { label: 'Explain the JavaScript event loop', icon: 'fa-brands fa-js' },
-      { label: 'What is a callback function?',    icon: 'fa-brands fa-js' },
-    ]
-  },
-
-  'fallback': {
-    intent:     'fallback',
-    confidence: 0.42,
-    answer: `I couldn't find a close match for your question.\n\nPlease try rephrasing it, or select one of the suggested topics below.`,
-    code: null,
-    related: [
-      { label: 'What is a JavaScript closure?',   icon: 'fa-brands fa-js' },
-      { label: 'How do I join a session?',        icon: 'fa-solid fa-video' },
-      { label: 'Explain promises in JavaScript',  icon: 'fa-brands fa-js' },
-      { label: 'How do wallet credits work?',     icon: 'fa-solid fa-wallet' },
-    ],
-    isFallback: true
-  }
-};
-
-/* Simple keyword-to-intent mapping for the UI stub */
-function mockClassify(query) {
-  const q = query.toLowerCase();
-  if (q.includes('closure'))                               return 'js.closures';
-  if (q.includes('session') || q.includes('join'))        return 'platform.sessions';
-  if (q.includes('promise'))                               return 'js.promises';
-  if (q.includes('async') || q.includes('await'))         return 'js.promises';
-  return 'fallback';
-}
 
 /* ================================================================
    STATE
@@ -285,7 +189,7 @@ function resetConfidenceMeter() {
 /* ================================================================
    QUERY SUBMISSION + RESPONSE RENDERING
 ================================================================ */
-function submitQuery() {
+async function submitQuery() {
   const query = dom.mentorInput.value.trim();
   if (!query) return;
 
@@ -304,19 +208,48 @@ function submitQuery() {
   setIndicatorState('thinking');
   const thinkEl = appendThinkingIndicator();
 
-  // Simulate AI round-trip delay (will be replaced by actual API call)
-  const delay = 900 + Math.random() * 500;
-  setTimeout(() => {
+  try {
+    const res = await fetch('/api/ai/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: query })
+    });
+
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+
+    // Map Python API format to UI format
+    const response = {
+      intent: data.intent || 'fallback',
+      confidence: data.confidence || 0,
+      answer: data.response || "I'm not sure how to answer that.",
+      route: data.route || null,
+      code: null, // Stub for future code execution features
+      related: (data.keywords || []).slice(0, 4).map(k => ({ label: k, icon: 'fa-solid fa-magnifying-glass' })),
+      isFallback: data.method === 'fallback' || data.intent === 'empty_input'
+    };
+
     thinkEl.remove();
-    const intentKey = mockClassify(query);
-    const response  = MOCK_RESPONSES[intentKey] || MOCK_RESPONSES['fallback'];
     appendResponse(response, query);
     updateConfidenceMeter(response.confidence);
     setIndicatorState('success');
-    // Persist to recent + session
+    
     addToRecent(query, response);
     persistSession(query, response);
-  }, delay);
+  } catch (err) {
+    console.error('AI Predict Error:', err);
+    thinkEl.remove();
+    const fallbackResponse = {
+      intent: 'error',
+      confidence: 0,
+      answer: 'Sorry, the AI Mentor is currently offline or unreachable. Please try again later.',
+      code: null,
+      related: [],
+      isFallback: true
+    };
+    appendResponse(fallbackResponse, query);
+    setIndicatorState('idle');
+  }
 }
 
 /* ── Activate chat mode (hide empty state) ── */
@@ -390,7 +323,7 @@ function appendResponse(resp, originalQuery) {
     <div class="resp-answer-card">
       <div class="rac-header">
         <span class="rac-badge"><i class="fa-solid fa-square-check"></i> Answer</span>
-        <span class="rac-intent-tag">${escHtml(topicLabel)}</span>
+        <span class="rac-intent-tag">${escHtml(resp.intent)}</span>
       </div>
       <div class="rac-body">${formatAnswer(resp.answer)}</div>
       <div class="rac-footer">
@@ -398,9 +331,12 @@ function appendResponse(resp, originalQuery) {
           <span class="rac-conf-label">Confidence</span>
           <span class="rac-conf-pill ${confClass}">${confPct}%</span>
         </div>
-        <button class="rac-save-btn" data-query="${escHtml(originalQuery || resp.intent)}">
-          <i class="fa-regular fa-bookmark"></i> Save
-        </button>
+        <div style="display:flex; gap:8px;">
+          ${resp.route ? `<a href="${resp.route}" class="rac-route-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Go to Page</a>` : ''}
+          <button class="rac-save-btn" data-query="${escHtml(originalQuery || resp.intent)}">
+            <i class="fa-regular fa-bookmark"></i> Save
+          </button>
+        </div>
       </div>
     </div>`;
 
