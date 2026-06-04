@@ -1,0 +1,7 @@
+{
+  "intent": "js.map_set",
+  "title": "JavaScript Concepts",
+  "response": "Map and Set are modern data structures (ES6+) that complement objects and arrays.\n\nMap \u2014 key-value pairs where keys can be ANY type (including objects and functions):\n\u2022 Better performance than objects for frequent additions/deletions.\n\u2022 Maintains insertion order.\n\u2022 Has a .size property.\n\u2022 Methods: .set(k,v), .get(k), .has(k), .delete(k), .clear(), .forEach(), .entries(), .keys(), .values().\n\nSet \u2014 collection of UNIQUE values:\n\u2022 Automatically removes duplicates.\n\u2022 Methods: .add(v), .has(v), .delete(v), .size, .forEach(), .keys().\n\nWeakMap and WeakSet \u2014 hold weak references; keys/values can be garbage collected when no longer referenced elsewhere. Useful for private data and caches.",
+  "route": "QUIZZES",
+  "code_example": "// Map\nconst map = new Map();\nmap.set('name', 'Alice');\nmap.set(42, 'the answer');\nmap.set({}, 'an object key'); // object as key!\n\nconsole.log(map.get('name')); // 'Alice'\nconsole.log(map.size);        // 3\n\nfor (const [key, value] of map) {\n  console.log(key, value);\n}\n\n// Set \u2014 unique values\nconst set = new Set([1, 2, 2, 3, 3, 3]);\nconsole.log(set.size);    // 3\nconsole.log([...set]);    // [1, 2, 3]\n\n// Common use: remove duplicates from an array\nconst arr = [1, 2, 2, 3, 4, 4];\nconst unique = [...new Set(arr)]; // [1, 2, 3, 4]\n\n// Set has/add/delete\nset.add(99);\nconsole.log(set.has(99));  // true\nset.delete(99);"
+}

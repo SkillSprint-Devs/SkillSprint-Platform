@@ -72,6 +72,7 @@ CONFIDENCE_THRESHOLD_FALLBACK = 0.45
 # attempt the JS resolver first (before ML classification), reducing
 # misclassification for JavaScript questions.
 _JS_SIGNAL_TOKENS = {
+    # Full words
     "javascript", "js", "closure", "closures", "prototype", "hoisting",
     "hoist", "async", "await", "promise", "promises", "callback",
     "callbacks", "arrow", "destructuring", "spread", "rest",
@@ -80,6 +81,10 @@ _JS_SIGNAL_TOKENS = {
     "microtask", "macrotask", "currying", "curry", "higher order",
     "template literal", "localStorage", "localstorage", "regex",
     "map set", "weakmap", "weakset", "es6", "es2015", "ecmascript",
+    # Stemmed variants (produced by text_cleaner's stemmer)
+    "closur", "promis", "callb", "destructur", "iteratur",
+    "coers", "curri", "generat", "hoistl", "prototyp",
+    "templat", "literl", "weakmap", "weakset",
 }
 
 
@@ -145,8 +150,20 @@ def _detect_js_signals(cleaned_text: str) -> bool:
     tokens = set(cleaned_text.lower().split())
     return bool(tokens & _JS_SIGNAL_TOKENS)
 
+def normalize_context(data: dict) -> dict:
+    """Normalize incoming context from the API request body.
+    Filters out None values so KB defaults are not overridden by missing fields.
+    """
+    if not isinstance(data, dict):
+        return {}
+    raw = {
+        "username": data.get("username") or data.get("user", {}).get("name"),
+        "credits":  data.get("credits"),
+    }
+    # Strip None so KB-level defaults can fill the gap
+    return {k: v for k, v in raw.items() if v is not None}
 
-def _resolve_by_tier(intent_label: str, cleaned: str):
+def _resolve_by_tier(intent_label: str, cleaned: str, user_context: dict = None):
     """
     Route an intent label to the correct resolver tier:
       - js.*        → JS knowledge resolver
@@ -154,12 +171,8 @@ def _resolve_by_tier(intent_label: str, cleaned: str):
       - anything else → platform resolver (which has fallback)
     """
     if intent_label.startswith("js.") and _js_resolver:
-        resolved = _js_resolver.resolve(intent_label)
-        # Enrich the response with the code_example field if present
-        # (stored in the raw intents data, not surfaced by resolve())
-        resolved["code_example"] = _js_resolver._intents.get(
-            intent_label, {}
-        ).get("code_example", None)
+        resolved = _js_resolver.resolve(intent_label, user_context)
+        # Inherit old fallback behaviour for topic_level, response_type
         resolved["topic_level"] = _js_resolver._intents.get(
             intent_label, {}
         ).get("topic_level", "")
@@ -169,35 +182,30 @@ def _resolve_by_tier(intent_label: str, cleaned: str):
         resolved["domain"] = "javascript"
         return resolved
     else:
-        resolved = _resolver.resolve(intent_label)
+        resolved = _resolver.resolve(intent_label, user_context)
         resolved["domain"] = "platform"
         return resolved
 
 
-def predict_intent(raw_text: str) -> dict:
+def predict_intent(raw_text: str, user_context: dict = None) -> dict:
     """
     Full prediction pipeline — two-tier resolution.
 
     Tier 1 (pre-routing heuristic):
         If the query contains JS signal tokens, try the JS resolver
-        via semantic_boost first. This catches high-confidence JS
-        questions before ML even runs.
+        via semantic_boost first.
 
     Tier 2 (ML + semantic fallback):
         Standard TF-IDF + Logistic Regression pipeline, followed by
         hybrid semantic boosting if confidence is low.
 
-    Tier routing (after ML):
-        js.*       → _js_resolver  (JavaScript knowledge)
-        platform.* → _resolver     (Platform help)
-
     Args:
-        raw_text: Raw user message
-
-    Returns:
-        Dict with: intent, confidence, response, route, category,
-        keywords, admin_notes, code_example, domain, method
+        raw_text:     Raw user message
+        user_context: Optional dict from the frontend (e.g. username from JWT)
     """
+    # Normalize incoming context regardless of call source (HTTP or direct)
+    user_context = normalize_context(user_context or {})
+
     if not _vectorizer or not _classifier or not _resolver:
         return {
             "error": "Models not loaded. Run training first.",
@@ -216,13 +224,14 @@ def predict_intent(raw_text: str) -> dict:
         resolved["domain"] = "platform"
         return resolved
 
+
     # 2. Pre-routing heuristic — JS signal detection
     if _js_resolver and _detect_js_signals(cleaned):
         js_boosted = _js_resolver.semantic_boost(cleaned, top_k=3)
-        if js_boosted and js_boosted[0][1] > 0.5:  # threshold for heuristic confidence
+        if js_boosted and js_boosted[0][1] > 0.35:  # threshold for heuristic confidence
             best_intent  = js_boosted[0][0]
             best_confidence = min(0.80, 0.50 + js_boosted[0][1] * 0.1)  # scaled synthetic confidence
-            resolved = _resolve_by_tier(best_intent, cleaned)
+            resolved = _resolve_by_tier(best_intent, cleaned, user_context)
             resolved["confidence"] = round(best_confidence, 4)
             resolved["cleaned_text"] = cleaned
             resolved["method"] = "js_heuristic_boost"
@@ -285,7 +294,7 @@ def predict_intent(raw_text: str) -> dict:
         return resolved
 
     # 7. Resolve intent → response via correct tier
-    resolved = _resolve_by_tier(best_intent, cleaned)
+    resolved = _resolve_by_tier(best_intent, cleaned, user_context)
     resolved["confidence"] = round(best_confidence, 4)
     resolved["cleaned_text"] = cleaned
     resolved["method"] = method
@@ -424,12 +433,14 @@ class AIRequestHandler(BaseHTTPRequestHandler):
     def _handle_predict(self):
         body = self._read_body()
         message = body.get("message", "").strip()
+        raw_context = body.get("context", {})
+        user_context = normalize_context(raw_context)
 
         if not message:
             self._send_json({"error": "Missing 'message' field"}, 400)
             return
 
-        result = predict_intent(message)
+        result = predict_intent(message, user_context)
         self._send_json(result)
 
     def _handle_list_intents(self):

@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_earn_certificates",
+  "title": "New Features",
+  "response": "Placeholder response for: can i earn certificates",
+  "route": "NONE"
+}

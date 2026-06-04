@@ -1,0 +1,6 @@
+{
+  "intent": "platform.unknown.fallback",
+  "title": "Unknown",
+  "response": "I'm not fully trained for this yet. Try asking about SkillSprint platform features or JavaScript topics.",
+  "route": "NONE"
+}

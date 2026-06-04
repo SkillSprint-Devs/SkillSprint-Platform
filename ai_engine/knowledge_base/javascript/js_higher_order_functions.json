@@ -1,0 +1,7 @@
+{
+  "intent": "js.higher_order_functions",
+  "title": "JavaScript Concepts",
+  "response": "A higher-order function (HOF) is a function that either:\n1. Takes one or more functions as arguments, or\n2. Returns a function.\n\nThis is possible because JavaScript treats functions as first-class citizens \u2014 they can be stored in variables, passed around, and returned like any other value.\n\nHigher-order functions are the foundation of functional programming in JS. You use them every day: map, filter, reduce, addEventListener, setTimeout, and any function that accepts a callback.",
+  "route": "QUIZZES",
+  "code_example": "// HOF that takes a function as argument\nfunction applyTwice(fn, value) {\n  return fn(fn(value));\n}\nconst double = x => x * 2;\nconsole.log(applyTwice(double, 3)); // 12 (double applied twice)\n\n// HOF that returns a function (function factory)\nfunction multiplier(factor) {\n  return (number) => number * factor;\n}\nconst triple = multiplier(3);\nconst quadruple = multiplier(4);\nconsole.log(triple(5));    // 15\nconsole.log(quadruple(5)); // 20\n\n// Built-in HOFs\nconst numbers = [1, 2, 3, 4, 5];\nconst squaredEvens = numbers\n  .filter(n => n % 2 === 0)\n  .map(n => n * n);\nconsole.log(squaredEvens); // [4, 16]"
+}

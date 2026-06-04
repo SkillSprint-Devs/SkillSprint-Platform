@@ -1,0 +1,6 @@
+{
+  "intent": "platform.pair_prog.invite",
+  "title": "Pair Programming",
+  "response": "To invite someone to your board, click the 'Invite' button in the top toolbar. You can search for users by name or send an invite link directly.",
+  "route": "PAIR_PROGRAMMING"
+}

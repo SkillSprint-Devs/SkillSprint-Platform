@@ -1,0 +1,6 @@
+{
+  "intent": "platform.help.auth",
+  "title": "Help & Support",
+  "response": "For login issues, try resetting your password from the Sign In page. If your session expired, simply log in again. For new accounts, click 'Sign Up' on the landing page. Contact support if you're still locked out.",
+  "route": "HELP_AUTH"
+}

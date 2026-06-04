@@ -1,0 +1,6 @@
+{
+  "intent": "platform.task.reminder",
+  "title": "Task Management",
+  "response": "Email reminders are sent automatically before your task deadlines. You can configure reminder timing and frequency from the Tasks page under 'Reminder Settings'. Options: 1 hour, 1 day, or 3 days before due date.",
+  "route": "TASKS"
+}

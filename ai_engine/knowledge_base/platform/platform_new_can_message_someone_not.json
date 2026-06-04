@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_message_someone_not",
+  "title": "New Features",
+  "response": "Placeholder response for: can i message someone im not following",
+  "route": "NONE"
+}

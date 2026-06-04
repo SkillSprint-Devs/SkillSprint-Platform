@@ -1,0 +1,7 @@
+{
+  "intent": "js.math",
+  "title": "JavaScript Concepts",
+  "response": "The Math object provides mathematical constants and functions. It is not a constructor \u2014 all properties and methods are static.\n\nUseful constants:\n\u2022 Math.PI \u2014 \u03c0 \u2248 3.14159\n\u2022 Math.E \u2014 Euler's number \u2248 2.71828\n\nUseful methods:\n\u2022 Math.round(n) \u2014 rounds to nearest integer.\n\u2022 Math.floor(n) \u2014 rounds down.\n\u2022 Math.ceil(n) \u2014 rounds up.\n\u2022 Math.trunc(n) \u2014 removes decimal (towards 0).\n\u2022 Math.abs(n) \u2014 absolute value.\n\u2022 Math.max(...args) / Math.min(...args) \u2014 largest/smallest.\n\u2022 Math.sqrt(n), Math.pow(base, exp) \u2014 square root, power.\n\u2022 Math.random() \u2014 random float [0, 1).\n\u2022 Math.log(n), Math.log2(n), Math.log10(n) \u2014 logarithms.",
+  "route": "QUIZZES",
+  "code_example": "console.log(Math.round(4.6));  // 5\nconsole.log(Math.floor(4.9));  // 4\nconsole.log(Math.ceil(4.1));   // 5\nconsole.log(Math.abs(-7));     // 7\n\n// Min / Max with spread\nconst scores = [88, 92, 76, 99, 65];\nconsole.log(Math.max(...scores)); // 99\nconsole.log(Math.min(...scores)); // 65\n\n// Power and square root\nconsole.log(Math.pow(2, 10));  // 1024\nconsole.log(2 ** 10);          // 1024 (ES2016 exponentiation)\nconsole.log(Math.sqrt(144));   // 12\n\n// Random integer in [min, max]\nfunction randomInt(min, max) {\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\nconsole.log(randomInt(1, 6)); // dice roll: 1-6"
+}

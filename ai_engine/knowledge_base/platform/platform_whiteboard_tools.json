@@ -1,0 +1,6 @@
+{
+  "intent": "platform.whiteboard.tools",
+  "title": "Whiteboard",
+  "response": "The whiteboard toolbar includes: Pen, Eraser, Shapes (rectangle, circle, line), Text, Color Picker, and Brush Size slider. Select any tool from the top toolbar to start drawing.",
+  "route": "WHITEBOARD"
+}

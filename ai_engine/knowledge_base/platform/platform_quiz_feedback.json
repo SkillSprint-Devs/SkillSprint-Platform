@@ -1,0 +1,6 @@
+{
+  "intent": "platform.quiz.feedback",
+  "title": "Quiz System",
+  "response": "After completing a quiz, your score breakdown and detailed feedback are available on the results page. You can review correct answers, see which topics need improvement, and track your progress over time.",
+  "route": "QUIZZES"
+}

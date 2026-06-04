@@ -1,0 +1,6 @@
+{
+  "intent": "platform.library.upload",
+  "title": "Resource Library",
+  "response": "To upload a resource, go to the Library page and click the 'Upload' button. Supported formats: PDF, images, ZIP, video recordings, and presentations. Max file size: 50MB.",
+  "route": "LIBRARY"
+}

@@ -1,0 +1,7 @@
+{
+  "intent": "js.variables",
+  "title": "JavaScript Concepts",
+  "response": "JavaScript has three ways to declare variables:\n\n\u2022 var \u2014 function-scoped, hoisted, can be re-declared. Avoid in modern JS.\n\u2022 let \u2014 block-scoped, not hoisted to a usable state, cannot be re-declared in the same scope.\n\u2022 const \u2014 block-scoped, must be assigned at declaration, the binding cannot be reassigned (but objects/arrays it points to are still mutable).\n\nRule of thumb: always use const by default; switch to let only when you need to reassign; never use var.",
+  "route": "QUIZZES",
+  "code_example": "// const \u2014 binding cannot be reassigned\nconst name = 'SkillSprint';\n// name = 'Other'; // \u274c TypeError\n\n// let \u2014 reassignable, block-scoped\nlet score = 0;\nscore = 42; // \u2705\n\n// var \u2014 function-scoped (avoid)\nvar legacy = true;\n\n// const with objects \u2014 object itself is mutable\nconst user = { age: 21 };\nuser.age = 22; // \u2705 the object's properties can change"
+}

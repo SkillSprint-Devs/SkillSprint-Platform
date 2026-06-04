@@ -1,0 +1,7 @@
+{
+  "intent": "js.event_loop",
+  "title": "JavaScript Concepts",
+  "response": "JavaScript is single-threaded \u2014 it can only do one thing at a time. The event loop is the mechanism that allows JS to perform non-blocking operations despite this.\n\nComponents:\n\u2022 Call Stack \u2014 where function calls live. Only one frame executes at a time.\n\u2022 Web APIs / Node APIs \u2014 handle async work (timers, fetch, I/O) outside the call stack.\n\u2022 Callback Queue (Macrotask Queue) \u2014 completed async callbacks wait here (setTimeout, setInterval, I/O).\n\u2022 Microtask Queue \u2014 higher-priority queue for Promise .then() callbacks and queueMicrotask().\n\u2022 Event Loop \u2014 continuously checks: if call stack is empty, push the next microtask (all of them first), then the next macrotask.\n\nMicrotasks always run BEFORE the next macrotask.",
+  "route": "QUIZZES",
+  "code_example": "console.log('1 \u2014 sync');  // \u2192 Call Stack\n\nsetTimeout(() => {\n  console.log('4 \u2014 setTimeout (macrotask)');\n}, 0);\n\nPromise.resolve()\n  .then(() => console.log('3 \u2014 Promise .then (microtask)'));\n\nconsole.log('2 \u2014 sync');  // \u2192 Call Stack\n\n// Output order:\n// 1 \u2014 sync\n// 2 \u2014 sync\n// 3 \u2014 Promise .then (microtask)   \u2190 microtask before macrotask!\n// 4 \u2014 setTimeout (macrotask)\n\n// Why? Event loop drains the microtask queue\n// completely before running any macrotask."
+}

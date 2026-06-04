@@ -1,0 +1,6 @@
+{
+  "intent": "platform.ai.ask",
+  "title": "AI Mentor",
+  "response": "You can ask me questions about programming, SkillSprint platform features, or any errors you are facing. I'm here to help!",
+  "route": "NONE"
+}

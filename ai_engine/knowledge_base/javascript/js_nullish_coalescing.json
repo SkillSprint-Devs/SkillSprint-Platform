@@ -1,0 +1,7 @@
+{
+  "intent": "js.nullish_coalescing",
+  "title": "JavaScript Concepts",
+  "response": "The nullish coalescing operator (??) returns the right-hand side operand only when the left-hand side is null or undefined.\n\nThis is different from the logical OR (||) operator, which returns the right side for any falsy value (including 0, '', false, NaN).\n\nUse ?? when 0, empty string, or false are valid values that you don't want to replace with a default.",
+  "route": "QUIZZES",
+  "code_example": "// ?? vs || comparison\nconst count = 0;\nconsole.log(count ?? 'default');  // 0     \u2705 0 is valid\nconsole.log(count || 'default');  // 'default' \u274c 0 is falsy!\n\nconst name = '';\nconsole.log(name ?? 'Anonymous');  // ''          (empty string is valid)\nconsole.log(name || 'Anonymous');  // 'Anonymous' (empty string is falsy)\n\n// Typical use: API response with defaults\nconst apiData = { score: 0, label: '' };\nconst score = apiData.score ?? 'No score';  // 0\nconst label = apiData.label ?? 'No label';  // ''\n\n// Combined with optional chaining\nconst user = null;\nconst city = user?.address?.city ?? 'Unknown';\nconsole.log(city); // 'Unknown'"
+}

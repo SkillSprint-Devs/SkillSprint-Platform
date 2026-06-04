@@ -1,0 +1,6 @@
+{
+  "intent": "platform.whiteboard.join",
+  "title": "Whiteboard",
+  "response": "To open the interactive whiteboard, navigate to the Whiteboard page from the sidebar. You can create a new board or join an existing one shared by your partner.",
+  "route": "WHITEBOARD"
+}

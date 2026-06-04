@@ -1,0 +1,7 @@
+{
+  "intent": "js.scope",
+  "title": "JavaScript Concepts",
+  "response": "Scope determines where variables are accessible in your code.\n\n\u2022 Global scope \u2014 declared outside any function/block; accessible everywhere.\n\u2022 Function scope \u2014 variables declared with var inside a function; only visible inside that function.\n\u2022 Block scope \u2014 variables declared with let/const inside {} (if, for, etc.); only visible inside that block.\n\u2022 Module scope \u2014 each ES6 module file has its own scope by default.\n\nThe scope chain: when JS looks for a variable, it starts in the current scope and works outward to the global scope.",
+  "route": "QUIZZES",
+  "code_example": "const globalVar = 'I am global'; // global scope\n\nfunction greet() {\n  const funcVar = 'I am function-scoped'; // function scope\n  console.log(globalVar); // \u2705 can see global\n  console.log(funcVar);   // \u2705\n}\n\nif (true) {\n  let blockVar = 'I am block-scoped';\n  console.log(blockVar); // \u2705\n}\n// console.log(blockVar); // \u274c ReferenceError\n// console.log(funcVar);  // \u274c ReferenceError"
+}

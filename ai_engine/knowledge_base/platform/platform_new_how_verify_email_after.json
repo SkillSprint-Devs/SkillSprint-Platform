@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.how_verify_email_after",
+  "title": "New Features",
+  "response": "Placeholder response for: how do i verify my email after signing up",
+  "route": "NONE"
+}

@@ -1,0 +1,6 @@
+{
+  "intent": "platform.session.create",
+  "title": "Live Sessions",
+  "response": "To start a new live session, go to the Live Sessions page and click 'Create Session'. You can choose between video, audio, or screen-sharing modes.",
+  "route": "LIVE_SESSIONS"
+}

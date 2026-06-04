@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.what_screen_sharing_fails",
+  "title": "New Features",
+  "response": "Placeholder response for: what if my screen sharing fails",
+  "route": "NONE"
+}

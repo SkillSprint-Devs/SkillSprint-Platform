@@ -1,0 +1,7 @@
+{
+  "intent": "js.optional_chaining",
+  "title": "JavaScript Concepts",
+  "response": "Optional chaining (?.) safely accesses nested object properties without throwing a TypeError if an intermediate value is null or undefined \u2014 it just returns undefined instead.\n\nVariants:\n\u2022 obj?.prop \u2014 property access.\n\u2022 obj?.[expr] \u2014 computed property access.\n\u2022 func?.() \u2014 function call (only calls if func is not null/undefined).\n\nCouple with nullish coalescing (??) to provide a default value.",
+  "route": "QUIZZES",
+  "code_example": "const user = {\n  profile: {\n    address: {\n      city: 'Lahore'\n    }\n  }\n};\n\n// Without optional chaining \u2014 crashes if any part is undefined\n// const city = user.profile.address.city; // works here but fragile\n\n// With optional chaining \u2014 safe\nconst city = user?.profile?.address?.city;\nconsole.log(city); // 'Lahore'\n\nconst zip = user?.profile?.address?.zip;\nconsole.log(zip); // undefined (no error)\n\n// With nullish coalescing for a default\nconst displayZip = user?.profile?.address?.zip ?? 'N/A';\nconsole.log(displayZip); // 'N/A'\n\n// Optional method call\nconst length = user?.getFullName?.();\nconsole.log(length); // undefined (method doesn't exist, no crash)\n\n// Optional computed property\nconst key = 'city';\nconsole.log(user?.profile?.address?.[key]); // 'Lahore'"
+}

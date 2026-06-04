@@ -1,0 +1,6 @@
+{
+  "intent": "platform.ai.capabilities",
+  "title": "AI Mentor",
+  "response": "I can explain programming concepts (like closures or promises), guide you around the platform (like how to join a session), and help troubleshoot basic issues.",
+  "route": "NONE"
+}

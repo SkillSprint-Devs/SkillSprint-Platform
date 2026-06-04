@@ -1,0 +1,7 @@
+{
+  "intent": "js.generators",
+  "title": "JavaScript Concepts",
+  "response": "A generator function uses the function* syntax and returns a Generator object. It can pause its own execution with yield and resume it on demand.\n\nKey concepts:\n\u2022 function* \u2014 declares a generator.\n\u2022 yield \u2014 pauses the generator and returns a value.\n\u2022 .next() \u2014 resumes execution until the next yield or return.\n\u2022 The return value of .next() is { value, done }.\n\u2022 Generators are iterables \u2014 usable in for...of loops.\n\nUse cases:\n\u2022 Lazy data sequences (infinite sequences without crashing memory).\n\u2022 Custom iterators.\n\u2022 Asynchronous flow control (older pattern, mostly replaced by async/await).",
+  "route": "QUIZZES",
+  "code_example": "// Basic generator\nfunction* counter(start = 0) {\n  while (true) {\n    yield start++; // pause and emit value\n  }\n}\n\nconst gen = counter(1);\nconsole.log(gen.next()); // { value: 1, done: false }\nconsole.log(gen.next()); // { value: 2, done: false }\nconsole.log(gen.next()); // { value: 3, done: false }\n\n// Finite generator\nfunction* range(start, end, step = 1) {\n  for (let i = start; i < end; i += step) {\n    yield i;\n  }\n}\n\nfor (const num of range(0, 10, 2)) {\n  console.log(num); // 0 2 4 6 8\n}\n\n// Spread a generator\nconst nums = [...range(1, 6)]; // [1, 2, 3, 4, 5]"
+}

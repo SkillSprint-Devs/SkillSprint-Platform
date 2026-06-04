@@ -1,0 +1,6 @@
+{
+  "intent": "platform.help.system_health",
+  "title": "Help & Support",
+  "response": "Check the platform status on the System Health page. It shows server uptime, API response times, database connectivity, and any ongoing incidents. If the platform is down, check back in a few minutes.",
+  "route": "SYSTEM_HEALTH"
+}

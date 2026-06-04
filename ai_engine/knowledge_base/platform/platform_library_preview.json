@@ -1,0 +1,6 @@
+{
+  "intent": "platform.library.preview",
+  "title": "Resource Library",
+  "response": "You can preview most files directly in the browser without downloading. Click the 'Preview' button on any resource card. Supported preview types: PDF, images, and text files.",
+  "route": "LIBRARY"
+}

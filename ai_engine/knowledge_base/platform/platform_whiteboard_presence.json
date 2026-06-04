@@ -1,0 +1,6 @@
+{
+  "intent": "platform.whiteboard.presence",
+  "title": "Whiteboard",
+  "response": "Live cursors show where each participant is drawing in real-time, color-coded by user. If cursors aren't visible, check your connection or refresh the page.",
+  "route": "WHITEBOARD"
+}

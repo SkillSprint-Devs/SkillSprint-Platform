@@ -1,0 +1,6 @@
+{
+  "intent": "platform.pair_prog.create",
+  "title": "Pair Programming",
+  "response": "To start a pair programming session, go to the Pair Programming page and click 'Create Board'. Choose your language (JavaScript, Python, Java, etc.) to get a preconfigured workspace.",
+  "route": "PAIR_PROGRAMMING"
+}

@@ -1,0 +1,6 @@
+{
+  "intent": "platform.pair_prog.execute",
+  "title": "Pair Programming",
+  "response": "To run your code, click the '\u25b6 Run' button in the board toolbar. Console output appears in the bottom panel. Supported languages: JavaScript, Python, Java, C++.",
+  "route": "PAIR_PROGRAMMING"
+}

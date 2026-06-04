@@ -1,0 +1,6 @@
+{
+  "intent": "platform.help.notifications",
+  "title": "Help & Support",
+  "response": "Manage your notification preferences from the Settings page. You can toggle push notifications, email alerts, sound effects, and in-app notification types individually.",
+  "route": "SETTINGS"
+}

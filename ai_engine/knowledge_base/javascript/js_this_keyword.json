@@ -1,0 +1,7 @@
+{
+  "intent": "js.this_keyword",
+  "title": "JavaScript Concepts",
+  "response": "this refers to the object that is currently executing the function. Its value is determined by HOW the function is called, not where it is defined (except for arrow functions).\n\nBinding rules (in priority order):\n1. new binding \u2014 using new, this = the new object being created.\n2. Explicit binding \u2014 using .call(obj), .apply(obj), or .bind(obj), this = obj.\n3. Implicit binding \u2014 called as a method: obj.fn(), this = obj.\n4. Default binding \u2014 standalone call: fn(), this = global (or undefined in strict mode).\n5. Arrow functions \u2014 no own this; inherit from enclosing lexical scope.\n\nCommon mistake: extracting a method from an object loses its this binding.",
+  "route": "QUIZZES",
+  "code_example": "// Implicit binding\nconst person = {\n  name: 'Alice',\n  greet() { return `Hi, I'm ${this.name}`; }\n};\nconsole.log(person.greet()); // 'Hi, I'm Alice'\n\n// Default binding \u2014 lost!\nconst fn = person.greet;\n// console.log(fn()); // 'Hi, I'm undefined' (or TypeError in strict)\n\n// Explicit binding with .bind()\nconst boundGreet = person.greet.bind(person);\nconsole.log(boundGreet()); // 'Hi, I'm Alice'\n\n// new binding\nfunction Car(make) {\n  this.make = make;\n}\nconst myCar = new Car('Toyota');\nconsole.log(myCar.make); // 'Toyota'"
+}

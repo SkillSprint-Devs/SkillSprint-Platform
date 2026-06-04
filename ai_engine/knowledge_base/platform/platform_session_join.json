@@ -1,0 +1,6 @@
+{
+  "intent": "platform.session.join",
+  "title": "Live Sessions",
+  "response": "To join a live session, open the Live Collaboration page and click the 'Join Now' button on any active session card.",
+  "route": "LIVE_SESSIONS"
+}

@@ -1,0 +1,7 @@
+{
+  "intent": "js.template_literals",
+  "title": "JavaScript Concepts",
+  "response": "Template literals (backtick strings) are an ES6 way to create strings that support:\n\u2022 Embedded expressions \u2014 ${expression} is evaluated and inserted.\n\u2022 Multi-line strings \u2014 no need for \\n or string concatenation.\n\u2022 Tagged templates \u2014 a function before the backtick can process the template.\n\nTemplate literals replace most cases where you'd use string concatenation with +.",
+  "route": "QUIZZES",
+  "code_example": "const name = 'Alice';\nconst score = 95;\n\n// Old way\nconst msg1 = 'Hello, ' + name + '! Your score is ' + score + '%.';\n\n// Template literal \u2014 cleaner\nconst msg2 = `Hello, ${name}! Your score is ${score}%.`;\nconsole.log(msg2); // 'Hello, Alice! Your score is 95%.'\n\n// Expressions inside ${}\nconst a = 10, b = 5;\nconsole.log(`Sum: ${a + b}, Product: ${a * b}`); // 'Sum: 15, Product: 50'\n\n// Multi-line string\nconst html = `\n  <div class=\"card\">\n    <h2>${name}</h2>\n    <p>Score: ${score}%</p>\n  </div>\n`;\n\n// Tagged template (advanced)\nfunction highlight(strings, ...values) {\n  return strings.reduce((result, str, i) =>\n    result + str + (values[i] !== undefined ? `<strong>${values[i]}</strong>` : ''), '');\n}\nconst tagged = highlight`Hello ${name}, your score is ${score}%!`;"
+}

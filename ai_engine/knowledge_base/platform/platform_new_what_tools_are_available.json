@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.what_tools_are_available",
+  "title": "New Features",
+  "response": "Placeholder response for: what tools are available during live sessions",
+  "route": "NONE"
+}

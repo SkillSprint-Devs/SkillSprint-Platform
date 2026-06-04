@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_save_the_code",
+  "title": "New Features",
+  "response": "Placeholder response for: can i save the code from a pair programming session",
+  "route": "NONE"
+}

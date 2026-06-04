@@ -1,0 +1,6 @@
+{
+  "intent": "platform.ai.history",
+  "title": "AI Mentor",
+  "response": "Your recent conversation history is saved in your browser and will appear in the Recent Queries panel of the AI workspace.",
+  "route": "NONE"
+}

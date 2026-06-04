@@ -1,0 +1,7 @@
+{
+  "intent": "js.local_storage",
+  "title": "JavaScript Concepts",
+  "response": "The Web Storage API provides localStorage and sessionStorage for storing key-value pairs in the browser.\n\nlocalStorage:\n\u2022 Persists indefinitely (until manually cleared or user clears browser data).\n\u2022 Shared across all tabs of the same origin.\n\u2022 Storage limit: ~5\u201310 MB.\n\nsessionStorage:\n\u2022 Cleared when the tab/window is closed.\n\u2022 Not shared between tabs.\n\nBoth only store strings \u2014 use JSON.stringify/parse for objects.\n\nMethods: .setItem(key, val), .getItem(key), .removeItem(key), .clear(), .key(i), .length.",
+  "route": "QUIZZES",
+  "code_example": "// Store data\nlocalStorage.setItem('username', 'Alice');\nlocalStorage.setItem('score', '95'); // strings only!\n\n// Store object \u2014 must JSON.stringify\nconst prefs = { theme: 'dark', lang: 'en' };\nlocalStorage.setItem('prefs', JSON.stringify(prefs));\n\n// Retrieve data\nconst username = localStorage.getItem('username');\nconsole.log(username); // 'Alice'\n\n// Retrieve and parse object\nconst savedPrefs = JSON.parse(localStorage.getItem('prefs'));\nconsole.log(savedPrefs.theme); // 'dark'\n\n// Handle missing data\nconst val = localStorage.getItem('missing') ?? 'default';\nconsole.log(val); // 'default'\n\n// Remove\nlocalStorage.removeItem('username');\n\n// Clear everything\nlocalStorage.clear();\n\n// sessionStorage \u2014 same API, tab-only persistence\nsessionStorage.setItem('token', 'abc123');"
+}

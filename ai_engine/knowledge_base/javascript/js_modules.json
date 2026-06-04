@@ -1,0 +1,7 @@
+{
+  "intent": "js.modules",
+  "title": "JavaScript Concepts",
+  "response": "JavaScript modules let you split code into separate files and explicitly control what is shared.\n\nES Modules (ESM) \u2014 modern standard:\n\u2022 export \u2014 mark values/functions/classes to be shared.\n\u2022 import \u2014 bring them into another file.\n\u2022 Named exports \u2014 export multiple things by name.\n\u2022 Default export \u2014 one per file, imported with any name.\n\u2022 import() \u2014 dynamic import, returns a Promise (lazy loading).\n\nCommonJS (CJS) \u2014 Node.js legacy:\n\u2022 module.exports / exports \u2014 export.\n\u2022 require() \u2014 import.\n\nKey difference: ESM is static (analysed at compile time), CJS is dynamic (evaluated at runtime). Modern Node.js and all browsers support ESM.",
+  "route": "QUIZZES",
+  "code_example": "// math.js \u2014 named exports\nexport const PI = 3.14159;\nexport function add(a, b) { return a + b; }\nexport function subtract(a, b) { return a - b; }\n\n// user.js \u2014 default export\nexport default class User {\n  constructor(name) { this.name = name; }\n}\n\n// main.js \u2014 importing\nimport User from './user.js';            // default\nimport { add, PI } from './math.js';     // named\nimport * as MathUtils from './math.js';  // namespace\n\nconsole.log(add(2, 3));       // 5\nconsole.log(MathUtils.PI);    // 3.14159\n\n// Dynamic import (lazy loading)\nconst { subtract } = await import('./math.js');\nconsole.log(subtract(10, 3)); // 7"
+}

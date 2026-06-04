@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.how_delete_account",
+  "title": "New Features",
+  "response": "Placeholder response for: how do i delete my account",
+  "route": "NONE"
+}

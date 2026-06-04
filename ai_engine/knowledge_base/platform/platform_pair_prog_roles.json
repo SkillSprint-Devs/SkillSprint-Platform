@@ -1,0 +1,6 @@
+{
+  "intent": "platform.pair_prog.roles",
+  "title": "Pair Programming",
+  "response": "In pair programming, the 'Driver' has edit access while the 'Navigator' reviews in real-time. To swap roles, click the 'Swap Roles' button in the toolbar. The current driver must approve the swap request.",
+  "route": "PAIR_PROGRAMMING"
+}

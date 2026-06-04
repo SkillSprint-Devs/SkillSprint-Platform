@@ -6,7 +6,16 @@
     "response": "JavaScript has three ways to declare variables:\n\n• var — function-scoped, hoisted, can be re-declared. Avoid in modern JS.\n• let — block-scoped, not hoisted to a usable state, cannot be re-declared in the same scope.\n• const — block-scoped, must be assigned at declaration, the binding cannot be reassigned (but objects/arrays it points to are still mutable).\n\nRule of thumb: always use const by default; switch to let only when you need to reassign; never use var.",
     "code_example": "// const — binding cannot be reassigned\nconst name = 'SkillSprint';\n// name = 'Other'; // ❌ TypeError\n\n// let — reassignable, block-scoped\nlet score = 0;\nscore = 42; // ✅\n\n// var — function-scoped (avoid)\nvar legacy = true;\n\n// const with objects — object itself is mutable\nconst user = { age: 21 };\nuser.age = 22; // ✅ the object's properties can change",
     "route": "QUIZZES",
-    "keywords": ["var", "let", "const", "variable", "declare", "block scope", "reassign", "const vs let"],
+    "keywords": [
+      "var",
+      "let",
+      "const",
+      "variable",
+      "declare",
+      "block scope",
+      "reassign",
+      "const vs let"
+    ],
     "admin_notes": "Most common beginner question. Emphasise const-first mindset.",
     "examples": [
       "what is the difference between var let and const",
@@ -18,7 +27,6 @@
       "difference between let and var hoisting"
     ]
   },
-
   "js.data_types": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -26,7 +34,18 @@
     "response": "JavaScript has 8 data types, split into two groups:\n\nPrimitive (immutable, stored by value):\n• string — text: 'hello'\n• number — integers and floats: 42, 3.14\n• bigint — very large integers: 9007199254740991n\n• boolean — true or false\n• undefined — variable declared but not assigned\n• null — intentional absence of a value\n• symbol — unique, immutable identifier\n\nReference (stored by reference):\n• object — includes arrays, functions, dates, maps, etc.\n\nUse typeof to check a value's type at runtime.",
     "code_example": "console.log(typeof 'hello');        // 'string'\nconsole.log(typeof 42);             // 'number'\nconsole.log(typeof true);           // 'boolean'\nconsole.log(typeof undefined);      // 'undefined'\nconsole.log(typeof null);           // 'object' ← JS quirk!\nconsole.log(typeof Symbol());       // 'symbol'\nconsole.log(typeof {});             // 'object'\nconsole.log(typeof []);             // 'object' (arrays are objects)\nconsole.log(typeof function(){}); // 'function'",
     "route": "QUIZZES",
-    "keywords": ["data types", "string", "number", "boolean", "null", "undefined", "symbol", "bigint", "typeof", "primitive"],
+    "keywords": [
+      "data types",
+      "string",
+      "number",
+      "boolean",
+      "null",
+      "undefined",
+      "symbol",
+      "bigint",
+      "typeof",
+      "primitive"
+    ],
     "admin_notes": "Common gotcha: typeof null === 'object'. Always mention this.",
     "examples": [
       "what are the data types in javascript",
@@ -38,7 +57,6 @@
       "how many data types does javascript have"
     ]
   },
-
   "js.type_coercion": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -46,7 +64,18 @@
     "response": "Type coercion is JavaScript's automatic (or explicit) conversion of values from one type to another.\n\nImplicit coercion (JS decides) — dangerous if unaware:\n• + with a string converts the other operand to string\n• ==  (loose equality) coerces before comparing\n• Truthy/falsy rules govern if, &&, ||, !\n\nExplicit coercion (you decide) — safe and clear:\n• Number(), parseInt(), parseFloat() — to number\n• String() or .toString() — to string\n• Boolean() — to boolean\n\nAlways prefer === (strict equality) to avoid coercion surprises.",
     "code_example": "// Implicit — surprising results\nconsole.log(1 + '2');      // '12'  (number → string)\nconsole.log('5' - 2);      // 3     (string → number)\nconsole.log('' == false);  // true  (loose equality)\nconsole.log(0 == false);   // true\n\n// Explicit — predictable\nconsole.log(Number('42')); // 42\nconsole.log(String(99));   // '99'\nconsole.log(Boolean(0));   // false\nconsole.log(Boolean(''));  // false\n\n// Always use strict equality\nconsole.log(1 === '1');    // false ✅",
     "route": "QUIZZES",
-    "keywords": ["type coercion", "implicit", "explicit", "strict equality", "loose equality", "truthy", "falsy", "== vs ===", "parseInt", "Number()"],
+    "keywords": [
+      "type coercion",
+      "implicit",
+      "explicit",
+      "strict equality",
+      "loose equality",
+      "truthy",
+      "falsy",
+      "== vs ===",
+      "parseInt",
+      "Number()"
+    ],
     "admin_notes": "Source of many bugs. Stress === over ==.",
     "examples": [
       "what is type coercion in javascript",
@@ -58,7 +87,6 @@
       "how to convert string to number in javascript"
     ]
   },
-
   "js.scope": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -66,7 +94,15 @@
     "response": "Scope determines where variables are accessible in your code.\n\n• Global scope — declared outside any function/block; accessible everywhere.\n• Function scope — variables declared with var inside a function; only visible inside that function.\n• Block scope — variables declared with let/const inside {} (if, for, etc.); only visible inside that block.\n• Module scope — each ES6 module file has its own scope by default.\n\nThe scope chain: when JS looks for a variable, it starts in the current scope and works outward to the global scope.",
     "code_example": "const globalVar = 'I am global'; // global scope\n\nfunction greet() {\n  const funcVar = 'I am function-scoped'; // function scope\n  console.log(globalVar); // ✅ can see global\n  console.log(funcVar);   // ✅\n}\n\nif (true) {\n  let blockVar = 'I am block-scoped';\n  console.log(blockVar); // ✅\n}\n// console.log(blockVar); // ❌ ReferenceError\n// console.log(funcVar);  // ❌ ReferenceError",
     "route": "QUIZZES",
-    "keywords": ["scope", "global scope", "function scope", "block scope", "scope chain", "lexical scope", "local variable"],
+    "keywords": [
+      "scope",
+      "global scope",
+      "function scope",
+      "block scope",
+      "scope chain",
+      "lexical scope",
+      "local variable"
+    ],
     "admin_notes": "Foundation concept — needed before closures and hoisting.",
     "examples": [
       "what is scope in javascript",
@@ -78,7 +114,6 @@
       "what is lexical scope"
     ]
   },
-
   "js.hoisting": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -86,7 +121,15 @@
     "response": "Hoisting is JavaScript's behaviour of moving declarations to the top of their scope before code executes (conceptually — the engine does this during the compilation phase).\n\n• Function declarations are fully hoisted — you can call them before they appear in the file.\n• var declarations are hoisted but initialised to undefined — you can reference them before declaration but get undefined.\n• let and const are hoisted but NOT initialised — accessing them before declaration throws a ReferenceError. This gap is called the Temporal Dead Zone (TDZ).\n• Function expressions (const fn = function(){}) follow the rules of their keyword (let/const), so they are NOT callable before the line of assignment.",
     "code_example": "// Function declaration — fully hoisted\nconsole.log(add(2, 3)); // ✅ 5 — works before definition\nfunction add(a, b) { return a + b; }\n\n// var — hoisted as undefined\nconsole.log(x); // undefined (not ReferenceError)\nvar x = 10;\n\n// let — Temporal Dead Zone\n// console.log(y); // ❌ ReferenceError\nlet y = 20;\n\n// Function expression — not hoisted\n// console.log(multiply(2, 3)); // ❌ TypeError: multiply is not a function\nconst multiply = (a, b) => a * b;",
     "route": "QUIZZES",
-    "keywords": ["hoisting", "temporal dead zone", "TDZ", "var hoisting", "function hoisting", "undefined", "ReferenceError"],
+    "keywords": [
+      "hoisting",
+      "temporal dead zone",
+      "TDZ",
+      "var hoisting",
+      "function hoisting",
+      "undefined",
+      "ReferenceError"
+    ],
     "admin_notes": "Common interview topic. Temporal Dead Zone is the key differentiator between var and let/const.",
     "examples": [
       "what is hoisting in javascript",
@@ -98,7 +141,6 @@
       "what is TDZ in javascript"
     ]
   },
-
   "js.functions": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -106,7 +148,16 @@
     "response": "A function is a reusable block of code. JavaScript has several ways to define one:\n\n1. Function Declaration — fully hoisted; best for named, reusable logic.\n2. Function Expression — assigned to a variable; not hoisted as callable.\n3. Arrow Function — concise syntax; inherits this from surrounding context; no own arguments object.\n4. Default Parameters — give parameters fallback values.\n5. Rest Parameters — collect remaining arguments into an array.\n\nFunctions are first-class in JS: they can be stored in variables, passed as arguments, and returned from other functions.",
     "code_example": "// 1. Function Declaration\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\n// 2. Function Expression\nconst square = function(n) { return n * n; };\n\n// 3. Arrow Function\nconst double = (n) => n * 2;\nconst add = (a, b) => a + b;\n\n// 4. Default Parameters\nfunction createUser(name, role = 'student') {\n  return { name, role };\n}\nconsole.log(createUser('Alice')); // { name: 'Alice', role: 'student' }\n\n// 5. Rest Parameters\nfunction sum(...nums) {\n  return nums.reduce((acc, n) => acc + n, 0);\n}\nconsole.log(sum(1, 2, 3, 4)); // 10",
     "route": "QUIZZES",
-    "keywords": ["function", "function declaration", "function expression", "arrow function", "default parameter", "rest parameter", "first class function", "return"],
+    "keywords": [
+      "function",
+      "function declaration",
+      "function expression",
+      "arrow function",
+      "default parameter",
+      "rest parameter",
+      "first class function",
+      "return"
+    ],
     "admin_notes": "Foundational. Link to arrow functions and closures.",
     "examples": [
       "how do functions work in javascript",
@@ -118,7 +169,6 @@
       "how to define a function in javascript"
     ]
   },
-
   "js.arrow_functions": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -126,7 +176,15 @@
     "response": "Arrow functions (=>) are a shorter syntax for writing functions, introduced in ES6. Key differences from regular functions:\n\n1. Concise syntax — single-expression body can omit braces and return.\n2. No own this — they inherit this from the surrounding lexical scope. This is the most important behavioural difference.\n3. No arguments object — use rest parameters instead.\n4. Cannot be used as constructors — no new keyword.\n5. No prototype property.\n\nUse arrow functions for callbacks and short helpers. Use regular functions when you need their own this (e.g., object methods, constructors).",
     "code_example": "// Regular function — has its own 'this'\nfunction Timer() {\n  this.seconds = 0;\n  setInterval(function() {\n    this.seconds++; // ❌ 'this' is undefined in strict / window in sloppy\n    console.log(this.seconds);\n  }, 1000);\n}\n\n// Arrow function — inherits 'this' from Timer\nfunction TimerFixed() {\n  this.seconds = 0;\n  setInterval(() => {\n    this.seconds++; // ✅ 'this' is TimerFixed instance\n    console.log(this.seconds);\n  }, 1000);\n}\n\n// Concise single-expression body\nconst double = n => n * 2;\nconst add    = (a, b) => a + b;\nconst getObj = () => ({ key: 'value' }); // wrap object in ()",
     "route": "QUIZZES",
-    "keywords": ["arrow function", "fat arrow", "=>", "this binding", "lexical this", "concise body", "lambda"],
+    "keywords": [
+      "arrow function",
+      "fat arrow",
+      "=>",
+      "this binding",
+      "lexical this",
+      "concise body",
+      "lambda"
+    ],
     "admin_notes": "The this behaviour is the critical concept. Use timer/callback example to illustrate.",
     "examples": [
       "what is an arrow function in javascript",
@@ -138,7 +196,6 @@
       "arrow function syntax in javascript"
     ]
   },
-
   "js.closures": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -146,7 +203,17 @@
     "response": "A closure is a function that retains access to variables from its outer (enclosing) lexical scope, even after that outer function has finished executing.\n\nEvery function in JavaScript forms a closure over the variables in its surrounding scope.\n\nWhy closures matter:\n• Data privacy — variables in the outer scope can't be accessed from outside, only through the returned inner function.\n• State persistence — the inner function remembers values between calls.\n• Factory functions and module patterns.\n\nClosures are not a special syntax — they are a consequence of how lexical scoping works.",
     "code_example": "// Counter using a closure\nfunction makeCounter(start = 0) {\n  let count = start; // private variable\n  return {\n    increment() { return ++count; },\n    decrement() { return --count; },\n    value()     { return count; }\n  };\n}\n\nconst counter = makeCounter(10);\nconsole.log(counter.increment()); // 11\nconsole.log(counter.increment()); // 12\nconsole.log(counter.decrement()); // 11\n// count is inaccessible from outside — only via counter methods\n\n// Classic loop closure bug (var) and fix (let)\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); // 3 3 3 (bug)\n}\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); // 0 1 2 (correct)\n}",
     "route": "QUIZZES",
-    "keywords": ["closure", "lexical scope", "inner function", "outer function", "data privacy", "encapsulation", "factory function", "counter"],
+    "keywords": [
+      "closures",
+      "closure",
+      "lexical scope",
+      "inner function",
+      "outer function",
+      "data privacy",
+      "encapsulation",
+      "factory function",
+      "counter"
+    ],
     "admin_notes": "Intermediate concept. Include the loop var/let closure bug — examiners love it.",
     "examples": [
       "what is a closure in javascript",
@@ -159,7 +226,6 @@
       "closure bug in for loop with var"
     ]
   },
-
   "js.this_keyword": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -167,7 +233,18 @@
     "response": "this refers to the object that is currently executing the function. Its value is determined by HOW the function is called, not where it is defined (except for arrow functions).\n\nBinding rules (in priority order):\n1. new binding — using new, this = the new object being created.\n2. Explicit binding — using .call(obj), .apply(obj), or .bind(obj), this = obj.\n3. Implicit binding — called as a method: obj.fn(), this = obj.\n4. Default binding — standalone call: fn(), this = global (or undefined in strict mode).\n5. Arrow functions — no own this; inherit from enclosing lexical scope.\n\nCommon mistake: extracting a method from an object loses its this binding.",
     "code_example": "// Implicit binding\nconst person = {\n  name: 'Alice',\n  greet() { return `Hi, I'm ${this.name}`; }\n};\nconsole.log(person.greet()); // 'Hi, I'm Alice'\n\n// Default binding — lost!\nconst fn = person.greet;\n// console.log(fn()); // 'Hi, I'm undefined' (or TypeError in strict)\n\n// Explicit binding with .bind()\nconst boundGreet = person.greet.bind(person);\nconsole.log(boundGreet()); // 'Hi, I'm Alice'\n\n// new binding\nfunction Car(make) {\n  this.make = make;\n}\nconst myCar = new Car('Toyota');\nconsole.log(myCar.make); // 'Toyota'",
     "route": "QUIZZES",
-    "keywords": ["this", "this keyword", "call", "apply", "bind", "implicit binding", "explicit binding", "new binding", "default binding", "context"],
+    "keywords": [
+      "this",
+      "this keyword",
+      "call",
+      "apply",
+      "bind",
+      "implicit binding",
+      "explicit binding",
+      "new binding",
+      "default binding",
+      "context"
+    ],
     "admin_notes": "Very common interview question. 4 binding rules + arrow function exception.",
     "examples": [
       "what does this mean in javascript",
@@ -180,7 +257,6 @@
       "this inside a class javascript"
     ]
   },
-
   "js.prototypes": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -188,7 +264,16 @@
     "response": "JavaScript is prototype-based. Every object has an internal link to another object called its prototype. When you access a property that doesn't exist on the object, JS walks up the prototype chain until it finds it or reaches null.\n\nKey concepts:\n• Object.prototype is the root of every prototype chain.\n• __proto__ — the internal prototype link (avoid using directly).\n• Object.getPrototypeOf(obj) — the standard way to get an object's prototype.\n• prototype property — only exists on functions; used as the prototype for objects created with new.\n• Object.create(proto) — creates a new object with proto as its prototype.\n\nES6 classes are syntactic sugar over prototype inheritance.",
     "code_example": "// Constructor function + prototype method\nfunction Animal(name) {\n  this.name = name;\n}\nAnimal.prototype.speak = function() {\n  return `${this.name} makes a sound.`;\n};\n\nconst dog = new Animal('Rex');\nconsole.log(dog.speak());  // 'Rex makes a sound.'\nconsole.log(dog.hasOwnProperty('name'));  // true\nconsole.log(dog.hasOwnProperty('speak')); // false — on prototype\n\n// Prototype chain\nconsole.log(Object.getPrototypeOf(dog) === Animal.prototype); // true\nconsole.log(Object.getPrototypeOf(Animal.prototype) === Object.prototype); // true\n\n// Object.create\nconst base = { greet() { return 'Hello'; } };\nconst child = Object.create(base);\nconsole.log(child.greet()); // 'Hello' — inherited",
     "route": "QUIZZES",
-    "keywords": ["prototype", "prototype chain", "proto chain", "__proto__", "Object.create", "prototype inheritance", "constructor function", "hasOwnProperty"],
+    "keywords": [
+      "prototype",
+      "prototype chain",
+      "proto chain",
+      "__proto__",
+      "Object.create",
+      "prototype inheritance",
+      "constructor function",
+      "hasOwnProperty"
+    ],
     "admin_notes": "Medium difficulty. Emphasise the chain lookup mechanism and that classes are sugar over this.",
     "examples": [
       "what is a javascript prototype",
@@ -201,7 +286,6 @@
       "what is hasOwnProperty"
     ]
   },
-
   "js.classes": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -209,7 +293,17 @@
     "response": "ES6 classes provide a cleaner syntax for creating objects and implementing inheritance. They are syntactic sugar over prototype-based inheritance — under the hood, the same prototype chain is used.\n\nKey features:\n• constructor() — runs when new is called.\n• Methods defined in the class body are placed on the prototype.\n• extends — sets up prototype chain inheritance.\n• super() — must be called in a child constructor before using this.\n• Static methods — called on the class itself, not instances.\n• Private fields (#) — truly private, only accessible inside the class (ES2022).",
     "code_example": "class Animal {\n  #sound; // private field\n\n  constructor(name, sound) {\n    this.name = name;\n    this.#sound = sound;\n  }\n\n  speak() {\n    return `${this.name} says ${this.#sound}`;\n  }\n\n  static create(name, sound) {\n    return new Animal(name, sound);\n  }\n}\n\nclass Dog extends Animal {\n  constructor(name) {\n    super(name, 'woof'); // must call super first\n  }\n\n  fetch(item) {\n    return `${this.name} fetches the ${item}!`;\n  }\n}\n\nconst rex = new Dog('Rex');\nconsole.log(rex.speak());       // 'Rex says woof'\nconsole.log(rex.fetch('ball')); // 'Rex fetches the ball!'",
     "route": "QUIZZES",
-    "keywords": ["class", "constructor", "extends", "super", "inheritance", "static", "private field", "ES6 class", "subclass"],
+    "keywords": [
+      "class",
+      "constructor",
+      "extends",
+      "super",
+      "inheritance",
+      "static",
+      "private field",
+      "ES6 class",
+      "subclass"
+    ],
     "admin_notes": "Classes are syntactic sugar — mention prototype connection. Private fields (#) are modern and important.",
     "examples": [
       "how do javascript classes work",
@@ -222,7 +316,6 @@
       "explain class inheritance in javascript"
     ]
   },
-
   "js.arrays": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -230,7 +323,22 @@
     "response": "Arrays store ordered lists of values. JavaScript arrays are dynamic, can hold mixed types, and have a rich set of built-in methods.\n\nMust-know array methods:\n• map(fn) — transforms every element, returns new array.\n• filter(fn) — keeps elements where fn returns true.\n• reduce(fn, init) — accumulates a single value.\n• forEach(fn) — iterates, no return value.\n• find(fn) — returns first matching element.\n• findIndex(fn) — returns index of first match.\n• some(fn) — true if at least one element matches.\n• every(fn) — true if all elements match.\n• flat(depth) — flattens nested arrays.\n• flatMap(fn) — map then flatten one level.\n• includes(val) — checks if value exists.\n• splice / slice — mutate / copy portions.\n• sort(fn) — sorts in place (mutates!).",
     "code_example": "const nums = [1, 2, 3, 4, 5];\n\n// map — double each\nconst doubled = nums.map(n => n * 2); // [2, 4, 6, 8, 10]\n\n// filter — keep evens\nconst evens = nums.filter(n => n % 2 === 0); // [2, 4]\n\n// reduce — sum\nconst sum = nums.reduce((acc, n) => acc + n, 0); // 15\n\n// find\nconst firstBig = nums.find(n => n > 3); // 4\n\n// chaining\nconst result = [1, 2, 3, 4, 5]\n  .filter(n => n % 2 !== 0) // [1, 3, 5]\n  .map(n => n * 10);         // [10, 30, 50]\nconsole.log(result);",
     "route": "QUIZZES",
-    "keywords": ["array", "map", "filter", "reduce", "forEach", "find", "some", "every", "flat", "splice", "slice", "includes", "sort", "array methods"],
+    "keywords": [
+      "array",
+      "map",
+      "filter",
+      "reduce",
+      "forEach",
+      "find",
+      "some",
+      "every",
+      "flat",
+      "splice",
+      "slice",
+      "includes",
+      "sort",
+      "array methods"
+    ],
     "admin_notes": "map/filter/reduce are the most tested. Include chaining example.",
     "examples": [
       "explain array map filter reduce in javascript",
@@ -244,7 +352,6 @@
       "array methods in javascript explained"
     ]
   },
-
   "js.objects": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -252,7 +359,18 @@
     "response": "Objects are collections of key-value pairs (properties). They are the foundation of JavaScript.\n\nKey object operations:\n• Object literal — simplest way to create: { key: value }\n• Property access — dot notation (obj.key) or bracket notation (obj['key'])\n• Computed property names — dynamic keys in literals\n• Shorthand properties and methods (ES6)\n• Object.keys() / Object.values() / Object.entries() — iterate over properties\n• Object.assign() — shallow merge\n• Spread operator {...obj} — shallow copy / merge\n• Object.freeze() — prevent modifications\n• Optional chaining (?.) — safe deep access",
     "code_example": "// Object literal with shorthand method\nconst name = 'Alice';\nconst age = 30;\nconst user = { name, age, greet() { return `Hi, ${this.name}`; } };\n\n// Property access\nconsole.log(user.name);      // 'Alice'\nconsole.log(user['age']);    // 30\n\n// Iteration\nconsole.log(Object.keys(user));    // ['name', 'age', 'greet']\nconsole.log(Object.values(user));  // ['Alice', 30, [Function]]\nconsole.log(Object.entries(user)); // [['name','Alice'], ...]\n\n// Shallow copy with spread\nconst updated = { ...user, age: 31 };\n\n// Optional chaining — safe deep access\nconst city = user?.address?.city; // undefined (no error)",
     "route": "QUIZZES",
-    "keywords": ["object", "object literal", "property", "dot notation", "Object.keys", "Object.values", "Object.entries", "spread", "Object.assign", "optional chaining"],
+    "keywords": [
+      "object",
+      "object literal",
+      "property",
+      "dot notation",
+      "Object.keys",
+      "Object.values",
+      "Object.entries",
+      "spread",
+      "Object.assign",
+      "optional chaining"
+    ],
     "admin_notes": "Foundation of JS data modelling. Optional chaining is frequently missed by beginners.",
     "examples": [
       "how to create an object in javascript",
@@ -265,7 +383,6 @@
       "explain javascript objects for beginners"
     ]
   },
-
   "js.destructuring": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -273,7 +390,15 @@
     "response": "Destructuring lets you extract values from arrays or objects into distinct variables using a matching pattern on the left side of the assignment.\n\nObject destructuring:\n• Extract named properties, with optional renaming and default values.\n\nArray destructuring:\n• Extract elements by position, with optional skipping and defaults.\n\nUse cases:\n• Cleaner function parameter handling.\n• Swapping variables.\n• Extracting from API responses.\n• Importing specific exports.",
     "code_example": "// Object destructuring\nconst user = { name: 'Alice', age: 30, role: 'admin' };\nconst { name, role, city = 'Unknown' } = user;\nconsole.log(name, role, city); // 'Alice' 'admin' 'Unknown'\n\n// Rename while destructuring\nconst { name: username } = user;\nconsole.log(username); // 'Alice'\n\n// Array destructuring\nconst coords = [10, 20, 30];\nconst [x, y, z] = coords;\nconsole.log(x, y, z); // 10 20 30\n\n// Skip elements\nconst [,, third] = [1, 2, 3];\nconsole.log(third); // 3\n\n// Swap variables\nlet a = 1, b = 2;\n[a, b] = [b, a];\nconsole.log(a, b); // 2 1\n\n// Function parameter destructuring\nfunction greet({ name, role = 'user' }) {\n  return `Hello ${name}, you are a ${role}`;\n}\ngreet({ name: 'Bob' }); // 'Hello Bob, you are a user'",
     "route": "QUIZZES",
-    "keywords": ["destructuring", "object destructuring", "array destructuring", "rename", "default value", "swap", "parameter destructuring"],
+    "keywords": [
+      "destructuring",
+      "object destructuring",
+      "array destructuring",
+      "rename",
+      "default value",
+      "swap",
+      "parameter destructuring"
+    ],
     "admin_notes": "Very common in modern JS and React. Include renaming and defaults.",
     "examples": [
       "what is destructuring in javascript",
@@ -286,7 +411,6 @@
       "explain destructuring assignment"
     ]
   },
-
   "js.spread_rest": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -294,7 +418,17 @@
     "response": "The spread (...) and rest (...) operators share the same syntax but serve opposite purposes.\n\nSpread — expands an iterable (array, object, string) into individual elements:\n• Copy arrays/objects\n• Merge arrays/objects\n• Pass array elements as function arguments\n\nRest — collects remaining elements into an array:\n• In function parameters: gather extra arguments\n• In destructuring: gather remaining items\n\nNote: both are shallow — nested objects/arrays are still references.",
     "code_example": "// Spread — array copy & merge\nconst a = [1, 2, 3];\nconst b = [4, 5];\nconst merged = [...a, ...b]; // [1, 2, 3, 4, 5]\n\n// Spread — object copy & merge\nconst defaults = { theme: 'dark', lang: 'en' };\nconst user = { ...defaults, lang: 'fr', name: 'Alice' };\n// { theme: 'dark', lang: 'fr', name: 'Alice' }\n\n// Spread — pass array as arguments\nconst nums = [3, 1, 4, 1, 5];\nconsole.log(Math.max(...nums)); // 5\n\n// Rest — collect extra function arguments\nfunction sum(first, ...rest) {\n  return first + rest.reduce((a, b) => a + b, 0);\n}\nconsole.log(sum(1, 2, 3, 4)); // 10\n\n// Rest — in destructuring\nconst [head, ...tail] = [10, 20, 30, 40];\nconsole.log(head); // 10\nconsole.log(tail); // [20, 30, 40]",
     "route": "QUIZZES",
-    "keywords": ["spread", "rest", "spread operator", "rest parameter", "three dots", "...", "merge array", "copy object", "shallow copy"],
+    "keywords": [
+      "spread",
+      "rest",
+      "spread operator",
+      "rest parameter",
+      "three dots",
+      "...",
+      "merge array",
+      "copy object",
+      "shallow copy"
+    ],
     "admin_notes": "Spread vs rest is a classic confusion. Contrast by position in code.",
     "examples": [
       "what is the spread operator in javascript",
@@ -307,7 +441,6 @@
       "what does three dots mean in javascript"
     ]
   },
-
   "js.loops": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -315,7 +448,18 @@
     "response": "JavaScript provides several loop constructs:\n\n• for — classic; best when you need the index or a specific count.\n• while — repeats while condition is true; good when iterations are unknown.\n• do...while — executes body at least once, then checks condition.\n• for...of — iterates over iterable values (arrays, strings, maps, sets). Use for arrays.\n• for...in — iterates over object keys (enumerable properties). Use for objects, not arrays.\n• Array methods (forEach, map, filter) — functional alternatives; often cleaner for collections.\n\nbreakexits a loop early. continue skips the rest of the current iteration.",
     "code_example": "// for — with index\nconst fruits = ['apple', 'banana', 'cherry'];\nfor (let i = 0; i < fruits.length; i++) {\n  console.log(i, fruits[i]);\n}\n\n// for...of — clean iteration over values\nfor (const fruit of fruits) {\n  console.log(fruit);\n}\n\n// for...in — over object keys\nconst person = { name: 'Alice', age: 30 };\nfor (const key in person) {\n  console.log(key, person[key]);\n}\n\n// while\nlet count = 0;\nwhile (count < 3) {\n  console.log(count++);\n}\n\n// break and continue\nfor (let n = 0; n < 10; n++) {\n  if (n === 3) continue; // skip 3\n  if (n === 6) break;    // stop at 6\n  console.log(n);        // 0 1 2 4 5\n}",
     "route": "QUIZZES",
-    "keywords": ["loop", "for loop", "while loop", "for of", "for in", "forEach", "break", "continue", "iterate", "iteration"],
+    "keywords": [
+      "loop",
+      "for loop",
+      "while loop",
+      "for of",
+      "for in",
+      "forEach",
+      "break",
+      "continue",
+      "iterate",
+      "iteration"
+    ],
     "admin_notes": "Common confusion: for...of vs for...in. Emphasise for...in is for objects, for...of is for iterables.",
     "examples": [
       "what is a for loop in javascript",
@@ -328,7 +472,6 @@
       "explain different loops in javascript"
     ]
   },
-
   "js.promises": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -336,7 +479,20 @@
     "response": "A Promise is an object representing the eventual completion (or failure) of an asynchronous operation. It can be in one of three states:\n• pending — initial state, operation not done yet.\n• fulfilled — operation completed successfully; .then() handlers run.\n• rejected — operation failed; .catch() handlers run.\n\nKey methods:\n• .then(onFulfilled, onRejected) — chain success handlers.\n• .catch(onRejected) — handle errors.\n• .finally(fn) — runs regardless of outcome.\n• Promise.all([...]) — wait for all to fulfil (fails fast on rejection).\n• Promise.allSettled([...]) — wait for all to settle, regardless of outcome.\n• Promise.race([...]) — resolves/rejects as soon as the first one does.\n• Promise.any([...]) — fulfils as soon as one succeeds.",
     "code_example": "// Creating a Promise\nfunction fetchUser(id) {\n  return new Promise((resolve, reject) => {\n    if (id <= 0) {\n      reject(new Error('Invalid ID'));\n    } else {\n      setTimeout(() => resolve({ id, name: 'Alice' }), 500);\n    }\n  });\n}\n\n// Consuming with .then / .catch\nfetchUser(1)\n  .then(user => console.log(user))   // { id: 1, name: 'Alice' }\n  .catch(err => console.error(err))\n  .finally(() => console.log('Done'));\n\n// Promise.all — all must succeed\nPromise.all([fetchUser(1), fetchUser(2)])\n  .then(([u1, u2]) => console.log(u1, u2))\n  .catch(err => console.error('One failed:', err));\n\n// Promise.allSettled — get every result\nPromise.allSettled([fetchUser(1), fetchUser(-1)])\n  .then(results => results.forEach(r => console.log(r.status)));",
     "route": "QUIZZES",
-    "keywords": ["promise", "then", "catch", "finally", "Promise.all", "Promise.allSettled", "Promise.race", "resolve", "reject", "pending", "fulfilled", "rejected"],
+    "keywords": [
+      "promise",
+      "then",
+      "catch",
+      "finally",
+      "Promise.all",
+      "Promise.allSettled",
+      "Promise.race",
+      "resolve",
+      "reject",
+      "pending",
+      "fulfilled",
+      "rejected"
+    ],
     "admin_notes": "Core async concept. Link to async/await. Promise.all vs allSettled is a common interview question.",
     "examples": [
       "what is a promise in javascript",
@@ -350,7 +506,6 @@
       "what is Promise.race"
     ]
   },
-
   "js.async_await": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -358,7 +513,17 @@
     "response": "async/await is syntactic sugar over Promises, making asynchronous code look and feel like synchronous code.\n\n• async function — always returns a Promise. You can await inside it.\n• await — pauses execution of the async function until the Promise resolves/rejects. The rest of the program is NOT blocked.\n• Error handling — wrap await calls in try/catch.\n• Parallel execution — avoid sequential awaits when tasks are independent; use Promise.all instead.\n\nawait can only be used inside an async function (or at the top level of a module in modern environments).",
     "code_example": "// Basic async/await\nasync function getUser(id) {\n  const response = await fetch(`/api/users/${id}`);\n  const user = await response.json();\n  return user;\n}\n\n// Error handling\nasync function safeGetUser(id) {\n  try {\n    const user = await getUser(id);\n    console.log(user);\n  } catch (error) {\n    console.error('Failed:', error.message);\n  } finally {\n    console.log('Request complete');\n  }\n}\n\n// ❌ Sequential (slow — waits one by one)\nasync function slow() {\n  const u1 = await getUser(1); // wait...\n  const u2 = await getUser(2); // then wait...\n}\n\n// ✅ Parallel (fast — both requests fire at once)\nasync function fast() {\n  const [u1, u2] = await Promise.all([getUser(1), getUser(2)]);\n}",
     "route": "QUIZZES",
-    "keywords": ["async", "await", "async await", "async function", "try catch", "asynchronous", "non-blocking", "Promise", "parallel await"],
+    "keywords": [
+      "async",
+      "await",
+      "async await",
+      "async function",
+      "try catch",
+      "asynchronous",
+      "non-blocking",
+      "Promise",
+      "parallel await"
+    ],
     "admin_notes": "Most practical async topic. Stress the sequential vs parallel pattern — very common mistake.",
     "examples": [
       "what is async await in javascript",
@@ -372,7 +537,6 @@
       "can i use await outside async function"
     ]
   },
-
   "js.event_loop": {
     "category": "JavaScript Concepts",
     "topic_level": "advanced",
@@ -380,7 +544,18 @@
     "response": "JavaScript is single-threaded — it can only do one thing at a time. The event loop is the mechanism that allows JS to perform non-blocking operations despite this.\n\nComponents:\n• Call Stack — where function calls live. Only one frame executes at a time.\n• Web APIs / Node APIs — handle async work (timers, fetch, I/O) outside the call stack.\n• Callback Queue (Macrotask Queue) — completed async callbacks wait here (setTimeout, setInterval, I/O).\n• Microtask Queue — higher-priority queue for Promise .then() callbacks and queueMicrotask().\n• Event Loop — continuously checks: if call stack is empty, push the next microtask (all of them first), then the next macrotask.\n\nMicrotasks always run BEFORE the next macrotask.",
     "code_example": "console.log('1 — sync');  // → Call Stack\n\nsetTimeout(() => {\n  console.log('4 — setTimeout (macrotask)');\n}, 0);\n\nPromise.resolve()\n  .then(() => console.log('3 — Promise .then (microtask)'));\n\nconsole.log('2 — sync');  // → Call Stack\n\n// Output order:\n// 1 — sync\n// 2 — sync\n// 3 — Promise .then (microtask)   ← microtask before macrotask!\n// 4 — setTimeout (macrotask)\n\n// Why? Event loop drains the microtask queue\n// completely before running any macrotask.",
     "route": "QUIZZES",
-    "keywords": ["event loop", "call stack", "callback queue", "microtask", "macrotask", "setTimeout", "Promise", "single threaded", "non-blocking", "Web API"],
+    "keywords": [
+      "event loop",
+      "call stack",
+      "callback queue",
+      "microtask",
+      "macrotask",
+      "setTimeout",
+      "Promise",
+      "single threaded",
+      "non-blocking",
+      "Web API"
+    ],
     "admin_notes": "Advanced but very popular interview question. The microtask vs macrotask order surprises most candidates.",
     "examples": [
       "how does the javascript event loop work",
@@ -394,7 +569,6 @@
       "event loop with setTimeout and promises"
     ]
   },
-
   "js.dom": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -402,7 +576,18 @@
     "response": "The DOM (Document Object Model) is a tree-structured, in-memory representation of an HTML document that JavaScript can read and modify.\n\nSelecting elements:\n• document.getElementById('id') — single element by ID.\n• document.querySelector('css') — first match for a CSS selector.\n• document.querySelectorAll('css') — NodeList of all matches.\n\nModifying elements:\n• element.textContent — set/get text (safe — no HTML parsing).\n• element.innerHTML — set/get HTML markup (risk of XSS if user input).\n• element.setAttribute / getAttribute / removeAttribute\n• element.classList.add / remove / toggle / contains\n• element.style.property = 'value'\n\nCreating and inserting:\n• document.createElement('tag')\n• parent.appendChild(child) / parent.prepend(child)\n• element.remove()",
     "code_example": "// Select elements\nconst heading = document.querySelector('h1');\nconst items   = document.querySelectorAll('.item');\n\n// Modify content\nheading.textContent = 'Hello from JS!';\n\n// Toggle class\nheading.classList.toggle('highlight');\n\n// Change style\nheading.style.color = 'tomato';\n\n// Create and insert a new element\nconst li = document.createElement('li');\nli.textContent = 'New item';\nli.classList.add('item');\ndocument.querySelector('ul').appendChild(li);\n\n// Read attribute\nconst link = document.querySelector('a');\nconsole.log(link.getAttribute('href'));\nlink.setAttribute('target', '_blank');",
     "route": "QUIZZES",
-    "keywords": ["DOM", "document object model", "querySelector", "getElementById", "innerHTML", "textContent", "classList", "createElement", "appendChild", "DOM manipulation"],
+    "keywords": [
+      "DOM",
+      "document object model",
+      "querySelector",
+      "getElementById",
+      "innerHTML",
+      "textContent",
+      "classList",
+      "createElement",
+      "appendChild",
+      "DOM manipulation"
+    ],
     "admin_notes": "Critical for web dev. Warn about innerHTML + user input = XSS.",
     "examples": [
       "what is the DOM in javascript",
@@ -416,7 +601,6 @@
       "how to change style with javascript"
     ]
   },
-
   "js.events": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -424,7 +608,18 @@
     "response": "Events let JavaScript react to user interactions and browser changes.\n\nHandling events:\n• addEventListener(type, handler) — preferred; supports multiple handlers and removal.\n• onclick, onfocus, etc. — inline or property-based; only one handler per event.\n\nThe Event object is passed to every handler — use it to get target, prevent default behaviour, or stop propagation.\n\nEvent bubbling: events fire on the target then bubble up through ancestor elements.\nEvent delegation: attach ONE listener on a parent to handle events from many child elements — efficient and handles dynamically added elements.\n\nCommon events: click, input, change, submit, keydown, keyup, mouseover, resize, DOMContentLoaded, load.",
     "code_example": "// Basic event listener\nconst btn = document.querySelector('#myBtn');\nbtn.addEventListener('click', (event) => {\n  console.log('Clicked!', event.target);\n  event.preventDefault(); // stop default browser behaviour\n});\n\n// Remove a listener\nfunction handleClick(e) { console.log(e.type); }\nbtn.addEventListener('click', handleClick);\nbtn.removeEventListener('click', handleClick);\n\n// Event delegation — one listener on the list, handles all items\nconst list = document.querySelector('ul');\nlist.addEventListener('click', (e) => {\n  if (e.target.matches('li')) {\n    console.log('Clicked item:', e.target.textContent);\n  }\n});\n\n// Run code after DOM is ready\ndocument.addEventListener('DOMContentLoaded', () => {\n  console.log('DOM ready');\n});",
     "route": "QUIZZES",
-    "keywords": ["events", "addEventListener", "click", "event listener", "event bubbling", "event delegation", "preventDefault", "stopPropagation", "event object", "DOMContentLoaded"],
+    "keywords": [
+      "events",
+      "addEventListener",
+      "click",
+      "event listener",
+      "event bubbling",
+      "event delegation",
+      "preventDefault",
+      "stopPropagation",
+      "event object",
+      "DOMContentLoaded"
+    ],
     "admin_notes": "Event delegation is an important pattern for performance. Bubbling must be explained first.",
     "examples": [
       "how to add a click event in javascript",
@@ -438,7 +633,6 @@
       "what is DOMContentLoaded event"
     ]
   },
-
   "js.modules": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -446,7 +640,18 @@
     "response": "JavaScript modules let you split code into separate files and explicitly control what is shared.\n\nES Modules (ESM) — modern standard:\n• export — mark values/functions/classes to be shared.\n• import — bring them into another file.\n• Named exports — export multiple things by name.\n• Default export — one per file, imported with any name.\n• import() — dynamic import, returns a Promise (lazy loading).\n\nCommonJS (CJS) — Node.js legacy:\n• module.exports / exports — export.\n• require() — import.\n\nKey difference: ESM is static (analysed at compile time), CJS is dynamic (evaluated at runtime). Modern Node.js and all browsers support ESM.",
     "code_example": "// math.js — named exports\nexport const PI = 3.14159;\nexport function add(a, b) { return a + b; }\nexport function subtract(a, b) { return a - b; }\n\n// user.js — default export\nexport default class User {\n  constructor(name) { this.name = name; }\n}\n\n// main.js — importing\nimport User from './user.js';            // default\nimport { add, PI } from './math.js';     // named\nimport * as MathUtils from './math.js';  // namespace\n\nconsole.log(add(2, 3));       // 5\nconsole.log(MathUtils.PI);    // 3.14159\n\n// Dynamic import (lazy loading)\nconst { subtract } = await import('./math.js');\nconsole.log(subtract(10, 3)); // 7",
     "route": "QUIZZES",
-    "keywords": ["modules", "import", "export", "ES modules", "named export", "default export", "CommonJS", "require", "module.exports", "dynamic import"],
+    "keywords": [
+      "modules",
+      "import",
+      "export",
+      "ES modules",
+      "named export",
+      "default export",
+      "CommonJS",
+      "require",
+      "module.exports",
+      "dynamic import"
+    ],
     "admin_notes": "ESM vs CJS is important for Node.js context. Dynamic import is relevant for performance.",
     "examples": [
       "what are javascript modules",
@@ -459,7 +664,6 @@
       "export default vs named export"
     ]
   },
-
   "js.error_handling": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -467,7 +671,18 @@
     "response": "Errors in JavaScript can be caught and handled gracefully using try/catch/finally.\n\nBuilt-in Error types:\n• Error — generic base.\n• TypeError — wrong type (e.g., calling null as a function).\n• ReferenceError — accessing an undeclared variable.\n• SyntaxError — invalid JS syntax (thrown at parse time).\n• RangeError — value out of allowed range.\n\nBest practices:\n• Catch only what you can handle; re-throw what you can't.\n• Use finally for cleanup (close files, hide loading spinners).\n• Create custom Error subclasses for domain-specific errors.\n• In async code, combine try/catch with await.\n• Don't swallow errors silently with an empty catch block.",
     "code_example": "// try / catch / finally\ntry {\n  const data = JSON.parse('invalid json');\n} catch (error) {\n  console.error(error instanceof SyntaxError); // true\n  console.error(error.message); // 'Unexpected token i...'\n} finally {\n  console.log('Always runs — great for cleanup');\n}\n\n// Custom error class\nclass ValidationError extends Error {\n  constructor(field, message) {\n    super(message);\n    this.name = 'ValidationError';\n    this.field = field;\n  }\n}\n\nfunction validateAge(age) {\n  if (age < 0) throw new ValidationError('age', 'Age cannot be negative');\n  return age;\n}\n\ntry {\n  validateAge(-1);\n} catch (e) {\n  if (e instanceof ValidationError) {\n    console.log(`Field: ${e.field}, Error: ${e.message}`);\n  } else {\n    throw e; // re-throw unexpected errors\n  }\n}",
     "route": "QUIZZES",
-    "keywords": ["error handling", "try catch", "try catch finally", "throw", "Error", "TypeError", "ReferenceError", "custom error", "error types", "exception"],
+    "keywords": [
+      "error handling",
+      "try catch",
+      "try catch finally",
+      "throw",
+      "Error",
+      "TypeError",
+      "ReferenceError",
+      "custom error",
+      "error types",
+      "exception"
+    ],
     "admin_notes": "Custom errors and re-throwing are interview favourites.",
     "examples": [
       "how to handle errors in javascript",
@@ -481,7 +696,6 @@
       "what happens if you dont catch an error"
     ]
   },
-
   "js.callbacks": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -489,7 +703,14 @@
     "response": "A callback is a function passed as an argument to another function, to be executed after some operation completes. It's the oldest pattern for handling asynchronous operations in JavaScript.\n\nSynchronous callbacks run immediately (e.g., forEach, map).\nAsynchronous callbacks run later (e.g., setTimeout, event listeners, old Node.js APIs).\n\nCallback hell: deeply nested callbacks become hard to read and reason about. This is why Promises and async/await were introduced.\n\nCallbacks are still valid and widely used for event listeners and simple one-off async operations.",
     "code_example": "// Synchronous callback — runs immediately\n[1, 2, 3].forEach(function(num) {\n  console.log(num); // 1, 2, 3\n});\n\n// Asynchronous callback — runs later\nsetTimeout(function() {\n  console.log('1 second later');\n}, 1000);\n\n// Callback pattern for async operations\nfunction readFile(path, callback) {\n  // simulate async\n  setTimeout(() => {\n    const data = `content of ${path}`;\n    callback(null, data);    // (error, result) convention\n  }, 500);\n}\n\nreadFile('./notes.txt', function(err, data) {\n  if (err) return console.error(err);\n  console.log(data);\n});\n\n// Callback hell (avoid!)\nreadFile('a.txt', function(err, a) {\n  readFile('b.txt', function(err, b) {\n    readFile('c.txt', function(err, c) {\n      // deeply nested — hard to read\n    });\n  });\n});",
     "route": "QUIZZES",
-    "keywords": ["callback", "callback function", "callback hell", "asynchronous callback", "synchronous callback", "higher order function"],
+    "keywords": [
+      "callback",
+      "callback function",
+      "callback hell",
+      "asynchronous callback",
+      "synchronous callback",
+      "higher order function"
+    ],
     "admin_notes": "Teach callbacks before promises — they provide the conceptual foundation.",
     "examples": [
       "what is a callback function in javascript",
@@ -501,7 +722,6 @@
       "example of a callback in javascript"
     ]
   },
-
   "js.higher_order_functions": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -509,7 +729,15 @@
     "response": "A higher-order function (HOF) is a function that either:\n1. Takes one or more functions as arguments, or\n2. Returns a function.\n\nThis is possible because JavaScript treats functions as first-class citizens — they can be stored in variables, passed around, and returned like any other value.\n\nHigher-order functions are the foundation of functional programming in JS. You use them every day: map, filter, reduce, addEventListener, setTimeout, and any function that accepts a callback.",
     "code_example": "// HOF that takes a function as argument\nfunction applyTwice(fn, value) {\n  return fn(fn(value));\n}\nconst double = x => x * 2;\nconsole.log(applyTwice(double, 3)); // 12 (double applied twice)\n\n// HOF that returns a function (function factory)\nfunction multiplier(factor) {\n  return (number) => number * factor;\n}\nconst triple = multiplier(3);\nconst quadruple = multiplier(4);\nconsole.log(triple(5));    // 15\nconsole.log(quadruple(5)); // 20\n\n// Built-in HOFs\nconst numbers = [1, 2, 3, 4, 5];\nconst squaredEvens = numbers\n  .filter(n => n % 2 === 0)\n  .map(n => n * n);\nconsole.log(squaredEvens); // [4, 16]",
     "route": "QUIZZES",
-    "keywords": ["higher order function", "HOF", "first class function", "function factory", "function as argument", "function as value", "functional programming"],
+    "keywords": [
+      "higher order function",
+      "HOF",
+      "first class function",
+      "function factory",
+      "function as argument",
+      "function as value",
+      "functional programming"
+    ],
     "admin_notes": "Bridges callbacks and functional programming. Reinforce with map/filter/reduce examples.",
     "examples": [
       "what is a higher order function in javascript",
@@ -521,7 +749,6 @@
       "higher order function vs callback"
     ]
   },
-
   "js.currying": {
     "category": "JavaScript Concepts",
     "topic_level": "advanced",
@@ -529,7 +756,13 @@
     "response": "Currying is a technique of transforming a function that takes multiple arguments into a sequence of functions that each take one argument.\n\nf(a, b, c) → f(a)(b)(c)\n\nWhy it's useful:\n• Partial application — pre-fill some arguments to create specialised functions.\n• Function composition — chain small, single-argument functions.\n• Reusability — create configurable utility functions.\n\nCurrying doesn't call the function; it transforms how it is called. Partial application calls the function with some arguments fixed.",
     "code_example": "// Manual currying\nfunction add(a) {\n  return function(b) {\n    return a + b;\n  };\n}\nconst add5 = add(5); // partial application\nconsole.log(add5(3)); // 8\nconsole.log(add5(10)); // 15\n\n// Arrow function style — more concise\nconst multiply = a => b => a * b;\nconst double = multiply(2);\nconsole.log(double(7)); // 14\n\n// Practical: configurable greeter\nconst greet = greeting => name => `${greeting}, ${name}!`;\nconst sayHello = greet('Hello');\nconst sayHi    = greet('Hi');\nconsole.log(sayHello('Alice')); // 'Hello, Alice!'\nconsole.log(sayHi('Bob'));      // 'Hi, Bob!'\n\n// Generic curry utility\nfunction curry(fn) {\n  return function curried(...args) {\n    if (args.length >= fn.length) return fn(...args);\n    return (...more) => curried(...args, ...more);\n  };\n}",
     "route": "QUIZZES",
-    "keywords": ["currying", "partial application", "curry", "function composition", "closures", "functional programming"],
+    "keywords": [
+      "currying",
+      "partial application",
+      "curry",
+      "function composition",
+      "functional programming"
+    ],
     "admin_notes": "Advanced functional programming topic. Often confused with partial application — distinguish them.",
     "examples": [
       "what is currying in javascript",
@@ -541,7 +774,6 @@
       "write a curry utility function"
     ]
   },
-
   "js.generators": {
     "category": "JavaScript Concepts",
     "topic_level": "advanced",
@@ -549,7 +781,16 @@
     "response": "A generator function uses the function* syntax and returns a Generator object. It can pause its own execution with yield and resume it on demand.\n\nKey concepts:\n• function* — declares a generator.\n• yield — pauses the generator and returns a value.\n• .next() — resumes execution until the next yield or return.\n• The return value of .next() is { value, done }.\n• Generators are iterables — usable in for...of loops.\n\nUse cases:\n• Lazy data sequences (infinite sequences without crashing memory).\n• Custom iterators.\n• Asynchronous flow control (older pattern, mostly replaced by async/await).",
     "code_example": "// Basic generator\nfunction* counter(start = 0) {\n  while (true) {\n    yield start++; // pause and emit value\n  }\n}\n\nconst gen = counter(1);\nconsole.log(gen.next()); // { value: 1, done: false }\nconsole.log(gen.next()); // { value: 2, done: false }\nconsole.log(gen.next()); // { value: 3, done: false }\n\n// Finite generator\nfunction* range(start, end, step = 1) {\n  for (let i = start; i < end; i += step) {\n    yield i;\n  }\n}\n\nfor (const num of range(0, 10, 2)) {\n  console.log(num); // 0 2 4 6 8\n}\n\n// Spread a generator\nconst nums = [...range(1, 6)]; // [1, 2, 3, 4, 5]",
     "route": "QUIZZES",
-    "keywords": ["generator", "function*", "yield", "iterator", "lazy evaluation", "infinite sequence", "generator function", "next()"],
+    "keywords": [
+      "generator",
+      "function*",
+      "yield",
+      "iterator",
+      "lazy evaluation",
+      "infinite sequence",
+      "generator function",
+      "next()"
+    ],
     "admin_notes": "Advanced topic. Focus on the pause/resume mental model and lazy sequences.",
     "examples": [
       "what is a generator function in javascript",
@@ -561,7 +802,6 @@
       "what does next return in a generator"
     ]
   },
-
   "js.iterators": {
     "category": "JavaScript Concepts",
     "topic_level": "advanced",
@@ -569,7 +809,15 @@
     "response": "An iterator is any object with a .next() method that returns { value, done }. An iterable is any object with a [Symbol.iterator]() method that returns an iterator.\n\nBuilt-in iterables: arrays, strings, maps, sets, NodeLists, arguments, generators.\n\nThe for...of loop, spread operator, and destructuring all work on any iterable by calling [Symbol.iterator]().\n\nYou can make any object iterable by implementing [Symbol.iterator]. This is the protocol that powers generators and many ES6 features.",
     "code_example": "// Custom iterator (manual)\nconst range = {\n  from: 1,\n  to: 5,\n  [Symbol.iterator]() {\n    let current = this.from;\n    const last = this.to;\n    return {\n      next() {\n        return current <= last\n          ? { value: current++, done: false }\n          : { value: undefined, done: true };\n      }\n    };\n  }\n};\n\nfor (const num of range) {\n  console.log(num); // 1 2 3 4 5\n}\nconsole.log([...range]); // [1, 2, 3, 4, 5]\n\n// String is iterable\nfor (const char of 'hi!') {\n  console.log(char); // 'h' 'i' '!'\n}",
     "route": "QUIZZES",
-    "keywords": ["iterator", "iterable", "Symbol.iterator", "for of", "iteration protocol", "custom iterator", "next()"],
+    "keywords": [
+      "iterator",
+      "iterable",
+      "Symbol.iterator",
+      "for of",
+      "iteration protocol",
+      "custom iterator",
+      "next()"
+    ],
     "admin_notes": "Often overlooked but explains how for...of works under the hood. Link to generators.",
     "examples": [
       "what is an iterator in javascript",
@@ -580,7 +828,6 @@
       "what is the iteration protocol in javascript"
     ]
   },
-
   "js.map_set": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -588,7 +835,17 @@
     "response": "Map and Set are modern data structures (ES6+) that complement objects and arrays.\n\nMap — key-value pairs where keys can be ANY type (including objects and functions):\n• Better performance than objects for frequent additions/deletions.\n• Maintains insertion order.\n• Has a .size property.\n• Methods: .set(k,v), .get(k), .has(k), .delete(k), .clear(), .forEach(), .entries(), .keys(), .values().\n\nSet — collection of UNIQUE values:\n• Automatically removes duplicates.\n• Methods: .add(v), .has(v), .delete(v), .size, .forEach(), .keys().\n\nWeakMap and WeakSet — hold weak references; keys/values can be garbage collected when no longer referenced elsewhere. Useful for private data and caches.",
     "code_example": "// Map\nconst map = new Map();\nmap.set('name', 'Alice');\nmap.set(42, 'the answer');\nmap.set({}, 'an object key'); // object as key!\n\nconsole.log(map.get('name')); // 'Alice'\nconsole.log(map.size);        // 3\n\nfor (const [key, value] of map) {\n  console.log(key, value);\n}\n\n// Set — unique values\nconst set = new Set([1, 2, 2, 3, 3, 3]);\nconsole.log(set.size);    // 3\nconsole.log([...set]);    // [1, 2, 3]\n\n// Common use: remove duplicates from an array\nconst arr = [1, 2, 2, 3, 4, 4];\nconst unique = [...new Set(arr)]; // [1, 2, 3, 4]\n\n// Set has/add/delete\nset.add(99);\nconsole.log(set.has(99));  // true\nset.delete(99);",
     "route": "QUIZZES",
-    "keywords": ["Map", "Set", "WeakMap", "WeakSet", "unique values", "key value", "Map vs Object", "Set vs Array", "deduplication"],
+    "keywords": [
+      "Map",
+      "Set",
+      "WeakMap",
+      "WeakSet",
+      "unique values",
+      "key value",
+      "Map vs Object",
+      "Set vs Array",
+      "deduplication"
+    ],
     "admin_notes": "Map vs Object and Set for deduplication are very practical. WeakMap for private data is advanced.",
     "examples": [
       "what is a Map in javascript",
@@ -601,7 +858,6 @@
       "how to iterate over a Map"
     ]
   },
-
   "js.symbols": {
     "category": "JavaScript Concepts",
     "topic_level": "advanced",
@@ -609,7 +865,16 @@
     "response": "Symbol is a primitive data type that creates a guaranteed unique identifier. Every call to Symbol() creates a value that is not equal to any other value — ever.\n\nUse cases:\n• Unique property keys — prevent accidental key collisions in objects.\n• Well-known Symbols — built-in hooks: Symbol.iterator, Symbol.toPrimitive, Symbol.hasInstance, etc.\n• Private-ish properties — Symbols are not enumerable and not returned by Object.keys().\n\nNote: Symbol.for('key') creates a global symbol — the same key always returns the same Symbol.",
     "code_example": "// Unique symbols\nconst sym1 = Symbol('description');\nconst sym2 = Symbol('description');\nconsole.log(sym1 === sym2); // false — always unique\n\n// Symbol as object key (won't appear in Object.keys)\nconst ID = Symbol('id');\nconst user = {\n  name: 'Alice',\n  [ID]: 123\n};\nconsole.log(Object.keys(user));           // ['name'] — no Symbol!\nconsole.log(user[ID]);                    // 123\nconsole.log(Object.getOwnPropertySymbols(user)); // [Symbol(id)]\n\n// Well-known Symbol: Symbol.iterator\nconst myIterable = {\n  [Symbol.iterator]() {\n    let i = 0;\n    return { next: () => ({ value: i++, done: i > 3 }) };\n  }\n};\nconsole.log([...myIterable]); // [0, 1, 2]\n\n// Global symbol registry\nconst s1 = Symbol.for('shared');\nconst s2 = Symbol.for('shared');\nconsole.log(s1 === s2); // true",
     "route": "QUIZZES",
-    "keywords": ["symbol", "Symbol", "unique", "Symbol.iterator", "Symbol.for", "well-known symbols", "non-enumerable", "hidden property"],
+    "keywords": [
+      "symbol",
+      "Symbol",
+      "unique",
+      "Symbol.iterator",
+      "Symbol.for",
+      "well-known symbols",
+      "non-enumerable",
+      "hidden property"
+    ],
     "admin_notes": "Advanced. Focus on uniqueness guarantee and Symbol as property key. Well-known symbols are key for understanding iterators.",
     "examples": [
       "what is a Symbol in javascript",
@@ -620,7 +885,6 @@
       "are symbols enumerable in javascript"
     ]
   },
-
   "js.proxy_reflect": {
     "category": "JavaScript Concepts",
     "topic_level": "advanced",
@@ -628,7 +892,16 @@
     "response": "Proxy wraps an object and intercepts fundamental operations on it (property access, assignment, function calls, etc.) using handler traps.\n\nReflect is a built-in object that provides methods mirroring the Proxy traps. It allows you to perform the default operation inside a trap without re-implementing it manually.\n\nCommon Proxy traps:\n• get(target, prop) — intercept property reads.\n• set(target, prop, value) — intercept property writes.\n• has(target, prop) — intercept the in operator.\n• deleteProperty / apply / construct — and more.\n\nUse cases: validation, logging, virtual properties, reactive data systems (Vue 3 uses Proxy for reactivity).",
     "code_example": "// Validation with Proxy\nconst validator = {\n  set(target, prop, value) {\n    if (prop === 'age') {\n      if (typeof value !== 'number' || value < 0 || value > 150) {\n        throw new RangeError('Age must be a number between 0 and 150');\n      }\n    }\n    return Reflect.set(target, prop, value); // default behaviour\n  }\n};\n\nconst person = new Proxy({}, validator);\nperson.name = 'Alice'; // ✅\nperson.age = 30;       // ✅\n// person.age = -5;    // ❌ RangeError\n\n// Logging proxy\nfunction createLoggedObject(target) {\n  return new Proxy(target, {\n    get(obj, prop) {\n      console.log(`GET: ${String(prop)}`);\n      return Reflect.get(obj, prop);\n    }\n  });\n}\nconst logged = createLoggedObject({ x: 10 });\nconsole.log(logged.x); // logs 'GET: x' then 10",
     "route": "QUIZZES",
-    "keywords": ["Proxy", "Reflect", "traps", "get trap", "set trap", "metaprogramming", "validation", "reactive"],
+    "keywords": [
+      "Proxy",
+      "Reflect",
+      "traps",
+      "get trap",
+      "set trap",
+      "metaprogramming",
+      "validation",
+      "reactive"
+    ],
     "admin_notes": "Advanced metaprogramming. Mention Vue 3 reactivity as a real-world example.",
     "examples": [
       "what is Proxy in javascript",
@@ -640,7 +913,6 @@
       "how does Vue reactivity use Proxy"
     ]
   },
-
   "js.regex": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -648,7 +920,19 @@
     "response": "Regular expressions (regex) are patterns used to match, search, and manipulate text.\n\nCreating a regex:\n• Literal: /pattern/flags\n• Constructor: new RegExp('pattern', 'flags')\n\nFlags:\n• g — global (find all matches)\n• i — case-insensitive\n• m — multiline\n\nEssential methods:\n• regex.test(str) — returns true/false\n• str.match(regex) — returns matches\n• str.replace(regex, replacement) — replace matches\n• str.split(regex) — split by pattern\n\nCommon patterns:\n• \\d — digit, \\w — word character, \\s — whitespace\n• ^ — start, $ — end, . — any character\n• + — one or more, * — zero or more, ? — zero or one\n• {n,m} — between n and m occurrences\n• [] — character class, () — group, | — or",
     "code_example": "// Test a pattern\nconst emailRegex = /^[\\w.-]+@[\\w.-]+\\.[a-z]{2,}$/i;\nconsole.log(emailRegex.test('user@example.com')); // true\nconsole.log(emailRegex.test('not-an-email'));      // false\n\n// Extract matches\nconst text = 'Call 0300-1234567 or 0800-9876543 for help';\nconst phones = text.match(/\\d{4}-\\d{7}/g);\nconsole.log(phones); // ['0300-1234567', '0800-9876543']\n\n// Replace\nconst censored = 'bad word here'.replace(/bad/i, '***');\nconsole.log(censored); // '*** word here'\n\n// Named capture groups\nconst dateStr = '2025-06-15';\nconst dateRegex = /(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})/;\nconst { groups } = dateStr.match(dateRegex);\nconsole.log(groups.year, groups.month, groups.day); // 2025 06 15",
     "route": "QUIZZES",
-    "keywords": ["regex", "regular expression", "pattern", "match", "test", "replace", "flags", "capture group", "digit", "\\d", "\\w"],
+    "keywords": [
+      "regex",
+      "regular expression",
+      "pattern",
+      "match",
+      "test",
+      "replace",
+      "flags",
+      "capture group",
+      "digit",
+      "\\d",
+      "\\w"
+    ],
     "admin_notes": "Practical but complex. Focus on test(), match(), replace(). Named groups are ES2018 and impressive.",
     "examples": [
       "what is a regular expression in javascript",
@@ -660,7 +944,6 @@
       "how to extract numbers from a string with regex"
     ]
   },
-
   "js.json": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -668,7 +951,16 @@
     "response": "JSON (JavaScript Object Notation) is a lightweight text format for data exchange. It's a string, not a JS object — but it looks very similar.\n\nKey operations:\n• JSON.stringify(obj, replacer, space) — converts a JS value to a JSON string.\n• JSON.parse(str, reviver) — converts a JSON string back to a JS value.\n\nJSON rules (stricter than JS):\n• Keys must be double-quoted strings.\n• No comments, no trailing commas, no undefined, no functions.\n• Values: string, number, boolean, null, array, object.\n\nDeep clone trick: JSON.parse(JSON.stringify(obj)) — quick but loses functions, dates, undefined, and circular references.",
     "code_example": "// Stringify — JS object to JSON string\nconst user = { name: 'Alice', age: 30, scores: [95, 88] };\nconst json = JSON.stringify(user);\nconsole.log(json); // '{\"name\":\"Alice\",\"age\":30,\"scores\":[95,88]}'\n\n// Pretty print (indented)\nconsole.log(JSON.stringify(user, null, 2));\n\n// Parse — JSON string to JS object\nconst parsed = JSON.parse(json);\nconsole.log(parsed.name); // 'Alice'\n\n// Handle parse errors\ntry {\n  JSON.parse(\"{ invalid json }\");\n} catch (e) {\n  console.error('Invalid JSON:', e.message);\n}\n\n// Deep clone (simple objects only)\nconst original = { a: 1, nested: { b: 2 } };\nconst clone = JSON.parse(JSON.stringify(original));\nclone.nested.b = 99;\nconsole.log(original.nested.b); // 2 — not affected",
     "route": "QUIZZES",
-    "keywords": ["JSON", "JSON.stringify", "JSON.parse", "data format", "serialize", "deserialize", "deep clone", "JSON string"],
+    "keywords": [
+      "JSON",
+      "JSON.stringify",
+      "JSON.parse",
+      "data format",
+      "serialize",
+      "deserialize",
+      "deep clone",
+      "JSON string"
+    ],
     "admin_notes": "Very practical for API work. Deep clone caveat is important — structuredClone() is the modern alternative.",
     "examples": [
       "what is JSON in javascript",
@@ -680,7 +972,6 @@
       "why does JSON not support functions"
     ]
   },
-
   "js.template_literals": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -688,7 +979,15 @@
     "response": "Template literals (backtick strings) are an ES6 way to create strings that support:\n• Embedded expressions — ${expression} is evaluated and inserted.\n• Multi-line strings — no need for \\n or string concatenation.\n• Tagged templates — a function before the backtick can process the template.\n\nTemplate literals replace most cases where you'd use string concatenation with +.",
     "code_example": "const name = 'Alice';\nconst score = 95;\n\n// Old way\nconst msg1 = 'Hello, ' + name + '! Your score is ' + score + '%.';\n\n// Template literal — cleaner\nconst msg2 = `Hello, ${name}! Your score is ${score}%.`;\nconsole.log(msg2); // 'Hello, Alice! Your score is 95%.'\n\n// Expressions inside ${}\nconst a = 10, b = 5;\nconsole.log(`Sum: ${a + b}, Product: ${a * b}`); // 'Sum: 15, Product: 50'\n\n// Multi-line string\nconst html = `\n  <div class=\"card\">\n    <h2>${name}</h2>\n    <p>Score: ${score}%</p>\n  </div>\n`;\n\n// Tagged template (advanced)\nfunction highlight(strings, ...values) {\n  return strings.reduce((result, str, i) =>\n    result + str + (values[i] !== undefined ? `<strong>${values[i]}</strong>` : ''), '');\n}\nconst tagged = highlight`Hello ${name}, your score is ${score}%!`;",
     "route": "QUIZZES",
-    "keywords": ["template literal", "backtick", "string interpolation", "multi-line string", "tagged template", "template string", "${}"],
+    "keywords": [
+      "template literal",
+      "backtick",
+      "string interpolation",
+      "multi-line string",
+      "tagged template",
+      "template string",
+      "${}"
+    ],
     "admin_notes": "Beginner-friendly. Most impactful upgrade from old JS. Tagged templates are advanced.",
     "examples": [
       "what is a template literal in javascript",
@@ -699,7 +998,6 @@
       "what is a tagged template literal"
     ]
   },
-
   "js.optional_chaining": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -707,7 +1005,15 @@
     "response": "Optional chaining (?.) safely accesses nested object properties without throwing a TypeError if an intermediate value is null or undefined — it just returns undefined instead.\n\nVariants:\n• obj?.prop — property access.\n• obj?.[expr] — computed property access.\n• func?.() — function call (only calls if func is not null/undefined).\n\nCouple with nullish coalescing (??) to provide a default value.",
     "code_example": "const user = {\n  profile: {\n    address: {\n      city: 'Lahore'\n    }\n  }\n};\n\n// Without optional chaining — crashes if any part is undefined\n// const city = user.profile.address.city; // works here but fragile\n\n// With optional chaining — safe\nconst city = user?.profile?.address?.city;\nconsole.log(city); // 'Lahore'\n\nconst zip = user?.profile?.address?.zip;\nconsole.log(zip); // undefined (no error)\n\n// With nullish coalescing for a default\nconst displayZip = user?.profile?.address?.zip ?? 'N/A';\nconsole.log(displayZip); // 'N/A'\n\n// Optional method call\nconst length = user?.getFullName?.();\nconsole.log(length); // undefined (method doesn't exist, no crash)\n\n// Optional computed property\nconst key = 'city';\nconsole.log(user?.profile?.address?.[key]); // 'Lahore'",
     "route": "QUIZZES",
-    "keywords": ["optional chaining", "?.", "nullish coalescing", "??", "safe property access", "null check", "undefined check"],
+    "keywords": [
+      "optional chaining",
+      "?.",
+      "nullish coalescing",
+      "??",
+      "safe property access",
+      "null check",
+      "undefined check"
+    ],
     "admin_notes": "Extremely common in modern JS. Pair with ?? for default values.",
     "examples": [
       "what is optional chaining in javascript",
@@ -719,7 +1025,6 @@
       "optional chaining with function calls"
     ]
   },
-
   "js.nullish_coalescing": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -727,7 +1032,16 @@
     "response": "The nullish coalescing operator (??) returns the right-hand side operand only when the left-hand side is null or undefined.\n\nThis is different from the logical OR (||) operator, which returns the right side for any falsy value (including 0, '', false, NaN).\n\nUse ?? when 0, empty string, or false are valid values that you don't want to replace with a default.",
     "code_example": "// ?? vs || comparison\nconst count = 0;\nconsole.log(count ?? 'default');  // 0     ✅ 0 is valid\nconsole.log(count || 'default');  // 'default' ❌ 0 is falsy!\n\nconst name = '';\nconsole.log(name ?? 'Anonymous');  // ''          (empty string is valid)\nconsole.log(name || 'Anonymous');  // 'Anonymous' (empty string is falsy)\n\n// Typical use: API response with defaults\nconst apiData = { score: 0, label: '' };\nconst score = apiData.score ?? 'No score';  // 0\nconst label = apiData.label ?? 'No label';  // ''\n\n// Combined with optional chaining\nconst user = null;\nconst city = user?.address?.city ?? 'Unknown';\nconsole.log(city); // 'Unknown'",
     "route": "QUIZZES",
-    "keywords": ["nullish coalescing", "??", "null", "undefined", "default value", "logical OR", "falsy", "nullish"],
+    "keywords": [
+      "nullish coalescing",
+      "??",
+      "null",
+      "undefined",
+      "default value",
+      "logical OR",
+      "falsy",
+      "nullish"
+    ],
     "admin_notes": "Often confused with ||. The key insight is that ?? only triggers for null/undefined, not all falsy values.",
     "examples": [
       "what is nullish coalescing in javascript",
@@ -738,7 +1052,6 @@
       "nullish coalescing with optional chaining"
     ]
   },
-
   "js.object_immutability": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -746,7 +1059,16 @@
     "response": "JavaScript offers several levels of object immutability:\n\n• const — only prevents reassignment of the variable binding; the object itself is still mutable.\n• Object.freeze(obj) — shallow freeze: prevents adding, removing, or changing properties. Nested objects remain mutable.\n• Object.seal(obj) — allows changing existing properties but prevents adding or removing.\n• structuredClone(obj) — creates a true deep clone (ES2022, replaces JSON trick).\n\nFor true deep immutability, use recursive freezing or a library like Immer.",
     "code_example": "// const does NOT make objects immutable\nconst user = { name: 'Alice' };\nuser.name = 'Bob'; // ✅ this works!\n// user = {};       // ❌ TypeError — can't reassign const\n\n// Object.freeze — shallow immutability\nconst config = Object.freeze({ theme: 'dark', nested: { lang: 'en' } });\n// config.theme = 'light';      // silently fails (or throws in strict)\n// config.newProp = 'x';        // silently fails\nconsole.log(config.theme);      // 'dark' — unchanged\nconfig.nested.lang = 'fr';      // ✅ nested NOT frozen!\n\n// Object.seal\nconst sealed = Object.seal({ x: 1 });\nsealed.x = 99;     // ✅ can change existing\n// sealed.y = 2;   // ❌ can't add\n// delete sealed.x; // ❌ can't remove\n\n// Deep clone (modern)\nconst original = { a: 1, b: { c: 2 } };\nconst clone = structuredClone(original);\nclone.b.c = 99;\nconsole.log(original.b.c); // 2 — not affected",
     "route": "QUIZZES",
-    "keywords": ["immutability", "Object.freeze", "Object.seal", "const", "shallow freeze", "deep clone", "structuredClone", "mutable"],
+    "keywords": [
+      "immutability",
+      "Object.freeze",
+      "Object.seal",
+      "const",
+      "shallow freeze",
+      "deep clone",
+      "structuredClone",
+      "mutable"
+    ],
     "admin_notes": "Common misconception: const !== immutable. Clarify shallow vs deep freeze.",
     "examples": [
       "how to make an object immutable in javascript",
@@ -759,7 +1081,6 @@
       "is const truly immutable"
     ]
   },
-
   "js.date": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -767,7 +1088,17 @@
     "response": "The Date object handles dates and times in JavaScript.\n\nCreating dates:\n• new Date() — current date/time.\n• new Date('2025-06-15') — from ISO string.\n• new Date(year, month, day, ...) — month is 0-indexed (0 = January).\n• Date.now() — current timestamp in milliseconds.\n\nCommon methods:\n• .getFullYear(), .getMonth() (0-indexed!), .getDate(), .getDay()\n• .getHours(), .getMinutes(), .getSeconds()\n• .toISOString(), .toLocaleDateString(), .toLocaleTimeString()\n\nDate arithmetic: subtract two Date objects to get milliseconds difference.\n\nNote: For complex date operations, use libraries like dayjs or date-fns.",
     "code_example": "// Create dates\nconst now = new Date();\nconsole.log(now.toISOString()); // '2025-06-15T10:30:00.000Z'\n\n// Month is 0-indexed!\nconst birthday = new Date(2000, 0, 15); // 15 January 2000\nconsole.log(birthday.getFullYear()); // 2000\nconsole.log(birthday.getMonth());    // 0 (January!)\nconsole.log(birthday.getDate());     // 15\n\n// Timestamp (milliseconds since epoch)\nconsole.log(Date.now()); // e.g. 1718441400000\n\n// Date arithmetic — days between two dates\nconst start = new Date('2025-01-01');\nconst end   = new Date('2025-12-31');\nconst diffMs   = end - start;\nconst diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));\nconsole.log(diffDays); // 364\n\n// Locale-aware formatting\nconsole.log(now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }));\n// e.g. 'Sunday, June 15'",
     "route": "QUIZZES",
-    "keywords": ["Date", "new Date", "date object", "Date.now", "getFullYear", "getMonth", "toISOString", "date arithmetic", "timestamp"],
+    "keywords": [
+      "Date",
+      "new Date",
+      "date object",
+      "Date.now",
+      "getFullYear",
+      "getMonth",
+      "toISOString",
+      "date arithmetic",
+      "timestamp"
+    ],
     "admin_notes": "Month 0-index is an infamous gotcha. Always mention it.",
     "examples": [
       "how to work with dates in javascript",
@@ -779,7 +1110,6 @@
       "how to convert date to string in javascript"
     ]
   },
-
   "js.math": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -787,7 +1117,18 @@
     "response": "The Math object provides mathematical constants and functions. It is not a constructor — all properties and methods are static.\n\nUseful constants:\n• Math.PI — π ≈ 3.14159\n• Math.E — Euler's number ≈ 2.71828\n\nUseful methods:\n• Math.round(n) — rounds to nearest integer.\n• Math.floor(n) — rounds down.\n• Math.ceil(n) — rounds up.\n• Math.trunc(n) — removes decimal (towards 0).\n• Math.abs(n) — absolute value.\n• Math.max(...args) / Math.min(...args) — largest/smallest.\n• Math.sqrt(n), Math.pow(base, exp) — square root, power.\n• Math.random() — random float [0, 1).\n• Math.log(n), Math.log2(n), Math.log10(n) — logarithms.",
     "code_example": "console.log(Math.round(4.6));  // 5\nconsole.log(Math.floor(4.9));  // 4\nconsole.log(Math.ceil(4.1));   // 5\nconsole.log(Math.abs(-7));     // 7\n\n// Min / Max with spread\nconst scores = [88, 92, 76, 99, 65];\nconsole.log(Math.max(...scores)); // 99\nconsole.log(Math.min(...scores)); // 65\n\n// Power and square root\nconsole.log(Math.pow(2, 10));  // 1024\nconsole.log(2 ** 10);          // 1024 (ES2016 exponentiation)\nconsole.log(Math.sqrt(144));   // 12\n\n// Random integer in [min, max]\nfunction randomInt(min, max) {\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\nconsole.log(randomInt(1, 6)); // dice roll: 1-6",
     "route": "QUIZZES",
-    "keywords": ["Math", "Math.round", "Math.floor", "Math.ceil", "Math.random", "Math.max", "Math.min", "Math.pow", "Math.sqrt", "random number"],
+    "keywords": [
+      "Math",
+      "Math.round",
+      "Math.floor",
+      "Math.ceil",
+      "Math.random",
+      "Math.max",
+      "Math.min",
+      "Math.pow",
+      "Math.sqrt",
+      "random number"
+    ],
     "admin_notes": "Very practical. Random integer recipe is a classic snippet everyone needs.",
     "examples": [
       "how to round a number in javascript",
@@ -799,7 +1140,6 @@
       "how to use Math.pow and Math.sqrt"
     ]
   },
-
   "js.string_methods": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -807,7 +1147,19 @@
     "response": "Strings in JavaScript are immutable — every method returns a new string.\n\nEssential string methods:\n• .length — number of characters.\n• .toUpperCase() / .toLowerCase() — case conversion.\n• .trim() / .trimStart() / .trimEnd() — remove whitespace.\n• .includes(str) — boolean substring check.\n• .startsWith(str) / .endsWith(str).\n• .indexOf(str) / .lastIndexOf(str) — position of substring (-1 if not found).\n• .slice(start, end) — extract substring.\n• .split(separator) — split into array.\n• .replace(search, replacement) / .replaceAll().\n• .padStart(len, char) / .padEnd(len, char).\n• .repeat(n).\n• .charAt(i) / [i] — character at index.\n• Template literals for concatenation.",
     "code_example": "const str = '  Hello, World!  ';\n\nconsole.log(str.trim());           // 'Hello, World!'\nconsole.log(str.toLowerCase());    // '  hello, world!  '\nconsole.log(str.includes('World')); // true\nconsole.log(str.indexOf('World'));  // 9\n\nconst csv = 'apple,banana,cherry';\nconst fruits = csv.split(',');      // ['apple', 'banana', 'cherry']\n\nconst greeting = 'Hello, Alice!';\nconsole.log(greeting.slice(7, 12)); // 'Alice'\nconsole.log(greeting.replace('Alice', 'Bob')); // 'Hello, Bob!'\n\n// Padding — useful for formatting\nconsole.log('5'.padStart(3, '0')); // '005'\nconsole.log('Hi'.padEnd(5, '.'));  // 'Hi...'\n\n// startsWith / endsWith\nconsole.log('filename.js'.endsWith('.js')); // true",
     "route": "QUIZZES",
-    "keywords": ["string methods", "trim", "split", "slice", "replace", "includes", "indexOf", "padStart", "toLowerCase", "toUpperCase", "string"],
+    "keywords": [
+      "string methods",
+      "trim",
+      "split",
+      "slice",
+      "replace",
+      "includes",
+      "indexOf",
+      "padStart",
+      "toLowerCase",
+      "toUpperCase",
+      "string"
+    ],
     "admin_notes": "Extremely practical. split/join, slice, and replace are the most used.",
     "examples": [
       "what are common string methods in javascript",
@@ -820,7 +1172,6 @@
       "how to pad a number with zeros"
     ]
   },
-
   "js.fetch_api": {
     "category": "JavaScript Concepts",
     "topic_level": "intermediate",
@@ -828,7 +1179,17 @@
     "response": "The Fetch API is the modern, Promise-based way to make HTTP requests from the browser (and Node.js 18+).\n\nHow fetch works:\n1. fetch(url, options) returns a Promise that resolves to a Response object.\n2. Check response.ok (true for 2xx status codes).\n3. Parse the body: response.json(), response.text(), response.blob().\n4. The Response body can only be consumed ONCE.\n\nfetch does NOT reject on HTTP errors (404, 500) — it only rejects on network failures. You must check response.ok manually.\n\nFor POST requests, pass method, headers, and body in the options object.",
     "code_example": "// GET request\nasync function getUser(id) {\n  const response = await fetch(`https://api.example.com/users/${id}`);\n  if (!response.ok) {\n    throw new Error(`HTTP error: ${response.status}`);\n  }\n  const user = await response.json();\n  return user;\n}\n\n// POST request\nasync function createUser(userData) {\n  const response = await fetch('https://api.example.com/users', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n      'Authorization': 'Bearer your-token'\n    },\n    body: JSON.stringify(userData)\n  });\n  if (!response.ok) throw new Error('Failed to create user');\n  return response.json();\n}\n\n// Usage\ntry {\n  const user = await getUser(1);\n  console.log(user);\n} catch (err) {\n  console.error('Request failed:', err.message);\n}",
     "route": "QUIZZES",
-    "keywords": ["fetch", "Fetch API", "HTTP request", "GET", "POST", "response.json", "async await fetch", "response.ok", "API call"],
+    "keywords": [
+      "fetch",
+      "Fetch API",
+      "HTTP request",
+      "GET",
+      "POST",
+      "response.json",
+      "async await fetch",
+      "response.ok",
+      "API call"
+    ],
     "admin_notes": "Critical for web dev. Emphasise: fetch doesn't throw on 404/500 — must check response.ok.",
     "examples": [
       "how to make a GET request in javascript",
@@ -841,7 +1202,6 @@
       "how to use async await with fetch"
     ]
   },
-
   "js.local_storage": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
@@ -849,7 +1209,16 @@
     "response": "The Web Storage API provides localStorage and sessionStorage for storing key-value pairs in the browser.\n\nlocalStorage:\n• Persists indefinitely (until manually cleared or user clears browser data).\n• Shared across all tabs of the same origin.\n• Storage limit: ~5–10 MB.\n\nsessionStorage:\n• Cleared when the tab/window is closed.\n• Not shared between tabs.\n\nBoth only store strings — use JSON.stringify/parse for objects.\n\nMethods: .setItem(key, val), .getItem(key), .removeItem(key), .clear(), .key(i), .length.",
     "code_example": "// Store data\nlocalStorage.setItem('username', 'Alice');\nlocalStorage.setItem('score', '95'); // strings only!\n\n// Store object — must JSON.stringify\nconst prefs = { theme: 'dark', lang: 'en' };\nlocalStorage.setItem('prefs', JSON.stringify(prefs));\n\n// Retrieve data\nconst username = localStorage.getItem('username');\nconsole.log(username); // 'Alice'\n\n// Retrieve and parse object\nconst savedPrefs = JSON.parse(localStorage.getItem('prefs'));\nconsole.log(savedPrefs.theme); // 'dark'\n\n// Handle missing data\nconst val = localStorage.getItem('missing') ?? 'default';\nconsole.log(val); // 'default'\n\n// Remove\nlocalStorage.removeItem('username');\n\n// Clear everything\nlocalStorage.clear();\n\n// sessionStorage — same API, tab-only persistence\nsessionStorage.setItem('token', 'abc123');",
     "route": "QUIZZES",
-    "keywords": ["localStorage", "sessionStorage", "setItem", "getItem", "removeItem", "web storage", "browser storage", "persist data"],
+    "keywords": [
+      "localStorage",
+      "sessionStorage",
+      "setItem",
+      "getItem",
+      "removeItem",
+      "web storage",
+      "browser storage",
+      "persist data"
+    ],
     "admin_notes": "Very practical. Warn about storing sensitive data and the string-only limitation.",
     "examples": [
       "how to use localStorage in javascript",

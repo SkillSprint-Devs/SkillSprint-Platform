@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_edit_comment_after",
+  "title": "New Features",
+  "response": "Placeholder response for: can i edit my comment after posting",
+  "route": "NONE"
+}

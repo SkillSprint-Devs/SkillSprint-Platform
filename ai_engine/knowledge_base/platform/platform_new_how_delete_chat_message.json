@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.how_delete_chat_message",
+  "title": "New Features",
+  "response": "Placeholder response for: how do i delete a chat message",
+  "route": "NONE"
+}

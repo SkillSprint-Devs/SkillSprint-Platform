@@ -1,0 +1,6 @@
+{
+  "intent": "platform.session.schedule",
+  "title": "Live Sessions",
+  "response": "You can schedule a future session from the Live Sessions page. Click 'Schedule' and pick a date, time, and invite participants.",
+  "route": "LIVE_SESSIONS"
+}

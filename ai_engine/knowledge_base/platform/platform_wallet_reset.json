@@ -1,0 +1,6 @@
+{
+  "intent": "platform.wallet.reset",
+  "title": "Wallet",
+  "response": "Your wallet credits reset automatically every Monday at midnight (UTC). Unused credits do not roll over to the next week. Check the Wallet page for your next reset countdown.",
+  "route": "WALLET"
+}

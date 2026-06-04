@@ -1,0 +1,6 @@
+{
+  "intent": "platform.social.post",
+  "title": "Social Network",
+  "response": "To share a post, go to the Social Feed and click 'Create Post'. You can write text updates, share achievements, attach images, or link to your projects. Posts are visible to your followers.",
+  "route": "SOCIAL"
+}

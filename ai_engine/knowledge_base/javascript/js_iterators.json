@@ -1,0 +1,7 @@
+{
+  "intent": "js.iterators",
+  "title": "JavaScript Concepts",
+  "response": "An iterator is any object with a .next() method that returns { value, done }. An iterable is any object with a [Symbol.iterator]() method that returns an iterator.\n\nBuilt-in iterables: arrays, strings, maps, sets, NodeLists, arguments, generators.\n\nThe for...of loop, spread operator, and destructuring all work on any iterable by calling [Symbol.iterator]().\n\nYou can make any object iterable by implementing [Symbol.iterator]. This is the protocol that powers generators and many ES6 features.",
+  "route": "QUIZZES",
+  "code_example": "// Custom iterator (manual)\nconst range = {\n  from: 1,\n  to: 5,\n  [Symbol.iterator]() {\n    let current = this.from;\n    const last = this.to;\n    return {\n      next() {\n        return current <= last\n          ? { value: current++, done: false }\n          : { value: undefined, done: true };\n      }\n    };\n  }\n};\n\nfor (const num of range) {\n  console.log(num); // 1 2 3 4 5\n}\nconsole.log([...range]); // [1, 2, 3, 4, 5]\n\n// String is iterable\nfor (const char of 'hi!') {\n  console.log(char); // 'h' 'i' '!'\n}"
+}

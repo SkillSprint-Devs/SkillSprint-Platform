@@ -1,0 +1,7 @@
+{
+  "intent": "js.symbols",
+  "title": "JavaScript Concepts",
+  "response": "Symbol is a primitive data type that creates a guaranteed unique identifier. Every call to Symbol() creates a value that is not equal to any other value \u2014 ever.\n\nUse cases:\n\u2022 Unique property keys \u2014 prevent accidental key collisions in objects.\n\u2022 Well-known Symbols \u2014 built-in hooks: Symbol.iterator, Symbol.toPrimitive, Symbol.hasInstance, etc.\n\u2022 Private-ish properties \u2014 Symbols are not enumerable and not returned by Object.keys().\n\nNote: Symbol.for('key') creates a global symbol \u2014 the same key always returns the same Symbol.",
+  "route": "QUIZZES",
+  "code_example": "// Unique symbols\nconst sym1 = Symbol('description');\nconst sym2 = Symbol('description');\nconsole.log(sym1 === sym2); // false \u2014 always unique\n\n// Symbol as object key (won't appear in Object.keys)\nconst ID = Symbol('id');\nconst user = {\n  name: 'Alice',\n  [ID]: 123\n};\nconsole.log(Object.keys(user));           // ['name'] \u2014 no Symbol!\nconsole.log(user[ID]);                    // 123\nconsole.log(Object.getOwnPropertySymbols(user)); // [Symbol(id)]\n\n// Well-known Symbol: Symbol.iterator\nconst myIterable = {\n  [Symbol.iterator]() {\n    let i = 0;\n    return { next: () => ({ value: i++, done: i > 3 }) };\n  }\n};\nconsole.log([...myIterable]); // [0, 1, 2]\n\n// Global symbol registry\nconst s1 = Symbol.for('shared');\nconst s2 = Symbol.for('shared');\nconsole.log(s1 === s2); // true"
+}

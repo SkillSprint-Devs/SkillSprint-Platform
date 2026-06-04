@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.what_complete_task_early",
+  "title": "New Features",
+  "response": "Placeholder response for: what if i complete a task early",
+  "route": "NONE"
+}

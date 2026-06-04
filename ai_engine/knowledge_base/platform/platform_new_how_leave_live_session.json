@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.how_leave_live_session",
+  "title": "New Features",
+  "response": "Placeholder response for: how do i leave a live session politely",
+  "route": "NONE"
+}

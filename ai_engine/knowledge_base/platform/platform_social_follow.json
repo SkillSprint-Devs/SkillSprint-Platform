@@ -1,0 +1,6 @@
+{
+  "intent": "platform.social.follow",
+  "title": "Social Network",
+  "response": "To follow a developer, visit their profile and click the 'Follow' button. You'll see their posts in your feed. View your followers and following lists from your own profile page.",
+  "route": "SOCIAL"
+}

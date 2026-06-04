@@ -1,0 +1,7 @@
+{
+  "intent": "js.async_await",
+  "title": "JavaScript Concepts",
+  "response": "async/await is syntactic sugar over Promises, making asynchronous code look and feel like synchronous code.\n\n\u2022 async function \u2014 always returns a Promise. You can await inside it.\n\u2022 await \u2014 pauses execution of the async function until the Promise resolves/rejects. The rest of the program is NOT blocked.\n\u2022 Error handling \u2014 wrap await calls in try/catch.\n\u2022 Parallel execution \u2014 avoid sequential awaits when tasks are independent; use Promise.all instead.\n\nawait can only be used inside an async function (or at the top level of a module in modern environments).",
+  "route": "QUIZZES",
+  "code_example": "// Basic async/await\nasync function getUser(id) {\n  const response = await fetch(`/api/users/${id}`);\n  const user = await response.json();\n  return user;\n}\n\n// Error handling\nasync function safeGetUser(id) {\n  try {\n    const user = await getUser(id);\n    console.log(user);\n  } catch (error) {\n    console.error('Failed:', error.message);\n  } finally {\n    console.log('Request complete');\n  }\n}\n\n// \u274c Sequential (slow \u2014 waits one by one)\nasync function slow() {\n  const u1 = await getUser(1); // wait...\n  const u2 = await getUser(2); // then wait...\n}\n\n// \u2705 Parallel (fast \u2014 both requests fire at once)\nasync function fast() {\n  const [u1, u2] = await Promise.all([getUser(1), getUser(2)]);\n}"
+}

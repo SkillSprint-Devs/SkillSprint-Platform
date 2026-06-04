@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.what_cant_see_new",
+  "title": "New Features",
+  "response": "Placeholder response for: what if i cant see new posts",
+  "route": "NONE"
+}

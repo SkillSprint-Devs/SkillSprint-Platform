@@ -1,0 +1,6 @@
+{
+  "intent": "platform.pair_prog.comment",
+  "title": "Pair Programming",
+  "response": "To leave a code comment, click on any line number in the editor and select 'Add Comment'. Your comments appear in the right panel and are visible to all participants.",
+  "route": "PAIR_PROGRAMMING"
+}

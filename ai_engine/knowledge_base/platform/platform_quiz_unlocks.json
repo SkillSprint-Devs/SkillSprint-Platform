@@ -1,0 +1,6 @@
+{
+  "intent": "platform.quiz.unlocks",
+  "title": "Quiz System",
+  "response": "Advanced quizzes unlock after successfully passing the previous difficulty level. You need a minimum passing score of 70% on the Basic quiz to unlock Intermediate, and 70% on Intermediate to unlock Advanced.",
+  "route": "QUIZZES"
+}

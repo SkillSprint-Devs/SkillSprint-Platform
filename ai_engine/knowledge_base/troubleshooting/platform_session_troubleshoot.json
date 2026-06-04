@@ -1,0 +1,6 @@
+{
+  "intent": "platform.session.troubleshoot",
+  "title": "Live Sessions",
+  "response": "For audio/video issues, check your browser permissions for camera and microphone access. Ensure you're using a supported browser (Chrome or Firefox). Try refreshing the page or rejoining the session.",
+  "route": "LIVE_SESSIONS"
+}

@@ -1,0 +1,6 @@
+{
+  "intent": "platform.session.history",
+  "title": "Live Sessions",
+  "response": "Your past session records are available on the Live Sessions page under the 'History' tab. You can view timestamps, participants, and durations.",
+  "route": "LIVE_SESSIONS"
+}

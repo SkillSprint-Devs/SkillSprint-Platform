@@ -1,0 +1,6 @@
+{
+  "intent": "platform.quiz.save_resume",
+  "title": "Quiz System",
+  "response": "Your quiz progress auto-saves after each answer. If your browser closes, return to the Quizzes page and click 'Resume' on your active quiz to continue where you left off.",
+  "route": "QUIZZES"
+}

@@ -1,0 +1,7 @@
+{
+  "intent": "js.callbacks",
+  "title": "JavaScript Concepts",
+  "response": "A callback is a function passed as an argument to another function, to be executed after some operation completes. It's the oldest pattern for handling asynchronous operations in JavaScript.\n\nSynchronous callbacks run immediately (e.g., forEach, map).\nAsynchronous callbacks run later (e.g., setTimeout, event listeners, old Node.js APIs).\n\nCallback hell: deeply nested callbacks become hard to read and reason about. This is why Promises and async/await were introduced.\n\nCallbacks are still valid and widely used for event listeners and simple one-off async operations.",
+  "route": "QUIZZES",
+  "code_example": "// Synchronous callback \u2014 runs immediately\n[1, 2, 3].forEach(function(num) {\n  console.log(num); // 1, 2, 3\n});\n\n// Asynchronous callback \u2014 runs later\nsetTimeout(function() {\n  console.log('1 second later');\n}, 1000);\n\n// Callback pattern for async operations\nfunction readFile(path, callback) {\n  // simulate async\n  setTimeout(() => {\n    const data = `content of ${path}`;\n    callback(null, data);    // (error, result) convention\n  }, 500);\n}\n\nreadFile('./notes.txt', function(err, data) {\n  if (err) return console.error(err);\n  console.log(data);\n});\n\n// Callback hell (avoid!)\nreadFile('a.txt', function(err, a) {\n  readFile('b.txt', function(err, b) {\n    readFile('c.txt', function(err, c) {\n      // deeply nested \u2014 hard to read\n    });\n  });\n});"
+}

@@ -1,0 +1,6 @@
+{
+  "intent": "platform.matchmaking.find",
+  "title": "Matchmaking",
+  "response": "To find a study partner or mentor, go to the Matchmaking page and click 'Find Match'. The system uses your skill profile and learning goals to suggest compatible peers.",
+  "route": "MATCHMAKING"
+}

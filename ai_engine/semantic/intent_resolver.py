@@ -31,6 +31,9 @@ import json
 import os
 import math
 from collections import Counter
+from semantic.context_engine import ContextEngine
+from semantic.context_providers import ContextProvider
+from preprocessing.text_cleaner import clean_text as _clean_kw
 
 
 # ---------------------------------------------------------------------------
@@ -58,8 +61,13 @@ class IntentResolver:
         self._keyword_index  = {}   # keyword → [intent_label, ...]
         self._category_index = {}   # category → [intent_label, ...]
         self._synonym_map    = {}   # synonym_token → canonical_keyword
+        self._kb_index       = {}
+        self.context_engine  = ContextEngine()
+        self.context_provider = ContextProvider()
+        
         self._load()
         self._load_synonyms()
+        self._load_kb_index()
 
     # ── Load & Index ──────────────────────────────────────────────────────
 
@@ -76,12 +84,20 @@ class IntentResolver:
         self._category_index = {}
 
         for intent_label, meta in self._intents.items():
-            # Keyword index
+            # Keyword index — store CLEANED (stemmed) keyword tokens so they
+            # match the stemmed query tokens produced by text_cleaner.
             for kw in meta.get("keywords", []):
-                kw_lower = kw.lower()
-                if kw_lower not in self._keyword_index:
-                    self._keyword_index[kw_lower] = []
-                self._keyword_index[kw_lower].append(intent_label)
+                # Clean each word of a multi-word keyword individually so that
+                # "lexical scope" → ["lexic", "scope"] rather than one phrase.
+                for word in kw.lower().split():
+                    stemmed = _clean_kw(word)   # returns stemmed token string
+                    if not stemmed:
+                        continue
+                    kw_lower = stemmed   # use stemmed form as the index key
+                    if kw_lower not in self._keyword_index:
+                        self._keyword_index[kw_lower] = []
+                    if intent_label not in self._keyword_index[kw_lower]:
+                        self._keyword_index[kw_lower].append(intent_label)
 
             # Category index
             category = meta.get("category", "Uncategorized")
@@ -132,30 +148,68 @@ class IntentResolver:
                 expanded.add(canonical)
         return expanded
 
+    def _load_kb_index(self):
+        """Load the knowledge_base registry index."""
+        kb_index_path = os.path.join(_BASE_DIR, "knowledge_base", "index.json")
+        if os.path.exists(kb_index_path):
+            with open(kb_index_path, "r", encoding="utf-8") as f:
+                self._kb_index = json.load(f)
 
 
-    def resolve(self, intent_label: str) -> dict:
+
+    def load_knowledge_base(self, intent_label: str, default_response: str, default_route: str):
+        kb_response = default_response
+        route = default_route
+        code_example = None
+        defaults = {}
+        
+        if intent_label in self._kb_index:
+            kb_path = os.path.join(_BASE_DIR, "knowledge_base", self._kb_index[intent_label])
+            if os.path.exists(kb_path):
+                with open(kb_path, "r", encoding="utf-8") as f:
+                    kb_data = json.load(f)
+                    # Support response_template or fallback to response
+                    kb_response = kb_data.get("response_template", kb_data.get("response", kb_response))
+                    route = kb_data.get("route", route)
+                    code_example = kb_data.get("code_example")
+                    defaults = kb_data.get("defaults", {})
+                    
+        return kb_response, route, code_example, defaults
+
+    def resolve(self, intent_label: str, runtime_context: dict = None) -> dict:
         """
-        Resolve a predicted intent label to its full metadata.
-
-        Args:
-            intent_label: e.g. "platform.session.join"
-
-        Returns:
-            Dict with keys: intent, response, route, category,
-            keywords, admin_notes.  Returns fallback if unknown.
+        Resolve a predicted intent label to its full metadata, rendering dynamic templates.
         """
         if intent_label in self._intents:
             meta = self._intents[intent_label]
-            return {
+            
+            # 1. Load Knowledge Base
+            template, route, code_example, kb_defaults = self.load_knowledge_base(
+                intent_label,
+                meta.get("response", ""),
+                meta.get("route", "")
+            )
+            
+            # 2. Build Context
+            context = self.context_provider.get_context(intent_label, runtime_context, kb_defaults)
+            
+            # 3. Render Template
+            final_response = self.context_engine.fill(template, context)
+
+            result = {
                 "intent":      intent_label,
-                "response":    meta.get("response", ""),
-                "route":       meta.get("route", ""),
+                "response":    final_response,
+                "response_template": template,
+                "context":     context,
+                "route":       route,
                 "category":    meta.get("category", ""),
                 "keywords":    meta.get("keywords", []),
                 "admin_notes": meta.get("admin_notes", ""),
                 "resolved":    True,
             }
+            if code_example is not None:
+                result["code_example"] = code_example
+            return result
 
         return self._fallback_response(intent_label)
 
@@ -182,12 +236,11 @@ class IntentResolver:
         Keyword-based semantic boosting.  When ML confidence is low,
         use this to find intents whose keywords overlap with the query.
 
-        Uses TF-IDF-style scoring: a keyword that appears in fewer
-        intents gets a higher weight (IDF), and exact matches score
-        higher than partial ones.
+        Uses IDF-style scoring: a keyword token that appears in fewer
+        intents gets a higher weight (rarer = more discriminative).
 
         Args:
-            query:  cleaned user input string
+            query:  cleaned user input string (already stemmed)
             top_k:  number of top matching intents to return
 
         Returns:
@@ -195,26 +248,23 @@ class IntentResolver:
         """
         query_tokens = set(query.lower().split())
 
-        # ── Synonym expansion ────────────────────────────────────────────
+        # Synonym expansion
         query_tokens = self._expand_tokens(query_tokens)
-        # ─────────────────────────────────────────────────────────────────
 
         scores = Counter()
-
         total_intents = len(self._intents)
 
         for token in query_tokens:
-            for kw, intent_list in self._keyword_index.items():
-                kw_tokens = set(kw.split())
-                # Exact match or token is one of the keyword words
-                if token == kw or token in kw_tokens:
-                    # IDF weight: rarer keywords count more
-                    idf = math.log(total_intents / (1 + len(intent_list)))
-                    weight = 1.0 if token == kw else 0.5  # exact vs partial
-                    for intent_label in intent_list:
-                        scores[intent_label] += weight * idf
+            # Direct lookup — keyword index keys are already stemmed tokens
+            intent_list = self._keyword_index.get(token, [])
+            if intent_list:
+                # IDF weight: rarer keywords count more
+                idf = math.log(total_intents / (1 + len(intent_list)))
+                for intent_label in intent_list:
+                    scores[intent_label] += idf
 
         return scores.most_common(top_k)
+
 
     # ── Accessors ─────────────────────────────────────────────────────────
 

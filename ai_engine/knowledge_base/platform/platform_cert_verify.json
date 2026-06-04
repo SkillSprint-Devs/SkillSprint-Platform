@@ -1,0 +1,6 @@
+{
+  "intent": "platform.cert.verify",
+  "title": "Certificates & Badges",
+  "response": "Each certificate has a unique verification ID. Share the public verification URL with employers or institutions \u2014 they can verify authenticity without needing a platform account.",
+  "route": "CERTIFICATES"
+}

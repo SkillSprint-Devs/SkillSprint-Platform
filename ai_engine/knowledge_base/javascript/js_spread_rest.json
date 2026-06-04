@@ -1,0 +1,7 @@
+{
+  "intent": "js.spread_rest",
+  "title": "JavaScript Concepts",
+  "response": "The spread (...) and rest (...) operators share the same syntax but serve opposite purposes.\n\nSpread \u2014 expands an iterable (array, object, string) into individual elements:\n\u2022 Copy arrays/objects\n\u2022 Merge arrays/objects\n\u2022 Pass array elements as function arguments\n\nRest \u2014 collects remaining elements into an array:\n\u2022 In function parameters: gather extra arguments\n\u2022 In destructuring: gather remaining items\n\nNote: both are shallow \u2014 nested objects/arrays are still references.",
+  "route": "QUIZZES",
+  "code_example": "// Spread \u2014 array copy & merge\nconst a = [1, 2, 3];\nconst b = [4, 5];\nconst merged = [...a, ...b]; // [1, 2, 3, 4, 5]\n\n// Spread \u2014 object copy & merge\nconst defaults = { theme: 'dark', lang: 'en' };\nconst user = { ...defaults, lang: 'fr', name: 'Alice' };\n// { theme: 'dark', lang: 'fr', name: 'Alice' }\n\n// Spread \u2014 pass array as arguments\nconst nums = [3, 1, 4, 1, 5];\nconsole.log(Math.max(...nums)); // 5\n\n// Rest \u2014 collect extra function arguments\nfunction sum(first, ...rest) {\n  return first + rest.reduce((a, b) => a + b, 0);\n}\nconsole.log(sum(1, 2, 3, 4)); // 10\n\n// Rest \u2014 in destructuring\nconst [head, ...tail] = [10, 20, 30, 40];\nconsole.log(head); // 10\nconsole.log(tail); // [20, 30, 40]"
+}

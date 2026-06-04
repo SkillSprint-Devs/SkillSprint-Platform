@@ -1,0 +1,7 @@
+{
+  "intent": "js.destructuring",
+  "title": "JavaScript Concepts",
+  "response": "Destructuring lets you extract values from arrays or objects into distinct variables using a matching pattern on the left side of the assignment.\n\nObject destructuring:\n\u2022 Extract named properties, with optional renaming and default values.\n\nArray destructuring:\n\u2022 Extract elements by position, with optional skipping and defaults.\n\nUse cases:\n\u2022 Cleaner function parameter handling.\n\u2022 Swapping variables.\n\u2022 Extracting from API responses.\n\u2022 Importing specific exports.",
+  "route": "QUIZZES",
+  "code_example": "// Object destructuring\nconst user = { name: 'Alice', age: 30, role: 'admin' };\nconst { name, role, city = 'Unknown' } = user;\nconsole.log(name, role, city); // 'Alice' 'admin' 'Unknown'\n\n// Rename while destructuring\nconst { name: username } = user;\nconsole.log(username); // 'Alice'\n\n// Array destructuring\nconst coords = [10, 20, 30];\nconst [x, y, z] = coords;\nconsole.log(x, y, z); // 10 20 30\n\n// Skip elements\nconst [,, third] = [1, 2, 3];\nconsole.log(third); // 3\n\n// Swap variables\nlet a = 1, b = 2;\n[a, b] = [b, a];\nconsole.log(a, b); // 2 1\n\n// Function parameter destructuring\nfunction greet({ name, role = 'user' }) {\n  return `Hello ${name}, you are a ${role}`;\n}\ngreet({ name: 'Bob' }); // 'Hello Bob, you are a user'"
+}

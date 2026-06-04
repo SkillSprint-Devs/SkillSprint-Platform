@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_reject_match",
+  "title": "New Features",
+  "response": "Placeholder response for: can i reject a match",
+  "route": "NONE"
+}

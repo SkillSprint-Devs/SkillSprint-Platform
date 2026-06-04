@@ -1,0 +1,6 @@
+{
+  "intent": "platform.pair_prog.share_link",
+  "title": "Pair Programming",
+  "response": "To share your workspace, click 'Share Link' in the toolbar to generate a unique URL or join token. Anyone with the link can join as a Navigator by default.",
+  "route": "PAIR_PROGRAMMING"
+}

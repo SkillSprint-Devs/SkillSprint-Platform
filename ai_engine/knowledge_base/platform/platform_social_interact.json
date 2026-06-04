@@ -1,0 +1,6 @@
+{
+  "intent": "platform.social.interact",
+  "title": "Social Network",
+  "response": "You can like, comment, and reply to posts on the Social Feed. Click the heart icon to like, or click 'Comment' to start a conversation thread under any post.",
+  "route": "SOCIAL"
+}

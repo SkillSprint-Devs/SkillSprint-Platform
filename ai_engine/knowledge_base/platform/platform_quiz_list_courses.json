@@ -1,0 +1,6 @@
+{
+  "intent": "platform.quiz.list_courses",
+  "title": "Quiz System",
+  "response": "View all available courses and quizzes from the Quizzes page. Courses include JavaScript, Python, HTML/CSS, Node.js, React, MongoDB, and more. Your progress is tracked per course.",
+  "route": "QUIZZES"
+}

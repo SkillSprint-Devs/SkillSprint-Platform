@@ -1,0 +1,7 @@
+{
+  "intent": "js.arrow_functions",
+  "title": "JavaScript Concepts",
+  "response": "Arrow functions (=>) are a shorter syntax for writing functions, introduced in ES6. Key differences from regular functions:\n\n1. Concise syntax \u2014 single-expression body can omit braces and return.\n2. No own this \u2014 they inherit this from the surrounding lexical scope. This is the most important behavioural difference.\n3. No arguments object \u2014 use rest parameters instead.\n4. Cannot be used as constructors \u2014 no new keyword.\n5. No prototype property.\n\nUse arrow functions for callbacks and short helpers. Use regular functions when you need their own this (e.g., object methods, constructors).",
+  "route": "QUIZZES",
+  "code_example": "// Regular function \u2014 has its own 'this'\nfunction Timer() {\n  this.seconds = 0;\n  setInterval(function() {\n    this.seconds++; // \u274c 'this' is undefined in strict / window in sloppy\n    console.log(this.seconds);\n  }, 1000);\n}\n\n// Arrow function \u2014 inherits 'this' from Timer\nfunction TimerFixed() {\n  this.seconds = 0;\n  setInterval(() => {\n    this.seconds++; // \u2705 'this' is TimerFixed instance\n    console.log(this.seconds);\n  }, 1000);\n}\n\n// Concise single-expression body\nconst double = n => n * 2;\nconst add    = (a, b) => a + b;\nconst getObj = () => ({ key: 'value' }); // wrap object in ()"
+}

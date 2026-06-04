@@ -1,0 +1,6 @@
+{
+  "intent": "platform.ai.saved_queries",
+  "title": "AI Mentor",
+  "response": "You can click the 'Bookmark' icon on any response to save it. Saved queries appear in the 'Saved' tab of the AI workspace for quick reference later.",
+  "route": "NONE"
+}

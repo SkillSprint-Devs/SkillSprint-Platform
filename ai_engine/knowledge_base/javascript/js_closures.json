@@ -1,0 +1,13 @@
+{
+  "intent": "js.closures",
+  "title": "JavaScript Concepts",
+  "response_template": "A closure is a function that retains access to variables from its outer (enclosing) lexical scope, even after that outer function has finished executing.\n\nEvery function in JavaScript forms a closure over the variables in its surrounding scope.\n\nWhy closures matter:\n• Data privacy — variables in the outer scope can't be accessed from outside, only through the returned inner function.\n• State persistence — the inner function remembers values between calls.\n• Factory functions and module patterns.\n\nClosures are not a special syntax — they are a consequence of how lexical scoping works.\n\nHere is an example for you, {username}:",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "QUIZZES",
+  "code_example": "// Counter using a closure\nfunction makeCounter(start = 0) {\n  let count = start; // private variable\n  return {\n    increment() { return ++count; },\n    decrement() { return --count; },\n    value()     { return count; }\n  };\n}\n\nconst counter = makeCounter(10);\nconsole.log(counter.increment()); // 11\nconsole.log(counter.increment()); // 12\nconsole.log(counter.decrement()); // 11\n// count is inaccessible from outside \u2014 only via counter methods\n\n// Classic loop closure bug (var) and fix (let)\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); // 3 3 3 (bug)\n}\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); // 0 1 2 (correct)\n}"
+}

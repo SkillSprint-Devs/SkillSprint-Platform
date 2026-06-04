@@ -1,0 +1,6 @@
+{
+  "intent": "platform.library.search",
+  "title": "Resource Library",
+  "response": "Use the search bar on the Library page to find resources by name, type, or category. You can also filter by file type (PDF, video, slides) and sort by date or popularity.",
+  "route": "LIBRARY"
+}

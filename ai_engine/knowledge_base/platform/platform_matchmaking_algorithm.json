@@ -1,0 +1,6 @@
+{
+  "intent": "platform.matchmaking.algorithm",
+  "title": "Matchmaking",
+  "response": "Our matchmaking uses a KNN (K-Nearest Neighbors) algorithm with cosine similarity to compare your skill vector against other users. Scores factor in: shared languages, experience level, timezone overlap, and learning goals.",
+  "route": "MATCHMAKING"
+}

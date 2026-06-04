@@ -1,0 +1,7 @@
+{
+  "intent": "js.json",
+  "title": "JavaScript Concepts",
+  "response": "JSON (JavaScript Object Notation) is a lightweight text format for data exchange. It's a string, not a JS object \u2014 but it looks very similar.\n\nKey operations:\n\u2022 JSON.stringify(obj, replacer, space) \u2014 converts a JS value to a JSON string.\n\u2022 JSON.parse(str, reviver) \u2014 converts a JSON string back to a JS value.\n\nJSON rules (stricter than JS):\n\u2022 Keys must be double-quoted strings.\n\u2022 No comments, no trailing commas, no undefined, no functions.\n\u2022 Values: string, number, boolean, null, array, object.\n\nDeep clone trick: JSON.parse(JSON.stringify(obj)) \u2014 quick but loses functions, dates, undefined, and circular references.",
+  "route": "QUIZZES",
+  "code_example": "// Stringify \u2014 JS object to JSON string\nconst user = { name: 'Alice', age: 30, scores: [95, 88] };\nconst json = JSON.stringify(user);\nconsole.log(json); // '{\"name\":\"Alice\",\"age\":30,\"scores\":[95,88]}'\n\n// Pretty print (indented)\nconsole.log(JSON.stringify(user, null, 2));\n\n// Parse \u2014 JSON string to JS object\nconst parsed = JSON.parse(json);\nconsole.log(parsed.name); // 'Alice'\n\n// Handle parse errors\ntry {\n  JSON.parse(\"{ invalid json }\");\n} catch (e) {\n  console.error('Invalid JSON:', e.message);\n}\n\n// Deep clone (simple objects only)\nconst original = { a: 1, nested: { b: 2 } };\nconst clone = JSON.parse(JSON.stringify(original));\nclone.nested.b = 99;\nconsole.log(original.nested.b); // 2 \u2014 not affected"
+}

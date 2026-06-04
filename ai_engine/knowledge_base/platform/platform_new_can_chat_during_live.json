@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_chat_during_live",
+  "title": "New Features",
+  "response": "Placeholder response for: can i chat during a live session",
+  "route": "NONE"
+}

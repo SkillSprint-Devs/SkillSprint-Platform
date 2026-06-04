@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_sort_tasks_priority",
+  "title": "New Features",
+  "response": "Placeholder response for: can i sort tasks by priority",
+  "route": "NONE"
+}

@@ -1,0 +1,7 @@
+{
+  "intent": "js.hoisting",
+  "title": "JavaScript Concepts",
+  "response": "Hoisting is JavaScript's behaviour of moving declarations to the top of their scope before code executes (conceptually \u2014 the engine does this during the compilation phase).\n\n\u2022 Function declarations are fully hoisted \u2014 you can call them before they appear in the file.\n\u2022 var declarations are hoisted but initialised to undefined \u2014 you can reference them before declaration but get undefined.\n\u2022 let and const are hoisted but NOT initialised \u2014 accessing them before declaration throws a ReferenceError. This gap is called the Temporal Dead Zone (TDZ).\n\u2022 Function expressions (const fn = function(){}) follow the rules of their keyword (let/const), so they are NOT callable before the line of assignment.",
+  "route": "QUIZZES",
+  "code_example": "// Function declaration \u2014 fully hoisted\nconsole.log(add(2, 3)); // \u2705 5 \u2014 works before definition\nfunction add(a, b) { return a + b; }\n\n// var \u2014 hoisted as undefined\nconsole.log(x); // undefined (not ReferenceError)\nvar x = 10;\n\n// let \u2014 Temporal Dead Zone\n// console.log(y); // \u274c ReferenceError\nlet y = 20;\n\n// Function expression \u2014 not hoisted\n// console.log(multiply(2, 3)); // \u274c TypeError: multiply is not a function\nconst multiply = (a, b) => a * b;"
+}

@@ -1,0 +1,6 @@
+{
+  "intent": "platform.ai.feedback",
+  "title": "AI Mentor",
+  "response": "If I give you an incorrect answer, you can click the thumbs down icon to log a failed query. Our team reviews these to improve my accuracy over time.",
+  "route": "NONE"
+}

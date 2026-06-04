@@ -1,0 +1,6 @@
+{
+  "intent": "platform.wallet.clear",
+  "title": "Wallet",
+  "response": "To clear your transaction history, go to the Wallet page and click 'Clear History'. This removes the visual log but does not affect your actual credit balance.",
+  "route": "WALLET"
+}

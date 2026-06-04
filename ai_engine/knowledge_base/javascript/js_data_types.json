@@ -1,0 +1,7 @@
+{
+  "intent": "js.data_types",
+  "title": "JavaScript Concepts",
+  "response": "JavaScript has 8 data types, split into two groups:\n\nPrimitive (immutable, stored by value):\n\u2022 string \u2014 text: 'hello'\n\u2022 number \u2014 integers and floats: 42, 3.14\n\u2022 bigint \u2014 very large integers: 9007199254740991n\n\u2022 boolean \u2014 true or false\n\u2022 undefined \u2014 variable declared but not assigned\n\u2022 null \u2014 intentional absence of a value\n\u2022 symbol \u2014 unique, immutable identifier\n\nReference (stored by reference):\n\u2022 object \u2014 includes arrays, functions, dates, maps, etc.\n\nUse typeof to check a value's type at runtime.",
+  "route": "QUIZZES",
+  "code_example": "console.log(typeof 'hello');        // 'string'\nconsole.log(typeof 42);             // 'number'\nconsole.log(typeof true);           // 'boolean'\nconsole.log(typeof undefined);      // 'undefined'\nconsole.log(typeof null);           // 'object' \u2190 JS quirk!\nconsole.log(typeof Symbol());       // 'symbol'\nconsole.log(typeof {});             // 'object'\nconsole.log(typeof []);             // 'object' (arrays are objects)\nconsole.log(typeof function(){}); // 'function'"
+}

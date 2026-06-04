@@ -1,0 +1,7 @@
+{
+  "intent": "js.type_coercion",
+  "title": "JavaScript Concepts",
+  "response": "Type coercion is JavaScript's automatic (or explicit) conversion of values from one type to another.\n\nImplicit coercion (JS decides) \u2014 dangerous if unaware:\n\u2022 + with a string converts the other operand to string\n\u2022 ==  (loose equality) coerces before comparing\n\u2022 Truthy/falsy rules govern if, &&, ||, !\n\nExplicit coercion (you decide) \u2014 safe and clear:\n\u2022 Number(), parseInt(), parseFloat() \u2014 to number\n\u2022 String() or .toString() \u2014 to string\n\u2022 Boolean() \u2014 to boolean\n\nAlways prefer === (strict equality) to avoid coercion surprises.",
+  "route": "QUIZZES",
+  "code_example": "// Implicit \u2014 surprising results\nconsole.log(1 + '2');      // '12'  (number \u2192 string)\nconsole.log('5' - 2);      // 3     (string \u2192 number)\nconsole.log('' == false);  // true  (loose equality)\nconsole.log(0 == false);   // true\n\n// Explicit \u2014 predictable\nconsole.log(Number('42')); // 42\nconsole.log(String(99));   // '99'\nconsole.log(Boolean(0));   // false\nconsole.log(Boolean(''));  // false\n\n// Always use strict equality\nconsole.log(1 === '1');    // false \u2705"
+}

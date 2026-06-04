@@ -1,0 +1,6 @@
+{
+  "intent": "platform.task.create",
+  "title": "Task Management",
+  "response": "To create a new task, go to the Tasks page and click 'Add Task'. Set a title, priority level (Low, Medium, High), due date, and optional description. Tasks appear on your calendar view.",
+  "route": "TASKS"
+}

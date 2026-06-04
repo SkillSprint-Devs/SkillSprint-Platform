@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "id": "fq_c6632818",
+    "query": "explain closures in js",
+    "predicted_intent": "js.closures",
+    "assigned_intent": "",
+    "confidence": 0.4312,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-03T21:44:28.206035Z"
+  },
+  {
+    "id": "fq_7d79ad92",
+    "query": "explain closures in js",
+    "predicted_intent": "js.closures",
+    "assigned_intent": "",
+    "confidence": 0.4312,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-03T21:45:11.606377Z"
+  },
+  {
+    "id": "fq_caa953f6",
+    "query": "explain closures in js",
+    "predicted_intent": "js.closures",
+    "assigned_intent": "",
+    "confidence": 0.4312,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-03T21:47:22.676283Z"
+  },
+  {
+    "id": "fq_d21b023a",
+    "query": "tell me about closures",
+    "predicted_intent": "js.closures",
+    "assigned_intent": "",
+    "confidence": 0.4366,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-03T21:47:22.987635Z"
+  },
+  {
+    "id": "fq_5081d473",
+    "query": "js closures",
+    "predicted_intent": "js.closures",
+    "assigned_intent": "",
+    "confidence": 0.4237,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-03T21:47:23.314125Z"
+  },
+  {
+    "id": "fq_62d2b6a2",
+    "query": "platform description",
+    "predicted_intent": "platform.new.what_skillsprint",
+    "assigned_intent": "",
+    "confidence": 0.5351,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-04T17:37:48.027331Z"
+  }
+]

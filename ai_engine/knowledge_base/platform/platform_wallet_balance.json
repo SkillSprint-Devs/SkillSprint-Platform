@@ -1,0 +1,6 @@
+{
+  "intent": "platform.wallet.balance",
+  "title": "Wallet",
+  "response": "You can view your remaining credits and transaction history from the Wallet Dashboard. Your balance shows available tokens, weekly limit, and recent transactions.",
+  "route": "WALLET"
+}

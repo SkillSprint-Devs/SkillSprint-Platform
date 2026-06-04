@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.what_join_live_session",
+  "title": "New Features",
+  "response": "Placeholder response for: what if i join a live session late",
+  "route": "NONE"
+}

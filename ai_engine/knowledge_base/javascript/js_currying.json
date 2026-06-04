@@ -1,0 +1,7 @@
+{
+  "intent": "js.currying",
+  "title": "JavaScript Concepts",
+  "response": "Currying is a technique of transforming a function that takes multiple arguments into a sequence of functions that each take one argument.\n\nf(a, b, c) \u2192 f(a)(b)(c)\n\nWhy it's useful:\n\u2022 Partial application \u2014 pre-fill some arguments to create specialised functions.\n\u2022 Function composition \u2014 chain small, single-argument functions.\n\u2022 Reusability \u2014 create configurable utility functions.\n\nCurrying doesn't call the function; it transforms how it is called. Partial application calls the function with some arguments fixed.",
+  "route": "QUIZZES",
+  "code_example": "// Manual currying\nfunction add(a) {\n  return function(b) {\n    return a + b;\n  };\n}\nconst add5 = add(5); // partial application\nconsole.log(add5(3)); // 8\nconsole.log(add5(10)); // 15\n\n// Arrow function style \u2014 more concise\nconst multiply = a => b => a * b;\nconst double = multiply(2);\nconsole.log(double(7)); // 14\n\n// Practical: configurable greeter\nconst greet = greeting => name => `${greeting}, ${name}!`;\nconst sayHello = greet('Hello');\nconst sayHi    = greet('Hi');\nconsole.log(sayHello('Alice')); // 'Hello, Alice!'\nconsole.log(sayHi('Bob'));      // 'Hi, Bob!'\n\n// Generic curry utility\nfunction curry(fn) {\n  return function curried(...args) {\n    if (args.length >= fn.length) return fn(...args);\n    return (...more) => curried(...args, ...more);\n  };\n}"
+}

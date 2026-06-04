@@ -1,0 +1,6 @@
+{
+  "intent": "platform.cert.view",
+  "title": "Certificates & Badges",
+  "response": "To view or download your certificate, go to the Certificates page and click on any earned certificate. You can download it as a PDF or share a public verification link.",
+  "route": "CERTIFICATES"
+}

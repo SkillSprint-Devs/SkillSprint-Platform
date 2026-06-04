@@ -1,0 +1,6 @@
+{
+  "intent": "platform.matchmaking.feed",
+  "title": "Matchmaking",
+  "response": "The Collaboration Feed shows project requests and open collaboration offers from the community. You can browse, post your own stack, or accept invitations directly from the feed.",
+  "route": "MATCHMAKING"
+}

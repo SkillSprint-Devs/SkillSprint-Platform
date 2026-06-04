@@ -1,0 +1,6 @@
+{
+  "intent": "platform.cert.list_badges",
+  "title": "Certificates & Badges",
+  "response": "View your earned badges and achievements on the Certificates page. Badge tiers include Bronze, Silver, Gold, and Platinum, awarded based on milestones like course completions, streaks, and collaboration hours.",
+  "route": "CERTIFICATES"
+}

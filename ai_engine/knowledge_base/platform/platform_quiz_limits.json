@@ -1,0 +1,6 @@
+{
+  "intent": "platform.quiz.limits",
+  "title": "Quiz System",
+  "response": "You have 3 quiz attempts per course per day. Attempts reset at midnight (UTC). If you've reached the limit, you'll need to wait until the next day to retry.",
+  "route": "QUIZZES"
+}

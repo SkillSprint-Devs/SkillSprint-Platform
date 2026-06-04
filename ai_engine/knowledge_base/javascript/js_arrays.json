@@ -1,0 +1,7 @@
+{
+  "intent": "js.arrays",
+  "title": "JavaScript Concepts",
+  "response": "Arrays store ordered lists of values. JavaScript arrays are dynamic, can hold mixed types, and have a rich set of built-in methods.\n\nMust-know array methods:\n\u2022 map(fn) \u2014 transforms every element, returns new array.\n\u2022 filter(fn) \u2014 keeps elements where fn returns true.\n\u2022 reduce(fn, init) \u2014 accumulates a single value.\n\u2022 forEach(fn) \u2014 iterates, no return value.\n\u2022 find(fn) \u2014 returns first matching element.\n\u2022 findIndex(fn) \u2014 returns index of first match.\n\u2022 some(fn) \u2014 true if at least one element matches.\n\u2022 every(fn) \u2014 true if all elements match.\n\u2022 flat(depth) \u2014 flattens nested arrays.\n\u2022 flatMap(fn) \u2014 map then flatten one level.\n\u2022 includes(val) \u2014 checks if value exists.\n\u2022 splice / slice \u2014 mutate / copy portions.\n\u2022 sort(fn) \u2014 sorts in place (mutates!).",
+  "route": "QUIZZES",
+  "code_example": "const nums = [1, 2, 3, 4, 5];\n\n// map \u2014 double each\nconst doubled = nums.map(n => n * 2); // [2, 4, 6, 8, 10]\n\n// filter \u2014 keep evens\nconst evens = nums.filter(n => n % 2 === 0); // [2, 4]\n\n// reduce \u2014 sum\nconst sum = nums.reduce((acc, n) => acc + n, 0); // 15\n\n// find\nconst firstBig = nums.find(n => n > 3); // 4\n\n// chaining\nconst result = [1, 2, 3, 4, 5]\n  .filter(n => n % 2 !== 0) // [1, 3, 5]\n  .map(n => n * 10);         // [10, 30, 50]\nconsole.log(result);"
+}

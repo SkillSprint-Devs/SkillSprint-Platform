@@ -1,0 +1,6 @@
+{
+  "intent": "platform.quiz.start",
+  "title": "Quiz System",
+  "response": "To start a quiz, select a course from the Quizzes page and click 'Start Quiz'. Each quiz has a time limit and your progress auto-saves as you answer.",
+  "route": "QUIZZES"
+}

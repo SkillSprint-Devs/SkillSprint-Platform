@@ -1,5 +1,4 @@
 import express from "express";
-import fetch from "node-fetch"; // Node 18 has native fetch, but we can use the global fetch
 import rateLimit from "express-rate-limit";
 
 const router = express.Router();

@@ -1,0 +1,7 @@
+{
+  "intent": "js.objects",
+  "title": "JavaScript Concepts",
+  "response": "Objects are collections of key-value pairs (properties). They are the foundation of JavaScript.\n\nKey object operations:\n\u2022 Object literal \u2014 simplest way to create: { key: value }\n\u2022 Property access \u2014 dot notation (obj.key) or bracket notation (obj['key'])\n\u2022 Computed property names \u2014 dynamic keys in literals\n\u2022 Shorthand properties and methods (ES6)\n\u2022 Object.keys() / Object.values() / Object.entries() \u2014 iterate over properties\n\u2022 Object.assign() \u2014 shallow merge\n\u2022 Spread operator {...obj} \u2014 shallow copy / merge\n\u2022 Object.freeze() \u2014 prevent modifications\n\u2022 Optional chaining (?.) \u2014 safe deep access",
+  "route": "QUIZZES",
+  "code_example": "// Object literal with shorthand method\nconst name = 'Alice';\nconst age = 30;\nconst user = { name, age, greet() { return `Hi, ${this.name}`; } };\n\n// Property access\nconsole.log(user.name);      // 'Alice'\nconsole.log(user['age']);    // 30\n\n// Iteration\nconsole.log(Object.keys(user));    // ['name', 'age', 'greet']\nconsole.log(Object.values(user));  // ['Alice', 30, [Function]]\nconsole.log(Object.entries(user)); // [['name','Alice'], ...]\n\n// Shallow copy with spread\nconst updated = { ...user, age: 31 };\n\n// Optional chaining \u2014 safe deep access\nconst city = user?.address?.city; // undefined (no error)"
+}

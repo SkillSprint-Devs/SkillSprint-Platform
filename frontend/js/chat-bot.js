@@ -587,7 +587,7 @@ function renderRecentChats(container) {
             <div class="rci-query">${escHtml(r.query)}</div>
             <div class="rci-meta">${timeStr}</div>
           </div>
-          <span class="rci-intent-tag">${mockClassify(r.query)}</span>
+          <span class="rci-intent-tag">${escHtml(r.response ? r.response.intent : 'unknown')}</span>
           <button class="rci-delete-btn" data-index="${i}" title="Delete chat">
             <i class="fa-solid fa-trash-can"></i>
           </button>

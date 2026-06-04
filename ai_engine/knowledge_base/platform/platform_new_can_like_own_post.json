@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_like_own_post",
+  "title": "New Features",
+  "response": "Placeholder response for: can i like my own post",
+  "route": "NONE"
+}

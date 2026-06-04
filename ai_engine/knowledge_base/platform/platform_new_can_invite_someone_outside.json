@@ -1,0 +1,6 @@
+{
+  "intent": "platform.new.can_invite_someone_outside",
+  "title": "New Features",
+  "response": "Placeholder response for: can i invite someone outside skillsprint to pair program",
+  "route": "NONE"
+}
