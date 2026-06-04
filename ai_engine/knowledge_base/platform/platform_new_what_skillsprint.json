@@ -1,6 +1,9 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_skillsprint",
-  "title": "New Features",
-  "response": "Placeholder response for: what is skillsprint",
+  "title": "About SkillSprint",
+  "response_template": "SkillSprint is a collaborative developer learning platform where students and mentors connect to learn, build, and grow together.\n\nKey features include:\n• Live coding sessions with real-time video and code collaboration\n• Pair programming workspace with an integrated code editor and executor\n• AI Mentor assistant (that's me!) for JavaScript and platform help\n• Interactive quizzes to test and earn certificates\n• Shared library for uploading and discovering resources\n• Matchmaking to find the right learning partner\n• Wallet system to manage session credits\n\nSkillSprint is built for developers who learn best by doing — together.",
+  "context_schema": {},
+  "defaults": {},
   "route": "NONE"
 }

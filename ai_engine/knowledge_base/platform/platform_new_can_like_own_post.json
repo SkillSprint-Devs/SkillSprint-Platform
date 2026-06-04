@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_like_own_post",
-  "title": "New Features",
-  "response": "Placeholder response for: can i like my own post",
-  "route": "NONE"
+  "title": "Social Feed",
+  "response_template": "No, {username}, the platform does not allow you to like your own posts on the Social Feed. This ensures that engagement metrics and likes are based entirely on community interactions.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "SOCIAL"
 }

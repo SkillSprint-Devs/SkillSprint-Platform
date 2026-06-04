@@ -38,4 +38,13 @@ class ContextProvider:
 
         # Priority: Runtime > Intent > KB Defaults
         merged = {**kb_defaults, **base, **intent_context, **(runtime_context or {})}
+
+        # Resolve address placeholder dynamically
+        username = merged.get("username")
+        if username:
+            merged["address"] = username
+        else:
+            merged["address"] = merged.get("address") or "Friend"
+
         return merged
+

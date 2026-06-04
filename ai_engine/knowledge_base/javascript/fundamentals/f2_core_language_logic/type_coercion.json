@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.type_coercion",
+  "topic": "Type Coercion",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.data_types"],
+    "related_to": ["js.operators"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is type coercion",
+      "what is type coercion in javascript",
+      "what is implicit and explicit coercion"
+    ],
+    "why": [
+      "why js converts types automatically",
+      "why does 1 plus 2 equal 12 in javascript",
+      "why 5 minus 1 equals 4 but 5 plus 1 equals 51"
+    ],
+    "how": [
+      "how to convert string to number in javascript",
+      "how js handles coercion internally"
+    ],
+    "compare": [
+      "implicit vs explicit coercion",
+      "== vs === coercion difference"
+    ],
+    "output": [
+      "what is output of 5 - 1",
+      "what is output of 5 + 1",
+      "why empty string is falsy"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Type coercion is JavaScript's automatic or explicit conversion of values from one data type to another (e.g., converting a string to a number). Implicit coercion is done automatically by JS, while explicit coercion is done programmatically by the developer.",
+    "analogy": "Explicit coercion is like exchanging currency at a bank booth: you consciously hand over dollars to get euros. Implicit coercion is like a vending machine in an airport that accepts multiple currencies and silently converts your dollars to euros to make the transaction work without asking."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When evaluating operators, the engine uses abstract operations like 'ToPrimitive', 'ToNumber', and 'ToString' to cast operands into comparable types. Addition (+) defaults to string concatenation if either operand is a string, whereas subtraction (-) triggers numeric conversion.",
+    "memory": "Coercion creates a temporary casted value in memory to execute the operation, leaving the original variables unchanged."
+  },
+  "3_real_world_example": {
+    "use_case": "Using explicit conversion to guarantee a form text input is treated as a clean number before calculating mathematical sums.",
+    "code": "const inputVal = '42';\n\n// Explicit conversion (safe and predictable)\nconst userAge = Number(inputVal);\nconst nextYearAge = userAge + 1; // 43 ✅\n\n// Implicit coercion (unsafe/surprising)\nconst lazyAge = inputVal + 1; // '421' ❌"
+  },
+  "4_common_confusion": {
+    "trap": "Implicit coercion rules around mathematical operations. The '+' operator acts as string concatenation if either side is a string. Other math operators (-, *, /) coerce strings to numbers.",
+    "fix": "Always use explicit conversion methods like 'Number()', 'parseInt()', or 'String()' instead of relying on implicit engine coercion."
+  },
+  "5_related_topics": [
+    "js.operators"
+  ],
+  "6_edge_case": {
+    "quirk": "Coercing empty arrays and objects leads to strange conversions: `[]` becomes empty string `''` which coerces to `0` or `false` in comparisons, whereas `{}` becomes `'[object Object]'`.",
+    "code": "console.log('5' - 1);  // 4 (subtraction coerces '5' to 5)\nconsole.log('5' + 1);  // '51' (addition concatenates string)\nconsole.log([] == false); // true ⚠️ (coerces to '' which coerces to false)\nconsole.log({} + []);  // '[object Object]'"
+  }
+}

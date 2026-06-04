@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.loops",
+  "topic": "Loops",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.conditionals"],
+    "related_to": ["js.scope_basic"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is a loop in javascript",
+      "loops in javascript explained",
+      "what is for loop"
+    ],
+    "why": [
+      "why use for of instead of for in",
+      "why do we need break in loops"
+    ],
+    "how": [
+      "how to loop through an array",
+      "how to loop through an object",
+      "how to use break and continue"
+    ],
+    "compare": [
+      "difference between for of and for in",
+      "while loop vs for loop",
+      "for vs while loop"
+    ],
+    "output": [
+      "why for in returns object keys",
+      "output of loops with let vs var"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Loops are programming structures used to repeat a block of code multiple times. JavaScript supports 'for', 'while', 'do-while', 'for...of' (for array values), and 'for...in' (for object properties) loops.",
+    "analogy": "Loops are like running laps on a track. The starting line tells you the count ('let i = 0'), the condition is checking if you have completed the required laps ('i < 5'), and the lap counter adds one each time you pass ('i++')."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Loops control execution pointers via jump instructions in bytecode. The condition is evaluated at each iteration. If it evaluates to false, the execution pointer jumps to the line directly following the loop block.",
+    "memory": "Declaring the iterator using 'let' inside a 'for' loop header allocates a fresh binding record for every single iteration, preserving closures correctly."
+  },
+  "3_real_world_example": {
+    "use_case": "Iterating over lists of student grades to compute averages, using 'for...of' to inspect array elements.",
+    "code": "const grades = [80, 95, 70];\nlet total = 0;\n\n// Iterate over values cleanly\nfor (const grade of grades) {\n  total += grade;\n}\nconsole.log(`Average: ${total / grades.length}`);"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing 'for...of' (iterates over the values of an array) with 'for...in' (iterates over keys/property names of an object).",
+    "fix": "Always use 'for...of' for arrays and iterable values. Use 'for...in' only when you need to inspect the key properties of an object."
+  },
+  "5_related_topics": [
+    "js.scope_basic"
+  ],
+  "6_edge_case": {
+    "quirk": "If you declare loop iterators using 'var' inside a loop header, the variable leaks out into the surrounding scope because 'var' ignores block boundaries. Furthermore, asynchronous functions inside the loop will reference the final state of the variable.",
+    "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); // Prints 3, 3, 3 (bug! due to var leak)\n}\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); // Prints 0, 1, 2 ✅ (correct block scope)\n}"
+  }
+}

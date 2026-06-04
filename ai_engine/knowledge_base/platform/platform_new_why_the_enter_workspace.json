@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.why_the_enter_workspace",
-  "title": "New Features",
-  "response": "Placeholder response for: why is the enter workspace button not working",
-  "route": "NONE"
+  "title": "Pair Programming",
+  "response_template": "If the 'Enter Workspace' button isn't working, {username}, ensure that the pair programming session is still active and hasn't expired. If you're joining via a share link, ask the host to send a new active join token.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "PAIR_PROGRAMMING"
 }

@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_tools_are_available",
-  "title": "New Features",
-  "response": "Placeholder response for: what tools are available during live sessions",
-  "route": "NONE"
+  "title": "Live Session Tools",
+  "response_template": "During live sessions, {username}, you have access to a rich suite of collaborative tools: high-definition audio/video calls, real-time screen sharing, an interactive chat panel, a collaborative whiteboard, and a shared code workspace.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIVE_SESSIONS"
 }

@@ -1,6 +1,17 @@
 {
+  "version": "1.0",
   "intent": "platform.wallet.balance",
   "title": "Wallet",
-  "response": "You can view your remaining credits and transaction history from the Wallet Dashboard. Your balance shows available tokens, weekly limit, and recent transactions.",
+  "response_template": "You can view your remaining credits and transaction history from the {page}. Your wallet status is currently {status}, {address}.",
+  "context_schema": {
+    "page": "string",
+    "status": "string",
+    "address": "string"
+  },
+  "defaults": {
+    "page": "Wallet Dashboard",
+    "status": "active",
+    "address": "Developer"
+  },
   "route": "WALLET"
 }

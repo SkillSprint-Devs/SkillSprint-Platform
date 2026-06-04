@@ -1,0 +1,61 @@
+{
+  "version": "1.1",
+  "intent": "js.conditionals",
+  "topic": "Conditionals",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.operators"],
+    "related_to": ["js.statements_expressions"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is conditional in javascript",
+      "what is if else in javascript",
+      "what is switch statement"
+    ],
+    "why": [
+      "why use switch instead of if else",
+      "why ternary operator is useful"
+    ],
+    "how": [
+      "how to write if else condition",
+      "how switch statement works"
+    ],
+    "compare": [
+      "if else vs switch",
+      "ternary vs if else"
+    ],
+    "output": [
+      "why switch falls through without break",
+      "evaluating ternary statements"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Conditionals are code constructs used to perform actions based on whether a specified condition evaluates to true or false. JavaScript supports 'if-else' statements, 'switch' statements, and the ternary operator.",
+    "analogy": "Conditionals are like road signs on a journey. If the sign says 'Road Closed' (condition is true), you take the detour path. If the sign says 'Road Open' (condition is false), you proceed down the main highway."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Conditionals redirect the runtime execution pointer by evaluating control expressions. 'if-else' resolves conditions sequentially. 'switch' statements compile into branch tables that optimize jumping directly to matching cases.",
+    "memory": "Branching execution limits scope records, allocating variables inside executed conditional blocks if let/const are used."
+  },
+  "3_real_world_example": {
+    "use_case": "Using if-else forks for dynamic access control, and switch statements to route actions in application state management.",
+    "code": "const role = 'admin';\n\n// switch router\nswitch (role) {\n  case 'admin':\n    console.log('Full access unlocked.');\n    break;\n  case 'user':\n    console.log('Restricted access.');\n    break;\n  default:\n    console.log('Access denied.');\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting to write 'break' inside switch cases, which causes execution to cascade and run the code of all subsequent cases (fall-through).",
+    "fix": "Ensure every case in a switch statement has a 'break' statement, unless you explicitly want to fall through to aggregate options."
+  },
+  "5_related_topics": [
+    "js.statements_expressions"
+  ],
+  "6_edge_case": {
+    "quirk": "Ternary operator evaluates expressions strictly. Unlike statement-based `if` forks, the ternary operator is an expression, meaning it directly yields a value that must be captured or used.",
+    "code": "const userScore = 85;\n// Returns value directly\nconst grade = userScore >= 70 ? 'Pass' : 'Fail'; \nconsole.log(grade); // 'Pass'"
+  }
+}

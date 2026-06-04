@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_should_the_shared",
-  "title": "New Features",
-  "response": "Placeholder response for: what should i do if the shared library is not loading",
-  "route": "NONE"
+  "title": "Shared Library Troubleshooting",
+  "response_template": "If the Shared Library is not loading, {username}, try reloading the page or clearing your browser cache. This could be due to a temporary network issue or a very large file loading. You can check the System Health page to verify server status.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIBRARY"
 }

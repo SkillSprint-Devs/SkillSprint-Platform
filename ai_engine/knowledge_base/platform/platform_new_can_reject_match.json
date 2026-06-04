@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_reject_match",
-  "title": "New Features",
-  "response": "Placeholder response for: can i reject a match",
-  "route": "NONE"
+  "title": "Matchmaking",
+  "response_template": "Yes, {username}, you have full control over your study partners. You can reject or decline any suggested match on the Matchmaking page, and our KNN recommendation algorithm will suggest alternative matches based on your updated preferences.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "MATCHMAKING"
 }

@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.how_delete_account",
-  "title": "New Features",
-  "response": "Placeholder response for: how do i delete my account",
-  "route": "NONE"
+  "title": "Account Settings",
+  "response_template": "To delete your account, {username}, go to the Settings page and select the 'Account' tab. Scroll to the bottom and click 'Delete Account'. Please note that this action is permanent and will delete all your badges, transaction logs, and profile data.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "SETTINGS"
 }

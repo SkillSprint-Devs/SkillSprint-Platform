@@ -1,0 +1,61 @@
+{
+  "version": "1.1",
+  "intent": "js.statements_expressions",
+  "topic": "Statements & Expressions",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.variables"],
+    "related_to": ["js.conditionals"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "difference between expression and statement",
+      "what is expression in javascript",
+      "what is return statement"
+    ],
+    "why": [
+      "why expressions return values",
+      "why some statements cannot be used as values"
+    ],
+    "how": [
+      "how to write an expression",
+      "is function a statement or expression"
+    ],
+    "compare": [
+      "statement vs expression",
+      "function declaration vs function expression"
+    ],
+    "output": [
+      "why block statements do not return values",
+      "evaluating expression outputs"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "An **Expression** is any unit of code that evaluates to a value (like a number, string, or boolean). A **Statement** is an instruction that performs an action (like declaring variables, creating loops, or conditional forks). Statements execute; expressions resolve.",
+    "analogy": "An expression is like a question: 'What is 5 + 3?' which answers with '8'. A statement is like a command: 'Go clean your room!' which performs an action but doesn't have an answer value."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The parser handles expressions as nodes that yield values and can be embedded within other expressions. Statements form execution steps that structure control flow. Function expressions are created at runtime when evaluation hits their line, while function declarations are parsed at compilation.",
+    "memory": "Evaluating an expression creates a temporary value in memory that is either assigned to a binding or discarded."
+  },
+  "3_real_world_example": {
+    "use_case": "Using expressions (like ternary operator) inside variables or template literals, vs statements (like if-else loops) that structure code blocks.",
+    "code": "// Statement: instructs variable creation\nconst userAge = 20;\n\n// Expression: resolves to a boolean ('true' or 'false')\nconst canVote = userAge >= 18 ? 'Yes' : 'No';\n\n// Template literal embedding an expression\nconsole.log(`Can vote? ${canVote}`);"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to pass a statement where an expression is expected, such as nesting an if-statement inside a function argument or variable assignment.",
+    "fix": "Use a ternary expression or logical operator when you need to assign a value based on a condition, as standard 'if' blocks are statements."
+  },
+  "5_related_topics": [
+    "js.conditionals"
+  ],
+  "6_edge_case": {
+    "quirk": "Function declarations (statements) vs Function expressions. Declarations are hoisted fully and cannot be passed directly as values. Function expressions are treated as values and can be passed as arguments (callbacks).",
+    "code": "// Function declaration (statement)\nfunction greet() {}\n\n// Function expression (evaluated as value)\nconst greetExp = function() {};"
+  }
+}

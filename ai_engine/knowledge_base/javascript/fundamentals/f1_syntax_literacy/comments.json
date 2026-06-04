@@ -1,0 +1,59 @@
+{
+  "version": "1.1",
+  "intent": "js.comments",
+  "topic": "Comments",
+  "dimensions": {
+    "syntax": true,
+    "semantics": false,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [],
+    "related_to": [],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what are comments in js",
+      "single line vs multi line comments",
+      "how to write a comment in javascript"
+    ],
+    "why": [
+      "why comments are used",
+      "why comment code"
+    ],
+    "how": [
+      "how to add single line comment",
+      "how to write documentation comment"
+    ],
+    "compare": [
+      "single line vs multi-line comments",
+      "comments vs code statements"
+    ],
+    "output": [
+      "do comments affect performance",
+      "why comments do not run"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Comments are annotations in JavaScript files that are ignored by the JavaScript engine during execution. They are used to explain code logic, make notes, or temporarily disable sections of code.",
+    "analogy": "Comments are like sticky notes left on a cooking recipe. The chef (the JS engine) prepares the dish ignoring the notes entirely, but another cook reading the recipe can read them to understand why a certain ingredient was added."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "During the tokenization/parsing phase of compilation, the JavaScript parser strips comments entirely from the source text. Comments have zero impact on the execution flow.",
+    "memory": "Comments occupy zero memory at runtime because they do not yield bindings or environment records."
+  },
+  "3_real_world_example": {
+    "use_case": "Using single-line comments to explain a complex regex pattern, and block comments for documenting functions (JSDoc).",
+    "code": "// Single-line comment: API port configuration\nconst PORT = 5050;\n\n/**\n * Multi-line JSDoc comment\n * Calculates the user's progress percentage\n */\nfunction calcProgress(correct, total) {\n  return (correct / total) * 100;\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Over-commenting obvious code, which makes it cluttered, or leaving stale comments that contradict updated code.",
+    "fix": "Write self-documenting code with meaningful variable/function names. Use comments only to explain *why* something is done, not *what* is done."
+  },
+  "5_related_topics": [],
+  "6_edge_case": {
+    "quirk": "While comments have no runtime performance cost, extremely bloated comments slightly increase file download sizes. This is resolved in production by code minifiers, which strip comments before shipping code to the browser.",
+    "code": "/* Legacy debug block - stripped by build minifier */\n// console.log('debugging logs');"
+  }
+}

@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_save_the_code",
-  "title": "New Features",
-  "response": "Placeholder response for: can i save the code from a pair programming session",
-  "route": "NONE"
+  "title": "Pair Programming",
+  "response_template": "Yes, {username}, you can save the code written during a pair programming session. Click the 'Download' or 'Export' button in the editor toolbar to save the code to your local machine, or save it directly to the SkillSprint Library.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "PAIR_PROGRAMMING"
 }

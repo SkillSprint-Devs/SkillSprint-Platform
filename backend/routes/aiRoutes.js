@@ -1,5 +1,7 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
+import { verifyToken } from "../middleware/authMiddleware.js";
+import User from "../models/user.js";
 
 const router = express.Router();
 
@@ -10,20 +12,39 @@ const aiLimiter = rateLimit({
 });
 
 const AI_ENGINE_URL = process.env.AI_ENGINE_URL || "http://127.0.0.1:5050";
-// Wait, typically it's http://127.0.0.1:5050 locally or http://ai-engine:5050 in docker.
 
-router.post("/predict", aiLimiter, async (req, res) => {
+router.post("/predict", verifyToken, aiLimiter, async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
+    // Query MongoDB for the user's actual name
+    let username = null;
+    if (req.user && req.user.id) {
+      try {
+        const user = await User.findById(req.user.id).select("name");
+        if (user) {
+          username = user.name;
+        }
+      } catch (err) {
+        console.error("[AI Route] User DB lookup failed:", err);
+      }
+    }
+
     const aiEngineUrl = process.env.AI_ENGINE_URL || "http://localhost:5050";
+    
+    // Merge database-resolved username into context sent to Python
+    const context = {
+      username: username,
+      ...(req.body.context || {})
+    };
+
     const response = await fetch(`${aiEngineUrl}/predict`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, context }),
     });
 
     if (!response.ok) {

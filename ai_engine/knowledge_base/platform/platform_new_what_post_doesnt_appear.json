@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_post_doesnt_appear",
-  "title": "New Features",
-  "response": "Placeholder response for: what if my post doesnt appear after publishing",
-  "route": "NONE"
+  "title": "Social Feed Troubleshooting",
+  "response_template": "If your post doesn't appear immediately, {username}, please refresh the feed page. Keep in mind that posts have a 500-character limit and only support text and a single image. If the issue persists, check your internet connection.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "SOCIAL"
 }

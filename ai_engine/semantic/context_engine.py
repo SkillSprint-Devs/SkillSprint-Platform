@@ -13,3 +13,20 @@ class ContextEngine:
             return str(context.get(key, f"{{{key}}}"))
 
         return pattern.sub(replace, template)
+
+
+class ContextValidator:
+    @staticmethod
+    def validate(schema: dict, context: dict) -> list:
+        """
+        Validate context against a schema of expected keys.
+        Returns a list of missing keys.
+        """
+        missing = []
+        if not schema:
+            return missing
+        for key in schema:
+            if key not in context or context[key] is None or context[key] == "":
+                missing.append(key)
+        return missing
+

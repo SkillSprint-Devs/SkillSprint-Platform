@@ -156,12 +156,21 @@ def normalize_context(data: dict) -> dict:
     """
     if not isinstance(data, dict):
         return {}
-    raw = {
-        "username": data.get("username") or data.get("user", {}).get("name"),
-        "credits":  data.get("credits"),
-    }
-    # Strip None so KB-level defaults can fill the gap
-    return {k: v for k, v in raw.items() if v is not None}
+    
+    # 1. Filter out None values first
+    normalized = {k: v for k, v in data.items() if v is not None}
+    
+    # 2. Extract username dynamically if not explicitly present
+    if "username" not in normalized or normalized["username"] is None:
+        user_obj = data.get("user")
+        if isinstance(user_obj, dict):
+            name = user_obj.get("name") or user_obj.get("username")
+            if name:
+                normalized["username"] = name
+        elif "user.name" in data:
+            normalized["username"] = data["user.name"]
+            
+    return normalized
 
 def _resolve_by_tier(intent_label: str, cleaned: str, user_context: dict = None):
     """
@@ -291,6 +300,11 @@ def predict_intent(raw_text: str, user_context: dict = None) -> dict:
             {"intent": label, "confidence": round(score, 4)}
             for label, score in top_predictions[:3]
         ]
+        if "trace" not in resolved:
+            resolved["trace"] = {}
+        resolved["trace"]["classifier"] = "TF-IDF + Logistic Regression (Fallback)"
+        resolved["trace"]["confidence"] = float(round(best_confidence, 4))
+        resolved["trace"]["rendered"] = resolved.get("resolved", False)
         return resolved
 
     # 7. Resolve intent → response via correct tier
@@ -303,7 +317,20 @@ def predict_intent(raw_text: str, user_context: dict = None) -> dict:
         for label, score in top_predictions[1:3]
     ]
 
+    # Populate/enrich trace
+    if "trace" not in resolved:
+        resolved["trace"] = {}
+    
+    resolved["trace"]["classifier"] = (
+        "JS Heuristic Boost" if method == "js_heuristic_boost"
+        else "TF-IDF + Logistic Regression (Hybrid Boosted)" if method == "hybrid_boosted"
+        else "TF-IDF + Logistic Regression"
+    )
+    resolved["trace"]["confidence"] = float(round(best_confidence, 4))
+    resolved["trace"]["rendered"] = resolved.get("resolved", False)
+
     return resolved
+
 
 
 # ---------------------------------------------------------------------------

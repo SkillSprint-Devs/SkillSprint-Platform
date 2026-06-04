@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_duplicate_task",
-  "title": "New Features",
-  "response": "Placeholder response for: can i duplicate a task",
-  "route": "NONE"
+  "title": "Task Management",
+  "response_template": "Hi {username}, currently, SkillSprint does not support direct task duplication or cloning. To replicate a task, you will need to create a new task on the Tasks page. However, you can easily edit or reschedule existing tasks.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "TASKS"
 }

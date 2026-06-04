@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.operators",
+  "topic": "Operators",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables"],
+    "related_to": ["js.type_coercion"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what are operators in js",
+      "arithmetic operators in javascript",
+      "what does logical operators do"
+    ],
+    "why": [
+      "why triple equals is better than double equals",
+      "why 0 == false is true"
+    ],
+    "how": [
+      "how assignment operator works",
+      "how to use comparison operators"
+    ],
+    "compare": [
+      "difference between == and ===",
+      "strict vs loose equality",
+      "== vs === edge cases"
+    ],
+    "output": [
+      "why double equals coerces types",
+      "why empty string == 0 is true"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Operators are special symbols used to perform operations on operands (variables and values). JavaScript contains arithmetic, assignment, comparison, logical, and ternary operators.",
+    "analogy": "Operators are like active verbs in a sentence. Operands are the nouns. In '5 + 3', the numbers '5' and '3' are the nouns, and the plus sign '+' is the verb instructing addition."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Operators have predefined precedence and associativity rules that determine the order of evaluation in complex expressions. For example, multiplication (*) has higher precedence than addition (+).",
+    "memory": "Operators evaluate operands, perform their operational logic, and store the computed temporary result in memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Using comparison and logical operators to validate state configurations or input forms.",
+    "code": "const points = 100;\nconst isEligible = points >= 90; // Comparison operator\nconst hasCoupon = true;\n\n// Logical AND/OR operators\nconst discountGranted = isEligible && hasCoupon;\nconsole.log(discountGranted); // true"
+  },
+  "4_common_confusion": {
+    "trap": "Using loose equality (==) which allows type coercion under the hood, yielding silent bugs like '0 == false' being true.",
+    "fix": "Always use strict equality (===) which checks both value and type without coercion."
+  },
+  "5_related_topics": [
+    "js.type_coercion"
+  ],
+  "6_edge_case": {
+    "quirk": "Strict comparison (===) checks values and types directly, but has one famous edge case: NaN (Not-a-Number) is never equal to itself, even under strict equality.",
+    "code": "console.log(NaN === NaN); // false ⚠️\nconsole.log(Number.isNaN(NaN)); // true ✅ (use this to check NaN correctly)"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.data_types",
+  "topic": "Data Types",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables"],
+    "related_to": ["js.type_coercion"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what are data types in javascript",
+      "primitive vs non-primitive types",
+      "how many data types does javascript have",
+      "what is primitive type"
+    ],
+    "why": [
+      "why array is object in js",
+      "why typeof null is object"
+    ],
+    "how": [
+      "how js decides type automatically",
+      "dynamic typing kya hota hai"
+    ],
+    "compare": [
+      "difference between undefined and null",
+      "primitive vs reference types",
+      "is null a number or object"
+    ],
+    "output": [
+      "what does typeof return",
+      "typeof null output",
+      "typeof arrays vs objects"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "JavaScript has 8 built-in data types grouped into two categories: Primitives (immutable, stored directly by value: string, number, bigint, boolean, undefined, null, symbol) and Reference types (mutable, stored by reference address: objects, arrays, functions). Check a variable's type at runtime using the 'typeof' operator.",
+    "analogy": "Primitive data types are like coins — if you want to give one to someone, you copy/hand over the coin itself. If you scratch a copy of a coin, the original remains untouched. Reference types are like Google Docs links — if you share a link with a friend, both of you can modify the same single document in the cloud."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "JavaScript is dynamically typed, meaning variable bindings are not bound to a specific type, but values are. Type checking occurs at runtime rather than compile-time.",
+    "memory": "Primitive values reside on the Stack (fixed size, fast access). Reference objects reside on the Heap (dynamic size), and their memory address pointers are saved on the Stack."
+  },
+  "3_real_world_example": {
+    "use_case": "Using 'null' to intentionally denote the absence of a value (such as clearing user search results), and checking variable types dynamically.",
+    "code": "let activeUser = null; // Intentional empty state\nactiveUser = { name: 'Ali', role: 'admin' }; // Replaced with object reference\nconsole.log(typeof activeUser); // 'object'"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing 'undefined' (variable is declared but hasn't been given a value yet) with 'null' (value is explicitly set to signify nothingness).",
+    "fix": "Use null when you want to clear/reset a variable value explicitly. Let JS handle undefined as the implicit default state."
+  },
+  "5_related_topics": [
+    "js.type_coercion"
+  ],
+  "6_edge_case": {
+    "quirk": "'typeof null' returns 'object'. This is a historical bug in the first version of JavaScript, where values were represented by a type tag and value in binary. The object type tag was 000, and since null was represented by the NULL pointer (all zeroes), it was misidentified as an object.",
+    "code": "console.log(typeof null); // 'object' ⚠️ (legacy JS bug)\nconsole.log(typeof []);   // 'object' ⚠️ (arrays are sub-types of object)\nconsole.log(Array.isArray([])); // true ✅ (use this to check arrays correctly)"
+  }
+}

@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_join_live_session",
-  "title": "New Features",
-  "response": "Placeholder response for: what if i join a live session late",
-  "route": "NONE"
+  "title": "Live Sessions",
+  "response_template": "If you join a live session late, {username}, you can still enter the active call as long as the session host or mentor is online. To catch up on missed content, check if the session recording was uploaded to the Shared Library.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIVE_SESSIONS"
 }

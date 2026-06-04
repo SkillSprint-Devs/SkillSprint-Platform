@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.how_delete_chat_message",
-  "title": "New Features",
-  "response": "Placeholder response for: how do i delete a chat message",
+  "title": "Live Chat",
+  "response_template": "To delete a chat message you sent, {username}, hover over the message in the chat workspace panel and click the 'Delete' (trash bin) icon. This immediately removes the message from the conversation thread for all participants.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
   "route": "NONE"
 }

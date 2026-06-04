@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_invite_someone_outside",
-  "title": "New Features",
-  "response": "Placeholder response for: can i invite someone outside skillsprint to pair program",
-  "route": "NONE"
+  "title": "Pair Programming",
+  "response_template": "Yes, {username}! You can invite external developers to your pair programming session by clicking 'Share Link' in the toolbar. This generates a unique URL or join token that you can send to anyone; they can join as a Navigator without requiring a full SkillSprint account.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "PAIR_PROGRAMMING"
 }

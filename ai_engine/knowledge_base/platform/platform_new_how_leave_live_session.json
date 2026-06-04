@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.how_leave_live_session",
-  "title": "New Features",
-  "response": "Placeholder response for: how do i leave a live session politely",
-  "route": "NONE"
+  "title": "Live Sessions",
+  "response_template": "To leave a live session, {username}, click the red 'Leave' or 'Disconnect' button in the call toolbar. As a polite gesture, we recommend dropping a quick message in the live chat panel to say goodbye to your study partner or mentor before exiting.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIVE_SESSIONS"
 }

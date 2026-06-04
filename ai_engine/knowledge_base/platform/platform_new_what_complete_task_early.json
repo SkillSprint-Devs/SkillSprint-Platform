@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_complete_task_early",
-  "title": "New Features",
-  "response": "Placeholder response for: what if i complete a task early",
-  "route": "NONE"
+  "title": "Task Management",
+  "response_template": "When you complete a task early, {username}, you can mark it as complete by checking the box next to it on the Tasks page or planner. Completed tasks are automatically archived and checked off, updating your weekly progress tracker.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "TASKS"
 }

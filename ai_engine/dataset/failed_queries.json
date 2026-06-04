@@ -70,5 +70,29 @@
     "reviewed_by": "",
     "reviewed_at": "",
     "timestamp": "2026-06-04T17:37:48.027331Z"
+  },
+  {
+    "id": "fq_7e6f78d3",
+    "query": "How to get my certificate?",
+    "predicted_intent": "platform.cert.view",
+    "assigned_intent": "",
+    "confidence": 0.5995,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-04T17:48:52.887210Z"
+  },
+  {
+    "id": "fq_5d27a991",
+    "query": "what does mean by asynchronous code",
+    "predicted_intent": "platform.pair_prog.share_link",
+    "assigned_intent": "",
+    "confidence": 0.45,
+    "resolved": false,
+    "added_to_dataset": false,
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "timestamp": "2026-06-04T19:24:04.701830Z"
   }
 ]

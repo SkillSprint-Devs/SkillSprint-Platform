@@ -225,9 +225,13 @@ async function submitQuery() {
   const thinkEl = appendThinkingIndicator();
 
   try {
+    const token = localStorage.getItem('token');
     const res = await fetch('/api/ai/predict', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
       body: JSON.stringify({ message: query })
     });
 

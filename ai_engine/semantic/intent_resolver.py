@@ -162,6 +162,8 @@ class IntentResolver:
         route = default_route
         code_example = None
         defaults = {}
+        schema = {}
+        version = "1.0"
         
         if intent_label in self._kb_index:
             kb_path = os.path.join(_BASE_DIR, "knowledge_base", self._kb_index[intent_label])
@@ -173,8 +175,11 @@ class IntentResolver:
                     route = kb_data.get("route", route)
                     code_example = kb_data.get("code_example")
                     defaults = kb_data.get("defaults", {})
+                    schema = kb_data.get("context_schema", {})
+                    version = kb_data.get("version", "1.0")
                     
-        return kb_response, route, code_example, defaults
+        return kb_response, route, code_example, defaults, schema, version
+
 
     def resolve(self, intent_label: str, runtime_context: dict = None) -> dict:
         """
@@ -184,7 +189,7 @@ class IntentResolver:
             meta = self._intents[intent_label]
             
             # 1. Load Knowledge Base
-            template, route, code_example, kb_defaults = self.load_knowledge_base(
+            template, route, code_example, kb_defaults, schema, version = self.load_knowledge_base(
                 intent_label,
                 meta.get("response", ""),
                 meta.get("route", "")
@@ -193,7 +198,11 @@ class IntentResolver:
             # 2. Build Context
             context = self.context_provider.get_context(intent_label, runtime_context, kb_defaults)
             
-            # 3. Render Template
+            # 3. Validate Context
+            from semantic.context_engine import ContextValidator
+            validation_errors = ContextValidator.validate(schema, context)
+            
+            # 4. Render Template
             final_response = self.context_engine.fill(template, context)
 
             result = {
@@ -206,6 +215,14 @@ class IntentResolver:
                 "keywords":    meta.get("keywords", []),
                 "admin_notes": meta.get("admin_notes", ""),
                 "resolved":    True,
+                "trace": {
+                    "classifier": "TF-IDF + Logistic Regression",
+                    "kb_file": self._kb_index.get(intent_label, "unknown"),
+                    "context_source": list(context.keys()) if context else [],
+                    "validation_errors": validation_errors,
+                    "rendered": True,
+                    "version": version
+                }
             }
             if code_example is not None:
                 result["code_example"] = code_example

@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_sort_tasks_priority",
-  "title": "New Features",
-  "response": "Placeholder response for: can i sort tasks by priority",
-  "route": "NONE"
+  "title": "Task Management",
+  "response_template": "Yes, {username}, you can sort your tasks by priority level. On the Tasks page, use the 'Sort By' dropdown menu and select 'Priority' to see your High-priority items listed first on your planner.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "TASKS"
 }

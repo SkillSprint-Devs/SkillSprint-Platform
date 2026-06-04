@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_screen_sharing_fails",
-  "title": "New Features",
-  "response": "Placeholder response for: what if my screen sharing fails",
-  "route": "NONE"
+  "title": "Live Sessions Troubleshooting",
+  "response_template": "If screen sharing fails, {username}, ensure you have granted screen capture permissions to your browser. If you are on macOS, verify Chrome/Firefox has screen recording enabled in System Settings. Try refreshing the page to reset the connection.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIVE_SESSIONS"
 }

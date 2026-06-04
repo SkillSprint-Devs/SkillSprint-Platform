@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.hoisting",
+  "topic": "Hoisting",
+  "dimensions": {
+    "syntax": false,
+    "semantics": false,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables"],
+    "related_to": ["js.scope_basic", "js.execution_context_intro"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is hoisting in js",
+      "what is hoisting",
+      "what is tdz"
+    ],
+    "why": [
+      "why can i use variable before declaration",
+      "why let is not hoisted like var",
+      "why functions are hoisted but let is not"
+    ],
+    "how": [
+      "explain the temporal dead zone",
+      "what happens when you hoist a var variable"
+    ],
+    "compare": [
+      "difference between hoisting of var and let",
+      "let and var hoisting comparison"
+    ],
+    "output": [
+      "does hoisting move code physically",
+      "why var returns undefined before assignment",
+      "what is tdz in javascript"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Hoisting is the behavior in JavaScript where variable and function declarations are conceptually moved to the top of their containing scope during compilation. This allows functions to be called and 'var' variables to be referenced before they appear in the code.",
+    "analogy": "Imagine a theater manager reviewing a play script. Before the actors come on stage to perform, the manager makes a list of all characters (declarations) and puts it on a clipboard. During the play (execution), actors can refer to characters because their slots were pre-allocated, even if the character hasn't entered the scene yet."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "During the compilation phase, the JS engine registers variable and function declarations in the Lexical Environment scope record. Function declarations are registered and instantly initialised with their function body. 'var' variables are registered and initialised with 'undefined'. 'let' and 'const' are registered but remain uninitialised, creating the Temporal Dead Zone (TDZ).",
+    "memory": "Hoisting does not physically alter the code structure. It is an artifact of the engine pre-allocating variable slots in the Environment Record before executing line-by-line code."
+  },
+  "3_real_world_example": {
+    "use_case": "Leveraging hoisting to organize files so helper functions are placed at the bottom, keeping the main readable entry flow at the top.",
+    "code": "// Call hoisting functions safely\nconst total = calcTotal(10, 5);\nconsole.log(total); // 15\n\n// Hoisted function declaration\nfunction calcTotal(price, tax) {\n  return price + tax;\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Assuming let and const are not hoisted. They ARE hoisted, but they remain uninitialised in memory. Accessing them before their assignment line throws a ReferenceError.",
+    "fix": "Never reference let/const variables before their line of declaration. This inactive span is called the Temporal Dead Zone (TDZ)."
+  },
+  "5_related_topics": [
+    "js.scope_basic",
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Function expressions (e.g. `const myFunc = () => {}`) follow the hoisting rules of their variable keyword (`const` or `let`). They are NOT hoisted as callable functions, and calling them before initialization causes a crash.",
+    "code": "try {\n  greetUser(); // ❌ TypeError: greetUser is not a function (it is undefined!)\n  var greetUser = function() { console.log('Hi'); };\n} catch (err) {\n  console.log(err.message);\n}"
+  }
+}

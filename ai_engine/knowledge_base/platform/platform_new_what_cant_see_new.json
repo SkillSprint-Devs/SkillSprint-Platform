@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_cant_see_new",
-  "title": "New Features",
-  "response": "Placeholder response for: what if i cant see new posts",
-  "route": "NONE"
+  "title": "Social Feed",
+  "response_template": "If you can't see new posts on the Social Feed, {username}, try refreshing the page manually. If the issue persists, verify that you are following other developers to populate your feed, or check the System Health page to ensure connection status.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "SOCIAL"
 }

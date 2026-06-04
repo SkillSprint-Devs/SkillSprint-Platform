@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_earn_certificates",
-  "title": "New Features",
-  "response": "Placeholder response for: can i earn certificates",
-  "route": "NONE"
+  "title": "Certificates",
+  "response_template": "Yes, {username}, you can earn official completion certificates on SkillSprint! Simply complete all lessons in a course and pass the final course quiz with a score of 70% or higher to unlock, view, or download your PDF certificate.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "CERTIFICATES"
 }

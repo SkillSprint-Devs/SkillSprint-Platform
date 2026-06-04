@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_chat_during_live",
-  "title": "New Features",
-  "response": "Placeholder response for: can i chat during a live session",
-  "route": "NONE"
+  "title": "Live Chat",
+  "response_template": "Yes, {username}, you can absolutely chat during a live session. SkillSprint includes an integrated real-time chat panel alongside the audio and video workspace, allowing you to ask quick questions, share links, and interact with your mentor or peers without interrupting the speaker.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIVE_SESSIONS"
 }

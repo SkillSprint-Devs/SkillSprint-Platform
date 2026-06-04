@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_edit_comment_after",
-  "title": "New Features",
-  "response": "Placeholder response for: can i edit my comment after posting",
-  "route": "NONE"
+  "title": "Social Feed",
+  "response_template": "Currently, {username}, comments on the Social Feed cannot be edited once published. If you need to modify your comment, you can delete it by clicking the 'Delete' option next to your comment and post a new one instead.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "SOCIAL"
 }

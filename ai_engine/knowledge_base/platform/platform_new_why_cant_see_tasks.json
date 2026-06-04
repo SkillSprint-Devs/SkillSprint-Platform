@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.why_cant_see_tasks",
-  "title": "New Features",
-  "response": "Placeholder response for: why cant i see my tasks",
-  "route": "NONE"
+  "title": "Task Management",
+  "response_template": "If you can't see your tasks, {username}, make sure you are logged in to the correct account since tasks are strictly personal. Also, check if you have any filters active (such as viewing only completed tasks) or try refreshing the planner.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "TASKS"
 }

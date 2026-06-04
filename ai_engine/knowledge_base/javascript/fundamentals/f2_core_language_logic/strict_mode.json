@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.strict_mode",
+  "topic": "Strict Mode",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables"],
+    "related_to": ["js.scope_basic"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is strict mode",
+      "what does use strict do",
+      "define strict mode in javascript"
+    ],
+    "why": [
+      "why use strict mode",
+      "why use strict is important",
+      "benefits of strict mode"
+    ],
+    "how": [
+      "how to enable strict mode",
+      "how to write strict mode code"
+    ],
+    "compare": [
+      "difference between strict and non-strict js",
+      "strict mode vs sloppy mode"
+    ],
+    "output": [
+      "what errors strict mode catches",
+      "sloppy mode errors vs strict mode"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Strict Mode is a way to opt-in to a restricted variant of JavaScript. It makes debugging easier by turning silent errors (like assigning to undeclared variables) into throwing runtime errors.",
+    "analogy": "Sloppy mode is like driving on an open field with no lanes: you can weave around, but you might hit a ditch. Strict mode is like driving on a marked highway: there are guardrails that stop you immediately if you start drifting into dangerous zones."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Enabling strict mode alters how the compiler and runtime parse code. For example, strict mode disables the default binding of 'this' to the global object (setting it to 'undefined' in functions), and throws errors on duplicate parameter names or read-only assignments.",
+    "memory": "Strict mode prevents variables from accidentally leaking into global memory as global object properties."
+  },
+  "3_real_world_example": {
+    "use_case": "Placing 'use strict' at the top of scripts or functions to prevent global scope pollution during API integrations.",
+    "code": "\"use strict\";\n\ntry {\n  // Accidental global variable assignment (no let/const/var)\n  message = 'Hello'; // ❌ ReferenceError: message is not defined\n} catch (err) {\n  console.log(err.message);\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Accidentally writing global variable declarations without knowing they leak, then enabling strict mode and seeing the code crash.",
+    "fix": "Ensure all variables are explicitly declared using let or const, and place 'use strict' at the top of your scripts (or use ES modules, which enable strict mode automatically)."
+  },
+  "5_related_topics": [
+    "js.scope_basic"
+  ],
+  "6_edge_case": {
+    "quirk": "In non-strict mode, calling a function (like `func()`) sets its internal `this` value to the global window object. In strict mode, `this` inside standard standalone functions resolves to `undefined`.",
+    "code": "function showThis() {\n  return this;\n}\nconsole.log(showThis()); // global window (in sloppy mode)\n\nfunction showThisStrict() {\n  \"use strict\";\n  return this;\n}\nconsole.log(showThisStrict()); // undefined ✅"
+  }
+}

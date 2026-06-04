@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_save_whiteboard_drawings",
-  "title": "New Features",
-  "response": "Placeholder response for: can i save my whiteboard drawings",
-  "route": "NONE"
+  "title": "Whiteboard",
+  "response_template": "Yes, {username}, you can save your whiteboard drawings. Completed drawings are automatically backed up to your Shared Library, or you can manually export them as PNG/SVG images from the whiteboard canvas toolbar.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIBRARY"
 }

@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_the_shared_library",
-  "title": "New Features",
-  "response": "Placeholder response for: what is the shared library feature",
-  "route": "NONE"
+  "title": "Shared Library",
+  "response_template": "The Shared Library, {username}, is a central repository where developers can upload and discover educational resources, session recordings, code snippets, and presentations. It supports files up to 50MB and offers in-browser file previews.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIBRARY"
 }

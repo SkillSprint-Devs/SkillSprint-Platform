@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_the_wallet_feature",
-  "title": "New Features",
-  "response": "Placeholder response for: what is the wallet feature",
-  "route": "NONE"
+  "title": "Wallet",
+  "response_template": "The Wallet, {username}, is a virtual credit-based system used to manage session bookings. Credits are replenished weekly every Monday (UTC) and cannot be purchased; instead, you earn credits by hosting sessions and participating in peer mentoring.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "WALLET"
 }

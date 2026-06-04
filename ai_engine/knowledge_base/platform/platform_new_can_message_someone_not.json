@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_message_someone_not",
-  "title": "New Features",
-  "response": "Placeholder response for: can i message someone im not following",
-  "route": "NONE"
+  "title": "Social Network",
+  "response_template": "Yes, {username}, you can send direct messages to any member on SkillSprint. You do not need to follow them first to start a conversation; simply visit their public profile page and click the 'Message' button.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "SOCIAL"
 }

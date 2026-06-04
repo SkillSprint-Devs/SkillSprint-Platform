@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.what_drawing_disappears_the",
-  "title": "New Features",
-  "response": "Placeholder response for: what if my drawing disappears on the whiteboard",
-  "route": "NONE"
+  "title": "Whiteboard Troubleshooting",
+  "response_template": "If a drawing disappears on the whiteboard, {username}, this is typically due to a WebSocket synchronization lag. Try refreshing your browser page or rejoining the session. SkillSprint also auto-saves drafts, so you can restore them from the Library.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIVE_SESSIONS"
 }

@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.can_join_session_without",
-  "title": "New Features",
-  "response": "Placeholder response for: can i join a session without turning on my mic",
-  "route": "NONE"
+  "title": "Live Sessions",
+  "response_template": "Yes, {username}, you can join any live session without enabling your microphone. Microphone and camera access are completely optional, allowing you to join in 'listen-only' mode and participate via the session's live chat.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "LIVE_SESSIONS"
 }

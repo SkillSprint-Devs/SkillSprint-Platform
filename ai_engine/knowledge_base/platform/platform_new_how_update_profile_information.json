@@ -1,6 +1,13 @@
 {
+  "version": "1.0",
   "intent": "platform.new.how_update_profile_information",
-  "title": "New Features",
-  "response": "Placeholder response for: how do i update my profile information",
-  "route": "NONE"
+  "title": "Profile Settings",
+  "response_template": "To update your profile, {username}, navigate to the Settings page and select the 'Profile' tab. Here you can edit your display name, bio, experience level, and skill tags. Click 'Save Changes' to update your matchmaking criteria.",
+  "context_schema": {
+    "username": "string"
+  },
+  "defaults": {
+    "username": "Developer"
+  },
+  "route": "SETTINGS"
 }
