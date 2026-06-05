@@ -1,0 +1,16 @@
+{
+  "js.variables": "f1_syntax_literacy/variables.json",
+  "js.data_types": "f1_syntax_literacy/data_types.json",
+  "js.comments": "f1_syntax_literacy/comments.json",
+  "js.console": "f1_syntax_literacy/console.json",
+  "js.statements_expressions": "f1_syntax_literacy/statements_expressions.json",
+  "js.operators": "f2_core_language_logic/operators.json",
+  "js.type_coercion": "f2_core_language_logic/type_coercion.json",
+  "js.strict_mode": "f2_core_language_logic/strict_mode.json",
+  "js.conditionals": "f2_core_language_logic/conditionals.json",
+  "js.loops": "f2_core_language_logic/loops.json",
+  "js.hoisting": "f3_runtime_intro/hoisting.json",
+  "js.scope": "f3_runtime_intro/scope_basic.json",
+  "js.execution_context_intro": "f3_runtime_intro/execution_context_intro.json",
+  "js.memory_model_basic": "f3_runtime_intro/memory_model_basic.json"
+}

@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.execution_context_intro",
+  "topic": "Execution Context (Intro)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": false,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.scope"],
+    "related_to": ["js.hoisting", "js.memory_model_basic"],
+    "often_confused_with": ["js.scope"]
+  },
+  "question_map": {
+    "what": [
+      "what is execution context",
+      "what happens when js runs code",
+      "what is call stack"
+    ],
+    "why": [
+      "why does javascript run single-threaded",
+      "why call stack overflows"
+    ],
+    "how": [
+      "how execution context is created",
+      "how call stack tracks functions"
+    ],
+    "compare": [
+      "creation phase vs execution phase",
+      "global context vs function context"
+    ],
+    "output": [
+      "predict stack trace execution order",
+      "call stack overflow exception"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "An Execution Context is an abstract environment created by the JavaScript engine to evaluate and execute code. The Call Stack is the engine's mechanism to track which execution contexts are running and in what order.",
+    "analogy": "Imagine a chef making dinner. The chef can only cook one thing at a time (single-threaded). The recipe book is the code. When the chef starts making a soup (Global Context), they place a cooking pot on the stove. If the soup recipe calls for a spice blend (Function Context), the chef temporarily puts a smaller bowl on top of the counter (pushed to Call Stack) to mix the spices. Once the spices are mixed, the chef dumps them in the soup and removes the spice bowl from the counter (popped from Call Stack) to continue soup progress."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When code runs, JavaScript creates the Global Execution Context. Whenever a function is called, a new Function Execution Context is created and pushed onto the Call Stack. Each context goes through two phases: 1. Creation Phase (creation of Variable Environment, scope chain, and 'this' binding) and 2. Execution Phase (executing code line-by-line). When a function returns, its context is popped off the Call Stack.",
+    "memory": "Execution contexts consume system memory to store local activation variables. If recursive functions call themselves infinitely without returning, the call stack exceeds its size limit, resulting in a 'Stack Overflow'."
+  },
+  "3_real_world_example": {
+    "use_case": "Inspecting call stack traces during browser debugging to understand which nested function calls triggered an error.",
+    "code": "function second() {\n  console.log('Second running');\n  // Throwing an error here shows first() and second() in the Stack trace!\n}\n\nfunction first() {\n  second();\n}\n\nfirst();"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing Execution Context with Scope. Scope is static and refers to variable accessibility determined at compile time. Execution Context is dynamic and refers to the wrapper/environment created when the code is executed.",
+    "fix": "Remember: Scope is *where* to look for variables (lexical/compile time). Execution Context is *how* the engine actually runs the functions (execution/runtime)."
+  },
+  "5_related_topics": [
+    "js.hoisting",
+    "js.memory_model_basic"
+  ],
+  "6_edge_case": {
+    "quirk": "Infinite recursion pushes context records continuously onto the Call Stack without popping them, eventually hitting the host browser's stack size limit.",
+    "code": "function recurse() {\n  recurse(); // Infinite recursive loop\n}\ntry {\n  recurse();\n} catch (err) {\n  console.log(err.message); // RangeError: Maximum call stack size exceeded\n}"
+  }
+}

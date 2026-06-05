@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.scope",
+  "topic": "Scope (Basic)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables"],
+    "related_to": ["js.hoisting", "js.execution_context_intro"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is scope in javascript",
+      "what is scope",
+      "what is global scope in javascript",
+      "what is global vs local scope"
+    ],
+    "why": [
+      "why cant i access a variable outside a function",
+      "why var ignores block scope"
+    ],
+    "how": [
+      "what is block scope",
+      "what is block scope kya hota hai"
+    ],
+    "compare": [
+      "explain function scope vs block scope",
+      "difference between local and global variables"
+    ],
+    "output": [
+      "scope chain resolution logic",
+      "lexical scope outer variables"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Scope determines where variables are accessible in your code. JavaScript has Global scope (visible everywhere), Function scope (variables declared inside a function), and Block scope (variables declared with let/const inside `{}` blocks like loops or conditionals).",
+    "analogy": "Scope is like security clearance levels in a secure building. If you are in the public lobby (Global Scope), you can only see public resources. If you enter a private meeting room (Local Scope), you can see what is in that room, plus whatever is outside in the lobby. However, people in the lobby cannot look inside the private meeting room."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "JavaScript uses Lexical Scoping, meaning variable resolution is determined by where variables and blocks are nested in the written source code, not where functions are called at runtime. The scope chain connects child environments to outer parent environments.",
+    "memory": "When a scope is entered, a Lexical Environment is instantiated containing an Environment Record for local bindings and a reference to the outer parent Environment."
+  },
+  "3_real_world_example": {
+    "use_case": "Using block scoping to isolate indices in nested iteration loops without overwriting values.",
+    "code": "const username = 'Alice'; // Global Scope\n\nfunction showUser() {\n  const accessCode = '123'; // Function Scope\n  if (true) {\n    const blockMessage = 'Authorized'; // Block Scope\n    console.log(`${username} is ${blockMessage}`); // ✅ Scope chain lookup\n  }\n  // console.log(blockMessage); // ❌ ReferenceError (block scoped!)\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Believing 'var' respects block boundaries like `{}` if-statements. 'var' is function-scoped; it will leak out of if-statements and loops into the global space.",
+    "fix": "Always declare local block variables using let or const to prevent variable leakage."
+  },
+  "5_related_topics": [
+    "js.hoisting",
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Lexical Scope lookup only searches upwards. Inner scopes can access outer parent scopes, but outer scopes cannot peek inside nested children scopes.",
+    "code": "function outer() {\n  const message = 'Hello';\n  function inner() {\n    const secret = '1234';\n    console.log(message); // ✅ Reads outer parent\n  }\n  inner();\n  // console.log(secret); // ❌ ReferenceError (cannot access child scope)\n}"
+  }
+}

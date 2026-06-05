@@ -1,0 +1,61 @@
+{
+  "version": "1.1",
+  "intent": "js.memory_model_basic",
+  "topic": "Memory Model (Basic)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.data_types"],
+    "related_to": ["js.execution_context_intro"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is memory heap",
+      "what is stack memory",
+      "explain heap vs stack in javascript"
+    ],
+    "why": [
+      "why primitive values are stored in stack",
+      "why reference values are stored in heap"
+    ],
+    "how": [
+      "how javascript allocates memory",
+      "how garbage collection works"
+    ],
+    "compare": [
+      "stack vs heap",
+      "pass by value vs pass by reference"
+    ],
+    "output": [
+      "predict variable state after reference assignment",
+      "what happens when object reference is changed"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "JavaScript has two primary locations in memory: the **Stack** and the **Heap**. The Stack is a fast, structured memory space used for primitive values and references. The Heap is a large, unstructured memory space used for objects, arrays, and functions.",
+    "analogy": "The Stack is like a deck of cards: values are stacked neatly on top of each other, fast to access, but space is limited. The Heap is like a large warehouse: items of various shapes and sizes (objects/arrays) are scattered around. Because the warehouse is huge, you need a tracking slip (a reference address) kept on your clipboard (the Stack) to find where each item is stored in the warehouse."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a primitive variable is declared, its value is written directly to the stack frame of the current execution context. When a reference variable is declared, the engine allocates space on the heap, places the object data there, and writes the resulting heap memory address pointer onto the stack.",
+    "memory": "Stack memory allocation is automatic and managed by execution contexts. Heap memory allocation is dynamic, and dereferenced objects are periodically cleaned up by the engine's Garbage Collector using a Mark-and-Sweep algorithm."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding how re-assigning object properties mutates shared instances because variables store pointers, not copies.",
+    "code": "const originalObj = { name: 'SkillSprint' };\nconst copyObj = originalObj; // Copies the HEAP address pointer, not the object!\n\ncopyObj.name = 'Updated';\nconsole.log(originalObj.name); // 'Updated' ✅ (Both point to the same Heap object)"
+  },
+  "4_common_confusion": {
+    "trap": "Believing that copying an object (like `const b = a`) creates a new independent object. It only copies the stack pointer referencing the same heap address.",
+    "fix": "To make a true copy of an object, use the spread operator `{...obj}`, or `structuredClone(obj)` for deep nesting."
+  },
+  "5_related_topics": [
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Reassigning a copied reference pointer entirely breaks the connection to the original object, binding the variable to a new heap address while the original object remains unchanged.",
+    "code": "let a = { score: 10 };\nlet b = a;\nb = { score: 20 }; // b now points to a completely new heap object\nconsole.log(a.score); // 10 (original object remains unchanged)"
+  }
+}
