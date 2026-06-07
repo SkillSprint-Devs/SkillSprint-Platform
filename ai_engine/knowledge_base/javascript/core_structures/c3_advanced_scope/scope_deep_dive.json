@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.scope",
+  "topic": "Scope (Deep Dive)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables", "js.hoisting"],
+    "related_to": ["js.closures", "js.execution_context_intro"],
+    "often_confused_with": ["js.execution_context_intro"]
+  },
+  "question_map": {
+    "what": [
+      "what is scope in javascript",
+      "what is lexical scope",
+      "what is block scope"
+    ],
+    "why": [
+      "why do we need scope",
+      "why can't i access this variable"
+    ],
+    "how": [
+      "how does scope chain work",
+      "how are variables scoped in js"
+    ],
+    "compare": [
+      "block scope vs function scope",
+      "lexical scope vs dynamic scope"
+    ],
+    "output": [
+      "reference error variable is not defined",
+      "variable shadowing"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Scope determines the accessibility (visibility) of variables. JavaScript has three main types of scope: Global scope, Function scope, and Block scope.",
+    "analogy": "Think of scope like security clearances in a building. The lobby is 'Global scope'—everyone can see it. A private office is 'Function scope'—only people inside can see its contents. A locked drawer inside the office is 'Block scope' (created by let/const)—only the person who unlocked the drawer can see inside."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "JavaScript uses 'Lexical Scoping'. This means the scope of a variable is determined by its physical location within the source code during the compilation phase. When the engine looks up a variable, it checks the current scope; if not found, it moves up to the outer scope, forming a 'Scope Chain', until it hits the Global scope.",
+    "memory": "Each Execution Context has an associated Lexical Environment. The Lexical Environment stores the local variables (Environment Record) and a reference to its outer Lexical Environment. This reference chain IS the Scope Chain in memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Preventing variable name collisions. You can have variables with the exact same name living safely in different scopes without overwriting each other.",
+    "code": "const username = 'Global_Admin'; // Global Scope\n\nfunction processUser() {\n  // Function Scope (Shadows the global variable)\n  const username = 'Local_User'; \n  \n  if (true) {\n    // Block Scope (let/const are trapped in here)\n    const username = 'Block_User';\n    console.log(username); // 'Block_User'\n  }\n  \n  console.log(username); // 'Local_User'\n}\n\nprocessUser();\nconsole.log(username); // 'Global_Admin'"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `var` is block-scoped. It is NOT.",
+    "fix": "Variables declared with `var` ignore block scopes (like `if` statements or `for` loops) and attach themselves to the nearest enclosing Function scope or Global scope. Always use `let` or `const` to ensure variables stay within their blocks."
+  },
+  "5_related_topics": [
+    "js.closures",
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "If you assign a value to a variable without declaring it (no let, const, or var) in non-strict mode, JS automatically creates a Global variable for you. This is a massive source of bugs.",
+    "code": "function leakyScope() {\n  // ❌ Missing let/const keyword!\n  accidentalGlobal = 'I am now everywhere'; \n}\nleakyScope();\nconsole.log(accidentalGlobal); // 'I am now everywhere' (Polluted global scope)\n\n// ✅ Fix: Use 'use strict'; at the top of your files to crash the app instead."
+  }
+}

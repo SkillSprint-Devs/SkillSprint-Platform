@@ -1,7 +1,0 @@
-{
-  "intent": "js.functions",
-  "title": "JavaScript Concepts",
-  "response": "A function is a reusable block of code. JavaScript has several ways to define one:\n\n1. Function Declaration \u2014 fully hoisted; best for named, reusable logic.\n2. Function Expression \u2014 assigned to a variable; not hoisted as callable.\n3. Arrow Function \u2014 concise syntax; inherits this from surrounding context; no own arguments object.\n4. Default Parameters \u2014 give parameters fallback values.\n5. Rest Parameters \u2014 collect remaining arguments into an array.\n\nFunctions are first-class in JS: they can be stored in variables, passed as arguments, and returned from other functions.",
-  "route": "QUIZZES",
-  "code_example": "// 1. Function Declaration\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\n// 2. Function Expression\nconst square = function(n) { return n * n; };\n\n// 3. Arrow Function\nconst double = (n) => n * 2;\nconst add = (a, b) => a + b;\n\n// 4. Default Parameters\nfunction createUser(name, role = 'student') {\n  return { name, role };\n}\nconsole.log(createUser('Alice')); // { name: 'Alice', role: 'student' }\n\n// 5. Rest Parameters\nfunction sum(...nums) {\n  return nums.reduce((acc, n) => acc + n, 0);\n}\nconsole.log(sum(1, 2, 3, 4)); // 10"
-}

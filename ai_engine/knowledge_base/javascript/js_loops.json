@@ -1,7 +1,0 @@
-{
-  "intent": "js.loops",
-  "title": "JavaScript Concepts",
-  "response": "JavaScript provides several loop constructs:\n\n\u2022 for \u2014 classic; best when you need the index or a specific count.\n\u2022 while \u2014 repeats while condition is true; good when iterations are unknown.\n\u2022 do...while \u2014 executes body at least once, then checks condition.\n\u2022 for...of \u2014 iterates over iterable values (arrays, strings, maps, sets). Use for arrays.\n\u2022 for...in \u2014 iterates over object keys (enumerable properties). Use for objects, not arrays.\n\u2022 Array methods (forEach, map, filter) \u2014 functional alternatives; often cleaner for collections.\n\nbreakexits a loop early. continue skips the rest of the current iteration.",
-  "route": "QUIZZES",
-  "code_example": "// for \u2014 with index\nconst fruits = ['apple', 'banana', 'cherry'];\nfor (let i = 0; i < fruits.length; i++) {\n  console.log(i, fruits[i]);\n}\n\n// for...of \u2014 clean iteration over values\nfor (const fruit of fruits) {\n  console.log(fruit);\n}\n\n// for...in \u2014 over object keys\nconst person = { name: 'Alice', age: 30 };\nfor (const key in person) {\n  console.log(key, person[key]);\n}\n\n// while\nlet count = 0;\nwhile (count < 3) {\n  console.log(count++);\n}\n\n// break and continue\nfor (let n = 0; n < 10; n++) {\n  if (n === 3) continue; // skip 3\n  if (n === 6) break;    // stop at 6\n  console.log(n);        // 0 1 2 4 5\n}"
-}

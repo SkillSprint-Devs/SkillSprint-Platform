@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.error_handling",
+  "topic": "Error Handling (Try/Catch)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.conditionals"],
+    "related_to": ["js.async_await", "js.promises"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is try catch in javascript",
+      "what is a throw statement"
+    ],
+    "why": [
+      "why use try catch",
+      "why throw custom errors",
+      "why do we need finally"
+    ],
+    "how": [
+      "how to handle errors in js",
+      "how to write try catch finally",
+      "how to catch specific errors"
+    ],
+    "compare": [
+      "difference between try catch and if else"
+    ],
+    "output": [
+      "why does my code stop working when there is an error",
+      "how to prevent app from crashing"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Error handling allows your program to gracefully deal with unexpected problems instead of completely crashing. You 'try' a block of risky code, and if it fails, you 'catch' the error.",
+    "analogy": "Imagine you are doing a risky acrobatic jump (try block). If you fall, a safety net (catch block) catches you so you don't hit the ground. You brush yourself off, wrap up your performance (finally block), and the show continues instead of being cancelled."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an error is thrown (either by the JS engine or manually using `throw`), normal execution halts immediately. The engine walks up the Call Stack looking for the nearest `catch` block. If it finds one, it passes the Error object to it. The `finally` block runs regardless of whether an error occurred or not.",
+    "memory": "Error objects capture a stack trace, which represents the state of the Call Stack at the exact moment the error occurred. This is invaluable for debugging."
+  },
+  "3_real_world_example": {
+    "use_case": "Attempting to parse JSON data received from a server. If the data is malformed, we catch the error rather than crashing the whole app.",
+    "code": "const jsonString = '{\"name\": \"Alice\", bad json}';\n\ntry {\n  const user = JSON.parse(jsonString);\n  console.log('Parsed successfully:', user);\n} catch (error) {\n  console.error('Failed to parse user data!');\n  console.error(error.message); // Unexpected token b in JSON at position 18\n} finally {\n  console.log('Finished processing request.');\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `try/catch` can catch asynchronous errors inside callbacks (like `setTimeout`).",
+    "fix": "A `try/catch` only catches errors in synchronous code executing in the current call stack. To catch async errors, use `.catch()` on Promises or wrap an `await` statement inside an `async` function with a try/catch."
+  },
+  "5_related_topics": [
+    "js.async_await",
+    "js.promises"
+  ],
+  "6_edge_case": {
+    "quirk": "You can throw *anything* in JavaScript, not just Error objects. You can `throw 'hello'` or `throw 42`, but this is a bad practice.",
+    "code": "try {\n  throw 'Something broke!'; // ❌ Bad practice\n} catch (e) {\n  // e is just the string 'Something broke!'\n  // It has no stack trace (e.stack is undefined)\n}\n// ✅ Good practice:\n// throw new Error('Something broke!');"
+  }
+}

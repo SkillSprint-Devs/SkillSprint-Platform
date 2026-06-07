@@ -1,7 +1,7 @@
 {
   "version": "1.1",
-  "intent": "js.conditionals",
-  "topic": "Conditionals",
+  "intent": "js.conditionals_basic",
+  "topic": "Conditionals (Intro)",
   "dimensions": {
     "syntax": true,
     "semantics": true,

@@ -1,7 +1,7 @@
 {
   "version": "1.1",
-  "intent": "js.loops",
-  "topic": "Loops",
+  "intent": "js.loops_basic",
+  "topic": "Loops (Intro)",
   "dimensions": {
     "syntax": true,
     "semantics": true,

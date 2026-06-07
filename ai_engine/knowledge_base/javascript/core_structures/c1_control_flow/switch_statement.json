@@ -1,0 +1,60 @@
+{
+  "version": "1.1",
+  "intent": "js.switch_statement",
+  "topic": "Switch Statement",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.conditionals"],
+    "related_to": ["js.error_handling"],
+    "often_confused_with": ["js.conditionals"]
+  },
+  "question_map": {
+    "what": [
+      "what is a switch statement",
+      "how to use switch case"
+    ],
+    "why": [
+      "why use switch instead of if else",
+      "when is switch better"
+    ],
+    "how": [
+      "how does switch case work",
+      "how to group switch cases"
+    ],
+    "compare": [
+      "switch vs if else",
+      "difference between switch and if else"
+    ],
+    "output": [
+      "why do multiple cases run in my switch",
+      "what is fallthrough in switch"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A 'switch' statement is an alternative to writing many 'else if' statements. It takes a single value and matches it against multiple potential 'cases'.",
+    "analogy": "Imagine a telephone switchboard operator. You say 'Extension 3', and they instantly plug your wire into socket #3. They don't check socket 1, then socket 2, then socket 3 like an if-else chain would. They jump straight to the match."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine evaluates the expression once, then strictly compares (===) it to the cases. If a match is found, execution begins at that case and continues downward. You must use a 'break' statement to stop execution and exit the switch block.",
+    "memory": "Like if/else, switch statements do not have special memory overhead. However, 'let' and 'const' declarations inside cases share the same block scope unless you wrap individual cases in curly braces {}."
+  },
+  "3_real_world_example": {
+    "use_case": "Handling different user roles or standard string-based states like order statuses.",
+    "code": "const role = 'admin';\n\nswitch (role) {\n  case 'admin':\n    console.log('Full Access Granted');\n    break;\n  case 'editor':\n    console.log('Edit Access Granted');\n    break;\n  case 'viewer':\n    console.log('Read-Only Access');\n    break;\n  default:\n    console.log('Access Denied');\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting the `break` keyword, which causes 'fallthrough' where the engine keeps executing the next case's code even if the case didn't match.",
+    "fix": "Always include `break;` at the end of each case, unless you intentionally want to group multiple cases to run the exact same code."
+  },
+  "5_related_topics": [
+    "js.conditionals"
+  ],
+  "6_edge_case": {
+    "quirk": "Because switch uses strict equality (`===`), comparing a number string to a number case will fail.",
+    "code": "const status = '404'; // string\nswitch (status) {\n  case 404: // number\n    console.log('Not Found');\n    break;\n  default:\n    console.log('Status unknown'); // This runs!\n}"
+  }
+}

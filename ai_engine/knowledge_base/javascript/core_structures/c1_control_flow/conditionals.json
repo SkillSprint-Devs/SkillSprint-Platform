@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.conditionals",
+  "topic": "Conditionals (If/Else)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.data_types",
+      "js.operators"
+    ],
+    "related_to": [
+      "js.switch_statement",
+      "js.type_coercion"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is if else in js",
+      "how to use conditionals",
+      "what are conditionals"
+    ],
+    "why": [
+      "why use if else",
+      "when to use ternary operator"
+    ],
+    "how": [
+      "how does if else work",
+      "how to write an if statement"
+    ],
+    "compare": [
+      "difference between if else and ternary",
+      "if else vs switch"
+    ],
+    "output": [
+      "why does my if statement run when it's false",
+      "truthy falsy in conditionals"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Conditionals are decision-making structures in your code. They allow the program to execute certain blocks of code only if a specific condition is evaluated as 'true'.",
+    "analogy": "Think of conditionals like a bouncer at a club. The bouncer checks your ID (the condition). If you are over 18 (true), you go through the main door (the 'if' block). If not (false), you are directed to the exit (the 'else' block)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an 'if' statement is encountered, the JS engine evaluates the expression inside the parentheses. If the result is a 'truthy' value, the associated code block is executed. If it evaluates to a 'falsy' value (e.g., false, 0, \"\", null, undefined, NaN), it skips to the 'else if' or 'else' block.",
+    "memory": "Conditionals don't allocate new persistent memory for their blocks (except for block-scoped variables using let/const inside them)."
+  },
+  "3_real_world_example": {
+    "use_case": "Displaying a login button if a user is logged out, and a profile picture if they are logged in.",
+    "code": "const isLoggedIn = true;\n\nif (isLoggedIn) {\n  console.log('Show Profile Picture');\n} else {\n  console.log('Show Login Button');\n}\n\n// Ternary operator equivalent (great for simple assignments)\nconst buttonText = isLoggedIn ? 'Logout' : 'Login';"
+  },
+  "4_common_confusion": {
+    "trap": "Using the assignment operator '=' instead of the equality operator '===' inside the condition.",
+    "fix": "Always use '===' for comparisons. E.g., `if (userAge === 18)` instead of `if (userAge = 18)` (which assigns 18 to userAge and always evaluates to true)."
+  },
+  "5_related_topics": [
+    "js.switch_statement",
+    "js.type_coercion"
+  ],
+  "6_edge_case": {
+    "quirk": "Empty arrays `[]` and empty objects `{}` are truthy in JavaScript, which often catches beginners off guard.",
+    "code": "const items = [];\nif (items) {\n  console.log('This will print! An empty array is truthy.');\n}\n// Correct way to check for empty array:\nif (items.length > 0) {\n  console.log('Array has items');\n}"
+  }
+}

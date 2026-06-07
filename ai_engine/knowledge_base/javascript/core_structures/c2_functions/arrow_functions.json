@@ -1,0 +1,61 @@
+{
+  "version": "1.1",
+  "intent": "js.arrow_functions",
+  "topic": "Arrow Functions",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.functions"],
+    "related_to": ["js.this_keyword", "js.higher_order_functions"],
+    "often_confused_with": ["js.functions"]
+  },
+  "question_map": {
+    "what": [
+      "what is an arrow function",
+      "what is fat arrow syntax"
+    ],
+    "why": [
+      "why use arrow functions",
+      "why does this not work in arrow function"
+    ],
+    "how": [
+      "how to write an arrow function",
+      "how to return object in arrow function"
+    ],
+    "compare": [
+      "arrow function vs regular function",
+      "difference between arrow and normal functions"
+    ],
+    "output": [
+      "why is this undefined in arrow function",
+      "implicit return in arrow function not working"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Arrow functions (`() => {}`) are a shorter, more concise way to write functions in JavaScript, introduced in ES6.",
+    "analogy": "If a regular function is a standard four-door car, an arrow function is a sleek two-seater sports car. It's faster to write and lighter, but it strips out some heavy features (like its own 'this' steering wheel) to save weight."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Arrow functions have a 'lexical this'. Unlike regular functions, which create their own `this` binding based on *how* they are called, arrow functions inherit `this` from the surrounding scope where they were *defined*. They also do not have their own `arguments` object.",
+    "memory": "Arrow functions cannot be used as Constructors (you cannot use the `new` keyword on them) because they lack a `prototype` property and their own `this` context."
+  },
+  "3_real_world_example": {
+    "use_case": "Writing clean, concise callback functions for array methods like map(), filter(), or setTimeout().",
+    "code": "const prices = [10, 20, 30];\n\n// Regular function callback\nconst doubled1 = prices.map(function(p) {\n  return p * 2;\n});\n\n// Arrow function callback (implicit return)\nconst doubled2 = prices.map(p => p * 2);\n\n// Arrow function returning an object implicitly\nconst createItem = (name, price) => ({ name, price });\nconsole.log(createItem('Apple', 2)); // { name: 'Apple', price: 2 }"
+  },
+  "4_common_confusion": {
+    "trap": "Using an arrow function as an object method and discovering that `this` doesn't point to the object.",
+    "fix": "Never use arrow functions for object methods if you need to access other properties on the object via `this`. Use regular function syntax instead."
+  },
+  "5_related_topics": [
+    "js.functions",
+    "js.this_keyword"
+  ],
+  "6_edge_case": {
+    "quirk": "Trying to implicitly return an object literal without wrapping it in parentheses will break because the JS engine thinks the `{}` are the function's block scope.",
+    "code": "// ❌ Breaks: engine thinks {} is a code block, so 'id: 1' is a syntax error or a label.\n// const makeUser = id => { id: id }; \n\n// ✅ Fix: wrap the object in parentheses\nconst makeUser = id => ({ id: id });"
+  }
+}

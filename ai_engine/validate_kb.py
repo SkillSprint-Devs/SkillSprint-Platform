@@ -38,17 +38,19 @@ def validate_kb():
     else:
         print("[PASS] All files referenced in main index.json exist.")
 
-    # 3. Find and validate all fundamentals JS JSON files
-    fundamentals_dir = os.path.join(KB_DIR, "javascript", "fundamentals")
-    if not os.path.exists(fundamentals_dir):
-        print(f"[ERROR] Fundamentals directory missing at: {fundamentals_dir}")
-        sys.exit(1)
-
+    # 3. Find and validate all fundamentals and core_structures JS JSON files
+    js_dirs = [
+        os.path.join(KB_DIR, "javascript", "fundamentals"),
+        os.path.join(KB_DIR, "javascript", "core_structures")
+    ]
+    
     json_files = []
-    for root, _, files in os.walk(fundamentals_dir):
-        for file in files:
-            if file.endswith(".json") and file != "index.json":
-                json_files.append(os.path.join(root, file))
+    for d in js_dirs:
+        if os.path.exists(d):
+            for root, _, files in os.walk(d):
+                for file in files:
+                    if file.endswith(".json") and file != "index.json":
+                        json_files.append(os.path.join(root, file))
 
     print(f"[INFO] Found {len(json_files)} fundamentals concept pack files to validate.")
     

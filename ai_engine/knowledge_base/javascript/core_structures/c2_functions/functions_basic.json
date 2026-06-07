@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.functions",
+  "topic": "Functions (Basics)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables", "js.scope"],
+    "related_to": ["js.arrow_functions", "js.closures", "js.higher_order_functions"],
+    "often_confused_with": ["js.arrow_functions"]
+  },
+  "question_map": {
+    "what": [
+      "what is a function in javascript",
+      "what is a function declaration",
+      "what is a function expression"
+    ],
+    "why": [
+      "why do we use functions",
+      "why use function expression vs declaration"
+    ],
+    "how": [
+      "how to write a function",
+      "how to return a value from a function",
+      "how to pass arguments"
+    ],
+    "compare": [
+      "function declaration vs function expression",
+      "parameters vs arguments"
+    ],
+    "output": [
+      "why is my function returning undefined",
+      "why does my function run immediately when i pass it"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A function is a reusable block of code designed to perform a specific task. You define it once, and you can 'call' or 'invoke' it as many times as you want.",
+    "analogy": "Think of a function like a specialized kitchen appliance, like a blender. The ingredients you put in are the 'arguments'. Pressing the button is 'calling' the function. The smoothie that pours out is the 'return' value."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you call a function, the JS engine pushes a new 'Execution Context' onto the Call Stack. This creates a fresh local memory space for the function's variables and parameters. Once the function hits a 'return' statement (or the end of the block), the context is popped off the stack and destroyed.",
+    "memory": "Function Declarations are fully hoisted during compilation, meaning you can call them before they appear in the code. Function Expressions (assigned to a variable) are only hoisted as variables, not as callable functions."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a reusable piece of logic to calculate taxes for a shopping cart checkout.",
+    "code": "// 1. Function Declaration (Hoisted!)\nconsole.log(calcTax(100)); // 15\n\nfunction calcTax(amount) {\n  return amount * 0.15;\n}\n\n// 2. Function Expression (Not hoisted!)\nconst applyDiscount = function(price, discount) {\n  return price - discount;\n};\nconsole.log(applyDiscount(50, 10)); // 40"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing parameters and arguments. Also, executing a function immediately when trying to pass it as a reference to an event listener.",
+    "fix": "'Parameters' are the variables listed in the function definition. 'Arguments' are the actual values passed in when calling it. When passing a function to an event listener, use `button.onclick = myFunc;` (reference), NOT `button.onclick = myFunc();` (which runs it immediately and assigns the return value)."
+  },
+  "5_related_topics": [
+    "js.arrow_functions",
+    "js.scope"
+  ],
+  "6_edge_case": {
+    "quirk": "If a function doesn't have a `return` keyword, it implicitly returns `undefined`.",
+    "code": "function doNothing() {\n  const x = 10;\n  // no return statement\n}\n\nconst result = doNothing();\nconsole.log(result); // undefined"
+  }
+}

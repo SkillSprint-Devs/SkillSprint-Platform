@@ -177,7 +177,7 @@ class IntentResolver:
                                             "topic_level": kb_data.get("topic_level", "beginner"),
                                             "response_type": "mixed",
                                             "response": "",  # will be dynamically assembled
-                                            "route": kb_data.get("route", "QUIZZES"),
+                                            "route": kb_data.get("route", "CHAT_WORKSPACE"),
                                             "keywords": kb_data.get("aliases", []) + [kb_data.get("topic", "")]
                                         }
 

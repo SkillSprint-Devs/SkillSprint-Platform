@@ -1,0 +1,61 @@
+{
+  "version": "1.1",
+  "intent": "js.closures",
+  "topic": "Closures (Intro)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.scope", "js.functions"],
+    "related_to": ["js.higher_order_functions", "js.execution_context_intro"],
+    "often_confused_with": ["js.scope"]
+  },
+  "question_map": {
+    "what": [
+      "what is a closure",
+      "what are closures in javascript"
+    ],
+    "why": [
+      "why use closures",
+      "what is the purpose of a closure"
+    ],
+    "how": [
+      "how do closures work",
+      "how to create a closure"
+    ],
+    "compare": [
+      "closure vs scope",
+      "closure vs class"
+    ],
+    "output": [
+      "why does my inner function still have access to destroyed variables",
+      "stale closure in react"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A closure is a function that remembers the variables from its outer scope even after that outer function has finished running and returned.",
+    "analogy": "Imagine you are packing a backpack (inner function) inside your house (outer function). You put your house keys (outer variable) in the backpack. When you leave the house (the outer function finishes), you still have access to the house keys because they are safely packed inside your backpack. The backpack is the closure!"
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Every function in JavaScript naturally forms a closure. When an inner function is created, the JS engine attaches a hidden `[[Environment]]` property to it. This property holds a reference to the exact Lexical Environment (scope) where the function was born.",
+    "memory": "Normally, when a function finishes executing, its local memory is garbage collected. However, if an inner function is returned and stored in a variable, its `[[Environment]]` reference keeps the outer function's variable memory alive indefinitely on the Heap."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating private variables and factory functions (Data Encapsulation) so other parts of the codebase can't accidentally change the state.",
+    "code": "function createCounter() {\n  let count = 0; // Private variable\n  \n  return function increment() { \n    // Inner function forms a closure over 'count'\n    count++;\n    return count;\n  };\n}\n\n// Outer function runs and finishes. Returns the inner function.\nconst myCounter = createCounter(); \n\n// myCounter still remembers 'count'!\nconsole.log(myCounter()); // 1\nconsole.log(myCounter()); // 2"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking closures capture the *value* of a variable at the time they are created. They actually capture a *live reference* to the variable.",
+    "fix": "If the outer variable changes, the inner function will see the new updated value, because it's looking at the memory address, not a copy of the old value."
+  },
+  "5_related_topics": [
+    "js.higher_order_functions",
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "The classic loop bug: Using `var` inside a `for` loop with a `setTimeout` creates a closure over the exact same `var` memory address. By the time the timeout runs, the loop has already finished and the `var` is at its max value.",
+    "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); \n  // Prints: 3, 3, 3 (because 'i' is shared across all closures)\n}\n\n// ✅ Fix: Use 'let' which creates a fresh block-scoped variable per iteration.\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); \n  // Prints: 0, 1, 2\n}"
+  }
+}

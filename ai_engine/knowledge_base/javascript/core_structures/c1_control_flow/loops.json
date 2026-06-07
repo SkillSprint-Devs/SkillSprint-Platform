@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.loops",
+  "topic": "Loops & Iteration",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables", "js.conditionals"],
+    "related_to": ["js.arrays", "js.objects", "js.higher_order_functions"],
+    "often_confused_with": ["js.higher_order_functions"]
+  },
+  "question_map": {
+    "what": [
+      "what is a loop",
+      "what are the different loops in js"
+    ],
+    "why": [
+      "why do we use loops",
+      "why use for of instead of for"
+    ],
+    "how": [
+      "how to write a for loop",
+      "how to loop through an array",
+      "how does a while loop work"
+    ],
+    "compare": [
+      "for in vs for of",
+      "difference between while and do while",
+      "for loop vs forEach"
+    ],
+    "output": [
+      "how to break out of a loop",
+      "what does continue do in a loop",
+      "infinite loop in javascript"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Loops allow you to run the exact same block of code multiple times. This is essential for doing repetitive tasks, like processing every item in a list.",
+    "analogy": "Think of a loop like a running track. A `for` loop is telling an athlete: 'Run exactly 5 laps.' A `while` loop is telling them: 'Keep running until you feel tired.' They just keep circling the track (executing the code block) until the stop condition is met."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "A standard `for` loop evaluates an initial expression, checks the condition before every iteration, runs the block, and then evaluates the increment expression. `break` immediately kills the loop, while `continue` skips the rest of the current iteration and jumps to the next one.",
+    "memory": "Be careful with closures inside loops. If you use `var` as the loop counter, the same memory address is shared across all iterations. Using `let` binds a fresh counter variable to each individual iteration's block scope."
+  },
+  "3_real_world_example": {
+    "use_case": "Processing an array of data, such as calculating the total price of items in a shopping cart.",
+    "code": "const cartPrices = [15.99, 20.00, 5.50];\nlet total = 0;\n\n// Modern loop for arrays\nfor (const price of cartPrices) {\n  total += price;\n}\nconsole.log(`Total: $${total}`);\n\n// Classic for loop\nfor (let i = 0; i < cartPrices.length; i++) {\n  // Do something with cartPrices[i]\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing `for...in` and `for...of`.",
+    "fix": "`for...in` iterates over the KEYS (property names) of an object. `for...of` iterates over the VALUES of an iterable (like an array or string). A good mnemonic: 'IN' is for Object prop-IN-ties. 'OF' is for Array values OF data."
+  },
+  "5_related_topics": [
+    "js.arrays",
+    "js.higher_order_functions"
+  ],
+  "6_edge_case": {
+    "quirk": "Accidentally creating an infinite loop by forgetting to update the condition variable in a `while` loop, which will freeze the browser tab.",
+    "code": "let count = 0;\nwhile (count < 3) {\n  console.log('Running');\n  // ❌ If we forget `count++`, count stays 0 forever.\n  // The loop never stops.\n  count++; // ✅ Essential\n}"
+  }
+}

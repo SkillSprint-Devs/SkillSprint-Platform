@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.recursion",
+  "topic": "Recursion",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.conditionals"],
+    "related_to": ["js.loops", "js.execution_context_intro"],
+    "often_confused_with": ["js.loops"]
+  },
+  "question_map": {
+    "what": [
+      "what is recursion",
+      "what is a recursive function",
+      "what is a base case"
+    ],
+    "why": [
+      "why use recursion instead of loops",
+      "when to use recursion"
+    ],
+    "how": [
+      "how does recursion work",
+      "how to write a recursive function"
+    ],
+    "compare": [
+      "recursion vs loops",
+      "iteration vs recursion"
+    ],
+    "output": [
+      "maximum call stack size exceeded",
+      "stack overflow in javascript"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Recursion is a technique where a function calls itself repeatedly to solve a smaller piece of a problem until it reaches a stopping point (called a 'base case').",
+    "analogy": "Imagine standing in a line of people and you want to know how many people are in front of you. You ask the person in front of you: 'How many people are in front of you?'. They don't know, so they ask the person in front of them, and so on. Finally, the first person in line says '0'. Then the second person adds 1 and tells the third person '1', and the message passes backward until you get your answer. That's recursion!"
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Every time the function calls itself, the JS engine pauses the current function and pushes a new Execution Context onto the Call Stack. It keeps stacking contexts until the base case is hit. Then, it resolves the base case and begins popping contexts off the stack one by one, resolving the paused calculations backward.",
+    "memory": "Because every recursive call adds a new layer to the Call Stack, deep recursion can consume a lot of memory. If it goes too deep without a base case, it exceeds the engine's memory limit, throwing a 'Maximum call stack size exceeded' error (Stack Overflow)."
+  },
+  "3_real_world_example": {
+    "use_case": "Navigating nested data structures, like a folder directory tree, where folders can contain more folders infinitely.",
+    "code": "// Calculate factorial (e.g., 5! = 5 * 4 * 3 * 2 * 1)\nfunction factorial(n) {\n  // 1. Base Case (Stopping condition)\n  if (n === 1) return 1;\n\n  // 2. Recursive Case (Calling itself with a smaller piece)\n  return n * factorial(n - 1);\n}\n\nconsole.log(factorial(5)); // 120"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting the 'return' keyword on the recursive call.",
+    "fix": "If your function is expected to return a value, you MUST return the recursive call. i.e., `return n * factorial(n-1)`, not just `factorial(n-1)`. Otherwise, the chain is broken and you'll get `undefined`."
+  },
+  "5_related_topics": [
+    "js.loops",
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "JavaScript engines historically do not optimize 'Tail Calls', meaning even perfectly written recursive functions can blow the stack if they run tens of thousands of times. Iteration (loops) is generally safer for flat, massive lists in JS.",
+    "code": "function infiniteRecursion() {\n  return infiniteRecursion();\n}\n// Calling this will crash: \n// \u274c RangeError: Maximum call stack size exceeded"
+  }
+}
