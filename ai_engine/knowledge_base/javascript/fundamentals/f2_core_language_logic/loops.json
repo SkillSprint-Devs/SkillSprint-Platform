@@ -9,7 +9,7 @@
   },
   "relationships": {
     "depends_on": ["js.conditionals"],
-    "related_to": ["js.scope_basic"],
+    "related_to": ["js.scope"],
     "often_confused_with": []
   },
   "question_map": {
@@ -54,7 +54,7 @@
     "fix": "Always use 'for...of' for arrays and iterable values. Use 'for...in' only when you need to inspect the key properties of an object."
   },
   "5_related_topics": [
-    "js.scope_basic"
+    "js.scope"
   ],
   "6_edge_case": {
     "quirk": "If you declare loop iterators using 'var' inside a loop header, the variable leaks out into the surrounding scope because 'var' ignores block boundaries. Furthermore, asynchronous functions inside the loop will reference the final state of the variable.",

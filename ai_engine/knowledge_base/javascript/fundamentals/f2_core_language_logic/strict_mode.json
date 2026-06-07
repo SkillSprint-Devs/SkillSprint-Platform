@@ -9,7 +9,7 @@
   },
   "relationships": {
     "depends_on": ["js.variables"],
-    "related_to": ["js.scope_basic"],
+    "related_to": ["js.scope"],
     "often_confused_with": []
   },
   "question_map": {
@@ -53,7 +53,7 @@
     "fix": "Ensure all variables are explicitly declared using let or const, and place 'use strict' at the top of your scripts (or use ES modules, which enable strict mode automatically)."
   },
   "5_related_topics": [
-    "js.scope_basic"
+    "js.scope"
   ],
   "6_edge_case": {
     "quirk": "In non-strict mode, calling a function (like `func()`) sets its internal `this` value to the global window object. In strict mode, `this` inside standard standalone functions resolves to `undefined`.",

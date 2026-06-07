@@ -65,6 +65,7 @@ try {
     }
     Test-PortFree -Port 4000
     Test-PortFree -Port 5000
+    Test-PortFree -Port 5050
 
     # Pull / build required images
     Write-Log "Pulling latest Docker images..."
@@ -77,10 +78,10 @@ try {
         exit 1
     }
 
-    # Start execution-service container
-    Write-Log "Starting execution-service container..."
+    # Start Docker containers
+    Write-Log "Starting Docker containers (execution-service, ai-engine)..."
     $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-    docker compose up -d execution-service
+    docker compose up -d --build execution-service ai-engine
     $upExit = $LASTEXITCODE
     $ErrorActionPreference = $saved
     if ($upExit -ne 0) {
@@ -92,6 +93,7 @@ try {
     # docker compose ps -q is reliable regardless of the auto-generated container name (e.g. skillsprint-execution-service-1)
     Start-Sleep -Seconds 2
     $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    
     $runningId = docker compose ps -q execution-service 2>$null
     if (-not $runningId) {
         $logs = docker compose logs --tail 20 execution-service 2>&1
@@ -99,8 +101,17 @@ try {
         Write-Log "execution-service container is not in running state.`nLast logs:`n$logs" "ERROR"
         exit 1
     }
-    $ErrorActionPreference = $saved
     Write-Log "execution-service container is running (ID: $runningId)."
+
+    $aiRunningId = docker compose ps -q ai-engine 2>$null
+    if (-not $aiRunningId) {
+        $logs = docker compose logs --tail 20 ai-engine 2>&1
+        $ErrorActionPreference = $saved
+        Write-Log "ai-engine container is not in running state.`nLast logs:`n$logs" "ERROR"
+        exit 1
+    }
+    $ErrorActionPreference = $saved
+    Write-Log "ai-engine container is running (ID: $aiRunningId)."
 
     # Wait for health endpoint
     $healthUrl = "http://localhost:4000/health"
@@ -125,6 +136,30 @@ try {
         $finalLogs = docker compose logs execution-service 2>&1
         $ErrorActionPreference = $saved
         Write-Log "Execution service failed health check after $maxAttempts attempts. Container logs:`n$finalLogs" "ERROR"
+        exit 1
+    }
+
+    # Wait for ai-engine health endpoint
+    $aiHealthUrl = "http://localhost:5050/health"
+    $attemptAi = 0
+    while ($attemptAi -lt $maxAttempts) {
+        try {
+            $response = Invoke-WebRequest -Uri $aiHealthUrl -UseBasicParsing -TimeoutSec 4 -ErrorAction Stop
+            if ($response.StatusCode -eq 200) {
+                Write-Log "AI Engine is healthy."
+                break
+            }
+        } catch {
+            Write-Log "Waiting for AI Engine health... (attempt $($attemptAi+1))"
+        }
+        Start-Sleep -Seconds 5
+        $attemptAi++
+    }
+    if ($attemptAi -eq $maxAttempts) {
+        $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+        $finalLogs = docker compose logs ai-engine 2>&1
+        $ErrorActionPreference = $saved
+        Write-Log "AI Engine failed health check after $maxAttempts attempts. Container logs:`n$finalLogs" "ERROR"
         exit 1
     }
 

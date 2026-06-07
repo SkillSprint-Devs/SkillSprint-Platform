@@ -1,235 +1,19 @@
 {
-  "training_time_seconds": 38.67,
-  "train_samples": 2086,
-  "val_samples": 499,
-  "n_classes": 117,
-  "n_features": 1151,
-  "train_accuracy": 0.9679,
-  "train_macro_f1": 0.9585,
-  "val_accuracy": 0.7976,
-  "val_macro_f1": 0.7255,
+  "training_time_seconds": 40.16,
+  "train_samples": 2182,
+  "val_samples": 564,
+  "n_classes": 76,
+  "n_features": 1222,
+  "train_accuracy": 0.9725,
+  "train_macro_f1": 0.9707,
+  "val_accuracy": 0.828,
+  "val_macro_f1": 0.8113,
   "val_per_class": {
-    "js.arrays": {
-      "precision": 0.6667,
-      "recall": 1.0,
-      "f1": 0.8,
-      "support": 2
-    },
-    "js.arrow_functions": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 2
-    },
-    "js.async_await": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 1
-    },
-    "js.callbacks": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 3
-    },
-    "js.classes": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 1
-    },
-    "js.closures": {
-      "precision": 1.0,
-      "recall": 0.5,
-      "f1": 0.6667,
-      "support": 4
-    },
-    "js.data_types": {
-      "precision": 1.0,
-      "recall": 0.5,
-      "f1": 0.6667,
-      "support": 2
-    },
-    "js.date": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 1
-    },
-    "js.destructuring": {
-      "precision": 1.0,
-      "recall": 0.5,
-      "f1": 0.6667,
-      "support": 2
-    },
-    "js.dom": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 1
-    },
-    "js.error_handling": {
-      "precision": 0.6667,
-      "recall": 1.0,
-      "f1": 0.8,
-      "support": 2
-    },
-    "js.event_loop": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 3
-    },
-    "js.events": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 0
-    },
-    "js.fetch_api": {
-      "precision": 1.0,
-      "recall": 0.5,
-      "f1": 0.6667,
-      "support": 4
-    },
-    "js.functions": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 2
-    },
-    "js.generators": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 0
-    },
-    "js.higher_order_functions": {
-      "precision": 0.6667,
-      "recall": 1.0,
-      "f1": 0.8,
-      "support": 2
-    },
-    "js.iterators": {
-      "precision": 1.0,
-      "recall": 0.5,
-      "f1": 0.6667,
-      "support": 2
-    },
-    "js.local_storage": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 1
-    },
-    "js.loops": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 3
-    },
-    "js.math": {
-      "precision": 0.6667,
-      "recall": 1.0,
-      "f1": 0.8,
-      "support": 2
-    },
-    "js.modules": {
-      "precision": 0.5,
-      "recall": 0.5,
-      "f1": 0.5,
-      "support": 2
-    },
-    "js.nullish_coalescing": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 1
-    },
-    "js.object_immutability": {
-      "precision": 1.0,
-      "recall": 0.5,
-      "f1": 0.6667,
-      "support": 2
-    },
-    "js.objects": {
-      "precision": 0.3333,
-      "recall": 1.0,
-      "f1": 0.5,
-      "support": 1
-    },
-    "js.optional_chaining": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 0
-    },
-    "js.promises": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 1
-    },
-    "js.prototypes": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 1
-    },
-    "js.proxy_reflect": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 2
-    },
-    "js.scope": {
-      "precision": 0.5,
-      "recall": 1.0,
-      "f1": 0.6667,
-      "support": 2
-    },
-    "js.spread_rest": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 3
-    },
-    "js.string_methods": {
-      "precision": 1.0,
-      "recall": 0.5,
-      "f1": 0.6667,
-      "support": 2
-    },
-    "js.symbols": {
-      "precision": 0.3333,
-      "recall": 1.0,
-      "f1": 0.5,
-      "support": 1
-    },
-    "js.template_literals": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 1
-    },
-    "js.this_keyword": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 2
-    },
-    "js.type_coercion": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 2
-    },
-    "js.variables": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 1
+    "js.fundamentals.query": {
+      "precision": 0.7937,
+      "recall": 0.9845,
+      "f1": 0.8789,
+      "support": 129
     },
     "platform.ai.ask": {
       "precision": 0.8333,
@@ -280,21 +64,21 @@
       "support": 5
     },
     "platform.help.auth": {
-      "precision": 0.8333,
-      "recall": 1.0,
-      "f1": 0.9091,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
       "support": 5
     },
     "platform.help.notifications": {
-      "precision": 0.8333,
-      "recall": 1.0,
-      "f1": 0.9091,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
       "support": 5
     },
     "platform.help.system_health": {
-      "precision": 0.7143,
-      "recall": 1.0,
-      "f1": 0.8333,
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
       "support": 5
     },
     "platform.library.preview": {
@@ -304,9 +88,9 @@
       "support": 5
     },
     "platform.library.search": {
-      "precision": 0.8333,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1": 0.9091,
+      "f1": 1.0,
       "support": 5
     },
     "platform.library.upload": {
@@ -322,9 +106,9 @@
       "support": 5
     },
     "platform.matchmaking.feed": {
-      "precision": 0.625,
-      "recall": 1.0,
-      "f1": 0.7692,
+      "precision": 0.6667,
+      "recall": 0.8,
+      "f1": 0.7273,
       "support": 5
     },
     "platform.matchmaking.find": {
@@ -347,14 +131,14 @@
     },
     "platform.new.can_earn_certificates": {
       "precision": 1.0,
-      "recall": 0.4286,
-      "f1": 0.6,
+      "recall": 0.2857,
+      "f1": 0.4444,
       "support": 7
     },
     "platform.new.can_edit_comment_after": {
-      "precision": 1.0,
-      "recall": 0.8571,
-      "f1": 0.9231,
+      "precision": 0.7143,
+      "recall": 0.7143,
+      "f1": 0.7143,
       "support": 7
     },
     "platform.new.can_invite_someone_outside": {
@@ -370,9 +154,9 @@
       "support": 7
     },
     "platform.new.can_like_own_post": {
-      "precision": 0.8571,
-      "recall": 0.8571,
-      "f1": 0.8571,
+      "precision": 0.8333,
+      "recall": 0.7143,
+      "f1": 0.7692,
       "support": 7
     },
     "platform.new.can_message_someone_not": {
@@ -394,9 +178,9 @@
       "support": 7
     },
     "platform.new.can_save_whiteboard_drawings": {
-      "precision": 0.625,
-      "recall": 0.7143,
-      "f1": 0.6667,
+      "precision": 0.75,
+      "recall": 0.8571,
+      "f1": 0.8,
       "support": 7
     },
     "platform.new.can_sort_tasks_priority": {
@@ -412,21 +196,21 @@
       "support": 7
     },
     "platform.new.how_delete_chat_message": {
-      "precision": 1.0,
+      "precision": 0.875,
       "recall": 1.0,
-      "f1": 1.0,
+      "f1": 0.9333,
       "support": 7
     },
     "platform.new.how_leave_live_session": {
       "precision": 1.0,
-      "recall": 0.8571,
-      "f1": 0.9231,
+      "recall": 0.5714,
+      "f1": 0.7273,
       "support": 7
     },
     "platform.new.how_update_profile_information": {
-      "precision": 0.7778,
-      "recall": 1.0,
-      "f1": 0.875,
+      "precision": 0.75,
+      "recall": 0.8571,
+      "f1": 0.8,
       "support": 7
     },
     "platform.new.how_verify_email_after": {
@@ -436,21 +220,21 @@
       "support": 7
     },
     "platform.new.what_cant_see_new": {
-      "precision": 0.375,
+      "precision": 0.4286,
       "recall": 0.4286,
-      "f1": 0.4,
+      "f1": 0.4286,
       "support": 7
     },
     "platform.new.what_complete_task_early": {
-      "precision": 0.8571,
-      "recall": 0.8571,
-      "f1": 0.8571,
+      "precision": 1.0,
+      "recall": 0.7143,
+      "f1": 0.8333,
       "support": 7
     },
     "platform.new.what_drawing_disappears_the": {
-      "precision": 0.6,
+      "precision": 0.75,
       "recall": 0.4286,
-      "f1": 0.5,
+      "f1": 0.5455,
       "support": 7
     },
     "platform.new.what_join_live_session": {
@@ -467,8 +251,8 @@
     },
     "platform.new.what_screen_sharing_fails": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "recall": 0.8571,
+      "f1": 0.9231,
       "support": 7
     },
     "platform.new.what_should_the_shared": {
@@ -485,8 +269,8 @@
     },
     "platform.new.what_the_shared_library": {
       "precision": 1.0,
-      "recall": 0.4286,
-      "f1": 0.6,
+      "recall": 0.2857,
+      "f1": 0.4444,
       "support": 7
     },
     "platform.new.what_the_wallet_feature": {
@@ -503,8 +287,8 @@
     },
     "platform.new.why_cant_see_tasks": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "recall": 0.8571,
+      "f1": 0.9231,
       "support": 7
     },
     "platform.new.why_the_enter_workspace": {
@@ -515,8 +299,8 @@
     },
     "platform.pair_prog.comment": {
       "precision": 1.0,
-      "recall": 0.8,
-      "f1": 0.8889,
+      "recall": 0.6,
+      "f1": 0.75,
       "support": 5
     },
     "platform.pair_prog.create": {
@@ -526,9 +310,9 @@
       "support": 5
     },
     "platform.pair_prog.execute": {
-      "precision": 0.8333,
-      "recall": 1.0,
-      "f1": 0.9091,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.pair_prog.invite": {
@@ -550,15 +334,15 @@
       "support": 5
     },
     "platform.quiz.feedback": {
-      "precision": 0.625,
-      "recall": 1.0,
-      "f1": 0.7692,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
       "support": 5
     },
     "platform.quiz.limits": {
-      "precision": 0.8333,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1": 0.9091,
+      "f1": 1.0,
       "support": 5
     },
     "platform.quiz.list_courses": {
@@ -575,8 +359,8 @@
     },
     "platform.quiz.start": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.quiz.unlocks": {
@@ -634,9 +418,9 @@
       "support": 5
     },
     "platform.task.create": {
-      "precision": 0.5,
+      "precision": 1.0,
       "recall": 0.6,
-      "f1": 0.5455,
+      "f1": 0.75,
       "support": 5
     },
     "platform.task.reminder": {
@@ -659,20 +443,20 @@
     },
     "platform.wallet.reset": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
       "support": 5
     },
     "platform.whiteboard.join": {
-      "precision": 0.3333,
+      "precision": 0.4,
       "recall": 0.4,
-      "f1": 0.3636,
+      "f1": 0.4,
       "support": 5
     },
     "platform.whiteboard.presence": {
-      "precision": 0.5714,
-      "recall": 0.8,
-      "f1": 0.6667,
+      "precision": 0.5,
+      "recall": 0.6,
+      "f1": 0.5455,
       "support": 5
     },
     "platform.whiteboard.tools": {
@@ -695,48 +479,7 @@
     "C": 1.0
   },
   "classes": [
-    "js.arrays",
-    "js.arrow_functions",
-    "js.async_await",
-    "js.callbacks",
-    "js.classes",
-    "js.closures",
-    "js.currying",
-    "js.data_types",
-    "js.date",
-    "js.destructuring",
-    "js.dom",
-    "js.error_handling",
-    "js.event_loop",
-    "js.events",
-    "js.fetch_api",
-    "js.functions",
-    "js.generators",
-    "js.higher_order_functions",
-    "js.hoisting",
-    "js.iterators",
-    "js.json",
-    "js.local_storage",
-    "js.loops",
-    "js.map_set",
-    "js.math",
-    "js.modules",
-    "js.nullish_coalescing",
-    "js.object_immutability",
-    "js.objects",
-    "js.optional_chaining",
-    "js.promises",
-    "js.prototypes",
-    "js.proxy_reflect",
-    "js.regex",
-    "js.scope",
-    "js.spread_rest",
-    "js.string_methods",
-    "js.symbols",
-    "js.template_literals",
-    "js.this_keyword",
-    "js.type_coercion",
-    "js.variables",
+    "js.fundamentals.query",
     "platform.ai.ask",
     "platform.ai.capabilities",
     "platform.ai.feedback",

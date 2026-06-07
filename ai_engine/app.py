@@ -81,10 +81,16 @@ _JS_SIGNAL_TOKENS = {
     "microtask", "macrotask", "currying", "curry", "higher order",
     "template literal", "localStorage", "localstorage", "regex",
     "map set", "weakmap", "weakset", "es6", "es2015", "ecmascript",
+    "comment", "comments", "console", "expression", "expressions",
+    "statement", "statements", "operator", "operators", "strict",
+    "strictmode", "conditional", "conditionals", "ifelse", "switch",
+    "loop", "loops", "stack", "heap", "memory", "context", "execution",
     # Stemmed variants (produced by text_cleaner's stemmer)
     "closur", "promis", "callb", "destructur", "iteratur",
     "coers", "curri", "generat", "hoistl", "prototyp",
     "templat", "literl", "weakmap", "weakset",
+    "comment", "consol", "express", "stat", "oper", "strict",
+    "condit", "loop", "execut",
 }
 
 
@@ -180,7 +186,7 @@ def _resolve_by_tier(intent_label: str, cleaned: str, user_context: dict = None)
       - anything else → platform resolver (which has fallback)
     """
     if intent_label.startswith("js.") and _js_resolver:
-        resolved = _js_resolver.resolve(intent_label, user_context)
+        resolved = _js_resolver.resolve(intent_label, user_context, query=cleaned)
         # Inherit old fallback behaviour for topic_level, response_type
         resolved["topic_level"] = _js_resolver._intents.get(
             intent_label, {}
@@ -240,7 +246,7 @@ def predict_intent(raw_text: str, user_context: dict = None) -> dict:
         if js_boosted and js_boosted[0][1] > 0.35:  # threshold for heuristic confidence
             best_intent  = js_boosted[0][0]
             best_confidence = min(0.80, 0.50 + js_boosted[0][1] * 0.1)  # scaled synthetic confidence
-            resolved = _resolve_by_tier(best_intent, cleaned, user_context)
+            resolved = _resolve_by_tier(best_intent, raw_text, user_context)
             resolved["confidence"] = round(best_confidence, 4)
             resolved["cleaned_text"] = cleaned
             resolved["method"] = "js_heuristic_boost"
@@ -308,7 +314,7 @@ def predict_intent(raw_text: str, user_context: dict = None) -> dict:
         return resolved
 
     # 7. Resolve intent → response via correct tier
-    resolved = _resolve_by_tier(best_intent, cleaned, user_context)
+    resolved = _resolve_by_tier(best_intent, raw_text, user_context)
     resolved["confidence"] = round(best_confidence, 4)
     resolved["cleaned_text"] = cleaned
     resolved["method"] = method

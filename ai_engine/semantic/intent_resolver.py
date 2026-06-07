@@ -149,15 +149,214 @@ class IntentResolver:
         return expanded
 
     def _load_kb_index(self):
-        """Load the knowledge_base registry index."""
+        """Load the knowledge_base registry index and dynamically scan javascript directory."""
         kb_index_path = os.path.join(_BASE_DIR, "knowledge_base", "index.json")
         if os.path.exists(kb_index_path):
             with open(kb_index_path, "r", encoding="utf-8") as f:
                 self._kb_index = json.load(f)
 
+        # Recursively scan javascript folder to automatically index files
+        js_dir = os.path.join(_BASE_DIR, "knowledge_base", "javascript")
+        if os.path.exists(js_dir):
+            for root, _, files in os.walk(js_dir):
+                for file in files:
+                    if file.endswith(".json") and file != "index.json":
+                        full_path = os.path.join(root, file)
+                        try:
+                            with open(full_path, "r", encoding="utf-8") as f_in:
+                                kb_data = json.load(f_in)
+                                intent = kb_data.get("intent")
+                                if intent:
+                                    rel_path = os.path.relpath(full_path, os.path.dirname(kb_index_path))
+                                    self._kb_index[intent] = rel_path.replace("\\", "/")
 
+                                    # Add to _intents dynamically so it acts as a registered intent metadata!
+                                    if intent not in self._intents:
+                                        self._intents[intent] = {
+                                            "category": kb_data.get("category", "JavaScript Concepts"),
+                                            "topic_level": kb_data.get("topic_level", "beginner"),
+                                            "response_type": "mixed",
+                                            "response": "",  # will be dynamically assembled
+                                            "route": kb_data.get("route", "QUIZZES"),
+                                            "keywords": kb_data.get("aliases", []) + [kb_data.get("topic", "")]
+                                        }
 
-    def load_knowledge_base(self, intent_label: str, default_response: str, default_route: str):
+                                        # Also add phrases in question_map to keywords
+                                        keywords = list(self._intents[intent]["keywords"])
+                                        qmap = kb_data.get("question_map", {})
+                                        for qtype, questions in qmap.items():
+                                            for q in questions:
+                                                keywords.append(q)
+
+                                        # Update inverted keyword index for semantic boost
+                                        for kw in keywords:
+                                            for word in kw.lower().split():
+                                                stemmed = _clean_kw(word)
+                                                if not stemmed:
+                                                    continue
+                                                if stemmed not in self._keyword_index:
+                                                    self._keyword_index[stemmed] = []
+                                                if intent not in self._keyword_index[stemmed]:
+                                                    self._keyword_index[stemmed].append(intent)
+
+                                        # Update category index
+                                        cat = self._intents[intent]["category"]
+                                        if cat not in self._category_index:
+                                            self._category_index[cat] = []
+                                        if intent not in self._category_index[cat]:
+                                            self._category_index[cat].append(intent)
+                        except Exception as e:
+                            print(f"[WARNING] Failed to auto-index {file}: {e}")
+
+    def _detect_query_focuses(self, query: str, question_map: dict) -> set:
+        """
+        Analyze user query to detect sub-intents (what, why, how, compare, output/confusion).
+        """
+        if not query:
+            return {"default"}
+        
+        query_lower = query.lower()
+        focuses = set()
+        
+        # 1. Broad keyword patterns
+        keywords_map = {
+            "what": ["what is", "define", "definition", "meaning", "intro", "explain"],
+            "why": ["why", "reason", "purpose", "benefit", "outdated", "better", "avoid", "problem"],
+            "how": ["how", "mechanism", "under the hood", "engine", "internals", "work", "stack", "heap", "execute", "run", "allocate"],
+            "compare": ["vs", "versus", "difference", "compare", "contrast", "differ", "distinguish"],
+            "output": ["output", "predict", "result", "happen", "prints", "console", "error", "bug", "wrong", "trap", "fail", "quirk", "weird", "edge case"]
+        }
+        
+        # Check for explicit code request
+        code_words = ["example", "code", "snippet", "show me", "write", "practice", "syntax", "demo"]
+        if any(w in query_lower for w in code_words):
+            focuses.add("example")
+
+        for key, words in keywords_map.items():
+            if any(w in query_lower for w in words):
+                focuses.add(key)
+                
+        # 2. Similarity overlap with question_map template questions
+        query_words = set(query_lower.split())
+        best_map_key = None
+        max_overlap = 0
+        
+        for key, questions in question_map.items():
+            for q in questions:
+                q_words = set(q.lower().split())
+                overlap = len(query_words & q_words)
+                if overlap > max_overlap:
+                    max_overlap = overlap
+                    best_map_key = key
+                    
+        # Add map key if Jaccard-style word overlap is significant
+        if max_overlap >= 2 and best_map_key:
+            focuses.add(best_map_key)
+            
+        return focuses
+
+    def _assemble_concept_pack_response(self, kb_data: dict, query: str = None) -> str:
+        """
+        Dynamically compile a premium textbook response from the Concept Pack data.
+        """
+        topic = kb_data.get("topic", "JavaScript Concept")
+        question_map = kb_data.get("question_map", {})
+        focuses = self._detect_query_focuses(query, question_map)
+        
+        # Compile dimensions header
+        dims = kb_data.get("dimensions", {})
+        dim_tags = []
+        for name, active in dims.items():
+            status = "🟢" if active else "🔴"
+            dim_tags.append(f"{name.capitalize()}: {status}")
+        dim_header = f"🏷️ **Curriculum Focus:** [{' | '.join(dim_tags)}]"
+        
+        sections = []
+        
+        # Determine which sections are selected based on focuses
+        is_default = len(focuses) == 0 or "what" in focuses or "default" in focuses
+        
+        # 1. Beginner Explanation (if default or explicitly requested)
+        if is_default or "why" in focuses or "compare" in focuses:
+            beg = kb_data.get("1_beginner_explanation", {})
+            if beg:
+                section_str = f"#### 💡 Quick Intuition (Analogy)\n> {beg.get('analogy', '')}\n\n**Concept Summary:**\n{beg.get('summary', '')}"
+                sections.append(section_str)
+                
+        # 2. Internal Mechanism (if default or 'how' or 'why' is requested)
+        if is_default or "how" in focuses or "why" in focuses:
+            mech = kb_data.get("2_internal_mechanism", {})
+            if mech:
+                section_str = f"#### ⚙️ How it Works (Internal Mechanism)\n• **Execution Flow:** {mech.get('execution_flow', '')}\n• **Memory Allocation:** {mech.get('memory', '')}"
+                sections.append(section_str)
+                
+        # 3. Real World Example (if default or 'example' is requested)
+        if is_default or "example" in focuses:
+            ex = kb_data.get("3_real_world_example", {})
+            if ex:
+                code_block = ex.get('code', '')
+                section_str = f"#### 💻 Real-World Example\n*Use Case: {ex.get('use_case', '')}*\n```javascript\n{code_block}\n```"
+                sections.append(section_str)
+                
+        # 4. Common Confusion (if 'why' or 'compare' or 'output' requested)
+        if "why" in focuses or "compare" in focuses or "output" in focuses:
+            conf = kb_data.get("4_common_confusion", {})
+            if conf:
+                section_str = f"#### ⚠️ Common Trap\n> [!WARNING]\n> **Confusion:** {conf.get('trap', '')}\n>\n> **How to Avoid:** {conf.get('fix', '')}"
+                sections.append(section_str)
+                
+        # 5. Edge Case (if 'output' or 'compare' requested, or if present and we are in default mode)
+        if is_default or "output" in focuses:
+            edge = kb_data.get("6_edge_case", {})
+            if edge and edge.get("quirk"):
+                code_block = edge.get('code', '')
+                section_str = f"#### 🔍 Edge Case & Quirks\n• **Quirk:** {edge.get('quirk', '')}\n```javascript\n{code_block}\n```"
+                sections.append(section_str)
+
+        # Build Graph Relationship links
+        rel_links = []
+        relationships = kb_data.get("relationships", {})
+        
+        def make_link(target_intent: str) -> str:
+            if target_intent in self._kb_index:
+                rel_path = self._kb_index[target_intent]
+                abs_path = os.path.join(_BASE_DIR, "knowledge_base", rel_path)
+                target_title = target_intent
+                if os.path.exists(abs_path):
+                    try:
+                        with open(abs_path, "r", encoding="utf-8") as f_target:
+                            t_data = json.load(f_target)
+                            target_title = t_data.get("topic", target_intent)
+                    except:
+                        pass
+                abs_path_clean = abs_path.replace('\\', '/')
+                file_url = f"file:///{abs_path_clean}"
+                return f"[{target_title}]({file_url})"
+            return f"`{target_intent}`"
+
+        depends = relationships.get("depends_on", [])
+        related = relationships.get("related_to", [])
+        confused = relationships.get("often_confused_with", [])
+        
+        if depends:
+            links = ", ".join(make_link(t) for t in depends)
+            rel_links.append(f"• 📌 **Prerequisite:** {links}")
+        if related:
+            links = ", ".join(make_link(t) for t in related)
+            rel_links.append(f"• 💡 **Related Concept:** {links}")
+        if confused:
+            links = ", ".join(make_link(t) for t in confused)
+            rel_links.append(f"• ⚠️ **Watch Out:** Often confused with {links}")
+            
+        if rel_links:
+            relations_str = "#### 🔗 Related Tracks\n" + "\n".join(rel_links)
+            sections.append(relations_str)
+
+        greeting = "Here is the conceptual breakdown for you, {address}:"
+        body = f"### {topic}\n{dim_header}\n\n{greeting}\n\n" + "\n\n---\n\n".join(sections)
+        return body
+
+    def load_knowledge_base(self, intent_label: str, default_response: str, default_route: str, query: str = None):
         kb_response = default_response
         route = default_route
         code_example = None
@@ -170,21 +369,38 @@ class IntentResolver:
             if os.path.exists(kb_path):
                 with open(kb_path, "r", encoding="utf-8") as f:
                     kb_data = json.load(f)
-                    # Support response_template or fallback to response
-                    kb_response = kb_data.get("response_template", kb_data.get("response", kb_response))
-                    route = kb_data.get("route", route)
-                    code_example = kb_data.get("code_example")
-                    defaults = kb_data.get("defaults", {})
-                    schema = kb_data.get("context_schema", {})
-                    version = kb_data.get("version", "1.0")
+                    # Check if this is the new Concept Pack Model format
+                    if "1_beginner_explanation" in kb_data:
+                        kb_response = self._assemble_concept_pack_response(kb_data, query)
+                        route = kb_data.get("route", route)
+                        if "3_real_world_example" in kb_data and "code" in kb_data["3_real_world_example"]:
+                            code_example = kb_data["3_real_world_example"]["code"]
+                        defaults = kb_data.get("defaults", {})
+                        schema = kb_data.get("context_schema", {})
+                        version = kb_data.get("version", "1.1")
+                    else:
+                        # Support response_template or fallback to response
+                        kb_response = kb_data.get("response_template", kb_data.get("response", kb_response))
+                        route = kb_data.get("route", route)
+                        code_example = kb_data.get("code_example")
+                        defaults = kb_data.get("defaults", {})
+                        schema = kb_data.get("context_schema", {})
+                        version = kb_data.get("version", "1.0")
                     
         return kb_response, route, code_example, defaults, schema, version
 
-
-    def resolve(self, intent_label: str, runtime_context: dict = None) -> dict:
+    def resolve(self, intent_label: str, runtime_context: dict = None, query: str = None) -> dict:
         """
         Resolve a predicted intent label to its full metadata, rendering dynamic templates.
         """
+        # Dynamic Sub-Intent Resolution: if the ML classifier caught it under the generic catch-all
+        if intent_label == "js.fundamentals.query" and query:
+            from preprocessing.text_cleaner import clean_text
+            cleaned_query = clean_text(query)
+            boosted = self.semantic_boost(cleaned_query, top_k=1)
+            if boosted and boosted[0][1] > 0:
+                intent_label = boosted[0][0]
+
         if intent_label in self._intents:
             meta = self._intents[intent_label]
             
@@ -192,7 +408,8 @@ class IntentResolver:
             template, route, code_example, kb_defaults, schema, version = self.load_knowledge_base(
                 intent_label,
                 meta.get("response", ""),
-                meta.get("route", "")
+                meta.get("route", ""),
+                query
             )
             
             # 2. Build Context

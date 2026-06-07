@@ -434,67 +434,132 @@ is it possible to refuse a match,platform.new.can_reject_match
 how do i manage unwanted matches,platform.new.can_reject_match
 what happens if i reject a match,platform.new.can_reject_match
 can i dismiss a suggested match,platform.new.can_reject_match
-what is lexical scope and closures,js.closures
-how to create an object in javascript,js.objects
-how to avoid callback hell,js.callbacks
-how to filter an array in javascript,js.arrays
-what is callback hell,js.callbacks
-what is proxy in javascript,js.proxy_reflect
-how to extract part of a string,js.string_methods
-how to get current date and time,js.date
-how do closures work,js.closures
-how to pad a number with zeros,js.string_methods
-nullish coalescing with optional chaining,js.nullish_coalescing
-event loop with settimeout and promises,js.event_loop
-how to loop through an array,js.loops
-what is the scope chain,js.scope
-how do functions work in javascript,js.functions
-what is destructuring in javascript,js.destructuring
-how do callbacks work,js.callbacks
-how to select an element in javascript,js.dom
-explain first class functions,js.functions
-what are first class functions,js.higher_order_functions
-what is implicit and explicit binding,js.this_keyword
-difference between const and object.freeze,js.object_immutability
-what are proxy traps,js.proxy_reflect
-explain function scope vs block scope,js.scope
-how to run multiple awaits in parallel,js.async_await
-what is try catch finally,js.error_handling
-what happens if you dont catch an error,js.error_handling
-what is a closure in javascript,js.closures
-how to return a function from another function,js.higher_order_functions
-how to make a post request with fetch,js.fetch_api
-how to use localstorage in javascript,js.local_storage
-what is dynamic import in javascript,js.modules
-how to copy an object with spread,js.spread_rest
-what are static methods in javascript,js.classes
-how to generate a random integer between two numbers,js.math
-export default vs named export,js.modules
-why does fetch not throw on 404,js.fetch_api
-explain array map filter reduce in javascript,js.arrays
-what does block scoped mean,js.variables
-what is the microtask queue,js.event_loop
-what is symbol.iterator,js.symbols
-spread operator in object javascript,js.spread_rest
-how does symbol.iterator work,js.iterators
-how to use async await with fetch,js.fetch_api
-how to rename a destructured variable,js.destructuring
-how to round a number in javascript,js.math
-how many data types does javascript have,js.data_types
-what is a tagged template literal,js.template_literals
-how does while loop work,js.loops
-how to use rest parameters in a function,js.spread_rest
-can an arrow function be a constructor,js.arrow_functions
-why does 1 plus 2 equal 12 in javascript,js.type_coercion
-difference between == and === javascript,js.type_coercion
-how does for of use iterators,js.iterators
-how to make a get request in javascript,js.fetch_api
-difference between arrow function and regular function,js.arrow_functions
-is const truly immutable,js.object_immutability
-why does my inner function remember variables,js.closures
-javascript prototype chain explained,js.prototypes
-what is a for loop in javascript,js.loops
-how to use then and catch,js.promises
-how does the javascript event loop work,js.event_loop
-what is a symbol in javascript,js.data_types
-what does this mean in javascript,js.this_keyword
+what is lexical scope and closures,js.fundamentals.query
+how to create an object in javascript,js.fundamentals.query
+how to avoid callback hell,js.fundamentals.query
+how to filter an array in javascript,js.fundamentals.query
+what is callback hell,js.fundamentals.query
+what is proxy in javascript,js.fundamentals.query
+how to extract part of a string,js.fundamentals.query
+how to get current date and time,js.fundamentals.query
+how do closures work,js.fundamentals.query
+how to pad a number with zeros,js.fundamentals.query
+nullish coalescing with optional chaining,js.fundamentals.query
+event loop with settimeout and promises,js.fundamentals.query
+how to loop through an array,js.fundamentals.query
+what is the scope chain,js.fundamentals.query
+how do functions work in javascript,js.fundamentals.query
+what is destructuring in javascript,js.fundamentals.query
+how do callbacks work,js.fundamentals.query
+how to select an element in javascript,js.fundamentals.query
+explain first class functions,js.fundamentals.query
+what are first class functions,js.fundamentals.query
+what is implicit and explicit binding,js.fundamentals.query
+difference between const and object.freeze,js.fundamentals.query
+what are proxy traps,js.fundamentals.query
+explain function scope vs block scope,js.fundamentals.query
+how to run multiple awaits in parallel,js.fundamentals.query
+what is try catch finally,js.fundamentals.query
+what happens if you dont catch an error,js.fundamentals.query
+what is a closure in javascript,js.fundamentals.query
+how to return a function from another function,js.fundamentals.query
+how to make a post request with fetch,js.fundamentals.query
+how to use localstorage in javascript,js.fundamentals.query
+what is dynamic import in javascript,js.fundamentals.query
+how to copy an object with spread,js.fundamentals.query
+what are static methods in javascript,js.fundamentals.query
+how to generate a random integer between two numbers,js.fundamentals.query
+export default vs named export,js.fundamentals.query
+why does fetch not throw on 404,js.fundamentals.query
+explain array map filter reduce in javascript,js.fundamentals.query
+what does block scoped mean,js.fundamentals.query
+what is the microtask queue,js.fundamentals.query
+what is symbol.iterator,js.fundamentals.query
+spread operator in object javascript,js.fundamentals.query
+how does symbol.iterator work,js.fundamentals.query
+how to use async await with fetch,js.fundamentals.query
+how to rename a destructured variable,js.fundamentals.query
+how to round a number in javascript,js.fundamentals.query
+how many data types does javascript have,js.fundamentals.query
+what is a tagged template literal,js.fundamentals.query
+how does while loop work,js.fundamentals.query
+how to use rest parameters in a function,js.fundamentals.query
+can an arrow function be a constructor,js.fundamentals.query
+why does 1 plus 2 equal 12 in javascript,js.fundamentals.query
+difference between == and === javascript,js.fundamentals.query
+how does for of use iterators,js.fundamentals.query
+how to make a get request in javascript,js.fundamentals.query
+difference between arrow function and regular function,js.fundamentals.query
+is const truly immutable,js.fundamentals.query
+why does my inner function remember variables,js.fundamentals.query
+javascript prototype chain explained,js.fundamentals.query
+what is a for loop in javascript,js.fundamentals.query
+how to use then and catch,js.fundamentals.query
+how does the javascript event loop work,js.fundamentals.query
+what is a symbol in javascript,js.fundamentals.query
+what does this mean in javascript,js.fundamentals.query
+difference between local and global variables,js.fundamentals.query
+how to generate a random number in javascript,js.fundamentals.query
+how to check if a string contains another string,js.fundamentals.query
+how to use proxy for validation,js.fundamentals.query
+how to use continue in a loop,js.fundamentals.query
+what does array flat do,js.fundamentals.query
+why are functions first class in javascript,js.fundamentals.query
+when should i use let vs const,js.fundamentals.query
+why expressions return values,js.fundamentals.query
+what is the iteration protocol in javascript,js.fundamentals.query
+how to loop through an object,js.fundamentals.query
+how to create a custom error class,js.fundamentals.query
+difference between async await and promises,js.fundamentals.query
+"difference between let, const and var",js.fundamentals.query
+how to add a click event in javascript,js.fundamentals.query
+what is hoisting in javascript,js.fundamentals.query
+how to use closures for data privacy,js.fundamentals.query
+what is the difference between function and function star,js.fundamentals.query
+what is async await in javascript,js.fundamentals.query
+difference between optional chaining and logical and,js.fundamentals.query
+what is a promise in javascript,js.fundamentals.query
+what does break do in a loop,js.fundamentals.query
+what is strict mode,js.fundamentals.query
+how to store an object in localstorage,js.fundamentals.query
+how to use weakmap in javascript,js.fundamentals.query
+dynamic typing kya hota hai,js.fundamentals.query
+how to use template strings,js.fundamentals.query
+why is getmonth zero indexed,js.fundamentals.query
+"why use ""use strict""",js.fundamentals.query
+how to send json data with fetch,js.fundamentals.query
+how to convert date to string in javascript,js.fundamentals.query
+why comments are used,js.fundamentals.query
+how to split a string in javascript,js.fundamentals.query
+why js converts types automatically,js.fundamentals.query
+how do promises work,js.fundamentals.query
+arrow function syntax in javascript,js.fundamentals.query
+how to handle errors in promises,js.fundamentals.query
+what is memory heap (basic idea),js.fundamentals.query
+what are the states of a promise,js.fundamentals.query
+how to convert string to number in javascript,js.fundamentals.query
+this inside a class javascript,js.fundamentals.query
+why should i avoid var in modern javascript,js.fundamentals.query
+when should i use arrow functions,js.fundamentals.query
+how to add methods to a prototype,js.fundamentals.query
+difference between == and ===,js.fundamentals.query
+what is scope in javascript,js.fundamentals.query
+what is reflect in javascript,js.fundamentals.query
+how to create and insert html elements,js.fundamentals.query
+how to convert object to json string,js.fundamentals.query
+do comments affect performance,js.fundamentals.query
+difference between ?? and || in javascript,js.fundamentals.query
+difference between json and javascript object,js.fundamentals.query
+what are comments in js,js.fundamentals.query
+what is nullish coalescing,js.fundamentals.query
+difference between strict and non-strict js,js.fundamentals.query
+what is a variable in javascript,js.fundamentals.query
+why const gives error when reassigned,js.fundamentals.query
+example of a callback in javascript,js.fundamentals.query
+explain the prototype chain,js.fundamentals.query
+how to copy an object in javascript,js.fundamentals.query
+how to define a function in javascript,js.fundamentals.query
+how to handle errors in fetch,js.fundamentals.query
+destructuring in function parameters,js.fundamentals.query
+explain class inheritance in javascript,js.fundamentals.query
+what is type coercion,js.fundamentals.query

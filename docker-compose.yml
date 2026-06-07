@@ -19,6 +19,16 @@ services:
     networks:
       - app-network
 
+  # ── AI Engine Microservice ───────────────────────────────────────────────
+  ai-engine:
+    build: 
+      context: ./ai_engine
+    ports:
+      - "5050:5050"
+    networks:
+      - app-network
+    restart: unless-stopped
+
   # ── Code Execution Sidecar ────────────────────────────────────────────────
   # INTERNAL ONLY — not exposed to the internet.
   # Spawns isolated Docker containers for each code run.

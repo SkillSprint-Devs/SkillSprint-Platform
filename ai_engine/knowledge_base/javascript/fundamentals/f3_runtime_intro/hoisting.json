@@ -9,7 +9,7 @@
   },
   "relationships": {
     "depends_on": ["js.variables"],
-    "related_to": ["js.scope_basic", "js.execution_context_intro"],
+    "related_to": ["js.scope", "js.execution_context_intro"],
     "often_confused_with": []
   },
   "question_map": {
@@ -54,7 +54,7 @@
     "fix": "Never reference let/const variables before their line of declaration. This inactive span is called the Temporal Dead Zone (TDZ)."
   },
   "5_related_topics": [
-    "js.scope_basic",
+    "js.scope",
     "js.execution_context_intro"
   ],
   "6_edge_case": {
