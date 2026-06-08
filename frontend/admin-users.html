@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users Management | Admin | SkillSprint</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/admin.css" />
+  <link rel="stylesheet" href="assets/css/admin-users.css" />
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-bolt" style="margin-right: 10px; color: var(--admin-accent);"></i> SkillSprint
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item" onclick="window.location.href='admin-dashboard.html'">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </div>
+      <div class="nav-item active">
+        <i class="fa-solid fa-users"></i> Users
+      </div>
+
+      <div class="nav-item" onclick="window.location.href='system-health.html'">
+        <i class="fa-solid fa-heart-pulse"></i> System Health
+      </div>
+      <div class="nav-item" onclick="window.location.href='error-logs.html'">
+        <i class="fa-solid fa-bug"></i> Error Logs
+      </div>
+      <div class="nav-item" onclick="window.location.href='ai-training.html'">
+        <i class="fa-solid fa-brain"></i> AI Training
+      </div>
+
+    </nav>
+    <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <button class="btn" style="width: 100%; background: rgba(255,255,255,0.1); color: white;"
+        onclick="window.location.href='admin-login.html'">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <!-- Top Header -->
+    <header class="admin-header">
+      <h2 class="text-xl">Users Management</h2>
+      <div class="flex items-center gap-4">
+        <button id="refreshPageBtn" class="btn" style="font-size: 0.85rem; background: #f5f5f5; color: #555; border: 1px solid var(--border-color);">
+          <i class="fa-solid fa-arrows-rotate"></i> Refresh
+        </button>
+        <div class="flex items-center gap-2">
+          <div style="width: 32px; height: 32px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <span class="font-bold" id="headerAdminName">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="admin-content">
+
+      <!-- Stats Row -->
+      <div class="users-stat-grid" id="statsGrid">
+        <div class="users-stat-card">
+          <div class="users-stat-icon" style="background: rgba(109, 40, 217, 0.1); color: var(--admin-accent);">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div>
+            <div class="users-stat-value" id="statTotalUsers">--</div>
+            <div class="users-stat-label">Total Users</div>
+          </div>
+        </div>
+        <div class="users-stat-card">
+          <div class="users-stat-icon" style="background: rgba(107, 114, 128, 0.1); color: #4b5563;">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div>
+            <div class="users-stat-value" id="statStudents">--</div>
+            <div class="users-stat-label">Students</div>
+          </div>
+        </div>
+        <div class="users-stat-card">
+          <div class="users-stat-icon" style="background: rgba(2, 132, 199, 0.1); color: #0284c7;">
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </div>
+          <div>
+            <div class="users-stat-value" id="statMentors">--</div>
+            <div class="users-stat-label">Mentors</div>
+          </div>
+        </div>
+        <div class="users-stat-card">
+          <div class="users-stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #16a34a;">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="users-stat-value" id="statAdmins">--</div>
+            <div class="users-stat-label">Admins</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="users-filters-bar">
+        <div class="users-filter-group search-stretch">
+          <label>Search Users</label>
+          <input type="text" id="filterSearch" placeholder="Search by name or email..." />
+        </div>
+        <div class="users-filter-group">
+          <label>Role</label>
+          <select id="filterRole">
+            <option value="all">All Roles</option>
+            <option value="student">Student</option>
+            <option value="mentor">Mentor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="users-filter-group">
+          <label>Status</label>
+          <select id="filterStatus">
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="users-table-wrapper">
+        <div class="users-table-header">
+          <h3><i class="fa-solid fa-list-ul"></i> User Directory</h3>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th style="width: 35%;">User</th>
+                <th style="width: 15%;">Role</th>
+                <th style="width: 15%;">Status</th>
+                <th style="width: 20%;">Joined</th>
+                <th style="width: 15%; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr class="table-loading">
+                <td colspan="5">
+                  <i class="fa-solid fa-spinner fa-spin" style="color: var(--admin-accent); font-size: 1.5rem;"></i>
+                  <p style="margin-top: 0.5rem; color: var(--text-muted);">Loading users...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="users-pagination">
+          <div class="pagination-info" id="paginationInfo">Showing 0 of 0 users</div>
+          <div class="pagination-controls">
+            <button class="page-btn" id="btnPrev"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+            <button class="page-btn" id="btnNext">Next <i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Edit User Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit User</h3>
+        <button class="close-modal" id="closeModalBtn"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+          <div class="user-avatar" id="modalUserAvatar">U</div>
+          <div>
+            <div style="font-weight: 600;" id="modalUserName">User Name</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);" id="modalUserEmail">user@example.com</div>
+          </div>
+        </div>
+        
+        <input type="hidden" id="editUserId" />
+        
+        <div class="form-group">
+          <label>Role</label>
+          <select id="editUserRole">
+            <option value="student">Student</option>
+            <option value="mentor">Mentor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Account Status</label>
+          <select id="editUserStatus">
+            <option value="true">Active (Can log in)</option>
+            <option value="false">Inactive (Suspended / Soft Deleted)</option>
+          </select>
+          <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;">
+            Deactivating a user prevents them from logging in while retaining their data.
+          </small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="cancelModalBtn">Cancel</button>
+        <button class="btn-save" id="saveModalBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/admin-users.js"></script>
+</body>
+
+</html>

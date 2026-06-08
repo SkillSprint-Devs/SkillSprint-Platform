@@ -184,11 +184,11 @@ router.get("/activity", async (req, res) => {
             }));
         } else {
             // Fallback: Recent Users
-            const recentUsers = await User.find().sort({ createdAt: -1 }).limit(5);
+            const recentUsers = await User.find().sort({ created_at: -1 }).limit(5);
             activities = recentUsers.map(u => ({
                 text: "New User Joined",
                 subtext: `${u.name} (${u.role || 'User'}) joined`,
-                time: u.createdAt,
+                time: u.created_at,
                 type: "success"
             }));
         }
@@ -202,8 +202,134 @@ router.get("/activity", async (req, res) => {
 // GET /api/admin/users-preview
 router.get("/users-preview", async (req, res) => {
     try {
-        const users = await User.find().sort({ createdAt: -1 }).limit(5).select("name role isOnline createdAt");
-        res.json({ success: true, users });
+        const users = await User.find().sort({ created_at: -1 }).limit(5).select("name role created_at _id");
+        const onlineUsersMap = req.app.get('onlineUsers');
+        
+        const dynamicUsers = users.map(u => ({
+            _id: u._id,
+            name: u.name,
+            role: u.role,
+            created_at: u.created_at,
+            isOnline: onlineUsersMap ? onlineUsersMap.has(u._id.toString()) : false
+        }));
+
+        res.json({ success: true, users: dynamicUsers });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// GET /api/admin/users — Full users list with pagination, search, and filtering
+router.get("/users", async (req, res) => {
+    try {
+        const { page = 1, limit = 20, search = "", role = "all", status = "all" } = req.query;
+        
+        const query = {};
+        
+        // Search by name or email
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } }
+            ];
+        }
+        
+        // Filter by role
+        if (role && role !== "all") {
+            query.role = role;
+        }
+        
+        // Filter by status (isActive)
+        if (status && status !== "all") {
+            query.isActive = status === "active";
+        }
+
+        const [users, total] = await Promise.all([
+            User.find(query)
+                .sort({ created_at: -1 })
+                .skip((page - 1) * limit)
+                .limit(parseInt(limit))
+                .select("-password_hash -otp -matchSuggestionsCache"),
+            User.countDocuments(query),
+        ]);
+
+        res.json({
+            success: true,
+            users,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / limit),
+            },
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// PUT /api/admin/users/:id — Edit user details (role, isActive)
+router.put("/users/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { role, isActive } = req.body;
+
+        const updateData = {};
+        if (role) updateData.role = role;
+        if (typeof isActive === 'boolean') updateData.isActive = isActive;
+
+        // Prevent admin from deactivating themselves
+        if (req.user.id === id && isActive === false) {
+            return res.status(400).json({ success: false, message: "You cannot deactivate your own account." });
+        }
+
+        const user = await User.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        await writeAudit({
+            adminId: req.user.id,
+            adminEmail: req.user.email || "unknown",
+            action: "EDIT_USER",
+            targetUserId: user._id,
+            targetUserEmail: user.email,
+            details: `Updated user: role=${user.role}, isActive=${user.isActive}`,
+            req,
+        });
+
+        res.json({ success: true, message: "User updated successfully", user });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// DELETE /api/admin/users/:id — Delete a user
+router.delete("/users/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Prevent admin from deleting themselves
+        if (req.user.id === id) {
+            return res.status(400).json({ success: false, message: "You cannot delete your own account." });
+        }
+
+        const user = await User.findByIdAndDelete(id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        await writeAudit({
+            adminId: req.user.id,
+            adminEmail: req.user.email || "unknown",
+            action: "DELETE_USER",
+            targetUserId: user._id,
+            targetUserEmail: user.email,
+            details: "Hard deleted user from database",
+            req,
+        });
+
+        res.json({ success: true, message: "User deleted successfully" });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -418,6 +544,116 @@ router.get("/audit-log", async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ---------------------------------------------------------------------------
+// AI Engine Proxy Routes — Admin Training Review
+// ---------------------------------------------------------------------------
+const AI_ENGINE_URL = process.env.AI_ENGINE_URL || "http://127.0.0.1:5050";
+const AI_ADMIN_TOKEN = process.env.ADMIN_TOKEN || "skillsprint_admin_secret";
+
+// Helper: proxy a request to the AI engine
+async function aiProxy(path, method = "GET", body = null) {
+    const opts = {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AI_ADMIN_TOKEN}`,
+        },
+    };
+    if (body) opts.body = JSON.stringify(body);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    opts.signal = controller.signal;
+
+    try {
+        const res = await fetch(`${AI_ENGINE_URL}${path}`, opts);
+        clearTimeout(timeoutId);
+        return await res.json();
+    } catch (err) {
+        clearTimeout(timeoutId);
+        throw err;
+    }
+}
+
+// GET /api/admin/ai/failed-queries — list all low-confidence queries
+router.get("/ai/failed-queries", async (req, res) => {
+    try {
+        const data = await aiProxy("/admin/failed_queries");
+        res.json({ success: true, ...data });
+    } catch (err) {
+        res.status(503).json({
+            success: false,
+            message: "AI Engine unreachable",
+            error: err.message,
+        });
+    }
+});
+
+// GET /api/admin/ai/intents — list all registered intents (for the label dropdown)
+router.get("/ai/intents", async (req, res) => {
+    try {
+        const data = await aiProxy("/intents");
+        res.json({ success: true, ...data });
+    } catch (err) {
+        res.status(503).json({
+            success: false,
+            message: "AI Engine unreachable",
+            error: err.message,
+        });
+    }
+});
+
+// POST /api/admin/ai/add-to-dataset — label a query and add to train.csv
+router.post("/ai/add-to-dataset", async (req, res) => {
+    try {
+        const { id, intent } = req.body;
+        if (!id || !intent) {
+            return res.status(400).json({ success: false, message: "Missing 'id' or 'intent'" });
+        }
+        const data = await aiProxy("/admin/add_to_dataset", "POST", { id, intent });
+
+        // Audit log
+        await writeAudit({
+            adminId: req.user.id,
+            adminEmail: req.user.email || "unknown",
+            action: "AI_LABEL_QUERY",
+            details: `Labeled query ${id} as '${intent}'`,
+            req,
+        });
+
+        res.json({ success: true, ...data });
+    } catch (err) {
+        res.status(503).json({
+            success: false,
+            message: "AI Engine unreachable",
+            error: err.message,
+        });
+    }
+});
+
+// POST /api/admin/ai/retrain — trigger model retraining
+router.post("/ai/retrain", async (req, res) => {
+    try {
+        const data = await aiProxy("/admin/retrain", "POST");
+
+        await writeAudit({
+            adminId: req.user.id,
+            adminEmail: req.user.email || "unknown",
+            action: "AI_RETRAIN",
+            details: "Triggered AI model retraining from admin dashboard",
+            req,
+        });
+
+        res.json({ success: true, ...data });
+    } catch (err) {
+        res.status(503).json({
+            success: false,
+            message: "AI Engine unreachable or retraining failed",
+            error: err.message,
+        });
     }
 });
 

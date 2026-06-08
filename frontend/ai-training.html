@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Training Review | Admin | SkillSprint</title>
+  <meta name="description" content="Review low-confidence AI bot queries, label correct intents, and retrain the model from the admin dashboard." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/admin.css" />
+  <link rel="stylesheet" href="assets/css/ai-training.css" />
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-bolt" style="margin-right: 10px; color: var(--admin-accent);"></i> SkillSprint
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item" onclick="window.location.href='admin-dashboard.html'">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </div>
+      <div class="nav-item" onclick="window.location.href='admin-users.html'">
+        <i class="fa-solid fa-users"></i> Users
+      </div>
+
+      <div class="nav-item" onclick="window.location.href='system-health.html'">
+        <i class="fa-solid fa-heart-pulse"></i> System Health
+      </div>
+      <div class="nav-item" onclick="window.location.href='error-logs.html'">
+        <i class="fa-solid fa-bug"></i> Error Logs
+      </div>
+      <div class="nav-item active">
+        <i class="fa-solid fa-brain"></i> AI Training
+      </div>
+
+    </nav>
+    <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <button class="btn" style="width: 100%; background: rgba(255,255,255,0.1); color: white;"
+        onclick="window.location.href='admin-login.html'">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <!-- Top Header -->
+    <header class="admin-header">
+      <h2 class="text-xl">AI Training Review</h2>
+      <div class="flex items-center gap-4">
+        <button id="refreshPageBtn" class="btn" style="font-size: 0.85rem; background: #f5f5f5; color: #555; border: 1px solid var(--border-color);">
+          <i class="fa-solid fa-arrows-rotate"></i> Refresh
+        </button>
+        <div class="flex items-center gap-2">
+          <div style="width: 32px; height: 32px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <span class="font-bold" id="headerAdminName">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="admin-content">
+
+      <!-- Stats Row -->
+      <div class="ai-stat-grid" id="statsGrid">
+        <div class="ai-stat-card">
+          <div class="ai-stat-icon" style="background: rgba(255, 179, 0, 0.12); color: #f57f17;">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div>
+            <div class="ai-stat-value" id="statPending">--</div>
+            <div class="ai-stat-label">Pending Review</div>
+          </div>
+        </div>
+        <div class="ai-stat-card">
+          <div class="ai-stat-icon" style="background: rgba(76, 175, 80, 0.12); color: #2e7d32;">
+            <i class="fa-solid fa-check-double"></i>
+          </div>
+          <div>
+            <div class="ai-stat-value" id="statReviewed">--</div>
+            <div class="ai-stat-label">Reviewed</div>
+          </div>
+        </div>
+        <div class="ai-stat-card">
+          <div class="ai-stat-icon" style="background: rgba(239, 83, 80, 0.12); color: #c62828;">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <div>
+            <div class="ai-stat-value" id="statAvgConf">--</div>
+            <div class="ai-stat-label">Avg. Confidence</div>
+          </div>
+        </div>
+        <div class="ai-stat-card">
+          <div class="ai-stat-icon" style="background: rgba(109, 40, 217, 0.1); color: var(--admin-accent);">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <div>
+            <div class="ai-stat-value" id="statTotal">--</div>
+            <div class="ai-stat-label">Total Queries</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="ai-filters-bar">
+        <div class="ai-filter-group">
+          <label>Status</label>
+          <select id="filterStatus">
+            <option value="all">All</option>
+            <option value="pending" selected>Pending</option>
+            <option value="reviewed">Reviewed</option>
+          </select>
+        </div>
+        <div class="ai-filter-group">
+          <label>Confidence</label>
+          <select id="filterConfidence">
+            <option value="all">All Ranges</option>
+            <option value="low">Low (&lt; 0.45)</option>
+            <option value="mid">Medium (0.45–0.65)</option>
+          </select>
+        </div>
+        <div class="ai-filter-group search-stretch">
+          <label>Search</label>
+          <input type="text" id="filterSearch" placeholder="Search query text..." />
+        </div>
+      </div>
+
+      <!-- Query Review Table -->
+      <div class="ai-table-wrapper">
+        <div class="ai-table-header">
+          <h3><i class="fa-solid fa-clipboard-question"></i> Low-Confidence Queries</h3>
+          <span id="tableCount" class="text-sm" style="color: var(--text-muted);">Loading...</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="ai-query-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Query</th>
+                <th style="width: 15%;">Predicted Intent</th>
+                <th style="width: 8%;">Confidence</th>
+                <th style="width: 8%;">Status</th>
+                <th style="width: 12%;">Timestamp</th>
+                <th style="width: 27%;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="queryTableBody">
+              <tr class="table-loading">
+                <td colspan="6" style="text-align: center; padding: 3rem;">
+                  <i class="fa-solid fa-spinner fa-spin" style="color: var(--admin-accent); font-size: 1.5rem;"></i>
+                  <p style="margin-top: 0.5rem; color: var(--text-muted);">Loading queries...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Retrain Panel -->
+      <div class="retrain-panel" id="retrainPanel">
+        <div class="retrain-info">
+          <h4><i class="fa-solid fa-graduation-cap"></i> Model Retraining</h4>
+          <p>
+            <span class="retrain-count" id="retrainNewCount">0</span> new samples added since the model was last trained.
+            Retrain the model to incorporate labeled queries.
+          </p>
+        </div>
+        <button class="retrain-btn" id="retrainBtn">
+          <i class="fa-solid fa-rotate"></i> Retrain Model
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div class="ai-toast-container" id="toastContainer"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/error-tracking.js"></script>
+  <script src="js/ai-training.js"></script>
+</body>
+
+</html>

@@ -22,11 +22,8 @@
       <div class="nav-item active">
         <i class="fa-solid fa-gauge-high"></i> Dashboard
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="window.location.href='admin-users.html'">
         <i class="fa-solid fa-users"></i> Users
-      </div>
-      <div class="nav-item">
-        <i class="fa-solid fa-chalkboard-user"></i> Sessions
       </div>
       <div class="nav-item" onclick="window.location.href='system-health.html'">
         <i class="fa-solid fa-heart-pulse"></i> System Health
@@ -34,8 +31,8 @@
       <div class="nav-item" onclick="window.location.href='error-logs.html'">
         <i class="fa-solid fa-bug"></i> Error Logs
       </div>
-      <div class="nav-item">
-        <i class="fa-solid fa-gears"></i> Settings
+      <div class="nav-item" onclick="window.location.href='ai-training.html'">
+        <i class="fa-solid fa-brain"></i> AI Training
       </div>
     </nav>
     <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -62,7 +59,7 @@
             style="width: 32px; height: 32px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
             <i class="fa-solid fa-user"></i>
           </div>
-          <span class="font-bold">Admin</span>
+          <span class="font-bold" id="headerAdminName">Admin</span>
         </div>
       </div>
     </header>
@@ -76,7 +73,6 @@
           <div>
             <div class="stat-label">Total Users</div>
             <div class="stat-value" id="totalUsersCount">--</div>
-            <div class="text-sm" style="color: var(--success);"><i class="fa-solid fa-arrow-up"></i> +12%</div>
           </div>
           <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
         </div>
@@ -85,7 +81,6 @@
           <div>
             <div class="stat-label">Online Now</div>
             <div class="stat-value" id="onlineUsersCount">--</div>
-            <div class="text-sm text-muted">Real-time</div>
           </div>
           <div class="stat-icon"><i class="fa-solid fa-globe"></i></div>
         </div>
@@ -94,7 +89,6 @@
           <div>
             <div class="stat-label">Active Sessions</div>
             <div class="stat-value" id="activeSessionsCount">--</div>
-            <div class="text-sm text-muted">Pair Programming</div>
           </div>
           <div class="stat-icon"><i class="fa-solid fa-code"></i></div>
         </div>

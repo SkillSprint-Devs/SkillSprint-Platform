@@ -105,13 +105,37 @@ async function fetchUsersPreview() {
         data.users.forEach(u => {
             const tr = document.createElement("tr");
             tr.style.borderBottom = "1px solid var(--border-color)";
-            const statusColor = u.isOnline ? "var(--success)" : "var(--text-muted)";
-            const statusText = u.isOnline ? "Online" : "Offline";
+            
+            const isOnline = u.isOnline === true;
+            const statusColor = isOnline ? "var(--success)" : "var(--text-muted)";
+            const statusText = isOnline ? "Online" : "Offline";
+            
+            const rawRole = u.role || 'user';
+            const displayRole = rawRole.charAt(0).toUpperCase() + rawRole.slice(1);
+            
+            let roleClass = 'role-student';
+            if (rawRole === 'admin') roleClass = 'role-admin';
+            if (rawRole === 'mentor') roleClass = 'role-mentor';
+
             tr.innerHTML = `
-                <td style="padding: 12px; font-weight: 500;">${u.name}</td>
-                <td style="padding: 12px;">${u.role || 'User'}</td>
-                <td style="padding: 12px;"><span style="color: ${statusColor}; font-size: 0.8rem;">${statusText}</span></td>
-                <td style="padding: 12px;">${new Date(u.createdAt).toLocaleDateString()}</td>
+                <td style="padding: 12px; font-weight: 500;">
+                    <div class="flex items-center gap-2">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: var(--text-muted);">
+                            ${u.name ? u.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        ${u.name}
+                    </div>
+                </td>
+                <td style="padding: 12px;">
+                    <span style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--admin-accent);">${displayRole}</span>
+                </td>
+                <td style="padding: 12px;">
+                    <span style="display: inline-flex; align-items: center; gap: 4px; color: ${statusColor}; font-size: 0.8rem; font-weight: 500;">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: ${statusColor};"></span>
+                        ${statusText}
+                    </span>
+                </td>
+                <td style="padding: 12px; font-size: 0.85rem; color: var(--text-muted);">${new Date(u.created_at).toLocaleDateString()}</td>
             `;
             usersTableBody.appendChild(tr);
         });
@@ -148,6 +172,11 @@ function init() {
     if (!adminUser || adminUser.role !== 'admin') {
         window.location.href = "admin-login.html";
         return;
+    }
+    
+    const headerAdminName = document.getElementById("headerAdminName");
+    if (headerAdminName && adminUser.name) {
+        headerAdminName.textContent = adminUser.name;
     }
     fetchStats();
     fetchHealth();

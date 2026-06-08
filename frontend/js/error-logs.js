@@ -147,9 +147,15 @@ async function fetchAllErrors() {
     if (tableContainer) tableContainer.style.opacity = "0.6";
 
     const token = localStorage.getItem("token");
-    if (!token) {
+    const adminUser = JSON.parse(localStorage.getItem("adminUser"));
+    if (!adminUser || adminUser.role !== 'admin') {
         window.location.href = "admin-login.html";
         return;
+    }
+    
+    const headerAdminName = document.getElementById("headerAdminName");
+    if (headerAdminName && adminUser.name) {
+        headerAdminName.textContent = adminUser.name;
     }
 
     const filters = getFilters();

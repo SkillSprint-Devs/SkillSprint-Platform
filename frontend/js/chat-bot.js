@@ -226,7 +226,7 @@ async function submitQuery() {
 
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch('/api/ai/predict', {
+    const res = await fetch(`${window.API_BASE_URL}/ai/predict`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

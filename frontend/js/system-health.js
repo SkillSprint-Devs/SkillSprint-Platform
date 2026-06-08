@@ -132,6 +132,11 @@ function init() {
         return;
     }
     
+    const headerAdminName = document.getElementById("headerAdminName");
+    if (headerAdminName && adminUser.name) {
+        headerAdminName.textContent = adminUser.name;
+    }
+    
     fetchHealthData();
     
     if (refreshBtn) {

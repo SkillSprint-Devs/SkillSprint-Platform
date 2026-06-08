@@ -1,6 +1,6 @@
 {
   "intent": "js.classes",
-  "title": "JavaScript Concepts",
+  "title": "JavaScript ES6 Classes",
   "response": "ES6 classes provide a cleaner syntax for creating objects and implementing inheritance. They are syntactic sugar over prototype-based inheritance \u2014 under the hood, the same prototype chain is used.\n\nKey features:\n\u2022 constructor() \u2014 runs when new is called.\n\u2022 Methods defined in the class body are placed on the prototype.\n\u2022 extends \u2014 sets up prototype chain inheritance.\n\u2022 super() \u2014 must be called in a child constructor before using this.\n\u2022 Static methods \u2014 called on the class itself, not instances.\n\u2022 Private fields (#) \u2014 truly private, only accessible inside the class (ES2022).",
   "route": "QUIZZES",
   "code_example": "class Animal {\n  #sound; // private field\n\n  constructor(name, sound) {\n    this.name = name;\n    this.#sound = sound;\n  }\n\n  speak() {\n    return `${this.name} says ${this.#sound}`;\n  }\n\n  static create(name, sound) {\n    return new Animal(name, sound);\n  }\n}\n\nclass Dog extends Animal {\n  constructor(name) {\n    super(name, 'woof'); // must call super first\n  }\n\n  fetch(item) {\n    return `${this.name} fetches the ${item}!`;\n  }\n}\n\nconst rex = new Dog('Rex');\nconsole.log(rex.speak());       // 'Rex says woof'\nconsole.log(rex.fetch('ball')); // 'Rex fetches the ball!'"
