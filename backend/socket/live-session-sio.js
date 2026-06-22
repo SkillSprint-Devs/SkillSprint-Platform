@@ -60,12 +60,22 @@ const liveSessionSocket = (io) => {
                     sessionRooms.set(sessionId, {
                         chat: [],
                         whiteboard: [],
-                        connectedUsers: new Set(),
-                        permissions: {} // userId -> { mic: boolean, cam: boolean, whiteboard: boolean }
+                        // FIX 2: Map userIdString -> Set of active socket.ids so a user
+                        // is only considered 'Absent' when ALL their sockets disconnect.
+                        // Previously a single Set of userIds caused false-absence during
+                        // Socket.IO transport upgrades / momentary reconnects.
+                        connectedSockets: new Map(),
+                        permissions: {}, // userId -> { mic: boolean, cam: boolean, whiteboard: boolean }
+                        mediaStates: {}  // userId -> { video: boolean, audio: boolean }
                     });
                 }
                 const room = sessionRooms.get(sessionId);
-                room.connectedUsers.add(userId.toString());
+
+                // Register this socket under the user's socket set
+                if (!room.connectedSockets.has(userId.toString())) {
+                    room.connectedSockets.set(userId.toString(), new Set());
+                }
+                room.connectedSockets.get(userId.toString()).add(socket.id);
 
                 // 4. Detailed Presence
                 const allInvited = await User.find({
@@ -75,7 +85,9 @@ const liveSessionSocket = (io) => {
                 const presenceList = allInvited.map(u => {
                     const uid = u._id.toString();
                     let status = "Absent";
-                    if (room.connectedUsers.has(uid)) status = "Joined";
+                    // FIX 2: User is 'Joined' only if they have at least one active socket.
+                    const userSockets = room.connectedSockets.get(uid);
+                    if (userSockets && userSockets.size > 0) status = "Joined";
                     else if (session.acceptedUserIds.some(id => id.toString() === uid) || uid === session.mentorId.toString()) status = "Waiting";
 
                     return {
@@ -96,6 +108,7 @@ const liveSessionSocket = (io) => {
                     isMentor,
                     grantedPermissions: room.permissions[userId.toString()] || {},
                     allPermissions: room.permissions, // Mentor might want to see all
+                    allMediaStates: room.mediaStates, // Sync client media states
                     sessionStartedAt: session.startTime
 
                 });
@@ -196,6 +209,14 @@ const liveSessionSocket = (io) => {
             socket.emit("live:togglePermission", { sessionId, targetUserId, type, granted });
         });
 
+        // Media state tracking (cam/mic on/off)
+        socket.on("live:mediaStateChanged", ({ sessionId, video, audio }) => {
+            if (!sessionRooms.has(sessionId)) return;
+            const room = sessionRooms.get(sessionId);
+            room.mediaStates[userId.toString()] = { video, audio };
+            socket.to(sessionId).emit("live:mediaStateUpdated", { userId, video, audio });
+        });
+
         // WebRTC Signaling
         socket.on("live:signal", ({ sessionId, targetUserId, signal }) => {
             io.to(targetUserId.toString()).emit("live:signal", { fromUserId: userId, signal });
@@ -248,10 +269,19 @@ const liveSessionSocket = (io) => {
             const sessionId = socket.data.sessionId;
             if (sessionId && sessionRooms.has(sessionId)) {
                 const room = sessionRooms.get(sessionId);
-                room.connectedUsers.delete(userId.toString());
 
-                // Broadcast updated presence
-                // Note: Simplified for now, in production we'd re-fetch or keep presenceList in room data
+                // FIX 2: Remove only this specific socket from the user's socket set.
+                // Only remove the user from presence when their LAST socket disconnects,
+                // preventing false-absence during Socket.IO transport upgrades or jitter.
+                if (room.connectedSockets && room.connectedSockets.has(userId.toString())) {
+                    const userSockets = room.connectedSockets.get(userId.toString());
+                    userSockets.delete(socket.id);
+                    if (userSockets.size === 0) {
+                        room.connectedSockets.delete(userId.toString());
+                    }
+                }
+
+                // Re-calculate and broadcast presence
                 const session = await LiveSession.findById(sessionId).select("mentorId invitedUserIds acceptedUserIds");
                 if (session) {
                     const allInvited = await User.find({
@@ -261,7 +291,9 @@ const liveSessionSocket = (io) => {
                     const presenceList = allInvited.map(u => {
                         const uid = u._id.toString();
                         let status = "Absent";
-                        if (room.connectedUsers.has(uid)) status = "Joined";
+                        // FIX 2: Same socket-set check as in live:join
+                        const userSockets = room.connectedSockets ? room.connectedSockets.get(uid) : null;
+                        if (userSockets && userSockets.size > 0) status = "Joined";
                         else if (session.acceptedUserIds.some(id => id.toString() === uid) || uid === session.mentorId.toString()) status = "Waiting";
 
                         return {

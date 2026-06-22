@@ -351,6 +351,18 @@
     color: white;
 }
 
+.icon-btn.active {
+    background: rgba(220, 239, 98, 0.25) !important;
+    border-color: rgba(220, 239, 98, 0.4) !important;
+    color: #DCEF62 !important;
+}
+
+.icon-btn.off {
+    color: rgba(255, 255, 255, 0.4) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
 /* Responsive Styles */
 @media (max-width: 1024px) {
     .nav-center {

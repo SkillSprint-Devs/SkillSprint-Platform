@@ -658,3 +658,66 @@ html {
 .btn-cancel:hover {
     background: rgba(255, 255, 255, 0.1);
 }
+
+/* Avatar placeholder & camera off states */
+.avatar-placeholder {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #2a2a2a;
+    color: #fff;
+    font-size: 4rem;
+    z-index: 5;
+}
+
+.video-wrapper.camera-off video {
+    display: none;
+}
+
+.video-wrapper.camera-off .avatar-placeholder {
+    display: flex;
+}
+
+/* Auto-adjusting Video Grid Layouts */
+.video-grid.grid-1 {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.video-grid.grid-2 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+.video-grid.grid-3 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+.video-grid.grid-3 .video-wrapper:first-child {
+    grid-column: span 2;
+}
+
+.video-grid.grid-4 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.video-grid.grid-many {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (max-width: 768px) {
+    .video-grid.grid-2,
+    .video-grid.grid-3,
+    .video-grid.grid-4 {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    .video-grid.grid-3 .video-wrapper:first-child {
+        grid-column: span 1;
+    }
+}

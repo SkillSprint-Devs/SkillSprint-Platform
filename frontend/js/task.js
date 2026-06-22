@@ -7,8 +7,7 @@ const API_BASE = window.API_BASE_URL + '/tasks';
 const TOKEN = localStorage.getItem('token') || '';
 
 if (!TOKEN) {
-  showToast('Please log in to manage tasks', 'warning');
-  console.warn('No auth token found');
+  window.location.href = 'login.html';
 }
 
 // STATE

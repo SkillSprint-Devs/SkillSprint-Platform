@@ -22,7 +22,7 @@
   <div class="live-container">
 
     <!-- LEFT PANEL: CHAT -->
-    <aside class="side-panel left-panel">
+    <aside id="chatPanel" class="side-panel left-panel" style="display: none;">
       <div class="panel-header">
         <h3><i class="fa-solid fa-comments"></i> Live Chat</h3>
         <span class="chat-warning">Not Saved</span>
@@ -58,6 +58,7 @@
         <div id="videoGrid" class="video-grid">
           <div class="video-wrapper local">
             <video id="localVideo" autoplay muted playsinline></video>
+            <div class="avatar-placeholder"><i class="fa-solid fa-user"></i></div>
             <span class="participant-name">You (Mentor)</span>
           </div>
           <!-- Remote videos injected here -->
@@ -90,7 +91,7 @@
     </main>
 
     <!-- RIGHT PANEL: PARTICIPANTS -->
-    <aside class="side-panel right-panel">
+    <aside id="rightPanel" class="side-panel right-panel" style="display: none;">
       <div class="panel-header">
         <h3><i class="fa-solid fa-users"></i> Participants</h3>
       </div>
@@ -142,6 +143,8 @@
         showSettingsBtn: false,
         showNotifications: false,
         showProfileBtn: false,
+        showChatToggle: true,
+        showParticipantsToggle: true,
         showInviteBtn: window.isMentor,
         onInviteClick: () => {
           if (window.handleInviteClick) window.handleInviteClick();

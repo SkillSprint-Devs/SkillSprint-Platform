@@ -9,6 +9,7 @@ const SOCKET_URL = window.API_SOCKET_URL;
 const socket = io(SOCKET_URL, { auth: { token } });
 
 let localStream;
+let screenStream = null; // FIX D: Screen sharing state
 let peerConnections = {}; // peerId -> RTCPeerConnection
 let signalingStates = {}; // peerId -> { makingOffer, ignoreOffer, isSettingRemoteAnswerPending, candidates: [] }
 let grantedPermissions = { mic: false, cam: false, whiteboard: false };
@@ -46,6 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await initMedia();
     joinSession();
     setupEventListeners();
+    adjustVideoGrid();
 });
 
 async function initMedia() {
@@ -98,6 +100,25 @@ function joinSession() {
             roomPermissions = data.allPermissions;
         }
 
+        // Restore media state placeholders
+        if (data.allMediaStates) {
+            Object.entries(data.allMediaStates).forEach(([uid, state]) => {
+                if (state && state.video !== undefined) {
+                    updateVideoWrapperCameraState(uid, state.video);
+                }
+            });
+        }
+
+        // Setup local media state on join
+        if (!window.isMentor) {
+            if (localStream && localStream.getVideoTracks()[0]) localStream.getVideoTracks()[0].enabled = !!grantedPermissions.cam;
+            if (localStream && localStream.getAudioTracks()[0]) localStream.getAudioTracks()[0].enabled = !!grantedPermissions.mic;
+        }
+        const isVideoOn = localStream && localStream.getVideoTracks()[0] ? localStream.getVideoTracks()[0].enabled : false;
+        const isAudioOn = localStream && localStream.getAudioTracks()[0] ? localStream.getAudioTracks()[0].enabled : false;
+        updateVideoWrapperCameraState(getMyId(), isVideoOn);
+        socket.emit("live:mediaStateChanged", { sessionId, video: isVideoOn, audio: isAudioOn });
+
         if (data.status === 'live') startTimer(data.sessionStartedAt);
 
         // INITIALIZE MESH: Connect to everyone already in the room
@@ -117,6 +138,8 @@ function joinSession() {
                 showSettingsBtn: false,
                 showNotifications: false,
                 showProfileBtn: false,
+                showChatToggle: true,
+                showParticipantsToggle: true,
                 onInviteClick: () => window.handleInviteClick?.(),
                 primaryAction: {
                     show: true,
@@ -124,6 +147,7 @@ function joinSession() {
                     onClick: () => window.handleEndSession?.()
                 }
             });
+            syncNavbarToggles();
         }
     });
 
@@ -153,11 +177,14 @@ function joinSession() {
     socket.on("live:permissionRequest", ({ userId, type }) => {
         if (window.isMentor) handlePermissionRequest(userId, type);
     });
+    socket.on("live:mediaStateUpdated", ({ userId, video, audio }) => {
+        console.log(`[MEDIA] State updated for ${userId}: video=${video}, audio=${audio}`);
+        updateVideoWrapperCameraState(userId, video);
+    });
 
     socket.on("live:peerJoined", ({ userId }) => {
         if (userId !== getMyId()) {
-            console.log("[WEBRTC] Peer joined, initiating connection:", userId);
-            initiatePeerConnection(userId);
+            console.log("[WEBRTC] Peer joined, waiting for connection request from:", userId);
         }
     });
 
@@ -170,8 +197,8 @@ function joinSession() {
             const description = signal.sdp;
 
             if (description) {
-                // Perfect Negotiation: Check for glare
-                const polite = !window.isMentor;
+                // Perfect Negotiation: Check for glare using asymmetric ID-based politeness
+                const polite = getMyId() < fromUserId;
                 const offerCollision = (description.type === "offer") &&
                     (state.makingOffer || pc.signalingState !== "stable");
 
@@ -181,7 +208,20 @@ function joinSession() {
                     return;
                 }
 
-                await pc.setRemoteDescription(description);
+                if (offerCollision) {
+                    await Promise.all([
+                        pc.setLocalDescription({ type: "rollback" }),
+                        pc.setRemoteDescription(description)
+                    ]);
+                } else {
+                    // FIX 1: Track that we are actively applying a remote answer so
+                    // incoming ICE candidates are queued rather than fed directly
+                    // to addIceCandidate() while the peer connection is not yet stable.
+                    state.isSettingRemoteAnswerPending = description.type === "answer";
+                    await pc.setRemoteDescription(description);
+                    state.isSettingRemoteAnswerPending = false;
+                }
+
                 if (description.type === "offer") {
                     await pc.setLocalDescription();
                     socket.emit("live:signal", { sessionId, targetUserId: fromUserId, signal: { sdp: pc.localDescription } });
@@ -193,7 +233,14 @@ function joinSession() {
                 }
             } else if (signal.candidate) {
                 try {
-                    await pc.addIceCandidate(signal.candidate);
+                    // FIX 1: Queue if no remote description yet OR if an answer is
+                    // still being applied — prevents InvalidStateError mid-handshake.
+                    const readyForCandidate = pc.remoteDescription && !state.isSettingRemoteAnswerPending;
+                    if (!readyForCandidate) {
+                        state.candidates.push(signal.candidate);
+                    } else {
+                        await pc.addIceCandidate(signal.candidate);
+                    }
                 } catch (err) {
                     if (!state.ignoreOffer) throw err;
                 }
@@ -235,7 +282,11 @@ async function createPeerConnection(peerId, isOffer) {
 
     pc.onnegotiationneeded = async () => {
         try {
-            if (pc.signalingState !== 'stable') return;
+            // FIX A: Removed `if (pc.signalingState !== 'stable') return;`
+            // That guard silently discarded onnegotiationneeded events fired mid-negotiation
+            // (e.g. when a new track is granted while an offer/answer cycle is in-flight),
+            // causing a permanent deadlock where new tracks were never exchanged.
+            // Perfect Negotiation's makingOffer + polite/impolite pattern handles collisions.
             signalingStates[peerId].makingOffer = true;
             await pc.setLocalDescription();
             socket.emit("live:signal", { sessionId, targetUserId: peerId, signal: { sdp: pc.localDescription } });
@@ -257,22 +308,55 @@ async function createPeerConnection(peerId, isOffer) {
             video.id = `video-${peerId}`;
             video.autoplay = true;
             video.playsinline = true;
+            
+            const placeholder = document.createElement("div");
+            placeholder.className = "avatar-placeholder";
+            placeholder.innerHTML = `<i class="fa-solid fa-user"></i>`;
+            
             const nameEl = document.createElement("span");
             nameEl.className = "participant-name";
             nameEl.id = `name-${peerId}`;
             nameEl.textContent = window.lastParticipants?.find(p => p.id === peerId)?.name || "Participant";
+            
             wrapper.appendChild(video);
+            wrapper.appendChild(placeholder);
             wrapper.appendChild(nameEl);
             document.getElementById("videoGrid").appendChild(wrapper);
+            
+            adjustVideoGrid();
         }
-        video.srcObject = streams[0] || new MediaStream([track]);
+        
+        let stream = streams[0];
+        if (!stream) {
+            stream = new MediaStream([track]);
+        }
+        
+        if (video.srcObject) {
+            if (video.srcObject instanceof MediaStream) {
+                const existingTracks = video.srcObject.getTracks();
+                if (!existingTracks.includes(track)) {
+                    video.srcObject.addTrack(track);
+                    // FIX C: Re-assign to force Chromium/Safari to flush the stale
+                    // hardware decode pipeline after a dynamic track injection.
+                    // Without this, the video element silently renders nothing.
+                    video.srcObject = video.srcObject;
+                }
+            }
+        } else {
+            video.srcObject = stream;
+        }
     };
 
     pc.oniceconnectionstatechange = () => {
-        if (['disconnected', 'failed', 'closed'].includes(pc.iceConnectionState)) {
+        console.log(`[WEBRTC] ICE state: ${pc.iceConnectionState} for peer ${peerId}`);
+        // FIX 3: 'disconnected' is a transient/recoverable state (normal network jitter).
+        // Only tear down on truly terminal states: 'failed' or 'closed'.
+        if (['failed', 'closed'].includes(pc.iceConnectionState)) {
+            console.warn(`[WEBRTC] ICE state terminated: ${pc.iceConnectionState} for ${peerId}`);
             document.getElementById(`wrapper-${peerId}`)?.remove();
             delete peerConnections[peerId];
             delete signalingStates[peerId];
+            adjustVideoGrid();
         }
     };
 
@@ -343,6 +427,62 @@ function drawOnCanvas(draw) {
     ctx.closePath();
 }
 
+// --- FIX D: Screen Sharing Implementation ---
+async function toggleScreenShare() {
+    const shareBtn = document.getElementById("toggleShare");
+    if (screenStream) {
+        stopScreenShare();
+    } else {
+        try {
+            screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            const screenTrack = screenStream.getVideoTracks()[0];
+
+            // Auto-revert when user clicks browser's native "Stop sharing" button
+            screenTrack.onended = () => stopScreenShare();
+
+            // Seamlessly replace video track in every active peer connection
+            // using replaceTrack — no renegotiation required
+            for (const peerId in peerConnections) {
+                const pc = peerConnections[peerId];
+                const videoSender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (videoSender) {
+                    await videoSender.replaceTrack(screenTrack);
+                }
+            }
+
+            document.getElementById("localVideo").srcObject = screenStream;
+            shareBtn?.classList.add("active");
+            if (typeof showToast === 'function') showToast("Screen sharing active", "success");
+        } catch (err) {
+            console.error("[SCREEN] Share error:", err);
+            screenStream = null;
+            if (typeof showToast === 'function') showToast("Unable to share screen.", "error");
+        }
+    }
+}
+
+function stopScreenShare() {
+    const shareBtn = document.getElementById("toggleShare");
+    if (!screenStream) return;
+
+    try { screenStream.getTracks().forEach(t => t.stop()); } catch (e) { console.error(e); }
+    screenStream = null;
+
+    // Restore original camera track to all peer connections
+    const cameraTrack = localStream.getVideoTracks()[0];
+    if (cameraTrack) {
+        for (const peerId in peerConnections) {
+            const pc = peerConnections[peerId];
+            const videoSender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+            if (videoSender) videoSender.replaceTrack(cameraTrack);
+        }
+    }
+
+    document.getElementById("localVideo").srcObject = localStream;
+    shareBtn?.classList.remove("active");
+    if (typeof showToast === 'function') showToast("Screen sharing stopped", "info");
+}
+
 function setupEventListeners() {
     document.getElementById("sendChatBtn").addEventListener("click", sendChat);
     document.getElementById("chatInput").addEventListener("keypress", (e) => e.key === 'Enter' && sendChat());
@@ -354,7 +494,12 @@ function setupEventListeners() {
             return;
         }
         const track = localStream.getAudioTracks()[0];
-        if (track) { track.enabled = !track.enabled; this.classList.toggle("off", !track.enabled); }
+        if (track) { 
+            track.enabled = !track.enabled; 
+            this.classList.toggle("off", !track.enabled); 
+            const isVideoOn = localStream.getVideoTracks()[0] ? localStream.getVideoTracks()[0].enabled : false;
+            socket.emit("live:mediaStateChanged", { sessionId, video: isVideoOn, audio: track.enabled });
+        }
     });
 
     document.getElementById("toggleCam").addEventListener("click", function () {
@@ -364,8 +509,49 @@ function setupEventListeners() {
             return;
         }
         const track = localStream.getVideoTracks()[0];
-        if (track) { track.enabled = !track.enabled; this.classList.toggle("off", !track.enabled); }
+        if (track) { 
+            track.enabled = !track.enabled; 
+            this.classList.toggle("off", !track.enabled); 
+            updateVideoWrapperCameraState(getMyId(), track.enabled);
+            const isAudioOn = localStream.getAudioTracks()[0] ? localStream.getAudioTracks()[0].enabled : false;
+            socket.emit("live:mediaStateChanged", { sessionId, video: track.enabled, audio: isAudioOn });
+        }
     });
+
+    // FIX D: Bind screen share toggle (button existed in HTML but had no listener)
+    const toggleShareBtn = document.getElementById("toggleShare");
+    if (toggleShareBtn) toggleShareBtn.addEventListener("click", toggleScreenShare);
+
+    // Event delegation for dynamically loaded navbar toggle buttons
+    document.addEventListener("click", function (e) {
+        // A. Toggle Chat Panel
+        const toggleChatBtn = e.target.closest("#toggleChat");
+        if (toggleChatBtn) {
+            const leftPanel = document.querySelector(".left-panel");
+            if (leftPanel) {
+                const isCollapsed = (leftPanel.style.display === "none");
+                leftPanel.style.display = isCollapsed ? "flex" : "none";
+                toggleChatBtn.classList.toggle("active", isCollapsed);
+                toggleChatBtn.classList.toggle("off", !isCollapsed);
+            }
+            return;
+        }
+
+        // B. Toggle Permissions List (Right Panel)
+        const togglePermBtn = e.target.closest("#toggleParticipants");
+        if (togglePermBtn) {
+            const rightPanel = document.querySelector(".right-panel");
+            if (rightPanel) {
+                const isCollapsed = (rightPanel.style.display === "none");
+                rightPanel.style.display = isCollapsed ? "flex" : "none";
+                togglePermBtn.classList.toggle("active", isCollapsed);
+                togglePermBtn.classList.toggle("off", !isCollapsed);
+            }
+            return;
+        }
+    });
+
+    syncNavbarToggles();
 
     document.getElementById("toggleWhiteboard").addEventListener("click", () => {
         const container = document.getElementById("whiteboardContainer");
@@ -411,6 +597,33 @@ function appendChatMessage({ user, message }) {
 function updateParticipants(participants) {
     if (!participants) return;
     window.lastParticipants = participants;
+
+    // FIX B: Only clean up peers for participants REMOVED from the session entirely (!p).
+    // Previously `p.status === 'Absent'` also triggered teardown, which killed live calls
+    // during momentary socket reconnects (the server now correctly emits 'Absent' only
+    // when a user's last socket drops, but even then the WebRTC call may still be alive
+    // and the user reconnecting). ICE state machine handles true failures via
+    // oniceconnectionstatechange ('failed'/'closed').
+    Object.keys(peerConnections).forEach(pid => {
+        const p = participants.find(part => part.id === pid);
+        if (!p) {
+            console.log(`[WEBRTC] Cleaning up peer for removed participant: ${pid}`);
+            const el = document.getElementById(`wrapper-${pid}`);
+            if (el) {
+                el.remove();
+                adjustVideoGrid();
+            }
+            if (peerConnections[pid]) {
+                try {
+                    peerConnections[pid].close();
+                } catch (e) {
+                    console.error("Error closing peer connection:", e);
+                }
+                delete peerConnections[pid];
+            }
+            delete signalingStates[pid];
+        }
+    });
 
     // 1. Update Navbar avatars (Global status)
     const navContainer = document.getElementById("nav-participants");
@@ -505,6 +718,9 @@ async function updateLocalPermissions(type, granted, silent = false) {
             if (!granted) {
                 track.enabled = false;
                 document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.add("off");
+                if (type === 'cam') {
+                    updateVideoWrapperCameraState(getMyId(), false);
+                }
             } else {
                 // If it was newly granted, we might need to add it to existing peer connections
                 if (!prev && granted) {
@@ -512,6 +728,9 @@ async function updateLocalPermissions(type, granted, silent = false) {
                     if (freshTrack) {
                         freshTrack.enabled = true;
                         document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.remove("off");
+                        if (type === 'cam') {
+                            updateVideoWrapperCameraState(getMyId(), true);
+                        }
                         Object.values(peerConnections).forEach(pc => {
                             const senders = pc.getSenders();
                             if (!senders.find(s => s.track === freshTrack)) {
@@ -521,6 +740,10 @@ async function updateLocalPermissions(type, granted, silent = false) {
                     }
                 }
             }
+            // Broadcast new state
+            const isVideoOn = localStream.getVideoTracks()[0] ? localStream.getVideoTracks()[0].enabled : false;
+            const isAudioOn = localStream.getAudioTracks()[0] ? localStream.getAudioTracks()[0].enabled : false;
+            socket.emit("live:mediaStateChanged", { sessionId, video: isVideoOn, audio: isAudioOn });
         }
     } else if (type === 'whiteboard' && !window.isMentor) {
         document.getElementById("toggleWhiteboard").style.display = granted ? "block" : "none";
@@ -551,6 +774,10 @@ window.handleEndSession = () => triggerEndSession();
 window.handleInviteClick = () => { document.getElementById("inviteModal").classList.add("active"); document.getElementById("inviteUserList").innerHTML = ""; };
 
 async function triggerEndSession() {
+    if (!window.isMentor) {
+        if (typeof showToast === 'function') showToast("Only mentors can end session", "warning");
+        return;
+    }
     if (await showConfirm("End Session?", "Deduct credits and close room?", "End Session", true)) {
         await fetch(`${API_BASE}/live-sessions/end-session`, {
             method: "POST",
@@ -609,3 +836,51 @@ window.selectInvitee = (id, el) => {
     document.getElementById("sendInviteBtn").disabled = false;
 };
 initInviteModal();
+
+function updateVideoWrapperCameraState(userId, isCameraOn) {
+    const isSelf = userId === getMyId();
+    const wrapper = isSelf ? document.querySelector(".video-wrapper.local") : document.getElementById(`wrapper-${userId}`);
+    if (wrapper) {
+        wrapper.classList.toggle("camera-off", !isCameraOn);
+    }
+}
+
+function adjustVideoGrid() {
+    const grid = document.getElementById("videoGrid");
+    if (!grid) return;
+    const count = grid.children.length;
+    
+    // Remove old layout classes
+    grid.classList.remove("grid-1", "grid-2", "grid-3", "grid-4", "grid-many");
+    
+    if (count === 1) {
+        grid.classList.add("grid-1");
+    } else if (count === 2) {
+        grid.classList.add("grid-2");
+    } else if (count === 3) {
+        grid.classList.add("grid-3");
+    } else if (count === 4) {
+        grid.classList.add("grid-4");
+    } else {
+        grid.classList.add("grid-many");
+    }
+}
+
+function syncNavbarToggles() {
+    const leftPanel = document.querySelector(".left-panel");
+    const rightPanel = document.querySelector(".right-panel");
+    
+    const toggleChatBtn = document.getElementById("toggleChat");
+    if (toggleChatBtn && leftPanel) {
+        const isVisible = leftPanel.style.display === "flex";
+        toggleChatBtn.classList.toggle("active", isVisible);
+        toggleChatBtn.classList.toggle("off", !isVisible);
+    }
+    
+    const togglePermBtn = document.getElementById("toggleParticipants");
+    if (togglePermBtn && rightPanel) {
+        const isVisible = rightPanel.style.display === "flex";
+        togglePermBtn.classList.toggle("active", isVisible);
+        togglePermBtn.classList.toggle("off", !isVisible);
+    }
+}

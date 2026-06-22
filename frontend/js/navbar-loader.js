@@ -15,6 +15,8 @@ function initNavbar(config = {}) {
         showProfileBtn: false, // Default: hidden
         showNotifications: true, // Default: visible
         showInviteBtn: false, // Default: hidden
+        showChatToggle: false, // Default: hidden
+        showParticipantsToggle: false, // Default: hidden
 
         primaryAction: {
             show: true,
@@ -71,6 +73,16 @@ function initNavbar(config = {}) {
 
                     <i class="fa-solid fa-user"></i>
                 </button>` : ''}
+                ${options.showChatToggle ? `
+                    <button class="icon-btn off" title="Toggle Chat" id="toggleChat">
+                        <i class="fa-solid fa-comments"></i>
+                    </button>
+                ` : ''}
+                ${options.showParticipantsToggle ? `
+                    <button class="icon-btn off" title="Toggle Permissions" id="toggleParticipants">
+                        <i class="fa-solid fa-users"></i>
+                    </button>
+                ` : ''}
                 ${options.showInviteBtn ? `
                     <button class="icon-btn invite-btn" title="Invite Others" id="navbarInviteBtn">
                         <i class="fa-solid fa-user-plus"></i>
