@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.intersection_observer",
+  "topic": "Intersection Observer",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_web_apis",
+      "js.async_callbacks_intro"
+    ],
+    "related_to": [
+      "js.events_intro",
+      "js.debouncing"
+    ],
+    "often_confused_with": [
+      "js.events_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is intersection observer"
+    ],
+    "why": [
+      "why use intersection observer instead of scroll event"
+    ],
+    "how": [
+      "how to trigger animation on scroll",
+      "how to lazy load images"
+    ],
+    "compare": [
+      "intersection observer vs onscroll"
+    ],
+    "output": [
+      "callback fires when element enters viewport"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Intersection Observer is a powerful tool that tells you exactly when an HTML element enters or leaves the visible screen (the viewport). It is used for 'Lazy Loading' images (only loading them when you scroll down to them), triggering scroll animations, or infinite scrolling (loading more tweets when you reach the bottom).",
+    "analogy": "Using the old `scroll` event is like asking a child in the backseat 'Are we there yet?' 60 times a second. It exhausts the browser. Intersection Observer is like telling the child, 'Go to sleep. I will wake you up exactly when we cross the state border.' It is incredibly efficient."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "You create a new `IntersectionObserver` object and pass it a callback function. You then tell it to `.observe(element)`. The browser's C++ engine tracks the geometry off the main thread. When the element intersects the viewport, it pushes the callback to the Macrotask Queue.",
+    "memory": "Because the heavy math of calculating positions is offloaded to the browser's internal engine rather than running in JS on every pixel of scroll, it saves massive amounts of CPU and memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Fading in an image only when the user scrolls down to it.",
+    "code": "// 1. Create the Observer\nconst observer = new IntersectionObserver((entries) => {\n  entries.forEach(entry => {\n    // Is the element visible on screen right now?\n    if (entry.isIntersecting) {\n      entry.target.classList.add('fade-in');\n      // Once it's loaded, stop watching it to save memory\n      observer.unobserve(entry.target);\n    }\n  });\n});\n\n// 2. Tell the observer which elements to watch\nconst hiddenImages = document.querySelectorAll('.lazy-image');\nhiddenImages.forEach(img => observer.observe(img));"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting that `entries` is an Array. Because one observer can watch multiple elements, the callback is passed a list of ALL the elements that just crossed the boundary. You must loop over `entries`.",
+    "fix": "Always use `entries.forEach(entry => ...)` inside the callback."
+  },
+  "5_related_topics": [
+    "js.browser_web_apis",
+    "js.debouncing"
+  ],
+  "6_edge_case": {
+    "quirk": "You can configure the observer with an options object to trigger early. By setting `rootMargin: '100px'`, the observer will pretend the screen is 100px taller, triggering the load *before* the user actually sees it.",
+    "code": "const options = { rootMargin: '200px 0px', threshold: 0 };\nconst obs = new IntersectionObserver(callback, options);"
+  }
+}

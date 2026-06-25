@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.spread_with_objects",
+  "topic": "Spread Operator with Objects",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.object_properties", "js.spread_rest"],
+    "related_to": ["js.object_copying", "js.object_assign"],
+    "often_confused_with": ["js.rest_parameters"]
+  },
+  "question_map": {
+    "what": ["what does ... do in an object", "what is object spread syntax"],
+    "why": ["why use spread instead of object.assign", "why did spread overwrite my property"],
+    "how": ["how to merge objects with spread", "how to clone object syntax"],
+    "compare": ["spread operator vs object.assign", "spread vs rest in objects"],
+    "output": ["spread operator creates a new object"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **Spread Operator** (`...`) allows you to take an existing object and 'spread' (unpack) all of its key-value pairs into a brand new object. It is the modern, cleanest way to copy an object or merge two objects together. Just like `Object.assign`, if there are duplicate keys, the ones listed last (furthest down) will overwrite the earlier ones.",
+    "analogy": "Imagine you have a customized pizza (the old object). Using the spread operator is like telling the chef: 'Make me a brand new pizza, put all the exact same toppings from that first pizza on it (`...oldPizza`), and then also add extra pepperoni on top'."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine evaluates `{ ...obj1, ...obj2 }`, it allocates memory for a new object literal. It iterates over `obj1`'s enumerable properties, defining them on the new object. Then it does the same for `obj2`. It performs a shallow copy.",
+    "memory": "Unlike `Object.assign(obj1, obj2)` which mutates `obj1`, the spread syntax strictly defines properties on a newly allocated object literal."
+  },
+  "3_real_world_example": {
+    "use_case": "Updating a user's status in a Redux/React application without mutating the original state object.",
+    "code": "const userState = {\n  id: 42,\n  name: 'Alice',\n  isOnline: false\n};\n\n// We need to update isOnline to true, but we CANNOT mutate the original.\n// We create a NEW object, spread the old properties into it, \n// and overwrite the specific property we want to change.\nconst updatedState = {\n  ...userState,\n  isOnline: true // Overwrites the false value from userState\n};\n\nconsole.log(userState.isOnline);  // false (Original untouched)\nconsole.log(updatedState.isOnline); // true (New object updated)"
+  },
+  "4_common_confusion": {
+    "trap": "Putting the spread operator *after* your new properties. If you write `{ isOnline: true, ...userState }`, the `userState` gets unpacked last, and its `isOnline: false` will overwrite your `true`!",
+    "fix": "Order matters. Always spread the base object first, and put your overrides/updates at the bottom."
+  },
+  "5_related_topics": ["js.object_copying", "js.object_assign", "js.destructuring_objects"],
+  "6_edge_case": {
+    "quirk": "The same `...` syntax is used for the Rest pattern during destructuring. Spread 'unpacks' an object. Rest 'packs' remaining properties into a new object.",
+    "code": "// SPREAD (Unpacking into a new object)\nconst clone = { ...original }; \n\n// REST (Packing remaining properties)\nconst { id, ...everythingElse } = original;"
+  }
+}

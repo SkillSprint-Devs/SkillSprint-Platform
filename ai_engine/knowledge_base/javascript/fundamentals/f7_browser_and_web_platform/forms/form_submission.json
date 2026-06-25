@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.form_submission",
+  "topic": "Form Submission",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.forms_intro",
+      "js.events_intro"
+    ],
+    "related_to": [
+      "js.preventing_default",
+      "js.form_validation"
+    ],
+    "often_confused_with": [
+      "js.input_events"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the submit event"
+    ],
+    "why": [
+      "why does my page refresh when i click a button in a form"
+    ],
+    "how": [
+      "how to handle form submission in js",
+      "how to stop form from reloading page"
+    ],
+    "compare": [
+      "submit event on form vs click event on button"
+    ],
+    "output": [
+      "page reloads on form submit without preventDefault"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When a user presses Enter inside a form, or clicks a button with `type=\"submit\"`, the browser fires a `submit` event. By default, the browser's reaction to this event is to bundle all the data, send it to a server URL, and physically reload the webpage. In modern JavaScript applications (like React or Vue), we usually want to stop this automatic reload and handle the data sending ourselves.",
+    "analogy": "Submitting a form is like dropping a letter in a mailbox. The post office (the browser) immediately takes it away. If you want to check the letter for spelling mistakes before it leaves, you have to tell the mail carrier to 'Wait! Let me do it myself!'"
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The `submit` event fires on the `<form>` element itself, NOT on the submit button. Once the event fires, if it is not cancelled by JavaScript, the browser executes a hard navigation, killing the current JavaScript runtime environment completely.",
+    "memory": "Because a default submission destroys the current page, any state stored in JavaScript memory variables is instantly erased."
+  },
+  "3_real_world_example": {
+    "use_case": "Intercepting a form submission to send the data via an API without reloading the page.",
+    "code": "const form = document.querySelector('#contact-form');\n\n// We listen for 'submit' on the FORM, not 'click' on the button\nform.addEventListener('submit', function(e) {\n  // 1. CRITICAL: Stop the browser from reloading the page!\n  e.preventDefault();\n\n  // 2. Grab the data\n  const email = form.elements.email.value;\n  \n  // 3. Send it to our API in the background\n  console.log(`Sending ${email} to server...`);\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Attaching a `click` listener to the submit button instead of a `submit` listener to the form. If you do this, you miss the scenario where the user types their password and presses the 'Enter' key. Pressing Enter fires `submit`, but it doesn't necessarily fire `click` on the button.",
+    "fix": "Always listen for the `submit` event on the `<form>` tag."
+  },
+  "5_related_topics": [
+    "js.preventing_default",
+    "js.form_data_api"
+  ],
+  "6_edge_case": {
+    "quirk": "If you programmatically call `form.submit()` using JavaScript, it actually BYPASSES the 'submit' event listener entirely!",
+    "code": "form.addEventListener('submit', () => console.log('Heard it!'));\n// This will reload the page and NOT print 'Heard it!'\nform.submit(); "
+  }
+}

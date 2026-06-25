@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.first_class_functions",
+  "topic": "First-Class Functions",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.variables"],
+    "related_to": ["js.higher_order_functions", "js.callbacks", "js.function_expression"],
+    "often_confused_with": ["js.higher_order_functions"]
+  },
+  "question_map": {
+    "what": [
+      "what are first class functions",
+      "what does first class function mean",
+      "can functions be stored in variables in javascript"
+    ],
+    "why": [
+      "why are functions first class in javascript",
+      "why can functions be passed as arguments",
+      "what makes javascript functional"
+    ],
+    "how": [
+      "how to store a function in a variable",
+      "how to pass a function as an argument",
+      "how to return a function from a function"
+    ],
+    "compare": [
+      "first class functions vs higher order functions",
+      "first class vs first order functions"
+    ],
+    "output": [
+      "function stored in array works correctly",
+      "function returned from another function behaves normally"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "In JavaScript, functions are **first-class citizens** — they are treated exactly like any other value. This means you can: store a function in a variable, store functions in arrays or objects, pass a function as an argument to another function, and return a function from a function. First-class functions are what make higher-order functions and callbacks possible in JavaScript.",
+    "analogy": "In most countries, citizens have equal rights regardless of profession — a doctor and a teacher both carry an ID, board a plane, open a bank account. JavaScript functions are 'first-class citizens' of the language: they have the same rights as strings, numbers, and objects. They can go anywhere a value can go."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Internally, every function is a Function Object — an instance of the built-in `Function` constructor that lives on the heap. A variable that holds a function simply stores a reference (pointer) to that heap object. This reference can be copied, passed, stored in collections, and returned from other functions — all without any special syntax, because a function is just a value.",
+    "memory": "Function objects occupy heap memory. They hold: the bytecode, a `length` property (number of named parameters), a `name` property (from declaration/expression name), a `prototype` property (for constructor use), and the `[[Environment]]` closure slot. The function object stays alive as long as at least one variable references it."
+  },
+  "3_real_world_example": {
+    "use_case": "Building a reusable pipeline where processing steps are stored in an array of functions and applied in sequence.",
+    "code": "// Store functions as values in an array\nconst pipeline = [\n  (x) => x.trim(),\n  (x) => x.toLowerCase(),\n  (x) => x.replace(/\\s+/g, '-'),\n];\n\n// Pass and return functions — run the pipeline\nfunction process(input, steps) {\n  return steps.reduce((result, step) => step(result), input);\n}\n\nconsole.log(process('  Hello World  ', pipeline)); // 'hello-world'\n\n// Store functions in an object (strategy pattern)\nconst formatters = {\n  currency: (n) => `$${n.toFixed(2)}`,\n  percent: (n) => `${(n * 100).toFixed(1)}%`,\n};\n\nconsole.log(formatters.currency(9.5));  // '$9.50'\nconsole.log(formatters.percent(0.175)); // '17.5%'"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing First-Class Functions with Higher-Order Functions. First-class is a property of the language — it means functions can be used as values. Higher-order is a property of a specific function — it means that function accepts or returns functions. HOFs are only possible *because* functions are first-class.",
+    "fix": "First-class = what the language allows. Higher-order = how a specific function uses that capability."
+  },
+  "5_related_topics": [
+    "js.higher_order_functions",
+    "js.callbacks",
+    "js.function_expression",
+    "js.closures"
+  ],
+  "6_edge_case": {
+    "quirk": "Because functions are objects, you can dynamically attach properties to them — they can hold their own state between calls. This is an alternative to closures for storing per-function data, though it is less idiomatic.",
+    "code": "function counter() {\n  counter.calls = (counter.calls || 0) + 1;\n  return counter.calls;\n}\n\nconsole.log(counter()); // 1\nconsole.log(counter()); // 2\nconsole.log(counter()); // 3\nconsole.log(counter.calls); // 3 — property lives on the function object"
+  }
+}

@@ -58,6 +58,6 @@
   ],
   "6_edge_case": {
     "quirk": "If you declare loop iterators using 'var' inside a loop header, the variable leaks out into the surrounding scope because 'var' ignores block boundaries. Furthermore, asynchronous functions inside the loop will reference the final state of the variable.",
-    "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); // Prints 3, 3, 3 (bug! due to var leak)\n}\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); // Prints 0, 1, 2 ✅ (correct block scope)\n}"
+    "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); // Prints 3, 3, 3 (bug! due to var leak)\n}\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); // Prints 0, 1, 2  (correct block scope)\n}"
   }
 }

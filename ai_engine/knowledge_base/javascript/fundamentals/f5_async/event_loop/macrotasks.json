@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.macrotasks",
+  "topic": "Macrotasks",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.task_queue", "js.microtask_queue"],
+    "related_to": ["js.event_loop_visualization", "js.browser_web_apis"],
+    "often_confused_with": ["js.microtask_queue"]
+  },
+  "question_map": {
+    "what": ["what are macrotasks", "what is a macrotask in javascript", "examples of macrotasks"],
+    "why": ["why split tasks into macro and micro"],
+    "how": ["how do macrotasks execute", "when do macrotasks run"],
+    "compare": ["macrotask vs microtask", "difference between microtask and macrotask"],
+    "output": ["macrotask execution order vs microtask"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Macrotask** (often just called a 'task') is a discrete, independent unit of work that the browser or Node.js schedules. Common macrotasks include: executing a `<script>` tag, `setTimeout`, `setInterval`, UI events (clicks, scrolling), and network I/O callbacks. The Event Loop runs exactly ONE macrotask at a time. After a macrotask finishes, the browser is allowed to update the screen (render) before moving to the next macrotask.",
+    "analogy": "A Macrotask is like a complete college class session. You have the class (the macrotask), and when it's over, you check your phone for urgent messages (microtasks), then maybe get a drink of water (rendering), before you go to your next class (the next macrotask)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The Event Loop algorithm is structured around macrotasks: \n1) Dequeue and run the oldest macrotask.\n2) Run ALL microtasks until the Microtask Queue is empty.\n3) Update the rendering (if needed).\n4) Wait for the next macrotask if the queue is empty.\nThis separation ensures that high-priority reactions (Promises/microtasks) run immediately after a task, and the UI has a chance to render between heavy tasks.",
+    "memory": "Macrotasks represent boundaries. Variables created inside a macrotask that aren't captured in closures are eligible for garbage collection when the macrotask finishes."
+  },
+  "3_real_world_example": {
+    "use_case": "Using nested `setTimeout` macrotasks to yield control to the browser, keeping the UI responsive during heavy calculations.",
+    "code": "// Instead of a blocking loop:\n// for(let i=0; i<1e9; i++) { count++; }\n\n// We split the work into multiple Macrotasks:\nlet count = 0;\nfunction countToBillion() {\n  let end = count + 1_000_000;\n  while(count < end) { count++; }\n  \n  if (count < 1_000_000_000) {\n    // Schedule the next chunk as a new Macrotask.\n    // This allows the Event Loop to render the UI in between chunks!\n    setTimeout(countToBillion, 0); \n  } else {\n    console.log('Done!');\n  }\n}\ncountToBillion();"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that all events are asynchronous macrotasks. Events triggered programmatically via JS (e.g., `element.click()`) are executed synchronously, right then and there. Only user-initiated events (actual physical clicks) are queued as async macrotasks.",
+    "fix": "Programmatic `click()` = Synchronous function call. User mouse click = Asynchronous Macrotask."
+  },
+  "5_related_topics": ["js.task_queue", "js.microtask_queue", "js.event_loop_visualization"],
+  "6_edge_case": {
+    "quirk": "The initial execution of the main JavaScript file is itself treated as the very first Macrotask. When that script finishes, the Event Loop checks the Microtask Queue, renders, and then waits for the next Macrotask.",
+    "code": "// This entire script execution is Macrotask #1\nconsole.log('Main script running');\nsetTimeout(() => console.log('Macrotask #2'), 0);"
+  }
+}

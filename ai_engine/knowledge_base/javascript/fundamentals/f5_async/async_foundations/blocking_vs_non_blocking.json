@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.blocking_vs_non_blocking",
+  "topic": "Blocking vs Non-Blocking Code",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.synchronous_vs_asynchronous", "js.call_stack"],
+    "related_to": ["js.concurrency_intro", "js.browser_web_apis", "js.event_loop_intro"],
+    "often_confused_with": ["js.synchronous_vs_asynchronous"]
+  },
+  "question_map": {
+    "what": ["what is blocking code", "what is non-blocking code", "what does blocking mean in javascript"],
+    "why": ["why should code avoid blocking", "what happens when code blocks", "why does a while loop freeze the browser"],
+    "how": ["how to write non-blocking code", "how does non-blocking io work"],
+    "compare": ["blocking vs non-blocking", "blocking vs async"],
+    "output": ["page freezes during heavy computation", "ui unresponsive while loop is running"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Blocking code** occupies the Call Stack for an extended period, preventing anything else from running — UI updates, event handlers, other code. **Non-blocking code** starts an operation and immediately frees the Call Stack, allowing the browser to render, respond to clicks, and run other code while waiting for the result. Since JavaScript has one thread, a single blocking operation can freeze the entire page.",
+    "analogy": "Blocking code is like a teller at a bank who calls a bank in another country to verify your account and makes you and everyone behind you wait on hold for 10 minutes. Non-blocking is when the teller gives you a ticket number, continues serving other customers, and calls you back when the verification arrives."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The JavaScript engine has one Call Stack. Blocking operations (CPU-heavy loops, synchronous XMLHttpRequest) sit on the stack and prevent the Event Loop from processing any queued callbacks. The browser cannot repaint or respond to events while the stack is occupied. Non-blocking operations delegate work to Web APIs and return immediately, freeing the stack.",
+    "memory": "During a blocking operation all queued callbacks — including setTimeout callbacks, Promise reactions, and UI events — pile up in their queues. They are processed only after the blocking call finishes and the stack empties."
+  },
+  "3_real_world_example": {
+    "use_case": "Demonstrating how a CPU-heavy synchronous loop blocks UI vs using a chunked async approach.",
+    "code": "//  BLOCKING — freezes the tab for ~2 seconds\nfunction blockingSum() {\n  let total = 0;\n  for (let i = 0; i < 1_000_000_000; i++) total += i;\n  return total;\n}\nconsole.log(blockingSum()); // Call Stack occupied — UI frozen\n\n//  NON-BLOCKING — yields to Event Loop between chunks\nfunction nonBlockingSum(total = 0, i = 0) {\n  const end = Math.min(i + 1_000_000, 1_000_000_000);\n  while (i < end) { total += i; i++; }\n  if (i < 1_000_000_000) {\n    setTimeout(() => nonBlockingSum(total, i), 0); // yield\n  } else {\n    console.log('Total:', total); // UI stays responsive throughout\n  }\n}\nnonBlockingSum();"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that Web Workers solve the blocking problem for regular JavaScript. They run on a separate thread, but regular JS on the main thread is still single-threaded. Use Web Workers for truly CPU-intensive tasks.",
+    "fix": "For I/O (network, timers): use non-blocking async. For CPU-heavy work: consider Web Workers or chunked processing with setTimeout."
+  },
+  "5_related_topics": ["js.synchronous_vs_asynchronous", "js.event_loop_intro", "js.concurrency_intro"],
+  "6_edge_case": {
+    "quirk": "A `while(true)` loop with no async breaks is an infinite block — it will permanently freeze the tab with no recovery. Even the browser's 'Stop script' dialog may take seconds to appear.",
+    "code": "//  Never do this on the main thread\n// while (true) {} // infinite block — tab permanently frozen\n\n//  Safe infinite polling with async pause\nasync function pollForData() {\n  while (true) {\n    const data = await fetch('/api/status').then(r => r.json());\n    if (data.ready) break;\n    await new Promise(r => setTimeout(r, 1000)); // yields every second\n  }\n}"
+  }
+}

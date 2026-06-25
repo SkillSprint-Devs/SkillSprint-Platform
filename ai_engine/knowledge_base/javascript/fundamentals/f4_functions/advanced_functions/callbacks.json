@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.callbacks",
+  "topic": "Callback Functions",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.first_class_functions", "js.higher_order_functions", "js.invoking_functions"],
+    "related_to": ["js.promises", "js.async_await", "js.event_loop"],
+    "often_confused_with": ["js.promises"]
+  },
+  "question_map": {
+    "what": [
+      "what is a callback function",
+      "what is a callback in javascript",
+      "what is callback hell"
+    ],
+    "why": [
+      "why are callbacks used in javascript",
+      "why use callbacks instead of direct calls",
+      "why does callback hell happen"
+    ],
+    "how": [
+      "how callbacks work internally",
+      "how to pass a callback to a function",
+      "how does setimeout use a callback"
+    ],
+    "compare": [
+      "callbacks vs promises",
+      "synchronous callback vs asynchronous callback",
+      "callback vs higher order function"
+    ],
+    "output": [
+      "why is callback running immediately",
+      "callback order of execution",
+      "callback hell nested code"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A callback is simply a function that you pass as an argument to another function, with the expectation that the receiving function will call it at the appropriate time. Callbacks can be synchronous (called immediately during the HOF's execution) or asynchronous (called later, after an operation like a timer or network request completes). The name 'callback' describes the pattern — you pass control to a HOF and it 'calls back' your function when ready.",
+    "analogy": "A callback is like leaving your phone number with a mechanic. You hand over your car (the data) and your number (the callback function). You don't stay and watch the work — you leave and carry on. When the car is fixed (the operation completes), the mechanic calls your number (invokes your callback). You gave control to the mechanic and asked to be notified when done."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Synchronous callbacks: the HOF calls the provided function in-line during its own execution. The callback is pushed onto the Call Stack immediately. `Array.map()`, `Array.forEach()`, `Array.sort()` all use synchronous callbacks — they complete before the HOF returns. Asynchronous callbacks: functions like `setTimeout` hand the callback to the browser's Web APIs. After the delay, the callback is placed in the Callback Queue. The Event Loop moves it onto the Call Stack only when the stack is empty.",
+    "memory": "The callback function reference is held by the HOF as a parameter binding. For async callbacks, the runtime holds the reference until the operation completes. If the callback forms a closure over outer variables, those variables are kept alive in the heap until the callback is garbage collected."
+  },
+  "3_real_world_example": {
+    "use_case": "Building a retry mechanism using callbacks to decouple the retry logic from the actual operation being retried.",
+    "code": "// Synchronous callback — called immediately\nfunction withLogging(label, fn) {\n  console.log(`▶ ${label}`);\n  const result = fn(); // calls your callback right now\n  console.log(` ${label} done`);\n  return result;\n}\n\nconst area = withLogging('Area calculation', () => 5 * 8);\nconsole.log(area); // 40\n\n// Asynchronous callback — called later\nfunction delayedGreet(name, callback) {\n  setTimeout(() => {\n    callback(`Hello, ${name}!`); // called after 1s, via Event Loop\n  }, 1000);\n}\n\ndelayedGreet('SkillSprint', (msg) => console.log(msg)); // 'Hello, SkillSprint!' after 1s"
+  },
+  "4_common_confusion": {
+    "trap": "Callback Hell — deeply nested callbacks that each pass the result to the next operation. The code forms a 'pyramid of doom' that is hard to read, debug, and handle errors in.",
+    "fix": "For async workflows, use Promises or async/await instead. For complex synchronous pipelines, extract callbacks into named functions rather than nesting them inline."
+  },
+  "5_related_topics": [
+    "js.higher_order_functions",
+    "js.promises",
+    "js.async_await",
+    "js.event_loop"
+  ],
+  "6_edge_case": {
+    "quirk": "The order of synchronous callbacks is predictable and immediate. The order of asynchronous callbacks is NOT guaranteed relative to one another — a 0ms `setTimeout` callback still runs *after* all current synchronous code completes, because it must wait for the Call Stack to be empty.",
+    "code": "console.log('1 — sync');\n\nsetTimeout(() => console.log('3 — async (0ms)'), 0); // queued, not immediate\n\nconsole.log('2 — sync');\n\n// Output order:\n// 1 — sync\n// 2 — sync\n// 3 — async (0ms)    ← runs only AFTER all sync code finishes"
+  }
+}

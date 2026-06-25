@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.https_intro",
+  "topic": "HTTPS & Security",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.http_intro"
+    ],
+    "related_to": [
+      "js.browser_security_model"
+    ],
+    "often_confused_with": [
+      "js.http_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is https"
+    ],
+    "why": [
+      "why is https secure",
+      "why do we need ssl certificates"
+    ],
+    "how": [
+      "how does https work"
+    ],
+    "compare": [
+      "http vs https",
+      "ssl vs tls"
+    ],
+    "output": [
+      "encrypted gibberish intercepted by attacker"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "HTTPS (Hypertext Transfer Protocol Secure) is simply HTTP wrapped in a layer of encryption (TLS/SSL). Before the browser sends the HTTP message over the internet, it scrambles it using a secret mathematical key. Even if a hacker intercepts the message, all they see is mathematical gibberish.",
+    "analogy": "HTTP is like sending a postcard through the mail; anyone who touches it can read it. HTTPS is like putting that letter inside an impenetrable, locked steel box. Only the intended recipient has the key to unlock the box and read the letter."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you visit an HTTPS site, the browser and server perform a 'TLS Handshake'. The server proves its identity by presenting an SSL Certificate (issued by a trusted Certificate Authority). Then, both sides secretly agree on an encryption key. All subsequent HTTP traffic is encrypted using that key.",
+    "memory": "HTTPS runs on port 443 (instead of port 80). The encryption/decryption process adds a very small overhead to CPU and memory, but in modern systems, it is negligible."
+  },
+  "3_real_world_example": {
+    "use_case": "Protecting passwords and credit card numbers during transmission.",
+    "code": "/* What a hacker sees if they intercept an HTTP request:\n   POST /login HTTP/1.1\n   password=mySuperSecretPassword123\n*/\n\n/* What a hacker sees if they intercept an HTTPS request:\n   #&*$(*&@#Y)(*&!@E&G!*@EGH!(*&GH!(*#EG(!*G(!&E*... \n   (Totally unreadable garbage data)\n*/"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking HTTPS means a website is 'trustworthy' or 'safe from viruses'. HTTPS ONLY guarantees that the connection between you and the server is private. A hacker can easily buy an SSL certificate for their scam website. If you visit `https://scam-site.com`, your connection is private, but you are privately handing your data directly to a scammer.",
+    "fix": "HTTPS means 'Private Connection', it does NOT mean 'Good Intentions'."
+  },
+  "5_related_topics": [
+    "js.http_intro",
+    "js.browser_security_model"
+  ],
+  "6_edge_case": {
+    "quirk": "Modern browsers are so strict about HTTPS that if you load an HTTPS webpage, but try to use `fetch()` to hit a plain HTTP API, the browser will block the request entirely (Mixed Content Error).",
+    "code": "// On https://mywebsite.com\n// fetch('http://api.weather.com'); //  Blocked by browser!"
+  }
+}

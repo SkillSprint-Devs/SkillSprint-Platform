@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.callback_patterns",
+  "topic": "Callback Patterns",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.async_callbacks_intro"],
+    "related_to": ["js.error_handling", "js.callback_hell"],
+    "often_confused_with": ["js.closure_patterns"]
+  },
+  "question_map": {
+    "what": ["what are common callback patterns", "what is the error first callback"],
+    "why": ["why is error the first argument in node callbacks", "why do we check if err exists in callbacks"],
+    "how": ["how to write a custom async function with callbacks", "how to structure callbacks"],
+    "compare": ["error-first callback vs standard callback"],
+    "output": ["callback throws error if not handled"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Before Promises, the JavaScript community established standard **patterns** for writing async functions using callbacks so that libraries could interoperate. The most famous is the **Error-First Callback** (standardized by Node.js), where the first parameter of the callback is reserved for an error object, and subsequent parameters are for the successful data. This forces developers to check for errors before assuming the data is valid.",
+    "analogy": "The Error-First pattern is like receiving a package from a delivery service. The delivery driver first hands you an incident report (the error). If the report is empty (null), you know it's safe to open the package (the data). If the report has text, the package might be broken, so you read the report instead of opening the box."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an async operation finishes, it evaluates its own success. If it failed (e.g., file not found), it calls the callback with `callback(new Error('...'))`. If it succeeded, it calls `callback(null, resultData)`. The receiver must always implement an `if (err) { ... }` block at the top of their callback.",
+    "memory": "No special memory mechanisms; it is simply a convention of argument ordering when invoking a function reference."
+  },
+  "3_real_world_example": {
+    "use_case": "Writing your own async wrapper around an unreliable operation using the error-first callback pattern.",
+    "code": "// Custom async function using the Error-First pattern\nfunction fetchUserData(userId, callback) {\n  setTimeout(() => {\n    if (userId < 0) {\n      // Failure: Pass error as the first argument\n      callback(new Error('Invalid user ID'), null);\n    } else {\n      // Success: Pass null for the error, and data for the second\n      callback(null, { id: userId, name: 'Alice' });\n    }\n  }, 500);\n}\n\n// Consuming the function\nfetchUserData(-1, (err, user) => {\n  if (err) {\n    console.error('Error occurred:', err.message); // Output: Error occurred: Invalid user ID\n    return; // Stop execution\n  }\n  \n  console.log('User found:', user);\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting to `return` after handling the error in an error-first callback. If you don't return, the rest of the callback runs, often crashing when it tries to access properties on `data` which is `undefined`.",
+    "fix": "Always use the pattern: `if (err) { handleError(err); return; }` to halt execution."
+  },
+  "5_related_topics": ["js.async_callbacks_intro", "js.callback_hell", "js.promises"],
+  "6_edge_case": {
+    "quirk": "Because callbacks are just a convention, an async function might accidentally call your callback twice (e.g., once on progress, once on completion). This is part of 'Inversion of Control' risks.",
+    "code": "function buggyAsync(callback) {\n  setTimeout(() => {\n    callback(null, 'Result A');\n    // Bug: calls the callback again!\n    callback(null, 'Result B'); \n  }, 100);\n}\n\nbuggyAsync((err, data) => {\n  console.log('Received:', data); \n  // Runs twice, potentially breaking application state\n});"
+  }
+}

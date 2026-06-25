@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promise_any",
+  "topic": "Promise.any",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.promises_intro"],
+    "related_to": ["js.promise_race", "js.promise_all"],
+    "often_confused_with": ["js.promise_race"]
+  },
+  "question_map": {
+    "what": ["what is promise.any", "what does promise any do", "what is aggregateerror"],
+    "why": ["why use promise any", "how to get first successful promise"],
+    "how": ["how does promise.any handle errors"],
+    "compare": ["promise.any vs promise.race", "promise.any vs promise.all"],
+    "output": ["aggregate error all promises rejected"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`Promise.any()` takes an array of Promises and returns the first one that **succeeds** (fulfills). It is similar to `Promise.race`, but it completely ignores promises that fail. It keeps waiting until at least one promise succeeds. If *all* the promises fail, it finally rejects with a special `AggregateError` containing all the failure reasons.",
+    "analogy": "Promise.any is like searching for an open pharmacy late at night. You drive to three different ones. The first one is closed (rejected). You don't give up! You go to the second one. It's open! You buy your medicine and go home (fulfilled). You only fail if ALL three pharmacies are closed (AggregateError)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine runs all promises concurrently. If a promise rejects, `Promise.any` catches the rejection, stores it, and keeps waiting for the others. As soon as one fulfills, `Promise.any` immediately fulfills with that value. Only if the internal counter of rejections equals the array length does it reject.",
+    "memory": "It stores all rejection reasons in memory just in case all promises fail, so it can bundle them into the `AggregateError`."
+  },
+  "3_real_world_example": {
+    "use_case": "Fetching an image from multiple CDN mirrors. You don't care which mirror responds, and you don't care if one mirror is down, as long as you get the image as fast as possible.",
+    "code": "const cdn1 = fetch('https://cdn-1.example.com/image.jpg'); //  404 Not Found\nconst cdn2 = fetch('https://cdn-2.example.com/image.jpg'); //  Success in 500ms\nconst cdn3 = fetch('https://cdn-3.example.com/image.jpg'); //  Success in 800ms\n\nPromise.any([cdn1, cdn2, cdn3])\n  .then(response => {\n    // cdn1 failed, so it was ignored.\n    // cdn2 succeeded first, so it wins!\n    console.log('Got the image from a CDN!');\n  })\n  .catch(error => {\n    // This only runs if ALL THREE CDNs went down.\n    console.error('All CDNs failed.', error.errors);\n  });"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing `Promise.any` with `Promise.race`. `race` settles on the first result regardless of success/fail. `any` settles on the first SUCCESS.",
+    "fix": "Use `race` for timeouts (where a failure *should* win). Use `any` for redundancy/mirrors (where a failure should be ignored)."
+  },
+  "5_related_topics": ["js.promise_race", "js.promise_all"],
+  "6_edge_case": {
+    "quirk": "If you pass an empty array `Promise.any([])`, it rejects immediately with an `AggregateError`. This is the opposite of `Promise.all([])` which fulfills immediately.",
+    "code": "Promise.any([])\n  .catch(err => {\n    console.log(err.name); // 'AggregateError'\n    console.log(err.errors); // []\n  });"
+  }
+}

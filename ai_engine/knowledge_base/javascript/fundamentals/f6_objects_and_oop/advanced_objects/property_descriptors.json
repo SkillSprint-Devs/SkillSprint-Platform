@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.property_descriptors",
+  "topic": "Property Descriptors",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.object_properties"],
+    "related_to": ["js.object_freeze", "js.object_seal"],
+    "often_confused_with": ["js.getters_setters"]
+  },
+  "question_map": {
+    "what": ["what is a property descriptor", "what is object.defineproperty"],
+    "why": ["why is my property read only", "why doesn't property show up in loop"],
+    "how": ["how to make property read only", "how to hide property from loop"],
+    "compare": ["enumerable vs writable", "configurable vs writable"],
+    "output": ["cannot assign to read only property"]
+  },
+  "1_beginner_explanation": {
+    "summary": "When you create an object property like `user.name = 'Alice'`, JavaScript secretly attaches a settings menu to that property called a **Property Descriptor**. This menu has three main switches: `writable` (can it be changed?), `enumerable` (does it show up in loops?), and `configurable` (can it be deleted or have its settings changed?). By default, all are set to true, but you can change them using `Object.defineProperty()`.",
+    "analogy": "Imagine a file on your computer. You can right-click it and check 'Read-Only' or 'Hidden'. Property Descriptors are the exact same thing, but for individual properties inside a JavaScript object."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When executing `Object.defineProperty(obj, key, descriptor)`, the engine modifies the internal Property Record in the Heap. If `writable: false`, any standard assignment (`=`) is silently ignored (or throws a TypeError in Strict Mode). If `enumerable: false`, the key is skipped during `for...in` and `Object.keys()` operations.",
+    "memory": "Descriptors themselves take up a tiny bit of hidden memory for every single property on every object."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a secure, read-only ID on an object that cannot be accidentally changed or deleted.",
+    "code": "const user = {};\n\n// We define a property with specific rules\nObject.defineProperty(user, 'id', {\n  value: 999,\n  writable: false,     // Cannot be changed\n  enumerable: true,    // Shows up in loops\n  configurable: false  // Cannot be deleted\n});\n\nconsole.log(user.id); // 999\n\n//  Fails silently (or throws Error in strict mode)\nuser.id = 1000; \nconsole.log(user.id); // Still 999!\n\n//  Cannot be deleted\ndelete user.id;\nconsole.log(user.id); // Still 999!"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `configurable: false` means the value can't be changed. `configurable` prevents the *deletion* of the property and prevents changing the *descriptor rules* themselves. It is `writable` that prevents changing the actual value.",
+    "fix": "Writable = locks the VALUE. Configurable = locks the DELETION/RULES."
+  },
+  "5_related_topics": ["js.object_freeze", "js.object_seal"],
+  "6_edge_case": {
+    "quirk": "If you define a property with `Object.defineProperty` but don't specify the flags, they default to `false`! This is the opposite of standard assignment where they default to `true`.",
+    "code": "const obj = {};\nObject.defineProperty(obj, 'x', { value: 1 });\n// x is now permanently read-only, hidden, and un-deletable!"
+  }
+}

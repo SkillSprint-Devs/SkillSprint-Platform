@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.async_error_handling",
+  "topic": "Async Error Handling (try/catch)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.async_functions", "js.await_keyword"],
+    "related_to": ["js.promise_error_handling", "js.error_handling"],
+    "often_confused_with": ["js.promise_error_handling"]
+  },
+  "question_map": {
+    "what": ["how to catch async errors", "how does try catch work with async await"],
+    "why": ["why did try catch not catch the error"],
+    "how": ["how to handle errors in async await"],
+    "compare": ["try catch vs .catch in promises"],
+    "output": ["unhandled promise rejection in async function"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Because `await` pauses your function until a Promise settles, it can translate Promise rejections back into standard JavaScript errors. If the Promise you are awaiting rejects, `await` literally **throws** that rejection reason as an error. This allows you to use standard, synchronous-looking `try...catch` blocks to handle asynchronous errors, which is much cleaner than chaining `.catch()`.",
+    "analogy": "Using `.catch()` is like giving someone a separate instruction manual for what to do if things go wrong. Using `try/catch` with `await` is like wearing safety goggles while doing the work. If the work explodes (the promise rejects), the goggles (the catch block) instantly catch the shrapnel right where you are standing."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `await PromiseX` is evaluated, the function yields. If `PromiseX` later rejects with `Reason`, the engine resumes the async function but immediately forces it to throw `Reason`. This throw bubbles up the Call Stack. If it's inside a `try` block, execution jumps to the `catch` block. If it is not caught, the entire async function returns a rejected Promise.",
+    "memory": "No special memory mechanisms; it leverages the standard exception-handling stack unwinding inside the paused Execution Context."
+  },
+  "3_real_world_example": {
+    "use_case": "Fetching user data and handling potential network failures using standard try/catch logic.",
+    "code": "async function fetchUserProfile(userId) {\n  try {\n    console.log('Fetching...');\n    const response = await fetch(`/api/users/${userId}`);\n    \n    // fetch only rejects on network failure, not 404s. We must check ok.\n    if (!response.ok) {\n      throw new Error(`Server Error: ${response.status}`);\n    }\n    \n    const data = await response.json();\n    console.log('Profile:', data);\n    \n  } catch (error) {\n    // This catches BOTH network errors from fetch() \n    // AND our manual 'throw new Error' above!\n    console.error('Failed to load profile:', error.message);\n    \n  } finally {\n    console.log('Done fetching.');\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Using `try/catch` without `await`. If you call an async function but forget to put `await` in front of it, it returns a pending Promise synchronously. The `try` block succeeds instantly, and when the Promise later rejects, the `catch` block won't catch it.",
+    "fix": "A `try/catch` block only catches async errors if you actively `await` the Promise inside the `try` block."
+  },
+  "5_related_topics": ["js.await_keyword", "js.promise_error_handling"],
+  "6_edge_case": {
+    "quirk": "If you `return` a Promise directly from an async function without `await`ing it, a surrounding `try/catch` block will NOT catch its errors. The Promise is returned un-awaited, so the error escapes the `try` block.",
+    "code": "async function badCatch() {\n  try {\n    // BUG: Returning a Promise without await!\n    return fetch('http://bad-url.com'); \n  } catch (err) {\n    console.log('This will NEVER run.');\n  }\n}\n// Fix: return await fetch(...);"
+  }
+}

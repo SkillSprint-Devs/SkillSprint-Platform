@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.constructor_functions",
+  "topic": "Constructor Functions",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.functions", "js.objects_intro"],
+    "related_to": ["js.new_keyword", "js.classes_intro"],
+    "often_confused_with": ["js.classes_intro"]
+  },
+  "question_map": {
+    "what": ["what is a constructor function", "what does uppercase function mean"],
+    "why": ["why use constructor functions", "why not just use object literals"],
+    "how": ["how to create multiple similar objects"],
+    "compare": ["factory function vs constructor", "constructor vs class"],
+    "output": ["constructor function returns undefined"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Constructor Function** is just a regular JavaScript function that is used as a blueprint to create multiple objects of the same 'type' (e.g., creating 50 'User' objects). By convention, constructor functions are always capitalized (like `function User()`). Inside the function, you use the `this` keyword to assign properties to the object being built.",
+    "analogy": "If an Object Literal `{}` is hand-carving a wooden toy one by one, a Constructor Function is building a factory mold. Once you have the mold, you can stamp out thousands of identical toys instantly, just feeding in different paint colors (arguments) for each one."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When executed normally, a constructor is just a function. But when executed with the `new` keyword, the engine entirely changes how the function executes. It automatically injects an empty object as `this`, runs your code, and automatically returns that object.",
+    "memory": "Every function in JS automatically comes with a `.prototype` property (an empty object) attached to it in memory. This is completely useless until the function is used as a constructor, at which point instances use it for prototype linkage."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating multiple user profiles with the same structure but different data.",
+    "code": "// Convention: Capitalize the first letter for Constructors\nfunction User(name, age) {\n  // 'this' refers to the new object being built\n  this.name = name;\n  this.age = age;\n  this.isAdmin = false;\n}\n\n// We must use 'new' to trigger the factory behavior\nconst alice = new User('Alice', 25);\nconst bob = new User('Bob', 30);\n\nconsole.log(alice.name); // 'Alice'\nconsole.log(bob.isAdmin); // false"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting the `new` keyword when calling the constructor. If you write `const obj = User('Alice')`, the function runs in Default Binding mode. `this` becomes the global window, you accidentally create global variables, and `obj` becomes `undefined` (because the function didn't explicitly `return` anything).",
+    "fix": "Capitalized functions MUST be called with `new`."
+  },
+  "5_related_topics": ["js.new_keyword", "js.this_binding_rules", "js.classes_intro"],
+  "6_edge_case": {
+    "quirk": "If a constructor function explicitly returns a different Object (e.g. `return { custom: true }`), the `new` keyword will respect that and return your custom object instead of the auto-generated `this` object. However, if you return a primitive (like a string or number), `new` ignores it and returns `this` anyway.",
+    "code": "function Broken() {\n  this.id = 1;\n  return { hacked: true };\n}\nconsole.log(new Broken()); // { hacked: true }"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_assign",
+  "topic": "Object.assign",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.object_properties"],
+    "related_to": ["js.spread_with_objects", "js.object_copying"],
+    "often_confused_with": ["js.spread_with_objects"]
+  },
+  "question_map": {
+    "what": ["what is object.assign", "how to merge objects"],
+    "why": ["why did object.assign mutate my original object"],
+    "how": ["how to combine two objects", "how to shallow copy an object with assign"],
+    "compare": ["object.assign vs spread operator"],
+    "output": ["merged object overwrites properties"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`Object.assign(target, source)` is a method used to copy all properties from one or more 'source' objects into a 'target' object. It is primarily used to merge multiple objects together. If two objects have the exact same property key, the object further to the right will overwrite the one on the left.",
+    "analogy": "Imagine pouring multiple buckets of paint (source objects) into one main bucket (target object). If the first bucket has 'blue' and the second bucket has 'red', the final bucket contains 'red' because the second bucket poured in last and covered it up."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine iterates over the enumerable own properties of the source objects from left to right. It uses standard assignment (`=`) to mutate the target object. It returns the modified target object. It performs a shallow copy, meaning nested objects are copied by reference.",
+    "memory": "Critically, `Object.assign` modifies the *first* object passed to it in memory. It does not create a new object unless you specifically pass an empty object `{}` as the first argument."
+  },
+  "3_real_world_example": {
+    "use_case": "Merging default configuration settings with user-provided settings.",
+    "code": "const defaultSettings = { theme: 'light', showSidebar: true };\nconst userSettings = { theme: 'dark' };\n\n//  BAD: This mutates the defaultSettings object permanently!\n// Object.assign(defaultSettings, userSettings); \n\n//  GOOD: Pass an empty object as the target to create a brand new object\nconst finalConfig = Object.assign({}, defaultSettings, userSettings);\n\nconsole.log(finalConfig); \n// { theme: 'dark', showSidebar: true }\n// 'dark' overwrote 'light' because userSettings was further to the right."
+  },
+  "4_common_confusion": {
+    "trap": "Accidentally mutating an existing object because you forgot to put `{}` as the first argument. `Object.assign(obj1, obj2)` will permanently alter `obj1`.",
+    "fix": "To safely merge into a new object, the syntax must always start with `{}`: `Object.assign({}, obj1, obj2)`."
+  },
+  "5_related_topics": ["js.spread_with_objects", "js.object_copying"],
+  "6_edge_case": {
+    "quirk": "Because `Object.assign` uses assignment (`=`), it actually triggers Setters on the target object. The Spread Operator (`...`), however, uses *definition*, bypassing Setters entirely. This makes them slightly different internally.",
+    "code": "// Spread is generally preferred in modern JS over Object.assign\n// const merged = { ...obj1, ...obj2 };"
+  }
+}

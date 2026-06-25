@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.rest_api_intro",
+  "topic": "REST APIs",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.http_methods",
+      "js.request_response"
+    ],
+    "related_to": [
+      "js.json_over_http",
+      "js.fetch_api"
+    ],
+    "often_confused_with": [
+      "js.json_handling"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is a rest api",
+      "what does restful mean"
+    ],
+    "why": [
+      "why use rest APIs",
+      "why not just use different urls for everything"
+    ],
+    "how": [
+      "how to design a rest api",
+      "how to interact with a rest api"
+    ],
+    "compare": [
+      "REST vs GraphQL",
+      "REST vs SOAP"
+    ],
+    "output": [
+      "json response from GET /api/users"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "An API (Application Programming Interface) is just a way for two computers to talk. **REST** (Representational State Transfer) is simply a popular set of rules for *how* to build that API using standard HTTP URLs and Methods. In a REST API, you use URLs to identify 'resources' (like `/users` or `/books`), and you use HTTP Methods (GET, POST, DELETE) to say what you want to do to them.",
+    "analogy": "Imagine a library. The URL is the bookshelf (`/books/101`). If you send a `GET` request to that shelf, you read the book. If you send a `DELETE` request to that exact same shelf, you destroy the book. The URL stays the same; the *Verb* changes the action."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "REST is not a technology or a library; it is an architectural style. A server built in Node.js, Python, or Go can all expose a REST API. The browser's JavaScript doesn't care what the server is written in, as long as it responds to standard HTTP verbs and URLs.",
+    "memory": "REST mandates 'Statelessness'. Every request must contain all the information necessary to process it (like an Authorization header). The server shouldn't rely on a saved 'session' state in its memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Standardizing how we interact with a database of users.",
+    "code": "/* A standard RESTful design for a 'users' resource: */\n\n// Create a user\nfetch('/api/users', { method: 'POST', body: ... }); \n\n// Get a list of all users\nfetch('/api/users', { method: 'GET' }); \n\n// Get ONE specific user (ID 42)\nfetch('/api/users/42', { method: 'GET' }); \n\n// Update that specific user\nfetch('/api/users/42', { method: 'PUT', body: ... }); \n\n// Delete that specific user\nfetch('/api/users/42', { method: 'DELETE' });"
+  },
+  "4_common_confusion": {
+    "trap": "Designing URLs as verbs instead of nouns. A bad API looks like this: `GET /getUser?id=42` and `POST /deleteUser?id=42`. That violates REST principles.",
+    "fix": "URLs should be NOUNS (`/users/42`). The HTTP Method should be the VERB (`GET`, `DELETE`)."
+  },
+  "5_related_topics": [
+    "js.http_methods",
+    "js.json_over_http"
+  ],
+  "6_edge_case": {
+    "quirk": "There is no strict REST police. Many APIs claim to be 'RESTful' but break the rules (e.g., using POST to delete things). This is often called a 'Pragmatic REST API'.",
+    "code": ""
+  }
+}

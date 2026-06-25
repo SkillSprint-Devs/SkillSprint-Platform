@@ -45,7 +45,7 @@
   },
   "3_real_world_example": {
     "use_case": "Understanding how re-assigning object properties mutates shared instances because variables store pointers, not copies.",
-    "code": "const originalObj = { name: 'SkillSprint' };\nconst copyObj = originalObj; // Copies the HEAP address pointer, not the object!\n\ncopyObj.name = 'Updated';\nconsole.log(originalObj.name); // 'Updated' ✅ (Both point to the same Heap object)"
+    "code": "const originalObj = { name: 'SkillSprint' };\nconst copyObj = originalObj; // Copies the HEAP address pointer, not the object!\n\ncopyObj.name = 'Updated';\nconsole.log(originalObj.name); // 'Updated'  (Both point to the same Heap object)"
   },
   "4_common_confusion": {
     "trap": "Believing that copying an object (like `const b = a`) creates a new independent object. It only copies the stack pointer referencing the same heap address.",

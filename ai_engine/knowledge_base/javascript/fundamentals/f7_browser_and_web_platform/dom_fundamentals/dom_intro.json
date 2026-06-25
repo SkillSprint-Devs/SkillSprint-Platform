@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.dom_intro",
+  "topic": "DOM Introduction",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.objects_intro"
+    ],
+    "related_to": [
+      "js.document_object",
+      "js.dom_tree"
+    ],
+    "often_confused_with": [
+      "js.document_object"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is dom",
+      "what does dom stand for"
+    ],
+    "why": [
+      "why do we need dom"
+    ],
+    "how": [
+      "how javascript interacts with html"
+    ],
+    "compare": [
+      "dom vs html",
+      "bom vs dom"
+    ],
+    "output": [
+      "typeof document returns object"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **DOM (Document Object Model)** is an interface that allows JavaScript to interact with HTML. When a browser loads an HTML file, it translates the text into a live, interactive 3D model made entirely of JavaScript Objects. This model is the DOM. JavaScript doesn't understand HTML text; it only understands Objects. The DOM acts as a bridge, turning HTML tags into JavaScript Objects so your code can read and change the webpage.",
+    "analogy": "Imagine HTML is the architectural blueprint for a house. You can't live in a blueprint. The browser takes that blueprint and actually builds the physical house (the DOM). JavaScript is the robot butler inside the house. If you tell the robot to 'turn on the lights', it interacts with the physical house (DOM), not the paper blueprint (HTML)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the browser parses HTML, it encounters tags (`<p>`, `<div>`). It uses C++ (in Chrome/V8) to create internal Node objects for each tag. It then exposes these C++ objects to the JavaScript engine via Web APIs (bindings), making them accessible as JavaScript Objects.",
+    "memory": "The DOM is actually stored in the browser's native memory (usually C++), not strictly inside the JavaScript engine's Heap. The JS variables simply hold references (pointers) across the bridge to those native objects."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding that when we write JS to change the page, we are modifying the DOM, not the source HTML file.",
+    "code": "// The HTML file contains: <h1>Welcome</h1>\n\n// JavaScript reaches into the DOM to find the object representing the <h1>\nconst title = document.querySelector('h1');\n\n// We modify a property on that JavaScript Object\ntitle.innerText = 'Hello, JavaScript!';\n\n// The browser sees the DOM Object changed, and updates the screen instantly."
+  },
+  "4_common_confusion": {
+    "trap": "Thinking the DOM *is* the HTML file. If you use JavaScript to delete a button, and then look at your `index.html` file in VS Code, the button code is still there. The HTML file is permanent. The DOM is just a temporary, live memory model that dies when you refresh the page.",
+    "fix": "HTML = Static source code. DOM = Live memory model in the browser."
+  },
+  "5_related_topics": [
+    "js.document_object",
+    "js.dom_tree",
+    "js.browser_web_apis"
+  ],
+  "6_edge_case": {
+    "quirk": "The DOM can look different from the HTML because the browser automatically fixes errors. If you forget to close a `<p>` tag in HTML, the browser will automatically close it when constructing the DOM.",
+    "code": "<!-- HTML with error -->\n<table><tr><td>Hello</table>\n\n<!-- The DOM will actually inject a <tbody> element automatically to fix it! -->"
+  }
+}

@@ -57,6 +57,6 @@
   ],
   "6_edge_case": {
     "quirk": "Strict comparison (===) checks values and types directly, but has one famous edge case: NaN (Not-a-Number) is never equal to itself, even under strict equality.",
-    "code": "console.log(NaN === NaN); // false ⚠️\nconsole.log(Number.isNaN(NaN)); // true ✅ (use this to check NaN correctly)"
+    "code": "console.log(NaN === NaN); // false ️\nconsole.log(Number.isNaN(NaN)); // true  (use this to check NaN correctly)"
   }
 }

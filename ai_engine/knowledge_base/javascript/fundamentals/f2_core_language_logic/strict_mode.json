@@ -46,7 +46,7 @@
   },
   "3_real_world_example": {
     "use_case": "Placing 'use strict' at the top of scripts or functions to prevent global scope pollution during API integrations.",
-    "code": "\"use strict\";\n\ntry {\n  // Accidental global variable assignment (no let/const/var)\n  message = 'Hello'; // ❌ ReferenceError: message is not defined\n} catch (err) {\n  console.log(err.message);\n}"
+    "code": "\"use strict\";\n\ntry {\n  // Accidental global variable assignment (no let/const/var)\n  message = 'Hello'; //  ReferenceError: message is not defined\n} catch (err) {\n  console.log(err.message);\n}"
   },
   "4_common_confusion": {
     "trap": "Accidentally writing global variable declarations without knowing they leak, then enabling strict mode and seeing the code crash.",
@@ -57,6 +57,6 @@
   ],
   "6_edge_case": {
     "quirk": "In non-strict mode, calling a function (like `func()`) sets its internal `this` value to the global window object. In strict mode, `this` inside standard standalone functions resolves to `undefined`.",
-    "code": "function showThis() {\n  return this;\n}\nconsole.log(showThis()); // global window (in sloppy mode)\n\nfunction showThisStrict() {\n  \"use strict\";\n  return this;\n}\nconsole.log(showThisStrict()); // undefined ✅"
+    "code": "function showThis() {\n  return this;\n}\nconsole.log(showThis()); // global window (in sloppy mode)\n\nfunction showThisStrict() {\n  \"use strict\";\n  return this;\n}\nconsole.log(showThisStrict()); // undefined "
   }
 }

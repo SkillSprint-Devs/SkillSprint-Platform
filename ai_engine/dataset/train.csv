@@ -2181,3 +2181,23 @@ why do we use variables,js.fundamentals.query
 what is console in javascript,js.fundamentals.query
 why var ignores block scope,js.fundamentals.query
 how does for of use iterators,js.fundamentals.query
+hi,general.greeting
+hello,general.greeting
+hey there,general.greeting
+good morning,general.greeting
+greetings,general.greeting
+hi mentor,general.greeting
+hello mentor,general.greeting
+hey,general.greeting
+good afternoon,general.greeting
+good evening,general.greeting
+thanks,general.polite
+thank you,general.polite
+thank you so much,general.polite
+great thanks,general.polite
+awesome,general.polite
+bye,general.polite
+goodbye,general.polite
+thanks mentor,general.polite
+thank you mentor,general.polite
+perfect thanks,general.polite

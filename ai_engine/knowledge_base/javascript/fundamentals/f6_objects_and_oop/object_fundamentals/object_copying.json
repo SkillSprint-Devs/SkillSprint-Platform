@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_copying",
+  "topic": "Object Copying (Shallow vs Deep)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.object_mutation"],
+    "related_to": ["js.spread_with_objects", "js.object_assign"],
+    "often_confused_with": ["js.object_mutation"]
+  },
+  "question_map": {
+    "what": ["what is a shallow copy", "what is a deep copy", "how to clone an object"],
+    "why": ["why did nested object change after copy", "why use structuredclone"],
+    "how": ["how to copy object without reference", "how to deep clone in javascript"],
+    "compare": ["shallow copy vs deep copy", "spread operator vs structuredclone"],
+    "output": ["nested array modified in cloned object"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Because `obj2 = obj1` just shares a reference, we need special tools to actually **copy** an object. A **Shallow Copy** (using `{...obj}` or `Object.assign`) creates a new object, but if there are objects *inside* your object, those nested objects are still shared references! A **Deep Copy** creates a completely independent clone, including all nested objects and arrays.",
+    "analogy": "Shallow Copy: You photocopy a document. The top-level text is copied. But there is a link to a YouTube video on the page. The link is copied, but it still points to the same video. Deep Copy: You photocopy the document, and you also download the video and put it on a new flash drive. Everything is 100% independent."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When using the Spread Operator `{ ...obj }`, the engine loops through the top-level keys and copies their values to a new memory address. But if a value is a pointer (an array/object), it just copies the pointer. Modern JS introduced `structuredClone(obj)` which recursively walks down every nested level, allocating brand new memory for every single piece.",
+    "memory": "Shallow copies save memory but risk mutation bugs. Deep copies use more memory but guarantee safety from side-effects."
+  },
+  "3_real_world_example": {
+    "use_case": "Safely copying user settings where some settings are nested inside an array.",
+    "code": "const user = {\n  name: 'Alice',\n  tags: ['admin', 'editor'] // Nested array!\n};\n\n// ️ Shallow Copy\nconst shallow = { ...user };\nshallow.name = 'Bob'; // Safe! Top level is independent.\nshallow.tags.push('super'); //  Bug! Nested array is shared reference.\nconsole.log(user.tags); // ['admin', 'editor', 'super']\n\n//  Deep Copy (Modern JS)\nconst deep = structuredClone(user);\ndeep.tags.push('godmode');\nconsole.log(user.tags); // Unchanged. 100% safe."
+  },
+  "4_common_confusion": {
+    "trap": "Relying on the old hack `JSON.parse(JSON.stringify(obj))` to do deep cloning. While it works for basic data, it completely strips out Functions, Dates, undefined, and Maps/Sets.",
+    "fix": "Stop using the JSON hack. In modern JavaScript (2022+), always use `structuredClone(obj)` for deep copies."
+  },
+  "5_related_topics": ["js.object_mutation", "js.spread_with_objects", "js.json"],
+  "6_edge_case": {
+    "quirk": "Neither `structuredClone` nor the JSON hack can clone functions or DOM nodes. If an object has methods on it, deep cloning it will result in an error or strip the methods away.",
+    "code": "// structuredClone({ fn: () => {} }) \n//  Throws DataCloneError!"
+  }
+}

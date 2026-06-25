@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.weakmaps",
+  "topic": "WeakMaps",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.maps", "js.memory_model_basic"],
+    "related_to": ["js.weaksets", "js.closure_private_state"],
+    "often_confused_with": ["js.maps"]
+  },
+  "question_map": {
+    "what": ["what is a weakmap", "what does weak mean in weakmap"],
+    "why": ["why use weakmap instead of map", "how to prevent memory leaks"],
+    "how": ["how does garbage collection work with weakmap"],
+    "compare": ["map vs weakmap"],
+    "output": ["invalid value used as weak map key"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **WeakMap** is exactly like a `Map`, but with two strange rules: 1) The keys MUST be objects (no strings/numbers allowed), and 2) The map holds those keys 'weakly'. This means if your application deletes all other references to that object, the WeakMap will automatically delete the object from itself to free up memory. It prevents Memory Leaks.",
+    "analogy": "A normal `Map` is like a hoarder. Even if everyone else throws away a piece of trash, the Map holds onto it forever. A `WeakMap` is a minimalist. If it notices that nobody else in the entire house cares about an item anymore, the WeakMap automatically throws it in the garbage."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Because items can be silently deleted by the Garbage Collector at any unpredictable millisecond, WeakMaps cannot be looped over. There is no `weakmap.keys()` or `weakmap.size`. You can only `.set()`, `.get()`, and `.has()`.",
+    "memory": "WeakMaps do not prevent Garbage Collection of their keys. If a DOM element is removed from the screen and set to null, a WeakMap holding that element as a key will instantly drop it, recovering Heap memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Tracking data about DOM elements without causing memory leaks when those elements are removed from the page.",
+    "code": "const elementData = new WeakMap();\n\nfunction trackElement(el) {\n  elementData.set(el, 'Secret metadata for this button');\n}\n\nlet btn = document.getElementById('myBtn');\ntrackElement(btn);\n\n// Later, the user navigates away and the button is destroyed.\nbtn.remove();\nbtn = null;\n\n// Because we used a WeakMap, the 'Secret metadata' is \n// automatically deleted from memory! \n// If we used a normal Map, it would sit in memory forever causing a leak."
+  },
+  "4_common_confusion": {
+    "trap": "Trying to use a primitive value (like a string or number) as a key in a WeakMap. It will throw a TypeError.",
+    "fix": "WeakMaps ONLY accept Objects as keys, because primitives are not garbage collected in the same way."
+  },
+  "5_related_topics": ["js.maps", "js.memory_model_basic", "js.weaksets"],
+  "6_edge_case": {
+    "quirk": "Before `#privateFields` existed, developers used WeakMaps to store truly private data for classes, using the class instance `this` as the WeakMap key.",
+    "code": "const privateData = new WeakMap();\nclass Secure {\n  constructor() { privateData.set(this, { hidden: true }); }\n  getHidden() { return privateData.get(this).hidden; }\n}"
+  }
+}

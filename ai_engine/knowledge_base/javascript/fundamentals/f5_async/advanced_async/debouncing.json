@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.debouncing",
+  "topic": "Debouncing",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.closures_deep", "js.higher_order_functions"],
+    "related_to": ["js.throttling"],
+    "often_confused_with": ["js.throttling"]
+  },
+  "question_map": {
+    "what": ["what is debouncing", "what does debounce do"],
+    "why": ["why debounce a search input", "why use debounce"],
+    "how": ["how to implement debounce", "how to delay a function until user stops typing"],
+    "compare": ["debounce vs throttle"],
+    "output": ["function only fires after typing stops"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Debouncing** is a technique to ensure a function is only executed after a certain amount of 'quiet time' has passed without the function being called. It is incredibly useful for search inputs: instead of making an API call for every single keystroke ('a', 'ap', 'app', 'appl', 'apple'), debounce waits until the user stops typing for (e.g.) 500ms, and only *then* makes one single API call for 'apple'.",
+    "analogy": "Debouncing is like an elevator door with a motion sensor. The door starts to close, but if someone walks through, the timer resets and it stays open. It will only actually close once 5 full seconds have passed with absolutely no movement detected."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "A debounce is a Higher-Order Function that returns a closure containing a `timerId`. Every time the debounced function is called, it immediately calls `clearTimeout(timerId)` to cancel the previous timer, and then creates a new `setTimeout` for the delay period. Only if the delay period finishes without another call will the original function execute.",
+    "memory": "The `timerId` is held in the closure's Lexical Environment. The engine constantly destroys and creates timer objects in the Web API layer until the user stops."
+  },
+  "3_real_world_example": {
+    "use_case": "Preventing an autocomplete search bar from spamming the API on every keystroke.",
+    "code": "function debounce(func, delayMs) {\n  let timerId; // Stored in closure\n\n  return function(...args) {\n    // Cancel the previous timer if it exists\n    clearTimeout(timerId);\n    \n    // Start a brand new timer\n    timerId = setTimeout(() => {\n      func.apply(this, args);\n    }, delayMs);\n  };\n}\n\n// The heavy API call\nfunction fetchSearchResults(query) {\n  console.log('Fetching results for:', query);\n}\n\n// Create debounced version (waits 500ms after last keystroke)\nconst debouncedSearch = debounce(fetchSearchResults, 500);\n\n// User types 'a', 'p', 'p', 'l', 'e' rapidly\ndebouncedSearch('a');    // Timer started\ndebouncedSearch('ap');   // Timer reset\ndebouncedSearch('app');  // Timer reset\ndebouncedSearch('appl'); // Timer reset\ndebouncedSearch('apple');// Timer reset\n// ...user stops typing for 500ms...\n// Output: Fetching results for: apple"
+  },
+  "4_common_confusion": {
+    "trap": "Calling `debounce()` *inside* an event listener or a React component render. This recreates a brand new, empty debounce closure every single time, destroying the saved `timerId`. The debounce will completely fail to stop multiple calls.",
+    "fix": "You must create the debounced function ONCE, store it in a variable (or `useCallback` in React), and attach that variable to the event listener."
+  },
+  "5_related_topics": ["js.throttling", "js.closures_deep", "js.higher_order_functions"],
+  "6_edge_case": {
+    "quirk": "If you need a debounced function to fire immediately on the *first* keystroke and then wait, you need an 'immediate' flag. Standard debounce only fires on the *trailing edge* (at the end).",
+    "code": "// Advanced debounces support leading edge firing for instant UI feedback,\n// followed by a cooldown period before allowing another instant fire."
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.this_intro",
+  "topic": "this Keyword (Intro)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.execution_context_intro", "js.functions"],
+    "related_to": ["js.arrow_functions", "js.lexical_scope", "js.function_invocation", "js.this_keyword"],
+    "often_confused_with": ["js.lexical_scope"]
+  },
+  "question_map": {
+    "what": [
+      "what is this keyword in javascript",
+      "what does this refer to",
+      "what is this in a function"
+    ],
+    "why": [
+      "why does this change in javascript",
+      "why is this confusing in javascript",
+      "why does this become undefined in strict mode"
+    ],
+    "how": [
+      "how to fix this binding issue",
+      "how does this work in methods",
+      "how to use this correctly"
+    ],
+    "compare": [
+      "this in regular function vs arrow function",
+      "this in method vs standalone function",
+      "this in strict mode vs non-strict mode"
+    ],
+    "output": [
+      "why is this undefined inside callback",
+      "this is window instead of my object",
+      "lost this context in event handler"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "`this` is a special keyword that refers to the **object that owns the currently executing function**. Unlike variables which are resolved lexically (by where they are written), `this` is dynamic — its value is set at **call time** based on how the function is invoked. The four rules: 1) Default (standalone call) → `undefined` in strict / global in non-strict. 2) Method call → the object before the dot. 3) `new` call → the newly created object. 4) Explicit call (`.call`, `.apply`, `.bind`) → whatever you pass.",
+    "analogy": "`this` is like the word 'my boss' at work. If you say 'my boss wants this done', the word 'boss' means different things depending on which company you are currently working at (how the function is called). If you are at Company A, 'my boss' is one person; if you transfer to Company B for a contract (different call site), 'my boss' is someone else — even though you said the same words."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a Function Execution Context is created, one of its components is the `ThisBinding`. The engine sets this binding based purely on the syntax of the call expression: `obj.method()` → `this = obj`; `fn()` → `this = undefined` (strict) or global; `new Fn()` → `this = newly created object`; `fn.call(ctx)` → `this = ctx`. Arrow functions do not have their own `ThisBinding` — they inherit `this` from the enclosing Lexical Environment.",
+    "memory": "`this` is not stored as a variable in the Lexical Environment. It is stored as a separate `ThisBinding` component of the Execution Context. This is why you cannot shadow `this` with a variable declaration and why arrow functions must look outward to find it."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why detaching a method from an object loses its `this` context, and how to fix it with `.bind()`.",
+    "code": "const user = {\n  name: 'Alice',\n  greet() {\n    return `Hello, I am ${this.name}`;\n  }\n};\n\n// Method call: 'this' = user \nconsole.log(user.greet()); // 'Hello, I am Alice'\n\n// Detached: 'this' is no longer 'user' \nconst detached = user.greet;\nconsole.log(detached()); // 'Hello, I am undefined' (or throws in strict mode)\n\n// Fix 1: bind permanently\nconst bound = user.greet.bind(user);\nconsole.log(bound()); // 'Hello, I am Alice' \n\n// Fix 2: arrow function method alternative\nconst timer = {\n  label: 'Timer',\n  start() {\n    setTimeout(() => {\n      console.log(this.label); // 'Timer'  — arrow captures outer 'this'\n    }, 100);\n  }\n};\ntimer.start();"
+  },
+  "4_common_confusion": {
+    "trap": "Using a regular function as a callback inside an object method and expecting `this` to still be the object. Regular function callbacks lose the method's `this` binding because the callback is called as a standalone function (rule 1), not as a method (rule 2).",
+    "fix": "Replace the regular callback with an arrow function, which lexically captures `this` from the surrounding method."
+  },
+  "5_related_topics": [
+    "js.arrow_functions",
+    "js.lexical_scope",
+    "js.function_invocation",
+    "js.this_keyword"
+  ],
+  "6_edge_case": {
+    "quirk": "In strict mode (`'use strict'`), a standalone function call sets `this` to `undefined` instead of the global object. This is intentional — it prevents accidentally polluting the global object with unintended property assignments via `this`.",
+    "code": "'use strict';\n\nfunction checkThis() {\n  console.log(this); // undefined (strict) vs window/global (non-strict)\n}\n\ncheckThis();\n\n// Guard pattern: explicitly check for undefined this\nfunction safeMethod() {\n  if (this === undefined) {\n    throw new Error('Must be called as a method, not a standalone function');\n  }\n  return this.name;\n}"
+  }
+}

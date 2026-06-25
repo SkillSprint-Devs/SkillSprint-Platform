@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.class_inheritance",
+  "topic": "Class Inheritance (extends & super)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.classes_intro", "js.inheritance_via_prototypes"],
+    "related_to": ["js.constructors_in_classes", "js.polymorphism"],
+    "often_confused_with": ["js.inheritance_via_prototypes"]
+  },
+  "question_map": {
+    "what": ["what is extends", "what does super do"],
+    "why": ["why use super in constructor", "why is this undefined in child class"],
+    "how": ["how to inherit a class", "how to call parent method"],
+    "compare": ["class inheritance vs prototype inheritance", "extends vs implements"],
+    "output": ["must call super constructor in derived class"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Classes can inherit properties and methods from other classes using the `extends` keyword. For example, a `Dog` class can `extend` an `Animal` class. This means the Dog automatically gets everything the Animal has. However, if the Dog has its own `constructor()`, it MUST call `super()` inside it before it can use the `this` keyword. `super()` basically says 'Hey Parent Class, do your setup first!'.",
+    "analogy": "If `Animal` is the general blueprint for a building, `Dog` is a specific blueprint for a house. When the builders go to build the house (`constructor`), they must lay the general foundation first (`super()`) before they can start adding the specific house walls (`this.walls = 4`)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you use `class Child extends Parent`, JS creates TWO prototype links. `Child.prototype` links to `Parent.prototype` (for methods), AND the `Child` constructor function itself links to the `Parent` constructor function (for static methods). When `super()` is called, it executes the Parent's constructor function with the current `this` context.",
+    "memory": "It perfectly mimics the prototype delegation chain, ensuring memory is shared efficiently across all inherited levels."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating specialized versions of a general concept.",
+    "code": "class Enemy {\n  constructor(name) {\n    this.name = name;\n    this.health = 100;\n  }\n  attack() { console.log('Generic attack!'); }\n}\n\n// Boss inherits everything from Enemy\nclass Boss extends Enemy {\n  constructor(name, weapon) {\n    super(name); // MUST call parent constructor first!\n    this.weapon = weapon; // Now we can use 'this'\n  }\n  \n  // Method Overriding (Polymorphism)\n  attack() {\n    console.log(`Boss attacks with ${this.weapon}!`);\n    super.attack(); // We can also call the parent's version of the method\n  }\n}\n\nconst bowser = new Boss('Bowser', 'Fire');\nbowser.attack();"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting to call `super()` or trying to use `this` before calling `super()`. In a derived class, `this` is literally uninitialized until the parent constructor finishes.",
+    "fix": "Always put `super()` as the very first line inside a child class constructor."
+  },
+  "5_related_topics": ["js.constructors_in_classes", "js.polymorphism", "js.inheritance_via_prototypes"],
+  "6_edge_case": {
+    "quirk": "If you create a child class that `extends` a parent, but you DON'T write a `constructor()`, JavaScript automatically injects one that passes all arguments up: `constructor(...args) { super(...args); }`.",
+    "code": "class A { constructor(x) { this.x = x; } }\nclass B extends A {} // No constructor written\nconst b = new B(5);\nconsole.log(b.x); // 5 (Auto-passed to A!)"
+  }
+}

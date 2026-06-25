@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_seal",
+  "topic": "Object.seal()",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.property_descriptors", "js.object_freeze"],
+    "related_to": ["js.object_immutability"],
+    "often_confused_with": ["js.object_freeze"]
+  },
+  "question_map": {
+    "what": ["what is object.seal"],
+    "why": ["why use object.seal", "when to use seal instead of freeze"],
+    "how": ["how to prevent adding properties but allow changing them"],
+    "compare": ["seal vs freeze"],
+    "output": ["cannot add property to sealed object"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`Object.seal()` is a slightly softer version of `Object.freeze()`. When you seal an object, you cannot add new properties, and you cannot delete existing properties. However, you ARE allowed to change the values of the existing properties. It 'seals' the shape of the object, but allows the data inside to fluctuate.",
+    "analogy": "Imagine a pill organizer box (Mon/Tue/Wed). If you `seal` it, you cannot tape new compartments onto it, and you cannot rip compartments off. The shape is fixed. But you ARE allowed to open the lids and change what pills are inside the existing compartments."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `Object.seal(obj)` executes, the engine sets the object's extensibility to false (preventing additions), and sets `configurable: false` on all existing properties (preventing deletions). Critically, it leaves `writable: true` alone.",
+    "memory": "Like freeze, seal is a shallow operation."
+  },
+  "3_real_world_example": {
+    "use_case": "Locking down a data structure's schema so you don't accidentally add typos, while still allowing the data to update.",
+    "code": "const userProfile = {\n  username: 'Alice',\n  score: 10\n};\n\nObject.seal(userProfile);\n\n//  Allowed: We can update existing properties\nuserProfile.score = 20; \n\n//  Fails: We cannot add new properties\nuserProfile.scre = 50; // Typo! Ignored in normal mode, throws in strict.\n\n//  Fails: We cannot delete\ndelete userProfile.username;\n\nconsole.log(userProfile); // { username: 'Alice', score: 20 }"
+  },
+  "4_common_confusion": {
+    "trap": "Mixing up Freeze and Seal. Freeze = read-only. Seal = no additions/deletions, but updates are fine.",
+    "fix": "Freeze = Ice block (nothing moves). Seal = Ziploc bag (contents can shift around, but nothing gets in or out)."
+  },
+  "5_related_topics": ["js.object_freeze", "js.property_descriptors"],
+  "6_edge_case": {
+    "quirk": "You can check the status of an object using `Object.isSealed(obj)` and `Object.isFrozen(obj)`. A frozen object is technically also considered sealed.",
+    "code": "const f = Object.freeze({a: 1});\nconsole.log(Object.isSealed(f)); // true! Because freeze implies seal rules."
+  }
+}

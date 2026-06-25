@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.destructuring_objects",
+  "topic": "Destructuring Objects",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.object_properties", "js.variables"],
+    "related_to": ["js.spread_with_objects", "js.destructuring"],
+    "often_confused_with": ["js.destructuring"]
+  },
+  "question_map": {
+    "what": ["what is object destructuring", "what do curly braces on left side mean"],
+    "why": ["why use destructuring", "how to extract values from object"],
+    "how": ["how to destructure nested objects", "how to rename destructured variables"],
+    "compare": ["dot notation vs destructuring"],
+    "output": ["destructured variable is undefined"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Object Destructuring** is a clean, shorthand syntax for extracting properties from an object and saving them into standard variables. Instead of writing `user.name` and `user.age` over and over, you can 'unpack' those specific properties directly into new variables in a single line of code.",
+    "analogy": "Imagine a suitcase (the object) arriving at your hotel. Instead of reaching into the suitcase every single time you need your toothbrush (dot notation), you open the suitcase once, pull out exactly what you need (toothbrush, shirt), and place them on the bathroom counter (destructured variables) so they are instantly accessible."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine sees `const { name } = user;`, it evaluates the right side to get the object reference. Then it looks up the string key 'name' on that object, retrieves its value, and assigns it to a newly declared block-scoped variable named `name`.",
+    "memory": "Destructuring primitive values (like strings/numbers) copies the value to a new variable. Destructuring nested objects/arrays copies the *reference* pointer, just like standard assignment."
+  },
+  "3_real_world_example": {
+    "use_case": "Extracting only the necessary properties from an API response, making the code much shorter and easier to read.",
+    "code": "const apiResponse = {\n  status: 200,\n  data: { user: 'Alice', role: 'Admin' },\n  timestamp: 162000000\n};\n\n//  OLD WAY: Tedious and repetitive\n// const status = apiResponse.status;\n// const role = apiResponse.data.role;\n\n//  NEW WAY: Clean and concise\nconst { status, data: { role } } = apiResponse;\n\nconsole.log(status); // 200\nconsole.log(role);   // 'Admin'"
+  },
+  "4_common_confusion": {
+    "trap": "If you try to destructure a property that doesn't exist, it doesn't throw an error; it just creates a variable holding `undefined`. Also, trying to destructure `null` or `undefined` throws a fatal TypeError.",
+    "fix": "You can provide fallback default values during destructuring: `const { missingKey = 'fallback' } = obj;`"
+  },
+  "5_related_topics": ["js.object_properties", "js.spread_with_objects"],
+  "6_edge_case": {
+    "quirk": "You can destructure a property and simultaneously rename the resulting variable using a colon. This is very useful if the property name conflicts with an existing variable.",
+    "code": "const user = { name: 'Bob' };\n// Give me 'name', but call the variable 'firstName'\nconst { name: firstName } = user;\nconsole.log(firstName); // 'Bob'"
+  }
+}

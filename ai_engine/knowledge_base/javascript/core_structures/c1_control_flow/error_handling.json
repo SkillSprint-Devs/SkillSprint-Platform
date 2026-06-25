@@ -57,6 +57,6 @@
   ],
   "6_edge_case": {
     "quirk": "You can throw *anything* in JavaScript, not just Error objects. You can `throw 'hello'` or `throw 42`, but this is a bad practice.",
-    "code": "try {\n  throw 'Something broke!'; // ❌ Bad practice\n} catch (e) {\n  // e is just the string 'Something broke!'\n  // It has no stack trace (e.stack is undefined)\n}\n// ✅ Good practice:\n// throw new Error('Something broke!');"
+    "code": "try {\n  throw 'Something broke!'; //  Bad practice\n} catch (e) {\n  // e is just the string 'Something broke!'\n  // It has no stack trace (e.stack is undefined)\n}\n//  Good practice:\n// throw new Error('Something broke!');"
   }
 }

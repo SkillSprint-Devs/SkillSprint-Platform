@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.await_keyword",
+  "topic": "Await Keyword",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.async_functions", "js.promises_intro", "js.microtask_queue"],
+    "related_to": ["js.top_level_await", "js.sequential_vs_parallel"],
+    "often_confused_with": ["js.blocking_vs_non_blocking"]
+  },
+  "question_map": {
+    "what": ["what does await do", "how await works internally"],
+    "why": ["can await pause javascript", "why use await instead of then"],
+    "how": ["how to use await", "how does await unwrap a promise"],
+    "compare": ["await vs .then()"],
+    "output": ["await stops the function but not the whole app"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The `await` keyword is placed in front of a Promise. It tells JavaScript to **pause the execution of that specific async function** until the Promise settles. Once the Promise resolves, `await` 'unwraps' the Promise and returns the actual data. If the Promise rejects, `await` throws an error. CRITICALLY: `await` only pauses the function it is inside. It does **not** pause the rest of your application or freeze the browser.",
+    "analogy": "Imagine you are cooking dinner (an async function). You put water on to boil and `await` it. *You* pause cooking that meal. But you don't freeze the universe. The rest of the house continues functioning. Once the water boils (Promise resolves), you resume cooking exactly where you left off."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine hits `await PromiseA`, it does three things: 1) It takes the rest of the function's code and essentially wraps it in a hidden `.then()` attached to PromiseA. 2) It immediately returns from the async function (yielding a pending Promise back to the caller). 3) It frees the Call Stack. When PromiseA resolves, the hidden `.then()` is pushed to the Microtask Queue, and eventually, the function resumes execution.",
+    "memory": "The Execution Context of the async function is preserved in heap memory while it is paused, keeping all its local variables alive so it can resume flawlessly later."
+  },
+  "3_real_world_example": {
+    "use_case": "Writing asynchronous code that reads top-to-bottom like synchronous code, eliminating `.then()` chains.",
+    "code": "//  With Promises (.then chain)\nfunction fetchUserOld() {\n  fetch('/api/user')\n    .then(res => res.json())\n    .then(user => console.log('Old way:', user.name));\n}\n\n//  With async/await (Flat and readable)\nasync function fetchUserNew() {\n  // Execution pauses here until fetch finishes. Call Stack is free!\n  const res = await fetch('/api/user'); \n  \n  // Resumes here. Execution pauses again until JSON parses.\n  const user = await res.json();\n  \n  // Resumes here.\n  console.log('New way:', user.name);\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `await` blocks the main thread. 'If I `await` a 5-second network request, my website will freeze for 5 seconds.'",
+    "fix": "`await` is non-blocking. It is syntactic sugar for `.then()`. While your async function is 'paused' waiting for the network, the browser is completely free to render animations, handle clicks, and run other JavaScript."
+  },
+  "5_related_topics": ["js.async_functions", "js.promises_intro", "js.microtask_queue"],
+  "6_edge_case": {
+    "quirk": "If you `await` a value that is NOT a Promise (e.g., `await 42`), JavaScript instantly wraps it in a resolved Promise (`Promise.resolve(42)`) and queues the rest of the function as a microtask. It does not run synchronously.",
+    "code": "async function test() {\n  console.log('A');\n  await 42; // Pauses function, queues remainder to microtask queue\n  console.log('C');\n}\ntest();\nconsole.log('B');\n// Output: A, B, C (C is delayed to the microtask queue!)"
+  }
+}

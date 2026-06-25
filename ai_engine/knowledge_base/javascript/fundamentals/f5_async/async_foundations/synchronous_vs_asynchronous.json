@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.sync_vs_async",
+  "topic": "Synchronous vs Asynchronous Code",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.functions", "js.call_stack"],
+    "related_to": ["js.blocking_vs_non_blocking", "js.event_loop_intro", "js.callbacks"],
+    "often_confused_with": ["js.blocking_vs_non_blocking"]
+  },
+  "question_map": {
+    "what": ["what is synchronous code", "what is asynchronous code", "what does async mean in javascript"],
+    "why": ["why does javascript need async programming", "why cant js just wait for slow operations"],
+    "how": ["how does async code work", "how does js handle async operations"],
+    "compare": ["difference between sync and async", "sync vs async javascript"],
+    "output": ["which runs first sync or async code", "why does async code run after sync code"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Synchronous** code executes line-by-line, each operation completing before the next one starts. The program waits. **Asynchronous** code starts an operation, hands it off to the environment (browser/Node.js), and moves on immediately. The operation's result is handled later via a callback, Promise, or async/await. JavaScript needs async programming because some operations (network requests, file reads, timers) are inherently slow — blocking the main thread for them would freeze the entire page.",
+    "analogy": "Synchronous code is like a restaurant where one customer is served at a time — the cashier takes your order, prepares your food, and serves you before moving to the next person. Everyone else waits. Asynchronous code is like a modern restaurant — the cashier takes your order, gives you a buzzer (callback/Promise), and immediately serves the next customer. When your food is ready, the kitchen calls you (event loop delivers the result)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Synchronous operations run entirely on the Call Stack. Asynchronous operations are delegated to Web APIs (browser) or libuv (Node.js). The JS engine registers a completion callback, then continues executing synchronous code. When the async operation finishes, its callback is placed in the Task Queue or Microtask Queue and the Event Loop delivers it to the Call Stack when the stack is empty.",
+    "memory": "Synchronous functions stay on the Call Stack until they return. Asynchronous callbacks are stored by the host environment until completion, then queued. During the async wait time, the Call Stack is free for other synchronous work."
+  },
+  "3_real_world_example": {
+    "use_case": "Showing why a network request must be async — synchronous fetch would freeze the browser tab completely.",
+    "code": "//  Synchronous — instant operations, fine on the stack\nconst items = [1, 2, 3];\nconst doubled = items.map(x => x * 2); // completes immediately\nconsole.log(doubled); // [2, 4, 6]\n\n//  Asynchronous — slow operation, handed to browser\nconsole.log('Fetching...');\nfetch('/api/data')\n  .then(res => res.json())\n  .then(data => console.log('Got:', data)); // runs LATER\nconsole.log('Still running sync code...'); // runs BEFORE fetch resolves\n\n// Output:\n// Fetching...\n// Still running sync code...\n// Got: { ... }    ← arrives after sync code finishes"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that `async/await` makes code run in parallel or on separate threads. It does not — JavaScript is still single-threaded. `await` just pauses the current async function, freeing the Call Stack for other work.",
+    "fix": "Async code doesn't mean 'runs simultaneously'. It means 'doesn't block — the Call Stack is free while waiting'."
+  },
+  "5_related_topics": ["js.blocking_vs_non_blocking", "js.event_loop_intro", "js.callbacks", "js.call_stack"],
+  "6_edge_case": {
+    "quirk": "Even `setTimeout(fn, 0)` is asynchronous — it is queued in the Macrotask Queue regardless of the 0ms delay. It always runs AFTER the current synchronous code block finishes.",
+    "code": "console.log('A');\nsetTimeout(() => console.log('B'), 0); // 0ms — but still async!\nconsole.log('C');\n// Output: A → C → B"
+  }
+}

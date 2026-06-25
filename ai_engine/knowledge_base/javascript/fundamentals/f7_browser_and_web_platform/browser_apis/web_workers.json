@@ -1,0 +1,69 @@
+{
+  "version": "1.1",
+  "intent": "js.web_workers",
+  "topic": "Web Workers",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_web_apis",
+      "js.event_loop_intro",
+      "js.concurrency_intro"
+    ],
+    "related_to": [
+      "js.async_architecture"
+    ],
+    "often_confused_with": [
+      "js.promises_intro",
+      "js.async_functions"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what are web workers"
+    ],
+    "why": [
+      "why use web workers",
+      "why does javascript freeze the page"
+    ],
+    "how": [
+      "how to use multithreading in javascript",
+      "how to run heavy calculations without freezing ui"
+    ],
+    "compare": [
+      "web workers vs promises",
+      "web workers vs service workers",
+      "main thread vs worker thread"
+    ],
+    "output": [
+      "worker sends result back via postMessage"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "JavaScript is 'single-threaded', meaning it can only do one thing at a time. If you tell it to do 10 billion math calculations, the entire webpage freezes. You can't click buttons or scroll. **Web Workers** fix this by allowing you to spin up a completely separate, invisible background thread. You hand the heavy math to the Worker, the main page stays smooth and interactive, and the Worker messages you when it's done.",
+    "analogy": "The Main Thread is a chef in a restaurant. If they stop to peel 10,000 potatoes, no food gets cooked and customers leave (frozen UI). A Web Worker is like hiring a helper in the back room. The chef says 'Peel these', keeps cooking the main dishes, and the helper shouts 'Done!' when finished."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "A Web Worker runs in an entirely separate V8 JavaScript engine instance. It has its own isolated memory space, its own Event Loop, and its own Call Stack. The Main Thread and the Worker Thread communicate purely by sending stringified messages back and forth via `postMessage()`.",
+    "memory": "Because the Worker's memory is 100% isolated, the Worker CANNOT access the `document` or the DOM. It cannot select elements or change HTML. It can only do math, logic, and network requests."
+  },
+  "3_real_world_example": {
+    "use_case": "Processing a massive CSV file or doing image manipulation without freezing the browser.",
+    "code": "// main.js (The Main Thread)\nconst worker = new Worker('worker.js');\n\n// Send data to the worker\nworker.postMessage({ command: 'processData', data: [1, 2, 3, 4] });\n\n// Listen for the result\nworker.onmessage = function(e) {\n  console.log('Worker finished processing:', e.data);\n};\n\n\n// worker.js (The Background Thread)\nonmessage = function(e) {\n  if (e.data.command === 'processData') {\n    // Do heavy math here...\n    const result = e.data.data.map(x => x * 1000000);\n    \n    // Send it back to the main thread\n    postMessage(result);\n  }\n};"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking Promises and Web Workers do the same thing. A Promise just defers work until later on the *same* thread. If a Promise resolves and executes a 10-second math loop, the UI STILL FREEZES. Web Workers actually run code in parallel on a *different* CPU core.",
+    "fix": "Promises = Dealing with waiting (like fetching data). Web Workers = Dealing with heavy CPU lifting (like video processing)."
+  },
+  "5_related_topics": [
+    "js.concurrency_intro",
+    "js.event_loop_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Passing huge chunks of data (like a 100MB image buffer) via `postMessage` usually copies the data, which is slow. You can use 'Transferable Objects' to literally transfer ownership of the memory to the Worker instantly, destroying the Main Thread's access to it.",
+    "code": ""
+  }
+}

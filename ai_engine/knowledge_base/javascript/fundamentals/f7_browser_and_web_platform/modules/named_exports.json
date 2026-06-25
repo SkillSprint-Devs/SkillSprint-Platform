@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.named_exports",
+  "topic": "Named Exports",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.import_export"
+    ],
+    "related_to": [
+      "js.default_exports",
+      "js.destructuring_objects"
+    ],
+    "often_confused_with": [
+      "js.destructuring_objects"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is a named export"
+    ],
+    "why": [
+      "why use named exports",
+      "why use curly braces when importing"
+    ],
+    "how": [
+      "how to export multiple functions",
+      "how to rename an import"
+    ],
+    "compare": [
+      "named exports vs default exports"
+    ],
+    "output": [
+      "import with wrong name throws syntaxerror"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Named Export** allows you to export multiple different things (functions, variables, classes) from a single file. When you import them into another file, you MUST use curly braces `{}` and you MUST use their exact names.",
+    "analogy": "Named exports are like a vending machine. You can see 10 different snacks inside. To get the Snickers bar, you have to type exactly 'Snickers' on the keypad. You can't ask for 'ChocolateBar' and expect it to know what you mean."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The JS engine builds a dictionary of exported bindings. When you write `import { add } from './math.js'`, the engine strictly enforces that the key `add` exists in the exported dictionary of `math.js`. If it doesn't, it throws a SyntaxError immediately before runtime.",
+    "memory": "Because imports are static bindings, Tree-Shaking tools (like Webpack or Vite) can look at your Named Imports and mathematically prove which functions are never used, stripping the dead code out of your final bundle to save memory."
+  },
+  "3_real_world_example": {
+    "use_case": "A utility file containing many different helpful functions.",
+    "code": "// --- utils.js ---\nexport const PI = 3.14159;\nexport function multiply(a, b) { return a * b; }\nexport function divide(a, b) { return a / b; }\n\n// --- main.js ---\n// We use exactly the names exported, inside curly braces.\n// We only import what we actually need.\nimport { PI, multiply } from './utils.js';\n\n// If there's a naming collision, we can rename it using 'as'\nimport { divide as div } from './utils.js';\n\n// Import absolutely everything at once as an object\nimport * as mathTools from './utils.js';\nconsole.log(mathTools.PI);"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that `import { add }` is Object Destructuring. It looks identical to destructuring (`const { add } = myObj`), but it is an entirely different syntactic mechanism. You cannot do dynamic destructuring or assign default values inside an import statement.",
+    "fix": "Import braces are for static bindings, not object destructuring."
+  },
+  "5_related_topics": [
+    "js.default_exports",
+    "js.destructuring_objects"
+  ],
+  "6_edge_case": {
+    "quirk": "You can declare all your variables normally, and then export them all at once at the very bottom of the file in a single block.",
+    "code": "const dog = 'Rex';\nconst cat = 'Whiskers';\nexport { dog, cat }; // Looks like an object, but it's export syntax!"
+  }
+}

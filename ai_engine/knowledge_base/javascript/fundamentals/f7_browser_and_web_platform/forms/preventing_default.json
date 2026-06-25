@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.preventing_default",
+  "topic": "Preventing Default Behavior",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.event_object"
+    ],
+    "related_to": [
+      "js.form_submission",
+      "js.event_propagation"
+    ],
+    "often_confused_with": [
+      "js.event_propagation"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is preventDefault"
+    ],
+    "why": [
+      "why use preventDefault"
+    ],
+    "how": [
+      "how to stop page refresh on form submit",
+      "how to stop a link from opening"
+    ],
+    "compare": [
+      "preventDefault vs stopPropagation",
+      "return false vs preventDefault"
+    ],
+    "output": [
+      "page does not reload after calling preventDefault"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Many HTML elements have built-in, default behaviors programmed by the browser. If you click a link (`<a>`), it goes to a new page. If you submit a form, it reloads the page. If you right-click, it opens a menu. `e.preventDefault()` is a JavaScript command you put inside an event listener to tell the browser: 'Do NOT do your normal default action. Let me handle it my own way.'",
+    "analogy": "It is like a reflex. If a doctor taps your knee, your leg naturally kicks out (Default Behavior). Calling `preventDefault()` is like telling your brain 'I know you want to kick, but suppress the reflex. I want to sit perfectly still instead.'"
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an event fires, the browser sets an internal `defaultPrevented` flag to `false`. When your JS calls `e.preventDefault()`, it flips that flag to `true`. After all Event Listeners finish running, the browser checks that flag. If it is `true`, it aborts the native C++ action (like navigation or scrolling).",
+    "memory": "This operates synchronously within the event lifecycle and does not allocate extra memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Building a Single Page Application (SPA) where clicking links loads data instead of changing the page.",
+    "code": "const link = document.querySelector('#fake-link');\n\nlink.addEventListener('click', (e) => {\n  // Stops the browser from navigating to the URL in the href\n  e.preventDefault();\n  \n  // Now we can do whatever we want instead!\n  console.log('Loading data via fetch instead of navigating...');\n  document.querySelector('#content').innerText = 'New Data Loaded!';\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing `preventDefault()` with `stopPropagation()`. They are completely different. `preventDefault()` stops the *action* (like submitting). `stopPropagation()` stops the *event* from bubbling up the DOM tree.",
+    "fix": "Action = Default. Bubbling = Propagation."
+  },
+  "5_related_topics": [
+    "js.form_submission",
+    "js.event_propagation"
+  ],
+  "6_edge_case": {
+    "quirk": "Some events are 'Passive' and cannot be prevented. For performance reasons, modern browsers make touch/scroll events passive by default, meaning if you call `e.preventDefault()` inside a `wheel` event, it does nothing and throws a warning.",
+    "code": "window.addEventListener('wheel', (e) => {\n  // Warning: Unable to preventDefault inside passive event listener invocation.\n  e.preventDefault(); \n});"
+  }
+}

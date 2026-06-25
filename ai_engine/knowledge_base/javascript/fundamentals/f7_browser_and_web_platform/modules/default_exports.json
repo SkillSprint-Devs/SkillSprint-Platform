@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.default_exports",
+  "topic": "Default Exports",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.import_export"
+    ],
+    "related_to": [
+      "js.named_exports"
+    ],
+    "often_confused_with": [
+      "js.named_exports"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is a default export"
+    ],
+    "why": [
+      "why import without curly braces"
+    ],
+    "how": [
+      "how to export a default function",
+      "how to import a default export"
+    ],
+    "compare": [
+      "default export vs named export"
+    ],
+    "output": [
+      "imported function works with any name"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Default Export** is used when a file only has ONE main thing to share (like a single React Component or one big Class). A file can only have one default export. When you import it, you do NOT use curly braces, and you can name the imported variable whatever you want.",
+    "analogy": "If Named Exports are a vending machine with 10 choices, a Default Export is a gumball machine with only one flavor. You just put your coin in and say 'Give me the thing'. You can call the gumball whatever you want when it comes out."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Under the hood, `export default myFunction` is actually just a Named Export where the reserved name is literally the string `'default'`. When you write `import myName from './file.js'`, the JS engine translates that to `import { default as myName } from './file.js'`.",
+    "memory": "Because the name is decoupled from the export, renaming the original function does not break any files that import it. However, this makes automatic refactoring in IDEs (like VS Code) much harder compared to Named Exports."
+  },
+  "3_real_world_example": {
+    "use_case": "Exporting a main component or a single configuration object.",
+    "code": "// --- Button.js ---\nexport default function CustomButton() {\n  console.log('I am a button');\n}\n\n// --- main.js ---\n// No curly braces! We can call it whatever we want.\nimport MyAwesomeButton from './Button.js';\nimport Bttn from './Button.js';\n\nMyAwesomeButton();"
+  },
+  "4_common_confusion": {
+    "trap": "Mixing up the syntax for importing Named vs Default exports, resulting in undefined variables. If you use curly braces on a Default export (`import { Button }`), JS looks for a *named* export called 'Button' and fails.",
+    "fix": "No curly braces = Default. Curly braces = Named."
+  },
+  "5_related_topics": [
+    "js.named_exports",
+    "js.import_export"
+  ],
+  "6_edge_case": {
+    "quirk": "You can export both Named exports AND a Default export from the exact same file. This is common in libraries like React (`import React, { useState } from 'react';`).",
+    "code": "// --- Mixed.js ---\nexport const version = 1.0;\nexport default function mainApp() {}\n\n// --- main.js ---\nimport mainApp, { version } from './Mixed.js';"
+  }
+}

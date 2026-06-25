@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.function_scope",
+  "topic": "Function Scope",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.scope", "js.functions"],
+    "related_to": ["js.lexical_scope", "js.hoisting", "js.variable_lifecycle"],
+    "often_confused_with": ["js.scope"]
+  },
+  "question_map": {
+    "what": [
+      "what is function scope",
+      "what are local variables in a function",
+      "what variables does a function own"
+    ],
+    "why": [
+      "why cant i access variables outside a function",
+      "why do functions isolate their variables",
+      "can inner functions access outer variables"
+    ],
+    "how": [
+      "how does function scope work",
+      "how does var behave inside a function",
+      "how are function scope variables created and destroyed"
+    ],
+    "compare": [
+      "function scope vs block scope",
+      "function scope vs global scope",
+      "var in function scope vs let in block scope"
+    ],
+    "output": [
+      "variable not defined outside function",
+      "why var leaks out of if block but not function"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Function Scope means that any variable declared inside a function body — whether with `var`, `let`, or `const` — is **private** to that function. It cannot be read or modified from outside. Every time the function is called, a brand-new scope is created just for that call, and it is destroyed when the call finishes (unless a closure captures it).",
+    "analogy": "Function scope is like a phone booth. Whatever conversation (variables) happens inside the booth is completely private — people outside on the street cannot hear what is being said. When you hang up and leave the booth (function returns), the conversation is gone. The only exception is if you recorded it first (closure) — then the recording lives on after you leave."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Every function call creates a new Lexical Environment with its own Environment Record. All `var`, `let`, and `const` declarations within the function body are registered in this Record. The critical difference is that `var` is function-scoped — even if declared inside an `if` or `for` block inside the function, `var` belongs to the whole function's Environment Record, not the inner block.",
+    "memory": "Function-scope variables live in the stack frame of the Execution Context. They are allocated during the Creation Phase and released when the function returns. If an inner function (closure) captures them, the Lexical Environment migrates to the heap and persists."
+  },
+  "3_real_world_example": {
+    "use_case": "Showing that `var` respects function boundaries but ignores block boundaries within a function.",
+    "code": "function processScores() {\n  var functionLevel = 'I exist everywhere in this function';\n\n  if (true) {\n    var alsoFunctionLevel = 'var ignores the if-block boundary';\n    let blockLevel = 'I am trapped inside this if-block';\n    console.log(blockLevel); //  accessible here\n  }\n\n  console.log(functionLevel);      // \n  console.log(alsoFunctionLevel);  //  var leaked out of if-block\n  // console.log(blockLevel);      //  ReferenceError — let respects block\n}\n\nprocessScores();\n// console.log(functionLevel); //  ReferenceError — function scope boundary"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that `var` inside an `if` or `for` block inside a function is block-scoped. It is not — `var` is always hoisted to the nearest *function* boundary (or global if not inside a function).",
+    "fix": "Use `let` or `const` everywhere. They respect both function AND block boundaries, giving you consistent, predictable scoping."
+  },
+  "5_related_topics": [
+    "js.scope",
+    "js.lexical_scope",
+    "js.hoisting",
+    "js.variable_lifecycle"
+  ],
+  "6_edge_case": {
+    "quirk": "A `var` declared inside a nested function does NOT leak into the outer function. Function boundaries are the only walls `var` respects. This means deeply nested `var` declarations are still safely isolated from the calling function.",
+    "code": "function outer() {\n  function inner() {\n    var secret = 42; // scoped to 'inner' only\n  }\n  inner();\n  // console.log(secret); //  ReferenceError — 'var' stops at 'inner' function boundary\n}\nouter();"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.browser_web_apis",
+  "topic": "Browser Web APIs & Async Delegation",
+  "dimensions": { "syntax": false, "semantics": false, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.concurrency_intro", "js.javascript_engine_intro"],
+    "related_to": ["js.event_loop_intro", "js.task_queue", "js.synchronous_vs_asynchronous"],
+    "often_confused_with": ["js.javascript_engine_intro"]
+  },
+  "question_map": {
+    "what": ["what are web apis", "what are browser web apis", "what is the browser environment"],
+    "why": ["who runs settimeout", "does javascript run fetch itself", "where does async code execute", "who handles timers in javascript"],
+    "how": ["how does settimeout work internally", "how does the browser handle async operations", "how do web apis interact with javascript"],
+    "compare": ["web apis vs javascript engine", "browser vs nodejs async model"],
+    "output": ["settimeout callback runs after sync code", "fetch resolves after network returns"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The JavaScript Engine (V8, SpiderMonkey) only runs your JS code. It does NOT handle timers, network requests, or DOM events. These are provided by the **browser's Web APIs** — a set of C++ APIs built into the browser that operate independently of the JS thread. When you call `setTimeout`, `fetch`, `addEventListener`, or `XMLHttpRequest`, you are handing the work to the browser, not JavaScript. The browser runs these operations (possibly on its own threads) and notifies JS when done by placing the callback in the appropriate queue.",
+    "analogy": "Think of the JS Engine as an office worker who only does desk work (executing JS code). The Web APIs are the external services — a courier (fetch/network), a timer service (setTimeout), and a receptionist (DOM events). The office worker hands off tasks to these services with instructions ('call me when done'), then continues their desk work. When a service finishes, they ring a bell (queue the callback) for the office worker to handle."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When JS code calls a Web API: 1) The API call is made (e.g., `setTimeout(fn, 1000)`). 2) The Web API registers the operation (starts a timer, fires a network request). 3) The function call returns immediately — the Call Stack is freed. 4) The JS engine continues executing the next lines. 5) When the timer fires or the network responds, the callback is placed in the Task Queue (macrotasks) or Microtask Queue. 6) The Event Loop delivers it to the Call Stack when the stack is empty.",
+    "memory": "Web API callbacks are held by the browser's C++ layer until they complete. Only when they are ready does the reference cross into JS memory via the queue. This is why async callbacks are never on the Call Stack at the same time as synchronous code."
+  },
+  "3_real_world_example": {
+    "use_case": "Tracing the full lifecycle of a `fetch` call through the Web API and back into JS.",
+    "code": "console.log('1. Script starts');\n\n// Hand-off to browser's network Web API\nfetch('https://api.example.com/data')\n  .then(res => res.json())            // runs when network responds\n  .then(data => {\n    console.log('4. Data arrived:', data); // runs via Event Loop\n  });\n\nsetTimeout(() => {\n  console.log('3. Timer fired');       // runs via Event Loop after network\n}, 0);\n\nconsole.log('2. Script continues');\n\n// Output:\n// 1. Script starts\n// 2. Script continues\n// 3. Timer fired         ← macrotask\n// 4. Data arrived: ...  ← microtask (Promise), but after network I/O"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that `setTimeout(fn, 0)` means the function runs immediately after the current line. It does not — it hands the callback to the browser's timer API which queues it as a macrotask, always after all synchronous code and microtasks.",
+    "fix": "0ms timer ≠ instant execution. It means: 'run this as soon as possible AFTER the current synchronous code and any pending microtasks'."
+  },
+  "5_related_topics": ["js.event_loop_intro", "js.task_queue", "js.microtask_queue", "js.concurrency_intro"],
+  "6_edge_case": {
+    "quirk": "Browsers impose a minimum timer resolution of 4ms for nested `setTimeout` calls (after 5 levels of nesting). A `setTimeout(fn, 0)` may actually fire at 4ms or later, not exactly 0ms.",
+    "code": "// Nested setTimeout — browser enforces minimum 4ms after 5 levels\nfunction nested(depth) {\n  if (depth >= 5) {\n    console.log('Browser now enforces 4ms minimum');\n    return;\n  }\n  setTimeout(() => nested(depth + 1), 0);\n}\nnested(0);"
+  }
+}

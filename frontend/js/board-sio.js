@@ -14,7 +14,7 @@
   const token = localStorage.getItem('token');
 
   const socket = io(SOCKET_IO_BACKEND_URL, {
-    transports: ["websocket"],
+    transports: ["websocket", "polling"],
     reconnection: true,
     auth: { token }
   });

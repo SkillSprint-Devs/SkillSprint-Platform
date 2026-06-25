@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.closures_deep",
+  "topic": "Closures (Deep Dive)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.closures", "js.lexical_environment", "js.scope_chain"],
+    "related_to": ["js.closure_private_state", "js.closure_patterns", "js.memory_model_basic"],
+    "often_confused_with": ["js.closures"]
+  },
+  "question_map": {
+    "what": [
+      "what is a closure deep explanation",
+      "how does closure remember variables",
+      "what is the environment slot in a closure"
+    ],
+    "why": [
+      "why does closure capture reference not value",
+      "why does closure variable keep updating",
+      "why is the loop closure bug a closure issue"
+    ],
+    "how": [
+      "how does javascript closure find its variables",
+      "how does closure work internally in javascript",
+      "how does garbage collector handle closures"
+    ],
+    "compare": [
+      "closure capturing value vs reference",
+      "stale closure vs live closure",
+      "closure in loop with var vs let"
+    ],
+    "output": [
+      "all closures print same value in loop",
+      "closure shows stale value after update"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A closure is not a copy of outer variables — it is a **live reference** to the Lexical Environment where the function was born. When an outer variable changes after the closure was created, the closure sees the new value, not the old one. This 'live capture' is what enables closures to accumulate state across calls, and it is also what causes the classic loop bug with `var`.",
+    "analogy": "A closure is like having a window that looks into a neighbour's living room. If the neighbour rearranges their furniture (changes a variable), you see the new arrangement through the same window. You don't have a photograph of the room from when the window was first cut — you always see the live, current state."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a function is defined inside another, the engine attaches a `[[Environment]]` slot to the inner function object pointing to the outer function's current Lexical Environment. This Environment contains the live variable bindings (not copies of their values). When the inner function is called later, variable lookups walk the scope chain starting at the inner function's own Lexical Environment and following `[[Environment]]` pointers outward. The outer bindings are read live.",
+    "memory": "Normally, an outer function's Lexical Environment is garbage collected after it returns. But if an inner function (closure) that references the outer environment survives (is stored in a variable), the GC's Mark-and-Sweep considers the environment still reachable and keeps it on the heap. This is the mechanism behind 'closures keeping variables alive'."
+  },
+  "3_real_world_example": {
+    "use_case": "Diagnosing the classic loop closure bug — why all callbacks print the same value — and fixing it with `let`.",
+    "code": "//  Bug: all closures share ONE var 'i' — by loop end, i === 3\nconst fns = [];\nfor (var i = 0; i < 3; i++) {\n  fns.push(() => console.log(i)); // all capture the SAME 'i' binding\n}\nfns.forEach(f => f()); // 3, 3, 3 — not 0, 1, 2!\n\n//  Fix: 'let' creates a NEW binding per iteration\nconst fnsFixed = [];\nfor (let j = 0; j < 3; j++) {\n  fnsFixed.push(() => console.log(j)); // each closure captures its OWN 'j'\n}\nfnsFixed.forEach(f => f()); // 0, 1, 2 \n\n// Why? 'let' in a for-loop creates a fresh Lexical Environment\n// (and a new 'j' binding) for every iteration."
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that closures take a snapshot of variable values. They capture the variable *binding* (the living container), not the value at the moment of creation.",
+    "fix": "If you need a snapshot of a value, explicitly copy it into a new variable at the time of closure creation: `const snapshot = outerVar; return () => snapshot;`"
+  },
+  "5_related_topics": [
+    "js.closures",
+    "js.lexical_environment",
+    "js.closure_private_state",
+    "js.closure_patterns"
+  ],
+  "6_edge_case": {
+    "quirk": "Memory leaks from closures: if a long-lived closure captures a large object, that object cannot be garbage collected for the entire lifetime of the closure. Setting the outer reference to `null` after you no longer need it releases the captured object for collection.",
+    "code": "function setup() {\n  const bigData = new Array(1_000_000).fill('leak risk');\n\n  return function cleanup() {\n    // bigData is captured — it stays in memory as long as 'cleanup' is referenced\n    console.log('cleaning up...');\n  };\n}\n\nconst cleanupFn = setup(); // bigData now lives in heap indefinitely\n// ... some time later:\ncleanupFn(); // do the work\ncleanupFn = null; //  release the closure — bigData can now be GC'd"
+  }
+}

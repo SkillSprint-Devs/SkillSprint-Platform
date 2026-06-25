@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.higher_order_functions",
+  "topic": "Higher-Order Functions",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.first_class_functions", "js.functions"],
+    "related_to": ["js.callbacks", "js.closures", "js.arrays"],
+    "often_confused_with": ["js.first_class_functions"]
+  },
+  "question_map": {
+    "what": [
+      "what is a higher order function",
+      "what makes a function higher order",
+      "why is map a higher order function"
+    ],
+    "why": [
+      "why use higher order functions",
+      "why are hof useful in javascript",
+      "what problem do higher order functions solve"
+    ],
+    "how": [
+      "how to write a higher order function",
+      "how does map work as a higher order function",
+      "how to return a function from a function"
+    ],
+    "compare": [
+      "higher order function vs callback",
+      "higher order function vs first class function",
+      "map vs forEach higher order comparison"
+    ],
+    "output": [
+      "hof accepting function produces correct output",
+      "function factory returns correct specialised function"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A Higher-Order Function (HOF) is a function that either **accepts a function as an argument**, **returns a function**, or both. They are possible because JavaScript functions are first-class. HOFs are the backbone of functional programming patterns in JavaScript — `Array.map()`, `Array.filter()`, `Array.reduce()`, `setTimeout`, and `addEventListener` are all HOFs you use daily.",
+    "analogy": "A Higher-Order Function is like a factory manager. The manager doesn't do the actual work — they take in workers (callback functions) and assign them tasks, or they produce new specialized workers (returned functions) on demand. The manager (HOF) orchestrates; the workers (callbacks/returned functions) execute the actual logic."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a HOF receives a function argument, it stores the reference just like any other argument. At some point during the HOF's execution, it invokes the received function — this creates a new Execution Context for the callback on the Call Stack, runs it, then pops it off and resumes the HOF. When a HOF returns a function, it creates a new function object (with its `[[Environment]]` set to the HOF's scope) and passes the reference back to the caller.",
+    "memory": "HOFs that return functions form closures. The returned function captures the HOF's Lexical Environment, keeping it alive on the heap as long as the returned function is referenced. This is the foundation of function factories and partial application."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a configurable multiplier factory using a HOF that returns specialized functions, avoiding repetition.",
+    "code": "// HOF that RETURNS a function (function factory)\nfunction multiplier(factor) {\n  return (number) => number * factor; // captures 'factor' via closure\n}\n\nconst double   = multiplier(2);\nconst triple   = multiplier(3);\nconst tenTimes = multiplier(10);\n\nconsole.log(double(5));   // 10\nconsole.log(triple(5));   // 15\nconsole.log(tenTimes(5)); // 50\n\n// HOF that ACCEPTS a function (built-in example)\nconst scores = [45, 78, 90, 62, 88];\nconst passing = scores.filter(score => score >= 70);\nconst doubled = scores.map(score => score * 2);\nconst total   = scores.reduce((acc, s) => acc + s, 0);\n\nconsole.log(passing); // [78, 90, 88]\nconsole.log(total);   // 363"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that HOFs are always complex. The simplest HOF is just a function that takes another function and calls it: `function run(fn) { fn(); }`. Complexity comes from what you do with the function — not from the pattern itself.",
+    "fix": "Start with the built-in HOFs you already know (`map`, `filter`, `sort`). Then practice writing your own: a function that takes a callback and calls it N times."
+  },
+  "5_related_topics": [
+    "js.callbacks",
+    "js.first_class_functions",
+    "js.closures",
+    "js.arrays"
+  ],
+  "6_edge_case": {
+    "quirk": "HOFs that return functions with the same name (via a named function expression) can appear recursive but are actually creating independent function objects each time. Each returned function closes over a different instance of the HOF's scope.",
+    "code": "function makeAdder(x) {\n  return function add(y) { return x + y; };\n  // Each call to makeAdder creates a NEW 'add' function object\n  // that closes over a DIFFERENT 'x'\n}\n\nconst add5  = makeAdder(5);\nconst add10 = makeAdder(10);\n\nconsole.log(add5(3));  // 8  — closes over x=5\nconsole.log(add10(3)); // 13 — closes over x=10\nconsole.log(add5 === add10); // false — they are distinct function objects"
+  }
+}

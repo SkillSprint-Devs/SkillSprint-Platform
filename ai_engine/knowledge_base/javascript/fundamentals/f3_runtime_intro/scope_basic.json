@@ -46,7 +46,7 @@
   },
   "3_real_world_example": {
     "use_case": "Using block scoping to isolate indices in nested iteration loops without overwriting values.",
-    "code": "const username = 'Alice'; // Global Scope\n\nfunction showUser() {\n  const accessCode = '123'; // Function Scope\n  if (true) {\n    const blockMessage = 'Authorized'; // Block Scope\n    console.log(`${username} is ${blockMessage}`); // ✅ Scope chain lookup\n  }\n  // console.log(blockMessage); // ❌ ReferenceError (block scoped!)\n}"
+    "code": "const username = 'Alice'; // Global Scope\n\nfunction showUser() {\n  const accessCode = '123'; // Function Scope\n  if (true) {\n    const blockMessage = 'Authorized'; // Block Scope\n    console.log(`${username} is ${blockMessage}`); //  Scope chain lookup\n  }\n  // console.log(blockMessage); //  ReferenceError (block scoped!)\n}"
   },
   "4_common_confusion": {
     "trap": "Believing 'var' respects block boundaries like `{}` if-statements. 'var' is function-scoped; it will leak out of if-statements and loops into the global space.",
@@ -58,6 +58,6 @@
   ],
   "6_edge_case": {
     "quirk": "Lexical Scope lookup only searches upwards. Inner scopes can access outer parent scopes, but outer scopes cannot peek inside nested children scopes.",
-    "code": "function outer() {\n  const message = 'Hello';\n  function inner() {\n    const secret = '1234';\n    console.log(message); // ✅ Reads outer parent\n  }\n  inner();\n  // console.log(secret); // ❌ ReferenceError (cannot access child scope)\n}"
+    "code": "function outer() {\n  const message = 'Hello';\n  function inner() {\n    const secret = '1234';\n    console.log(message); //  Reads outer parent\n  }\n  inner();\n  // console.log(secret); //  ReferenceError (cannot access child scope)\n}"
   }
 }

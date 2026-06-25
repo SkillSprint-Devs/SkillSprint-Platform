@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.cors_intro",
+  "topic": "CORS (Cross-Origin Resource Sharing)",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.fetch_api", "js.request_response_cycle"],
+    "related_to": ["js.network_errors"],
+    "often_confused_with": ["js.network_errors"]
+  },
+  "question_map": {
+    "what": ["what is cors", "what does cors mean"],
+    "why": ["why am i getting cors error", "why does the browser block fetch", "why does cors exist"],
+    "how": ["how to fix cors error", "how browsers enforce cors"],
+    "compare": ["cors error vs network error"],
+    "output": ["access to fetch at url from origin has been blocked by cors policy"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**CORS** (Cross-Origin Resource Sharing) is a security feature built into web browsers. By default, a website running at `mywebsite.com` is not allowed to use `fetch()` to secretly pull data from `yourbank.com`. The browser blocks it. To allow the fetch, the server at `yourbank.com` must explicitly send special HTTP Headers saying 'Yes, I allow mywebsite.com to read my data'. If the server doesn't send those headers, the browser throws a CORS error.",
+    "analogy": "CORS is like a museum security guard. You (the JavaScript) ask to take a photo of a painting (the API data). The guard doesn't stop you from asking, but before they let you leave with the photo, they check the museum's rulebook (the CORS headers). If the rulebook doesn't explicitly say 'Photography allowed for this person', the guard destroys your camera roll (blocks the JavaScript from seeing the response)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you fetch data from a different domain, the browser often sends a silent 'Preflight' `OPTIONS` request first to ask for permission. The server responds with `Access-Control-Allow-Origin` headers. If the headers match your domain (or are `*` for everyone), the browser sends the real `GET/POST` request. If they don't match, the browser blocks the JavaScript from reading the response and logs a CORS error.",
+    "memory": "CORS is entirely enforced by the *browser*, not the server. The server still receives the request and might even process it, but the browser acts as a shield preventing the frontend JS from accessing the returned data."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding that you cannot fix a CORS error from the frontend JavaScript code — it requires a backend configuration change.",
+    "code": "// Frontend (mywebsite.com)\nfetch('https://api.weather.com/data')\n  .then(res => res.json())\n  .catch(err => console.error('Blocked by CORS'));\n\n// Backend (api.weather.com)\n// The backend developer MUST configure their server to send this header:\n// Access-Control-Allow-Origin: https://mywebsite.com\n// (Or Access-Control-Allow-Origin: * to allow any website)"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to fix a CORS error by adding `'mode': 'no-cors'` to your fetch options. This does NOT give you access to the data. It creates an 'opaque response' — the browser makes the request but literally hides the data from your code. It's useless for reading API JSON.",
+    "fix": "You cannot bypass CORS from the frontend. You must either configure the API server to allow your domain, or set up a proxy server (like a Node.js backend you control) to fetch the data on your behalf (since servers do not enforce CORS against other servers)."
+  },
+  "5_related_topics": ["js.fetch_api", "js.request_response_cycle"],
+  "6_edge_case": {
+    "quirk": "CORS only applies to browsers. If you run the exact same `fetch()` code in Node.js, Postman, or a mobile app, it will succeed perfectly because those environments do not implement CORS security policies.",
+    "code": "// In Browser:  CORS Error!\n// fetch('https://strict-api.com/data');\n\n// In Node.js server:  Works perfectly!\n// const response = await fetch('https://strict-api.com/data');"
+  }
+}

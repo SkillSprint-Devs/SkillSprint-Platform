@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.network_errors",
+  "topic": "Handling Network Errors",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.fetch_api", "js.async_error_handling"],
+    "related_to": ["js.request_response_cycle"],
+    "often_confused_with": ["js.async_error_handling"]
+  },
+  "question_map": {
+    "what": ["why did fetch not catch 404 error", "what is response.ok"],
+    "why": ["why does fetch resolve on 500 error", "why doesn't fetch reject on 404"],
+    "how": ["how to handle 404 in fetch", "how to catch fetch errors properly", "how to handle api errors"],
+    "compare": ["fetch reject vs response.ok", "network failure vs http error"],
+    "output": ["fetch catch block skipped on 404"]
+  },
+  "1_beginner_explanation": {
+    "summary": "One of the most confusing things about `fetch()` is how it handles errors. A `fetch()` Promise **only rejects** (goes to the `.catch` block) if there is a literal network failure — like the user losing internet connection or the DNS failing. If the server is reached and sends back an HTTP error (like `404 Not Found` or `500 Internal Server Error`), `fetch()` considers that a successful network round-trip and **resolves** the Promise. You must manually check `response.ok` to see if the HTTP status was successful.",
+    "analogy": "If you call a pizza place and the line is dead because the phone wires are cut, that is a Network Error (`fetch` rejects). If you call the pizza place, they answer, and say 'Sorry, we are out of pizza' (404 Not Found), the phone call was still successful. `fetch` resolves the Promise because the connection worked, even though the answer was bad news."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `fetch` resolves, you must inspect `response.status` (the HTTP code, like 200, 404, 500) or `response.ok` (a boolean that is true if the status is 200-299). If `response.ok` is false, it is standard practice to manually `throw new Error()` so that execution jumps to your `catch` block.",
+    "memory": "No specific memory structures, just control flow routing based on the boolean `ok` property of the Response object."
+  },
+  "3_real_world_example": {
+    "use_case": "The absolutely essential pattern for safely fetching data and handling both network outages AND server errors.",
+    "code": "async function safeFetch() {\n  try {\n    const response = await fetch('https://api.example.com/bad-url');\n    \n    // CRITICAL: Manually check for HTTP errors!\n    if (!response.ok) {\n      // This throws the error down to the catch block below\n      throw new Error(`HTTP Error! Status: ${response.status}`); \n    }\n    \n    const data = await response.json();\n    return data;\n    \n  } catch (error) {\n    // This block now catches TWO things:\n    // 1. Literal network failures (no internet)\n    // 2. The manual HTTP error we threw above\n    console.error('Fetch failed:', error.message);\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Writing `fetch(url).then(res => res.json()).catch(...)` and wondering why the `.catch()` never fires when the API is down and returning 500s. Your code crashes trying to parse the HTML 500-error page as JSON.",
+    "fix": "Never call `.json()` without checking `res.ok` first."
+  },
+  "5_related_topics": ["js.fetch_api", "js.async_error_handling"],
+  "6_edge_case": {
+    "quirk": "Axios (a popular third-party library) behaves differently than `fetch`. Axios *automatically* rejects its Promise if the HTTP status is 400 or 500. This is one of the main reasons many developers prefer Axios over raw fetch.",
+    "code": "// With Axios, 404s go straight to the catch block\n// axios.get('/bad-url')\n//   .then(data => console.log('Success'))\n//   .catch(err => console.log('Caught 404 automatically!'));"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.semantic_html",
+  "topic": "Semantic HTML",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.accessibility_intro"
+    ],
+    "related_to": [
+      "js.aria_basics",
+      "js.dom_tree"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is semantic html",
+      "what are semantic tags"
+    ],
+    "why": [
+      "why not just use divs for everything",
+      "why use semantic html"
+    ],
+    "how": [
+      "how to write semantic html"
+    ],
+    "compare": [
+      "div vs semantic tags",
+      "button vs div with onclick"
+    ],
+    "output": [
+      "screen reader announces button vs silent div"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "HTML tags aren't just for telling the browser how things should look; they tell the browser what things MEAN. 'Semantic HTML' means using the correct tag for the job. Use `<nav>` for navigation, `<main>` for the main content, and `<button>` for buttons. A `<div>` is a 'meaningless' container.",
+    "analogy": "Imagine reading a textbook where every single line of text is the exact same font size, with no bolding, no chapter titles, and no paragraphs. It would be impossible to read. Semantic HTML provides the 'chapter titles' and 'paragraphs' for Screen Readers and Google's search bots."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a Screen Reader hits a `<button>` tag, the browser's Accessibility Tree automatically informs the software: 'This is an interactive element, and you can press Enter or Space to click it.' If you use a `<div onclick=\"...\">`, the Accessibility Tree just says 'This is text'. It provides zero interactive context.",
+    "memory": "Semantic HTML automatically gives you free keyboard accessibility and free SEO points from Google without writing a single line of JavaScript."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating an interactive button that everyone can use.",
+    "code": "/*  THE 'DIV SOUP' ANTI-PATTERN */\n// Looks like a button via CSS, but Screen Readers have no idea it's clickable.\n// Also, keyboard users CANNOT use the 'Tab' key to reach it!\n<div class=\"btn\" onclick=\"submit()\">Submit</div>\n\n/*  SEMANTIC HTML */\n// Automatically focusable via 'Tab' key.\n// Screen reader announces 'Submit, Button'.\n// Automatically responds to 'Enter' and 'Spacebar' presses.\n<button onclick=\"submit()\">Submit</button>"
+  },
+  "4_common_confusion": {
+    "trap": "Using heading tags (`<h1>`, `<h2>`, `<h3>`) purely to make text bigger. Headings must form a strict logical outline of the page (like a table of contents). Screen reader users often press a hotkey to 'read all headings' to skip to the section they want. If your headings are out of order, they get lost.",
+    "fix": "Use headings for Structure. Use CSS for Size."
+  },
+  "5_related_topics": [
+    "js.accessibility_intro",
+    "js.aria_basics"
+  ],
+  "6_edge_case": {
+    "quirk": "There is a massive semantic difference between `<a>` and `<button>`. An anchor tag `<a>` is ONLY for navigating to a new URL or page section. A `<button>` is for triggering a JavaScript action on the current page (like opening a modal or submitting a form).",
+    "code": ""
+  }
+}

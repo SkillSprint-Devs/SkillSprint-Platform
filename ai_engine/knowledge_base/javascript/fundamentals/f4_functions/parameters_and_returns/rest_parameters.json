@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.rest_parameters",
+  "topic": "Rest Parameters",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.parameters_and_arguments"],
+    "related_to": ["js.spread_rest", "js.default_parameters", "js.arrays"],
+    "often_confused_with": ["js.spread_rest"]
+  },
+  "question_map": {
+    "what": [
+      "what is rest parameter",
+      "what does ...args mean in a function",
+      "what is the rest syntax in javascript"
+    ],
+    "why": [
+      "why use rest parameters",
+      "when would i use ...args",
+      "why is rest better than arguments object"
+    ],
+    "how": [
+      "how to collect extra arguments with rest",
+      "how to use rest parameter in function",
+      "how to combine named params and rest"
+    ],
+    "compare": [
+      "rest parameter vs spread operator",
+      "rest vs arguments object",
+      "rest parameter vs default parameter"
+    ],
+    "output": [
+      "rest parameter must be last",
+      "rest collects all remaining arguments"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A Rest parameter (`...name`) is a special syntax placed at the **last** parameter position that collects all remaining arguments into a true **Array**. Unlike the legacy `arguments` object, the rest array has full array methods like `forEach`, `map`, `reduce`. It only gathers arguments that do not match earlier named parameters.",
+    "analogy": "Imagine hosting a dinner party where you plan for 3 guests (named parameters) but tell the caterer 'and handle any extras as a group' (rest parameter). The first three guests are welcomed by name. Everyone else after that is grouped together under 'additional guests'. The caterer treats that group as a list they can work through systematically."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "During function invocation, the engine assigns the first N arguments to the N named parameters. All remaining arguments — regardless of how many — are collected into a new Array object and bound to the rest parameter name. If no extra arguments are passed, the rest parameter is an empty array `[]`, never `undefined`. The rest parameter is always a genuine Array, giving access to the full Array prototype.",
+    "memory": "The rest array is a freshly allocated heap array created per call. It is independent of the caller's data — mutating it inside the function does not affect the caller's arguments list."
+  },
+  "3_real_world_example": {
+    "use_case": "Building a flexible logging utility that always requires a log level but accepts any number of message parts.",
+    "code": "function log(level, ...messages) {\n  // 'level' is the first named param\n  // 'messages' is a real Array of all remaining args\n  const prefix = `[${level.toUpperCase()}]`;\n  console.log(prefix, ...messages);\n}\n\nlog('info', 'Server started');                    // [INFO] Server started\nlog('warn', 'Memory', 'usage', 'high');           // [WARN] Memory usage high\nlog('error', 'Crash', 'at', 'line', 42);          // [ERROR] Crash at line 42\n\n// Full array methods available\nfunction sumAll(...nums) {\n  return nums.reduce((acc, n) => acc + n, 0);\n}\nconsole.log(sumAll(1, 2, 3, 4, 5)); // 15"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing the rest parameter with the spread operator. Both use `...` but in different positions: rest is in a **function parameter list** (collects into array), spread is in **function calls or array/object literals** (expands an iterable).",
+    "fix": "Rest = collecting many values into one. Spread = expanding one value into many. 'Rest gathers, Spread scatters.'"
+  },
+  "5_related_topics": [
+    "js.spread_rest",
+    "js.parameters_and_arguments",
+    "js.default_parameters"
+  ],
+  "6_edge_case": {
+    "quirk": "The rest parameter **must** be the last parameter in the list. Placing it anywhere else is a SyntaxError caught at parse time.",
+    "code": "//  SyntaxError: Rest parameter must be last formal parameter\n// function broken(...first, second) {}\n\n//  Named params first, rest last\nfunction correct(first, second, ...remaining) {\n  console.log(first);     // 'a'\n  console.log(second);    // 'b'\n  console.log(remaining); // ['c', 'd', 'e']\n}\ncorrect('a', 'b', 'c', 'd', 'e');"
+  }
+}

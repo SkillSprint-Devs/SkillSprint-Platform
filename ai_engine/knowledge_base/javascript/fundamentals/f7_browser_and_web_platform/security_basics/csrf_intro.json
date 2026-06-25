@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.csrf_intro",
+  "topic": "CSRF (Cross-Site Request Forgery)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_security_model",
+      "js.cookies_intro"
+    ],
+    "related_to": [
+      "js.xss_intro",
+      "js.http_methods"
+    ],
+    "often_confused_with": [
+      "js.xss_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is csrf",
+      "what is cross site request forgery"
+    ],
+    "why": [
+      "why are hidden inputs used in forms for csrf",
+      "why do we need csrf tokens"
+    ],
+    "how": [
+      "how to prevent csrf attacks",
+      "how does samesite cookie work"
+    ],
+    "compare": [
+      "csrf vs xss"
+    ],
+    "output": [
+      "hidden form auto-submits transfer request"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "CSRF is an attack where a hacker tricks you into taking an action on a website you are already logged into. If you are logged into your bank, the browser automatically attaches your authentication cookies to any request going to the bank. If you visit `hacker.com`, the hacker can put an invisible form on their page that automatically submits a 'Transfer $1000' request to the bank. The bank sees your valid cookie and approves the transfer.",
+    "analogy": "XSS is a thief breaking into your house to steal your ID card. CSRF is the thief tricking you into walking into the bank yourself and handing the teller a forged withdrawal slip. You are holding your own ID card, so the bank trusts you, even though the thief handed you the slip."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The Same-Origin Policy (SOP) prevents `hacker.com` from *reading* data from `bank.com`, but it DOES NOT prevent `hacker.com` from *sending* a POST request to `bank.com`. If the victim has an active session cookie, the browser automatically attaches it to the forged POST request.",
+    "memory": "Historically, the defense was a 'CSRF Token': a random secret string the server generates. The hacker doesn't know this string, so their forged request gets rejected by the server."
+  },
+  "3_real_world_example": {
+    "use_case": "A hacker sending a phishing email with a link to their malicious website.",
+    "code": "<!-- On hacker.com, this hidden form submits automatically on page load -->\n<form action=\"https://yourbank.com/transfer\" method=\"POST\" id=\"evil-form\">\n  <input type=\"hidden\" name=\"amount\" value=\"10000\">\n  <input type=\"hidden\" name=\"destination\" value=\"HackerAccount\">\n</form>\n<script>\n  // As soon as the victim visits hacker.com, it submits the form.\n  // Since they are logged into yourbank.com in another tab, the browser \n  // attaches their cookies! The bank thinks the user did it.\n  document.getElementById('evil-form').submit();\n</script>"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing CSRF with XSS. In XSS, the hacker's code runs on the target site (`bank.com`). In CSRF, the hacker's code runs on a completely separate, malicious site (`hacker.com`), exploiting the fact that the browser blindly sends cookies.",
+    "fix": "XSS = Hacker runs code on YOUR site. CSRF = Hacker tricks user on THEIR site to send a request to YOUR site."
+  },
+  "5_related_topics": [
+    "js.xss_intro",
+    "js.cookies_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Modern browsers largely killed CSRF by introducing the `SameSite` attribute for cookies. If a server sets `Set-Cookie: session=123; SameSite=Lax`, the browser will flat-out refuse to attach the cookie to POST requests originating from a different domain (like `hacker.com`).",
+    "code": ""
+  }
+}

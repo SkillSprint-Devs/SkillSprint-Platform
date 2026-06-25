@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.lexical_environment",
+  "topic": "Lexical Environment",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.scope", "js.execution_context_intro"],
+    "related_to": ["js.scope_chain", "js.hoisting", "js.closures"],
+    "often_confused_with": ["js.scope"]
+  },
+  "question_map": {
+    "what": [
+      "what is lexical environment",
+      "what is environment record",
+      "what is outer environment reference",
+      "what is a lexical environment in javascript"
+    ],
+    "why": [
+      "why can inner functions access outer variables",
+      "why does javascript use lexical scoping",
+      "why do closures work in javascript"
+    ],
+    "how": [
+      "how does javascript find variables",
+      "how does lexical environment store variables",
+      "how is outer reference set in lexical environment"
+    ],
+    "compare": [
+      "lexical environment vs execution context",
+      "environment record vs scope"
+    ],
+    "output": [
+      "trace variable lookup through lexical environment chain",
+      "which lexical environment owns a variable"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A Lexical Environment is an internal JavaScript data structure that stores variable bindings for a specific block of code. Every function, block, and the global scope gets its own Lexical Environment. It has two parts: an Environment Record (a table of local variable → value bindings) and a reference to its outer (parent) Lexical Environment.",
+    "analogy": "Imagine a set of nested Russian dolls. Each doll represents a Lexical Environment (a scope level). Inside each doll is a small notebook listing only the variables declared at that level (the Environment Record). On the back of each doll is an arrow pointing to the next larger doll (the outer reference). When JavaScript looks for a variable, it checks the innermost doll's notebook first, then follows the arrows outward until it finds the variable or runs out of dolls."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the JavaScript engine creates an Execution Context, it also creates a Lexical Environment for that context. During the creation phase, all variable and function declarations in that scope are registered in the Environment Record. The outer reference is set at the time the function is *defined* (not called), which is why JavaScript is a lexically scoped language.",
+    "memory": "Lexical Environments are garbage-collected once no live references point to them. When a closure holds a reference to an outer Lexical Environment, that environment is kept alive in heap memory for as long as the closure exists — this is how closures capture variables."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why a closure returned from a factory function still has access to the counter variable even after the factory function has returned.",
+    "code": "function makeCounter() {\n  let count = 0; // stored in makeCounter's Lexical Environment\n\n  return function increment() {\n    count++;          // outer reference walks up to makeCounter's env\n    return count;\n  };\n}\n\nconst counter = makeCounter();\nconsole.log(counter()); // 1\nconsole.log(counter()); // 2\n// makeCounter's Lexical Environment is kept alive by the closure"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing Lexical Environment with Scope. Scope is a conceptual model of variable accessibility. A Lexical Environment is the concrete runtime object the engine creates to implement that model.",
+    "fix": "Think of Scope as the rule ('a variable declared here is accessible here') and Lexical Environment as the data structure the engine builds to enforce that rule."
+  },
+  "5_related_topics": [
+    "js.scope",
+    "js.scope_chain",
+    "js.closures",
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Each iteration of a `let`-declared `for` loop gets its own Lexical Environment. This means closures created inside a loop with `let` correctly capture the iteration value, unlike `var` which shares a single function-level binding.",
+    "code": "// With let: each iteration has its own Lexical Environment\nconst funcs = [];\nfor (let i = 0; i < 3; i++) {\n  funcs.push(() => i); // each closure captures its own 'i'\n}\nconsole.log(funcs[0]()); // 0\nconsole.log(funcs[1]()); // 1\nconsole.log(funcs[2]()); // 2\n\n// With var: all closures share the SAME variable binding\nconst funcsVar = [];\nfor (var j = 0; j < 3; j++) {\n  funcsVar.push(() => j);\n}\nconsole.log(funcsVar[0]()); // 3 (surprising!)"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.event_delegation",
+  "topic": "Event Delegation",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.bubbling",
+      "js.event_object"
+    ],
+    "related_to": [
+      "js.event_listeners"
+    ],
+    "often_confused_with": [
+      "js.event_propagation"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is event delegation"
+    ],
+    "why": [
+      "why is event delegation useful",
+      "why use event delegation instead of multiple listeners"
+    ],
+    "how": [
+      "how does delegation improve performance",
+      "how to handle clicks on dynamic elements"
+    ],
+    "compare": [
+      "multiple listeners vs event delegation"
+    ],
+    "output": [
+      "single listener handles clicks on all children"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Event Delegation** is a clever performance trick that takes advantage of Event Bubbling. Instead of attaching 1,000 click listeners to 1,000 buttons in a list, you attach just ONE click listener to the parent `<ul>`. Because clicks on the buttons 'bubble up' to the `<ul>`, the parent can catch the event and use `e.target` to figure out which specific button was clicked.",
+    "analogy": "Imagine a classroom with 30 students. If you want to know when a student raises their hand, you don't hire 30 assistants to watch one student each. You just stand at the front of the room (the Parent element) and watch the whole room (Delegation). When someone raises a hand (the Event), you look at exactly who did it (`e.target`)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine only has to instantiate and track a single C++ listener object on the parent element. When the event bubbles up, the callback executes and evaluates conditional logic (`if (e.target.matches(...))`) to determine routing.",
+    "memory": "Delegation drastically reduces memory consumption because you avoid creating thousands of listener objects and closures. It also prevents memory leaks when child elements are destroyed and recreated."
+  },
+  "3_real_world_example": {
+    "use_case": "Handling clicks on elements that are generated dynamically (like a shopping cart or to-do list).",
+    "code": "// Instead of looping over all <li> elements, we attach ONE listener to the <ul>\nconst ul = document.querySelector('#todo-list');\n\nul.addEventListener('click', function(e) {\n  // Check if what was clicked was actually a delete button\n  if (e.target.classList.contains('delete-btn')) {\n    // We found the button! Now remove its parent <li>\n    const li = e.target.closest('li');\n    li.remove();\n  }\n});\n\n// Even if we add new <li> items later with JavaScript, the <ul> \n// will still catch their clicks automatically! No new listeners needed."
+  },
+  "4_common_confusion": {
+    "trap": "Clicking an icon *inside* the button. If your button has an `<i class=\"icon\">` inside it, `e.target` will be the `<i>`, not the `<button>`. Your `e.target.classList.contains('btn')` check will fail.",
+    "fix": "Use `.closest()` to ensure you grab the button even if a child icon was clicked: `const btn = e.target.closest('.btn'); if (btn) { ... }`."
+  },
+  "5_related_topics": [
+    "js.bubbling",
+    "js.event_object",
+    "js.memory_model_basic"
+  ],
+  "6_edge_case": {
+    "quirk": "Event delegation relies entirely on Bubbling. It does not work for events that don't bubble, such as `focus`, `blur`, `scroll`, or `mouseenter`.",
+    "code": "// You cannot delegate a 'mouseenter' event using normal bubbling.\n// You must use 'mouseover' instead, which does bubble."
+  }
+}

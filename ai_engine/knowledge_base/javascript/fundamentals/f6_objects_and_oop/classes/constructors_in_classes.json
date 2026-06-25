@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.constructors_in_classes",
+  "topic": "The constructor() Method",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.classes_intro", "js.new_keyword"],
+    "related_to": ["js.methods", "js.class_inheritance"],
+    "often_confused_with": ["js.classes_intro"]
+  },
+  "question_map": {
+    "what": ["what is the constructor method in a class"],
+    "why": ["why use a constructor in a class", "is constructor required in class"],
+    "how": ["how to initialize class properties"],
+    "compare": ["constructor vs normal method"],
+    "output": ["must call super constructor in derived class"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Inside every `class`, there is a special method called `constructor()`. This is the exact function that runs the moment you use the `new` keyword to create an instance. It is used to set up the initial data (properties) for the object before it is handed back to you.",
+    "analogy": "If the class is a car factory, the `constructor()` is the specific assembly worker whose job is to paint the car and install the custom seats based on your specific order details before the car leaves the factory."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `new MyClass(args)` is called, the engine creates an empty object, binds it to `this`, and immediately passes the `args` into the `constructor(args)` method. If you don't write a constructor, JS silently injects an empty one: `constructor() {}`.",
+    "memory": "The `constructor` method is the only part of the class that maps directly to the actual function object created in memory. All other methods go on the `.prototype`."
+  },
+  "3_real_world_example": {
+    "use_case": "Accepting arguments when creating a new class instance.",
+    "code": "class Product {\n  // Runs automatically when 'new Product(...)' is called\n  constructor(name, price) {\n    this.name = name;\n    this.price = price;\n    this.inStock = true; // Default value\n  }\n}\n\n// Passes 'Laptop' and 1000 directly into the constructor()\nconst p1 = new Product('Laptop', 1000);\nconsole.log(p1.name); // 'Laptop'"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to write `function constructor()` or `constructor: function()`. A class body is not a standard object literal. You don't use the `function` keyword, and you don't use commas.",
+    "fix": "Just write `constructor() { ... }` directly inside the class brackets."
+  },
+  "5_related_topics": ["js.new_keyword", "js.classes_intro"],
+  "6_edge_case": {
+    "quirk": "A class can only have ONE `constructor()`. If you try to write multiple constructors (to handle different argument types, like in Java), JavaScript will throw a SyntaxError.",
+    "code": "class User {\n  constructor(name) { this.name = name; }\n  //  SyntaxError: A class may only have one constructor\n  // constructor(name, age) { ... }\n}"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.event_object",
+  "topic": "The Event Object (e)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.event_listeners"],
+    "related_to": ["js.input_events", "js.preventing_default"],
+    "often_confused_with": ["js.this_in_functions"]
+  },
+  "question_map": {
+    "what": ["what is the event object", "what does e mean in javascript", "what is e.target"],
+    "why": ["why pass e into the function"],
+    "how": ["how to get mouse coordinates", "how to know which key was pressed", "how to get the clicked element"],
+    "compare": ["e.target vs e.currentTarget", "e.target vs this"],
+    "output": ["cannot read property target of undefined"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Whenever an event happens, the browser gathers a bunch of information about it (Where was the mouse? Which key was pressed? What exact element was clicked?). The browser packs all this data into an **Event Object**, and automatically passes it as the first argument to your event listener's callback function. Developers usually name this parameter `e`, `ev`, or `event`.",
+    "analogy": "If an Event is a crime being committed, the Event Object is the police report. It contains all the forensic details: Time of incident, exact location, weapon used (mouse vs keyboard), and the exact victim (the clicked element)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Under the hood, when the C++ event fires, it instantiates a subclass of the native `Event` interface (like `MouseEvent` or `KeyboardEvent`). This object is pushed onto the Call Stack as the argument to your callback. Once the Call Stack clears, the event object is garbage collected.",
+    "memory": "The `event` object is instantiated fresh every single time the event fires."
+  },
+  "3_real_world_example": {
+    "use_case": "Tracking exactly where the user clicked on the screen, and what key they pressed.",
+    "code": "const box = document.querySelector('.box');\n\n// We put 'e' in the parameters to catch the Event Object\nbox.addEventListener('click', function(e) {\n  console.log('You clicked exactly here:');\n  console.log('X Coordinate:', e.clientX);\n  console.log('Y Coordinate:', e.clientY);\n  \n  // e.target gives us the EXACT DOM element that was clicked\n  console.log('You clicked on:', e.target);\n});\n\ndocument.addEventListener('keydown', function(e) {\n  console.log('You pressed the key:', e.key);\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `e.target` and `this` (or `e.currentTarget`) are the same thing. `e.target` is the deepest, most specific element that was actually clicked (like a tiny `<span>` inside a `<button>`). `this` (and `e.currentTarget`) is the element that the event listener is attached to (the `<button>`).",
+    "fix": "Use `e.target` to find exactly what was clicked. Use `e.currentTarget` to find who is listening."
+  },
+  "5_related_topics": ["js.event_listeners", "js.event_propagation"],
+  "6_edge_case": {
+    "quirk": "Older versions of Internet Explorer did not pass the event object as a parameter. Instead, it was stored globally at `window.event`. Modern JS standardizes this.",
+    "code": "// Old cross-browser hack you might see in ancient code:\n// var ev = e || window.event;"
+  }
+}

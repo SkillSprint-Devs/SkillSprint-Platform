@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.resolve_reject",
+  "topic": "Resolve & Reject",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.promise_states", "js.promises_intro"],
+    "related_to": ["js.promise_error_handling", "js.promise_chaining"],
+    "often_confused_with": ["js.promise_states"]
+  },
+  "question_map": {
+    "what": ["what does resolve mean", "what does reject mean", "what are the resolve and reject functions"],
+    "why": ["when should reject be used", "why do we pass resolve and reject to a promise"],
+    "how": ["how to resolve a promise", "how to reject a promise"],
+    "compare": ["resolve vs reject", "throw error vs reject"],
+    "output": ["promise resolves with undefined"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`resolve` and `reject` are two functions provided to you by JavaScript when you create a `new Promise`. They are your 'controls' for the Promise. You call `resolve(data)` when your async task finishes successfully — this hands the data to any attached `.then()`. You call `reject(error)` when the task fails — this hands the error to any attached `.catch()`. Until you call one of them, the Promise remains stuck in the 'pending' state.",
+    "analogy": "Imagine `resolve` and `reject` as two different stamps on a shipping box. If you stamp it `resolve`, it goes onto the delivery truck (the `.then` handlers). If you stamp it `reject`, it goes to the damaged goods department (the `.catch` handlers). If you forget to stamp it entirely, the box sits in the warehouse forever (pending)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `resolve(value)` is called, the JS engine sets the Promise's internal state to 'fulfilled' and queues all attached `onFulfilled` handlers into the Microtask Queue. When `reject(reason)` is called, it sets the state to 'rejected' and queues all `onRejected` handlers. Both functions only accept a single argument. Any additional arguments are ignored.",
+    "memory": "The `value` passed to `resolve` or `reject` is stored in the Promise's internal `[[PromiseResult]]` slot, keeping the object/error alive in memory so it can be passed to future `.then()` or `.catch()` attachments."
+  },
+  "3_real_world_example": {
+    "use_case": "Wrapping an older callback-based API (like `setTimeout` or `Geolocation`) into a modern Promise using resolve and reject.",
+    "code": "// Wrapping a callback API in a Promise\nfunction delay(ms) {\n  return new Promise((resolve, reject) => {\n    if (ms < 0) {\n      reject(new Error('Delay cannot be negative')); // Trigger failure\n    } else {\n      setTimeout(() => {\n        resolve(`Waited ${ms} milliseconds`);      // Trigger success\n      }, ms);\n    }\n  });\n}\n\ndelay(1000)\n  .then(msg => console.log('Success:', msg))\n  .catch(err => console.error('Error:', err.message));\n\ndelay(-500)\n  .then(msg => console.log('Success:', msg))\n  .catch(err => console.error('Error:', err.message)); // Catches the rejection"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting to call `resolve` or `reject` entirely, or placing them inside an `if` block that doesn't cover all conditions. The Promise will stay 'pending' forever, creating a memory leak and hanging the application.",
+    "fix": "Always ensure every logical path in your Promise executor eventually calls either `resolve` or `reject`."
+  },
+  "5_related_topics": ["js.promise_states", "js.promise_error_handling", "js.promises_intro"],
+  "6_edge_case": {
+    "quirk": "If you pass a Promise into `resolve()`, the outer Promise will adopt the state of the inner Promise. It will wait for the inner Promise to settle, and then settle with the same state and value.",
+    "code": "const innerPromise = new Promise(res => setTimeout(() => res('Inner data!'), 1000));\n\nconst outerPromise = new Promise(resolve => {\n  resolve(innerPromise); // Outer promise waits for innerPromise\n});\n\nouterPromise.then(val => console.log(val)); // 'Inner data!' after 1 sec"
+  }
+}

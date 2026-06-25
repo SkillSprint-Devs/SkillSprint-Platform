@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.race_conditions",
+  "topic": "Race Conditions",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.concurrency_intro", "js.promises_intro"],
+    "related_to": ["js.concurrency_patterns", "js.cancellation_patterns"],
+    "often_confused_with": ["js.promise_race"]
+  },
+  "question_map": {
+    "what": ["what is a race condition", "what causes race conditions in javascript"],
+    "why": ["why do async bugs happen", "why is my state overwriting itself"],
+    "how": ["how to prevent race conditions", "how to fix overlapping fetch requests"],
+    "compare": ["race condition vs parallel execution"],
+    "output": ["older request overwrites newer request data"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Race Condition** is a bug that happens when multiple asynchronous operations finish in an unpredictable order, and they try to update the same piece of data. Because network requests take variable amounts of time, a request you sent *first* might finish *last*. If you aren't careful, the older, slower request will overwrite the data from the newer, faster request.",
+    "analogy": "Imagine you order a blue shirt online (Request 1). A minute later you change your mind and order a red shirt instead (Request 2). Because of shipping logistics, the red shirt arrives on Tuesday. You wear it. But the blue shirt gets delayed and arrives on Friday. If you just blindly wear whatever arrives last, you'll end up wearing the blue shirt, even though the red shirt was your most recent choice."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When user input triggers multiple fetches (e.g., typing in an autocomplete box), several Promises are pending simultaneously. The Event Loop processes their resolutions in the exact order the network responds, which is not guaranteed to match the order they were requested. The callbacks execute and overwrite shared variables (like a React state) based solely on network latency.",
+    "memory": "Race conditions in JS are typically 'data races' on shared mutable state (global variables, component state, DOM elements) accessed by closures in asynchronous callbacks."
+  },
+  "3_real_world_example": {
+    "use_case": "An autocomplete search bar where typing 'a' then 'ab' triggers two requests. If 'a' takes 500ms but 'ab' takes 100ms, the results for 'a' will overwrite 'ab' on the screen.",
+    "code": "//  Buggy: Susceptible to race conditions\nlet currentResults = [];\nasync function searchBad(query) {\n  // If query 1 is slow and query 2 is fast, query 1 overwrites query 2's data when it finally finishes!\n  currentResults = await fetch(`/api/search?q=${query}`).then(r => r.json());\n  render(currentResults);\n}\n\n//  Fixed: Using an ID to ignore outdated requests\nlet currentSearchId = 0;\nasync function searchGood(query) {\n  const searchId = ++currentSearchId;\n  const results = await fetch(`/api/search?q=${query}`).then(r => r.json());\n  \n  // When the fetch finishes, check if a NEWER search has started.\n  // If so, throw this data away.\n  if (searchId === currentSearchId) {\n    currentResults = results;\n    render(currentResults);\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that because JavaScript is single-threaded, it can't have race conditions. JS doesn't have *thread-level* data races (where two threads write to the same memory address on the exact same clock cycle), but it absolutely has *async-level* race conditions where the order of operations corrupts the logical state.",
+    "fix": "Always assume async callbacks will fire in a random order."
+  },
+  "5_related_topics": ["js.concurrency_patterns", "js.cancellation_patterns"],
+  "6_edge_case": {
+    "quirk": "In React, race conditions often occur in `useEffect` hooks that fetch data when dependencies change. The standard fix is to use a boolean `ignore` flag inside a cleanup function to discard the results of stale fetches.",
+    "code": "// React useEffect race condition fix\n// useEffect(() => {\n//   let ignore = false;\n//   fetchData(id).then(data => {\n//     if (!ignore) setState(data);\n//   });\n//   return () => { ignore = true; }; // cleanup runs on unmount or re-run\n// }, [id]);"
+  }
+}

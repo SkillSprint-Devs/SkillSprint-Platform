@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.invoking_functions",
+  "topic": "Invoking Functions",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.call_stack"],
+    "related_to": ["js.function_invocation", "js.function_declaration", "js.function_expression", "js.this_intro"],
+    "often_confused_with": ["js.function_expression"]
+  },
+  "question_map": {
+    "what": [
+      "what does it mean to invoke a function",
+      "how do i call a function",
+      "what is the difference between defining and calling a function"
+    ],
+    "why": [
+      "why does my function not run",
+      "why does passing a function with parentheses call it immediately",
+      "why does my event handler run immediately"
+    ],
+    "how": [
+      "how to call a function in javascript",
+      "how to invoke a method on an object",
+      "how to call a function with arguments"
+    ],
+    "compare": [
+      "function reference vs function call",
+      "method invocation vs function invocation",
+      "calling vs defining a function"
+    ],
+    "output": [
+      "why is my callback running immediately",
+      "function returns undefined when called"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Invoking (calling) a function means triggering its execution. In JavaScript there are several invocation patterns: plain function call `fn()`, method call `obj.method()`, constructor call `new Fn()`, and explicit context calls `fn.call()` / `fn.apply()`. Each pattern affects what `this` is bound to inside the function.",
+    "analogy": "Defining a function is like writing instructions on a card and filing it in a drawer. Invoking is when you pull the card out of the drawer and actually follow the instructions. Without invocation, the card just sits there forever."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine evaluates a call expression like `greet('Alice')`, it: 1) resolves the reference to the function object, 2) evaluates the arguments, 3) creates a new Execution Context, 4) binds `this` based on the invocation pattern, 5) pushes the context onto the Call Stack, and 6) begins executing the function body line by line.",
+    "memory": "Arguments are copied into the new stack frame as local bindings. Primitive arguments are copied by value; object arguments copy the heap reference. Modifying an object parameter inside the function mutates the original object."
+  },
+  "3_real_world_example": {
+    "use_case": "Recognising the difference between passing a function reference to a timer vs accidentally calling it immediately.",
+    "code": "function announce() {\n  console.log('SkillSprint session starting!');\n}\n\n//  Reference — passes the function, runs it after 2 seconds\nsetTimeout(announce, 2000);\n\n//  Accidental call — runs immediately AND passes return value (undefined) to setTimeout\nsetTimeout(announce(), 2000); // calls announce() RIGHT NOW\n\n// Method invocation — 'this' is bound to the object\nconst session = {\n  name: 'JS Fundamentals',\n  start() {\n    console.log(`Starting: ${this.name}`);\n  }\n};\nsession.start(); // 'this' === session "
+  },
+  "4_common_confusion": {
+    "trap": "Adding `()` when passing a function as a callback causes it to run immediately, and the return value (usually `undefined`) is passed instead of the function itself.",
+    "fix": "When passing a function as a value (callback, event handler), write the name without parentheses: `setTimeout(announce, 2000)`. Only add `()` when you want to execute it right now."
+  },
+  "5_related_topics": [
+    "js.function_declaration",
+    "js.function_expression",
+    "js.this_intro",
+    "js.function_invocation"
+  ],
+  "6_edge_case": {
+    "quirk": "Immediately Invoked Function Expressions (IIFEs) define and invoke a function in a single expression. This was the primary scoping pattern before ES6 block scope. The `()` at the end invokes, and wrapping the whole thing in `()` makes it an expression rather than a declaration.",
+    "code": "// IIFE: defined and invoked in one shot\nconst result = (function(multiplier) {\n  return 42 * multiplier;\n})(3);\n\nconsole.log(result); // 126\n// The function body ran once and the function object is immediately discarded"
+  }
+}

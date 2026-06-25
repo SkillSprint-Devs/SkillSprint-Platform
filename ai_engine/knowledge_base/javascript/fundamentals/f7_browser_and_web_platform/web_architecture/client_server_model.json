@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.client_server_model",
+  "topic": "The Client-Server Model",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.request_response"
+    ],
+    "related_to": [
+      "js.spa_architecture",
+      "js.csr_vs_ssr"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is the client server model",
+      "what is frontend vs backend"
+    ],
+    "why": [
+      "why do we need a server"
+    ],
+    "how": [
+      "how browsers and servers communicate"
+    ],
+    "compare": [
+      "client vs server",
+      "frontend vs backend"
+    ],
+    "output": [
+      "server responds with json data to fetch request"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The internet is divided into two main roles: The **Client** (the frontend) and the **Server** (the backend). The Client is the user's browser (Chrome, Safari). Its job is to draw the UI on the screen and handle user clicks. The Server is a powerful computer sitting in a data center somewhere. Its job is to securely hold the database, run heavy business logic, and answer requests from the Client.",
+    "analogy": "Think of a restaurant. The Client is the Waiter and the Dining Room: It focuses on presenting the menu beautifully and taking your order. The Server is the Kitchen: It's hidden in the back, handles all the raw ingredients (database), and cooks the actual food. The Waiter and the Kitchen must talk to each other to make the restaurant work."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "JavaScript is unique because it runs on BOTH sides. You write JS for the browser (DOM manipulation) and you can write JS for the server (Node.js). However, they execute in entirely different environments. The browser JS cannot directly touch the database, and the server JS cannot directly click a button.",
+    "memory": "Clients are untrusted and ephemeral (they shut down when the user closes their laptop). Servers are trusted and persistent (they stay online 24/7)."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why we use `fetch()` to login.",
+    "code": "/* \n  CLIENT CODE (Runs on user's laptop):\n  Takes the password from the input box, and asks the server if it's correct.\n*/\nfetch('https://api.myapp.com/login', { \n  method: 'POST', body: JSON.stringify({ pass: '123' }) \n});\n\n/*\n  SERVER CODE (Runs in Amazon AWS Data Center):\n  Receives the '123' string, checks the secure database, and replies YES or NO.\n*/\napp.post('/login', (req, res) => {\n  const isValid = checkDatabase(req.body.pass);\n  res.send(isValid);\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Beginners often try to put secure database passwords or API keys directly into their Frontend JavaScript. Because the Frontend code is downloaded to the user's browser, anyone can open Developer Tools and read the password.",
+    "fix": "Secret keys and database connections belong ONLY on the Server."
+  },
+  "5_related_topics": [
+    "js.request_response",
+    "js.spa_architecture"
+  ],
+  "6_edge_case": {
+    "quirk": "Peer-to-Peer (P2P) architecture (like WebRTC for video calls or BitTorrent) completely bypasses the Client-Server model. In P2P, two Clients talk directly to each other without a Server in the middle.",
+    "code": ""
+  }
+}

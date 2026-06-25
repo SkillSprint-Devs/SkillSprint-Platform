@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.throttling",
+  "topic": "Throttling",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.closures_deep", "js.higher_order_functions"],
+    "related_to": ["js.debouncing"],
+    "often_confused_with": ["js.debouncing"]
+  },
+  "question_map": {
+    "what": ["what is throttling", "what does throttle do"],
+    "why": ["why throttle scroll events", "why use throttle", "why is my page lagging on scroll"],
+    "how": ["how to throttle a function", "how to limit function calls"],
+    "compare": ["throttle vs debounce", "throttling vs debouncing"],
+    "output": ["function fires consistently every 100ms"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Throttling** is a technique to limit how often a function can be executed over time. If a user scrolls a page, the browser might fire 100 scroll events per second. If your function does heavy math on every event, the page will lag. A throttled function guarantees it will execute *at most* once every X milliseconds, ignoring all other calls that happen in between.",
+    "analogy": "Throttling is like a water fountain with a strict mechanical timer. No matter how many times you rapidly press the button, the fountain will only dispense water once every 5 seconds. Pressing it 50 times in those 5 seconds does nothing; it enforces a steady, maximum rate of flow."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "A throttle is a Higher-Order Function that returns a closure. The closure maintains a `lastExecuted` timestamp variable. When the throttled function is called, it checks if `Current Time - lastExecuted >= Wait Time`. If true, it runs the original function and updates `lastExecuted`. If false, it simply returns and does nothing.",
+    "memory": "The `lastExecuted` state is preserved in the closure's Lexical Environment, persisting across hundreds of rapid event triggerings."
+  },
+  "3_real_world_example": {
+    "use_case": "Tracking scroll position for an animation without locking up the main thread.",
+    "code": "function throttle(func, limitMs) {\n  let lastExecuted = 0; // Stored in closure\n\n  return function(...args) {\n    const now = Date.now();\n    if (now - lastExecuted >= limitMs) {\n      func.apply(this, args); // Execute original function\n      lastExecuted = now;     // Update the timestamp\n    }\n  };\n}\n\n// Original heavy function\nfunction calculateScrollParallax() {\n  console.log('Doing heavy math for parallax at:', window.scrollY);\n}\n\n// Create throttled version (max 1 execution per 200ms)\nconst throttledScroll = throttle(calculateScrollParallax, 200);\n\n// Attach to event listener\n// window.addEventListener('scroll', throttledScroll);"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing Throttle with Debounce. Throttle guarantees a steady execution rate *during* a continuous action (e.g., firing every 200ms while scrolling). Debounce waits until the action has completely *stopped* before firing once (e.g., waiting until the user stops typing).",
+    "fix": "Continuous updates needed during action? Use Throttle. Only need the final result after action stops? Use Debounce."
+  },
+  "5_related_topics": ["js.debouncing", "js.closures_deep", "js.higher_order_functions"],
+  "6_edge_case": {
+    "quirk": "Basic throttling might ignore the very last event if it falls inside the cooldown period. Robust throttle implementations (like Lodash's `_.throttle`) use a combination of timestamps and timers to ensure the *trailing edge* (the final state) is executed so the UI doesn't get stuck in a slightly outdated state.",
+    "code": "// Robust throttles handle leading and trailing edges.\n// A basic timestamp throttle will miss the final scroll position\n// if the user stops scrolling halfway through the limitMs window."
+  }
+}

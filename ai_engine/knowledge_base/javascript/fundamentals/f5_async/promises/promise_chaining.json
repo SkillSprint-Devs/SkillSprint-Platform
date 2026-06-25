@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promise_chaining",
+  "topic": "Promise Chaining",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.promises_intro"],
+    "related_to": ["js.promise_error_handling", "js.microtask_queue", "js.async_await"],
+    "often_confused_with": ["js.callback_hell"]
+  },
+  "question_map": {
+    "what": ["what is promise chaining", "how do then chains work"],
+    "why": ["why chain promises", "why use multiple then blocks"],
+    "how": ["how to chain promises", "how to pass data between then blocks"],
+    "compare": ["promise chain vs callback hell", "nested then vs chained then"],
+    "output": ["data undefined in second then block", "promise chain executes out of order"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Promise Chaining** is how we solve Callback Hell. Every time you call `.then()` on a Promise, it automatically creates and returns a **brand new Promise**. This means you can attach another `.then()` directly to it. Whatever value you `return` from a `.then()` block becomes the resolved value for the next `.then()` in the chain. This allows you to write sequential asynchronous steps in a clean, flat, top-down structure.",
+    "analogy": "Promise chaining is like an assembly line. The first station (fetch) builds the raw frame and hands it to the next station (`.then()`). That station adds the engine, and hands it to the next station (`.then()`), which paints it. Each station waits for the previous one to finish, takes the result, modifies it, and passes it forward."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `.then(callback)` is called, it immediately returns a new Promise (Promise B). When the original Promise (Promise A) fulfills, it runs the `callback` in the microtask queue. If `callback` returns a standard value, Promise B fulfills with that value. If `callback` returns another Promise, Promise B 'adopts' its state and waits for it to finish.",
+    "memory": "Each `.then()` creates a new Promise object in memory. A chain of 5 `.then()` calls creates 5 distinct Promise objects."
+  },
+  "3_real_world_example": {
+    "use_case": "A flat sequence of async operations: fetching a user, extracting their ID, and fetching their posts based on that ID.",
+    "code": "// Clean, flat promise chain (Solves Callback Hell)\nfetch('/api/user/alice')\n  .then(response => {\n    return response.json(); // Returns a Promise! Next .then waits for it.\n  })\n  .then(user => {\n    console.log('User ID is:', user.id);\n    return fetch(`/api/posts?userId=${user.id}`); // Returns another Promise!\n  })\n  .then(response => {\n    return response.json();\n  })\n  .then(posts => {\n    console.log('User posts:', posts);\n  })\n  .catch(error => {\n    console.error('Failed at some point in the chain:', error);\n  });"
+  },
+  "4_common_confusion": {
+    "trap": "Nesting `.then()` blocks inside each other (recreating Callback Hell with Promises). Or forgetting to `return` a value/Promise from inside the `.then()`, causing the next step to receive `undefined`.",
+    "fix": "Never nest `.then()`. Always return the next Promise and chain the next `.then()` at the same indentation level on the outside."
+  },
+  "5_related_topics": ["js.promise_error_handling", "js.async_await", "js.callback_hell"],
+  "6_edge_case": {
+    "quirk": "If you throw an error inside a `.then()`, the new Promise returned by that `.then()` is immediately rejected. The chain skips all subsequent `.then()` blocks and falls straight down to the nearest `.catch()`.",
+    "code": "Promise.resolve(10)\n  .then(val => {\n    if (val === 10) throw new Error('Bad number');\n    return val * 2;\n  })\n  .then(val => console.log('This is skipped!'))\n  .catch(err => console.log('Caught:', err.message)); // 'Caught: Bad number'"
+  }
+}

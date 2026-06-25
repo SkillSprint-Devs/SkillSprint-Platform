@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.browser_security_model",
+  "topic": "Browser Security Model (Same-Origin Policy)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.client_server_model"
+    ],
+    "related_to": [
+      "js.cors_intro",
+      "js.xss_intro"
+    ],
+    "often_confused_with": [
+      "js.cors_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the same origin policy",
+      "what is a browser origin"
+    ],
+    "why": [
+      "why can't i access an iframe",
+      "why is the browser blocking my fetch request"
+    ],
+    "how": [
+      "how to bypass same origin policy"
+    ],
+    "compare": [
+      "same origin policy vs cors"
+    ],
+    "output": [
+      "domexception blocked by same origin policy"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The web is dangerous. When you open a tab for `hacker.com`, that website downloads and runs JavaScript on your computer. To protect you, the browser enforces the **Same-Origin Policy (SOP)**. This rule strictly states: JavaScript running on `hacker.com` is NOT allowed to read data, click buttons, or access the storage of `bank.com`. An 'Origin' is exactly three things: Protocol + Domain + Port.",
+    "analogy": "The browser is a hotel. Every website you open gets its own locked room. The `bank.com` room has your money. The `hacker.com` room is next door. The Same-Origin Policy is the locked wall between the rooms. The hacker can do whatever they want in their own room, but they cannot break through the wall to see your bank account."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "If `http://site.com` tries to read an `<iframe>` loaded with `https://site.com`, the browser instantly throws a DOMException. Why? Because the Protocol differs (http vs https), so they are considered entirely different Origins. The isolation is enforced at the C++ browser level.",
+    "memory": "Each Origin gets its own isolated bucket for `localStorage`, `sessionStorage`, and `IndexedDB`."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding what matches as the 'Same Origin' if the current site is `http://store.com/dir/page.html`.",
+    "code": "/* \n  http://store.com/dir2/other.html  =>  SUCCESS (Path doesn't matter)\n  http://store.com/dir/login.html   =>  SUCCESS\n\n  https://store.com/dir/page.html   =>  FAIL (Different Protocol! http vs https)\n  http://store.com:81/dir/page.html =>  FAIL (Different Port! 80 vs 81)\n  http://news.store.com/page.html   =>  FAIL (Different Subdomain!)\n*/"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking the SOP prevents you from *sending* data. The SOP prevents you from *reading* data. `hacker.com` can still use a hidden form to blindly SEND a POST request to `bank.com/transfer`, but they cannot read the response. (This blind sending is why CSRF attacks exist!).",
+    "fix": "SOP stops READS across origins. It does not completely stop WRITES or INCLUDES (like `<img>` tags)."
+  },
+  "5_related_topics": [
+    "js.cors_intro",
+    "js.csrf_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "You can embed a massive image from `amazon.com` onto your own website using `<img src=\"amazon.com/pic.jpg\">`. The SOP allows you to display it (Include), but if you try to use JavaScript Canvas to mathematically *read* the pixels of that image, the browser throws a Security Error.",
+    "code": ""
+  }
+}

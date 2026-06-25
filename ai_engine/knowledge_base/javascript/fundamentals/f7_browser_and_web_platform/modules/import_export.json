@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.import_export",
+  "topic": "Import / Export Basics",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.modules_intro"
+    ],
+    "related_to": [
+      "js.named_exports",
+      "js.default_exports"
+    ],
+    "often_confused_with": [
+      "js.modules_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "how import works in javascript",
+      "how export works"
+    ],
+    "why": [
+      "why do i get import outside a module error"
+    ],
+    "how": [
+      "how to export a function",
+      "how to import from another file"
+    ],
+    "compare": [
+      "import/export vs require/module.exports"
+    ],
+    "output": [
+      "syntax error cannot use import statement outside a module"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "To share code between two files, you use two keywords. In the file that *has* the code, you use `export` to expose it to the outside world. In the file that *needs* the code, you use `import` to pull it in.",
+    "analogy": "Exporting is like a restaurant kitchen putting a dish on the pick-up counter. Importing is the waiter coming to the counter to grab that specific dish and take it to the dining room. If the kitchen doesn't put it on the counter (export), the waiter can't take it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Imports are physically hoisted to the top of the file during the parsing phase. The JS engine resolves all imports before running line 1 of the code. This means you cannot put an `import` statement inside an `if` block (unless using Dynamic Imports).",
+    "memory": "When you import a value, you are not getting a copy of the value; you are getting a live, read-only binding (pointer) to the original exported variable. If the original module changes the variable, the imported value updates automatically."
+  },
+  "3_real_world_example": {
+    "use_case": "Sharing a utility function across multiple files.",
+    "code": "// mathUtils.js (The Provider)\nexport function add(a, b) {\n  return a + b;\n}\n\n// main.js (The Consumer)\n// In vanilla JS, you MUST include the .js extension!\nimport { add } from './mathUtils.js';\n\nconsole.log(add(5, 10)); // 15"
+  },
+  "4_common_confusion": {
+    "trap": "Getting `SyntaxError: Cannot use import statement outside a module`. This happens if you use `import` in a file, but your HTML tag is just `<script src=\"main.js\">`. The browser assumes it is an old-school global script.",
+    "fix": "Always change your HTML to `<script type=\"module\" src=\"main.js\"></script>`."
+  },
+  "5_related_topics": [
+    "js.named_exports",
+    "js.default_exports"
+  ],
+  "6_edge_case": {
+    "quirk": "If you import the same module into 5 different files, the browser only downloads and executes that module ONCE. The other 4 files just receive a pointer to the already-executed module. This makes modules great for creating 'Singleton' state.",
+    "code": ""
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.symbols",
+  "topic": "Symbols",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.data_types", "js.object_properties"],
+    "related_to": ["js.property_descriptors"],
+    "often_confused_with": ["js.private_fields"]
+  },
+  "question_map": {
+    "what": ["what is a symbol", "what are symbols used for"],
+    "why": ["why use symbol as object key", "why doesn't symbol show up in loop"],
+    "how": ["how to create a symbol", "how to read a symbol property"],
+    "compare": ["symbol vs string key", "symbol vs private field"],
+    "output": ["typeof symbol returns symbol"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Symbol** is a primitive data type in JavaScript (just like a String or Number) that represents a completely unique identifier. Even if you create two Symbols with the exact same description, they are mathematically guaranteed to be different. They are primarily used as secret 'hidden' keys for object properties so you don't accidentally overwrite existing keys.",
+    "analogy": "Imagine putting a sticky note on a shared refrigerator. If you write 'Milk' on it, your roommate might also write 'Milk' on their sticky note, causing confusion. A Symbol is like a magical sticky note that generates an invisible, mathematically unique fingerprint. Even if you both write 'Milk', the fridge knows they are totally different."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you call `Symbol('desc')`, the engine allocates a unique hash in memory. When used as an object key, `obj[sym] = value`, the property does not become part of the string-keyed dictionary. It lives in a parallel Symbol registry within the object.",
+    "memory": "Symbol properties are entirely skipped by `Object.keys()` and `for...in` loops, providing a weak form of encapsulation."
+  },
+  "3_real_world_example": {
+    "use_case": "Adding a custom ID to a third-party object without risking overwriting their data.",
+    "code": "// An object from a library you don't control\nconst libraryObject = {\n  id: 'USER_123',\n  name: 'Alice'\n};\n\n// You want to add your own ID, but you don't want to break their 'id'.\nconst myCustomId = Symbol('id');\n\nlibraryObject[myCustomId] = 9999;\n\nconsole.log(libraryObject.id); // 'USER_123' (Theirs is safe!)\nconsole.log(libraryObject[myCustomId]); // 9999 (Yours works!)\n\n// Symbols are hidden from normal loops\nconsole.log(Object.keys(libraryObject)); // ['id', 'name']"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking Symbols provide true security/privacy like `#privateFields`. They don't. Anyone can still find your symbols using `Object.getOwnPropertySymbols(obj)`.",
+    "fix": "Use Symbols for avoiding accidental naming collisions. Use `#` for true privacy."
+  },
+  "5_related_topics": ["js.private_fields", "js.object_properties"],
+  "6_edge_case": {
+    "quirk": "Because Symbols are primitives, you NEVER use the `new` keyword to create them.",
+    "code": "//  new Symbol('test'); // TypeError\n//  Symbol('test');"
+  }
+}

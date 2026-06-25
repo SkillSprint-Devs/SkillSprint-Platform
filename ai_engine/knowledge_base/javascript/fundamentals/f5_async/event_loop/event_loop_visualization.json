@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.event_loop_visualization",
+  "topic": "Event Loop Visualization",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.event_loop_intro", "js.microtask_queue", "js.macrotasks"],
+    "related_to": ["js.promises", "js.async_await"],
+    "often_confused_with": ["js.call_stack_and_queue"]
+  },
+  "question_map": {
+    "what": ["what is the exact order of event loop execution"],
+    "why": ["why did this output in this specific order"],
+    "how": ["how to predict event loop output", "how to read event loop sequence"],
+    "compare": ["event loop order promises vs timeouts vs sync"],
+    "output": ["predict output of nested promises and timeouts", "complex event loop interview question"]
+  },
+  "1_beginner_explanation": {
+    "summary": "To predict any JavaScript execution order, memorize this exact sequence: 1) Run all Synchronous code (the main script). 2) Run all Microtasks (Promises). If a microtask creates another microtask, run that too. 3) Run exactly ONE Macrotask (like a single `setTimeout` callback). 4) Run all Microtasks again. 5) Repeat steps 3 and 4.",
+    "analogy": "1. Do all your homework (Sync code). 2. Answer all text messages right now, even if new ones arrive while texting (Microtasks). 3. Do ONE household chore (Macrotask). 4. Check text messages again (Microtasks). 5. Do the next household chore."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a Promise resolves inside a `setTimeout`, the callback goes to the Microtask Queue. Because the Event Loop always drains the Microtask Queue immediately after the current Macrotask finishes, that Promise will execute *before* the next `setTimeout` in the Macrotask Queue.",
+    "memory": "Queues only hold pointers. The order is purely a matter of which queue the Event Loop algorithm checks first."
+  },
+  "3_real_world_example": {
+    "use_case": "The ultimate Event Loop execution order test.",
+    "code": "console.log('1. Sync');\n\nsetTimeout(() => {\n  console.log('5. Macro A');\n  Promise.resolve().then(() => console.log('6. Micro C (inside Macro A)'));\n}, 0);\n\nPromise.resolve().then(() => {\n  console.log('3. Micro A');\n  setTimeout(() => console.log('7. Macro C (inside Micro A)'), 0);\n});\n\nsetTimeout(() => {\n  console.log('8. Macro B');\n}, 0);\n\nPromise.resolve().then(() => console.log('4. Micro B'));\n\nconsole.log('2. Sync');\n\n// Execution Order Trace:\n// 1. Sync\n// 2. Sync\n// --- Call Stack Empty, process Microtasks ---\n// 3. Micro A\n// 4. Micro B\n// --- Microtasks Empty, process ONE Macrotask ---\n// 5. Macro A\n// --- Macrotask finished, process Microtasks ---\n// 6. Micro C (inside Macro A)\n// --- Microtasks Empty, process next Macrotask ---\n// 7. Macro C (inside Micro A) Note: queued before Macro B due to 0ms timer behavior in some engines, but typically 8 then 7 depending on resolution.\n// ACTUALLY: Let's trace correctly.\n// Macro Queue initially: [Macro A, Macro B]\n// Micro A runs, queues Macro C. Macro Queue: [Macro A, Macro B, Macro C].\n// So Macro B runs before Macro C!\n// 8. Macro B\n// 7. Macro C"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking a Promise inside a setTimeout will run immediately. The setTimeout callback itself is a Macrotask. It must wait its turn in the Task Queue. The Promise inside it won't even be created until the Macrotask executes.",
+    "fix": "Trace it step by step. Which queue does this go into *right now*? Only evaluate nested async calls when their parent actually executes."
+  },
+  "5_related_topics": ["js.microtask_queue", "js.macrotasks", "js.promises"],
+  "6_edge_case": {
+    "quirk": "Different environments (Node.js vs Browser) have slight variations in how they handle `process.nextTick` (Node only) and `requestAnimationFrame` (Browser only). In Node, `nextTick` runs *before* Promises. In browsers, `requestAnimationFrame` runs right before rendering.",
+    "code": "// Node.js ONLY behavior\nPromise.resolve().then(() => console.log('Promise'));\nprocess.nextTick(() => console.log('nextTick'));\n// Output in Node.js:\n// nextTick\n// Promise"
+  }
+}

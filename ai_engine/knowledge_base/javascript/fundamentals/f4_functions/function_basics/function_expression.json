@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.function_expression",
+  "topic": "Function Expression",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.variables"],
+    "related_to": ["js.function_declaration", "js.arrow_functions", "js.first_class_functions", "js.hoisting"],
+    "often_confused_with": ["js.function_declaration"]
+  },
+  "question_map": {
+    "what": [
+      "what is a function expression",
+      "what is an anonymous function",
+      "what is a named function expression"
+    ],
+    "why": [
+      "why store a function in a variable",
+      "can function expressions be hoisted",
+      "why use function expression instead of declaration"
+    ],
+    "how": [
+      "how to write a function expression",
+      "how to assign a function to a variable",
+      "how to pass a function expression as argument"
+    ],
+    "compare": [
+      "function expression vs function declaration",
+      "anonymous vs named function expression",
+      "function expression vs arrow function"
+    ],
+    "output": [
+      "why is my function expression undefined before initialization",
+      "typeerror is not a function before line"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A Function Expression is a function created as part of an expression — most commonly by assigning it to a variable. Unlike function declarations, function expressions are **not hoisted as callable**; they follow the hoisting rules of the variable keyword used (`let`/`const` = TDZ, `var` = `undefined`). Calling a function expression before its line throws a TypeError or ReferenceError.",
+    "analogy": "A Function Expression is like writing a recipe on a sticky note and putting it in your pocket. Nobody knows the recipe exists until you take the note out (reach that line of code). A Function Declaration is like publishing the recipe in a public cookbook — it is available to everyone before anyone even opens the book."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "During the Creation Phase, only the variable binding is registered (following the rules of `var`, `let`, or `const`). The function object is NOT created until the Execution Phase reaches that assignment statement. This is why a `const greet = function() {}` cannot be called before that line — the binding exists (TDZ for `let`/`const`) but holds no function value yet.",
+    "memory": "When the assignment line is reached, a new function object is allocated on the heap and the variable is updated to hold the reference. Anonymous function expressions have no internal name for stack traces; named function expressions store the name internally for self-reference and better debugging."
+  },
+  "3_real_world_example": {
+    "use_case": "Conditionally assigning different implementations of a function based on feature flags or environment, keeping both options on the heap only when needed.",
+    "code": "const isProduction = true;\n\n// Conditionally assign different implementations\nconst log = isProduction\n  ? function logSilent(msg) { /* suppress in prod */ }\n  : function logVerbose(msg) { console.log('[DEBUG]', msg); };\n\nlog('App started'); // silent in production\n\n// Named function expression — the name is scoped INSIDE the function only\nconst factorial = function fact(n) {\n  return n <= 1 ? 1 : n * fact(n - 1); // 'fact' is self-referencing inside only\n};\nconsole.log(factorial(5)); // 120\n// console.log(fact); //  ReferenceError — 'fact' not visible outside"
+  },
+  "4_common_confusion": {
+    "trap": "Using `var` to store a function expression and calling it before the assignment line. Because `var` is hoisted and initialised to `undefined`, the engine sees `undefined()` which throws `TypeError: undefined is not a function`.",
+    "fix": "Always use `const` for function expressions. If you accidentally call it before the line, you get a clear `ReferenceError: Cannot access before initialization` (TDZ) instead of a confusing TypeError."
+  },
+  "5_related_topics": [
+    "js.function_declaration",
+    "js.arrow_functions",
+    "js.hoisting",
+    "js.first_class_functions"
+  ],
+  "6_edge_case": {
+    "quirk": "A named function expression's internal name is visible only within the function body. This makes it great for safe recursion inside an expression — the name cannot be accidentally overwritten from outside.",
+    "code": "// What if someone overwrites the outer variable?\nlet countdown = function go(n) {\n  if (n <= 0) return 'done';\n  return go(n - 1); // safe — uses internal 'go', not 'countdown'\n};\n\nconst backup = countdown;\ncountdown = null; // overwrite outer variable\n\nconsole.log(backup(3)); // 'done' — still works via internal 'go' reference"
+  }
+}

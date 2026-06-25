@@ -59,6 +59,6 @@
   ],
   "6_edge_case": {
     "quirk": "Function expressions (e.g. `const myFunc = () => {}`) follow the hoisting rules of their variable keyword (`const` or `let`). They are NOT hoisted as callable functions, and calling them before initialization causes a crash.",
-    "code": "try {\n  greetUser(); // ❌ TypeError: greetUser is not a function (it is undefined!)\n  var greetUser = function() { console.log('Hi'); };\n} catch (err) {\n  console.log(err.message);\n}"
+    "code": "try {\n  greetUser(); //  TypeError: greetUser is not a function (it is undefined!)\n  var greetUser = function() { console.log('Hi'); };\n} catch (err) {\n  console.log(err.message);\n}"
   }
 }

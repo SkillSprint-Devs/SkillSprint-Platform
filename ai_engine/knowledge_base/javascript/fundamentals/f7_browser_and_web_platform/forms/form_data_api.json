@@ -1,0 +1,70 @@
+{
+  "version": "1.1",
+  "intent": "js.form_data_api",
+  "topic": "The FormData API",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.forms_intro",
+      "js.form_submission"
+    ],
+    "related_to": [
+      "js.fetch_api",
+      "js.json_handling"
+    ],
+    "often_confused_with": [
+      "js.json_handling"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is FormData",
+      "what is multipart/form-data"
+    ],
+    "why": [
+      "why use FormData instead of JSON",
+      "why use FormData to upload files"
+    ],
+    "how": [
+      "how to upload a file in javascript",
+      "how to get all values from a form easily",
+      "how to send form with fetch"
+    ],
+    "compare": [
+      "FormData vs JSON",
+      "FormData vs URLSearchParams"
+    ],
+    "output": [
+      "console log formdata shows empty but has entries"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When you have a form with 20 different inputs, manually grabbing `.value` from every single one is exhausting. The **FormData API** is a built-in browser tool that automatically scoops up all the names and values from your form and packages them into a neat object. It is also the ONLY way to easily upload files (like images or PDFs) using JavaScript via Fetch.",
+    "analogy": "If `form.elements.email.value` is like manually picking items off shelves one by one, `new FormData(form)` is like handing a shopping list to an employee who instantly throws everything into a bag for you."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you call `new FormData(formElement)`, the browser synchronously iterates through every nested input element that has a `name` attribute. It constructs a key-value store in memory formatted as `multipart/form-data`. When passed to `fetch()`, the browser automatically sets the correct HTTP boundaries and Content-Type headers.",
+    "memory": "FormData objects can hold binary Blobs and Files, meaning they can consume significant memory if the user selects a large 500MB video file."
+  },
+  "3_real_world_example": {
+    "use_case": "Quickly grabbing all form data and sending it to an API, including a profile picture upload.",
+    "code": "const form = document.querySelector('#profile-form');\n\nform.addEventListener('submit', async (e) => {\n  e.preventDefault();\n\n  // Magically grabs all text inputs, checkboxes, AND files!\n  const data = new FormData(form);\n\n  // You can even add extra data manually\n  data.append('timestamp', Date.now());\n\n  // Send it directly to the server. \n  // Notice we DO NOT set headers! Fetch does it automatically for FormData.\n  await fetch('/api/upload', {\n    method: 'POST',\n    body: data\n  });\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to `console.log(formData)` and seeing an empty object `{}`. FormData is an iterable object, not a standard JSON object. Its contents are hidden from standard `console.log`.",
+    "fix": "To see what's inside FormData, you must loop over it or convert it: `console.log(Object.fromEntries(formData))`."
+  },
+  "5_related_topics": [
+    "js.fetch_api",
+    "js.http_methods",
+    "js.json_handling"
+  ],
+  "6_edge_case": {
+    "quirk": "FormData ONLY captures inputs that have a `name` attribute. If your `<input type=\"text\">` does not have a `name`, it will be completely ignored by FormData.",
+    "code": "<!-- Ignored by FormData -->\n<input id=\"username\" type=\"text\">\n\n<!-- Included by FormData -->\n<input name=\"username\" type=\"text\">"
+  }
+}

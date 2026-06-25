@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.timers",
+  "topic": "Timers (setTimeout & setInterval)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.browser_web_apis", "js.event_loop_intro"],
+    "related_to": ["js.debouncing", "js.throttling"],
+    "often_confused_with": ["js.promises_intro"]
+  },
+  "question_map": {
+    "what": ["what is settimeout", "what is setinterval"],
+    "why": ["why is settimeout not exact"],
+    "how": ["how to delay code execution", "how to run code every 5 seconds", "how to stop a timer"],
+    "compare": ["settimeout vs setinterval", "cleartimeout vs clearinterval"],
+    "output": ["prints after 3 seconds"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`setTimeout` tells the browser to wait a certain number of milliseconds, and then run a function ONCE. `setInterval` tells the browser to run a function REPEATEDLY, pausing for a certain number of milliseconds between each run.",
+    "analogy": "`setTimeout` is setting an alarm clock to wake you up at 7:00 AM once. `setInterval` is hitting the snooze button so it goes off every 5 minutes repeatedly until you physically turn it off (`clearInterval`)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "These functions are NOT part of the JavaScript language! They are Web APIs provided by the browser (written in C++). The browser starts a background timer. When the timer hits 0, the browser pushes your callback function into the Macrotask Queue. The Event Loop eventually moves it to the Call Stack.",
+    "memory": "Every timer creates a C++ tracking object. If you create a `setInterval` but never call `clearInterval`, that callback will run forever, creating a permanent memory leak and draining the user's battery."
+  },
+  "3_real_world_example": {
+    "use_case": "Showing a promotional popup 5 seconds after a user visits a page.",
+    "code": "// 1. setTimeout (Runs ONCE)\nconst popupTimer = setTimeout(() => {\n  console.log('Showing 10% discount popup!');\n}, 5000); // 5000ms = 5 seconds\n\n// We can cancel it before it happens if the user buys something!\n// clearTimeout(popupTimer);\n\n// 2. setInterval (Runs REPEATEDLY)\nlet seconds = 0;\nconst clockTimer = setInterval(() => {\n  seconds++;\n  console.log(`You have been on this page for ${seconds} seconds`);\n  \n  if (seconds >= 10) {\n    clearInterval(clockTimer); // Stop it after 10 seconds\n  }\n}, 1000);"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `setTimeout(fn, 1000)` guarantees the code will run in EXACTLY 1000 milliseconds. It does not. It guarantees it will run in *at least* 1000 milliseconds. If the Call Stack is busy doing heavy math, the timer's callback is stuck waiting in the queue until the stack is empty.",
+    "fix": "Timers are minimum delays, not guaranteed exact execution times."
+  },
+  "5_related_topics": ["js.event_loop_intro", "js.macrotasks"],
+  "6_edge_case": {
+    "quirk": "Calling `setTimeout(fn, 0)` is a common trick. It doesn't run instantly. It pushes the function to the back of the Macrotask queue, allowing the browser to finish rendering the current frame before running the code.",
+    "code": "console.log('First');\nsetTimeout(() => console.log('Third'), 0);\nconsole.log('Second');\n// Output: First, Second, Third"
+  }
+}

@@ -33,7 +33,9 @@
         if (!user) return;
 
         const profileImgUrl = user.profile_image
-            ? (user.profile_image.startsWith("http") ? user.profile_image : `/${user.profile_image}`)
+            ? (user.profile_image.startsWith("http") || user.profile_image.startsWith("/")
+                ? user.profile_image
+                : `/${user.profile_image}`)
             : "assets/images/user-avatar.png";
 
         // Update Avatars
@@ -136,7 +138,7 @@
     function injectAiOrb() {
         if (document.getElementById('aiOrbScript')) return;
         const script = document.createElement('script');
-        script.src = '/js/ai-orb.js';
+        script.src = './js/ai-orb.js';
         script.id = 'aiOrbScript';
         script.defer = true;
         document.body.appendChild(script);

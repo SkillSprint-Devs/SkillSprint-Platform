@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.json_over_http",
+  "topic": "JSON over HTTP",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.json_handling",
+      "js.http_intro"
+    ],
+    "related_to": [
+      "js.rest_api_intro",
+      "js.fetch_api"
+    ],
+    "often_confused_with": [
+      "js.form_data_api"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "how is json used in apis"
+    ],
+    "why": [
+      "why use json for api responses",
+      "why do i have to parse json from fetch"
+    ],
+    "how": [
+      "how to send json to an api",
+      "how to read json from response"
+    ],
+    "compare": [
+      "JSON vs XML",
+      "JSON.stringify vs response.json()"
+    ],
+    "output": [
+      "parsed json object from response.json()"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When your JavaScript talks to a server, they cannot share physical memory. They must communicate by sending plain text. JSON (JavaScript Object Notation) is the universal text format used to represent objects. When you send data, you must squish your JS Object into a JSON string (`JSON.stringify`). When you receive data, you must unpack the JSON string back into a JS Object (`response.json()`).",
+    "analogy": "You cannot mail a fully assembled IKEA table to your friend. You have to disassemble it, put it in a flat box (JSON.stringify), ship it via the mail (HTTP), and your friend has to unpack it and reassemble it (response.json()) so they can use it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `fetch()` receives a response, it reads the network stream. Calling `.json()` consumes that raw text stream and asynchronously runs `JSON.parse` under the hood. This returns a Promise that resolves to the final JavaScript Object.",
+    "memory": "The `response.json()` method actually locks the HTTP body stream. Once you read the response as JSON, you cannot read it again as plain text (`response.text()`). The data stream is consumed and destroyed."
+  },
+  "3_real_world_example": {
+    "use_case": "Sending a user object to the server, and reading the created object back.",
+    "code": "const newUser = { name: 'Bob', age: 30 };\n\nfetch('https://api.example.com/users', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' }, // CRITICAL\n  // Disassemble the object into a text string\n  body: JSON.stringify(newUser) \n})\n.then(response => {\n  // Unpack the server's text string response back into a JS object\n  return response.json(); \n})\n.then(data => {\n  console.log('Server replied with object:', data);\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting the `Content-Type: application/json` header. If you send a JSON string but don't tell the server it's JSON, the server will stare at the text, have no idea how to parse it, and return an error.",
+    "fix": "Always pair `JSON.stringify(body)` with `{'Content-Type': 'application/json'}`."
+  },
+  "5_related_topics": [
+    "js.json_handling",
+    "js.headers",
+    "js.rest_api_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "If the server sends back an empty response (like after a DELETE request) and you try to run `response.json()`, your code will crash with an 'Unexpected end of JSON input' error. You should check the status code before parsing.",
+    "code": "if (response.status !== 204) { return response.json(); }"
+  }
+}

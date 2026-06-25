@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.methods",
+  "topic": "Class Methods",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.classes_intro", "js.object_methods"],
+    "related_to": ["js.static_methods", "js.getters_setters"],
+    "often_confused_with": ["js.object_methods"]
+  },
+  "question_map": {
+    "what": ["what are class methods"],
+    "why": ["why no commas between class methods"],
+    "how": ["how to add methods to class", "how to bind methods in class"],
+    "compare": ["class method vs object method", "arrow function vs regular method in class"],
+    "output": ["method is undefined when passed as callback"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Methods inside a class define the actions that instances of that class can perform. You write them immediately after the constructor, without using the `function` keyword and without separating them with commas. Because classes are just Prototypes in disguise, any method you write here is automatically shared across all instances to save memory.",
+    "analogy": "If the `constructor()` builds the physical robot, the **methods** are the software commands you program into it, like `walk()`, `talk()`, or `attack()`."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine parses `class A { myMethod() {} }`, it translates it to `A.prototype.myMethod = function() {}`. It also sets these methods to be non-enumerable (they won't show up in `Object.keys()`).",
+    "memory": "Standard class methods exist once on the Prototype. If you use Arrow Function properties (`myMethod = () => {}`), they are created uniquely on EVERY single instance, wasting memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Defining actions on a User profile.",
+    "code": "class User {\n  constructor(name) {\n    this.name = name;\n  }\n\n  // Standard Method (Goes on Prototype, saves memory)\n  sayHello() {\n    console.log(`Hi, I am ${this.name}`);\n  }\n  \n  // Arrow Function Field (Goes on Instance, wastes memory but fixes 'this')\n  boundHello = () => {\n    console.log(`Hi, I am ${this.name}`);\n  }\n}\n\nconst u = new User('Alice');\nu.sayHello();"
+  },
+  "4_common_confusion": {
+    "trap": "Putting commas `,` between methods inside a class. Classes are not object literals `{}`. Putting a comma will cause a Syntax Error.",
+    "fix": "No commas between methods in a class block."
+  },
+  "5_related_topics": ["js.static_methods", "js.this_in_classes"],
+  "6_edge_case": {
+    "quirk": "If you pass a standard class method as a callback to an event listener or `setTimeout`, it will lose its `this` context. You must either `.bind(this)` in the constructor, or use an arrow function field.",
+    "code": "// document.getElementById('btn').addEventListener('click', u.sayHello);\n//  Fails! 'this' becomes the button, not the user.\n// document.getElementById('btn').addEventListener('click', u.boundHello);\n//  Works! Arrow function keeps 'this' bound to the user."
+  }
+}

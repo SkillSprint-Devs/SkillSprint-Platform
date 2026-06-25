@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.local_storage",
+  "topic": "localStorage",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.browser_web_apis", "js.json_handling"],
+    "related_to": ["js.session_storage", "js.storage_patterns"],
+    "often_confused_with": ["js.session_storage", "js.cookies_intro"]
+  },
+  "question_map": {
+    "what": ["what is localstorage in javascript", "what is web storage api"],
+    "why": ["why use localstorage instead of cookies"],
+    "how": ["how to save data permanently in browser", "how to read from localstorage", "how to clear localstorage"],
+    "compare": ["localstorage vs sessionstorage", "localstorage vs cookies"],
+    "output": ["localstorage object object"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`localStorage` is a small database built directly into the user's browser. It allows you to save text data that will survive even if the user closes the tab, restarts their browser, or turns off their computer. When they return to your website tomorrow, the data will still be there. It's perfect for saving user preferences like 'Dark Mode'.",
+    "analogy": "Variables in JavaScript are like writing on a whiteboard; when the power goes out (page refresh), it's wiped clean. `localStorage` is like writing in a physical notebook; it stays there until you intentionally take an eraser and rub it out."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The `window.localStorage` object provides a synchronous API (`setItem`, `getItem`, `removeItem`). Because it is synchronous, reading/writing very large amounts of data can actually block the main thread and freeze the UI momentarily.",
+    "memory": "Data is stored on the user's hard drive, isolated by 'Origin' (Protocol + Domain + Port). E.g., `google.com` cannot read `amazon.com`'s localStorage. The storage limit is usually around 5MB per origin."
+  },
+  "3_real_world_example": {
+    "use_case": "Saving a user's chosen theme so it remembers they prefer Dark Mode on their next visit.",
+    "code": "// Saving data (Key, Value)\nlocalStorage.setItem('theme', 'dark');\n\n// Reading data\nconst currentTheme = localStorage.getItem('theme');\nconsole.log(currentTheme); // 'dark'\n\n// Deleting specific data\nlocalStorage.removeItem('theme');\n\n// Wiping the entire notebook clean\nlocalStorage.clear();"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to save an Object or Array directly into localStorage. Because localStorage ONLY accepts Strings, if you run `localStorage.setItem('user', {name: 'John'})`, it will force it into a string and save `[object Object]`. You lose the data forever.",
+    "fix": "You MUST stringify objects before saving: `localStorage.setItem('user', JSON.stringify({name: 'John'}))`. When reading, you must parse it: `JSON.parse(localStorage.getItem('user'))`."
+  },
+  "5_related_topics": ["js.session_storage", "js.json_handling"],
+  "6_edge_case": {
+    "quirk": "If the user has 'Private Browsing' or 'Incognito Mode' enabled, some browsers (like Safari) will throw an exception (QuotaExceededError) if you even try to call `localStorage.setItem`.",
+    "code": "try {\n  localStorage.setItem('test', '123');\n} catch (e) {\n  console.warn('LocalStorage is disabled or full! (Maybe Incognito mode?)');\n}"
+  }
+}

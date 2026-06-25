@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.http_methods",
+  "topic": "HTTP Methods (GET, POST, PUT, DELETE)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.request_response"
+    ],
+    "related_to": [
+      "js.rest_api_intro",
+      "js.fetch_api"
+    ],
+    "often_confused_with": [
+      "js.status_codes"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is an http method",
+      "what are http verbs"
+    ],
+    "why": [
+      "why use post instead of get"
+    ],
+    "how": [
+      "how to create data on server",
+      "how to delete data on server"
+    ],
+    "compare": [
+      "get vs post",
+      "put vs patch"
+    ],
+    "output": [
+      "405 method not allowed for unsupported verb"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When the browser sends a Request, it includes an 'Action Verb' telling the server what it wants to do. These are called HTTP Methods. The most common are `GET` (Give me data), `POST` (Here is new data, save it), `PUT` (Replace existing data), and `DELETE` (Destroy data).",
+    "analogy": "If the URL is a specific file cabinet, the Method is the instruction. GET = 'Read a file in the cabinet'. POST = 'Put a new file in the cabinet'. DELETE = 'Shred a file in the cabinet'."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "By default, every time you type a URL in the browser bar and hit Enter, it sends a `GET` request. If you want to send a `POST` request, you must use an HTML `<form method=\"POST\">` or write JavaScript (`fetch(url, { method: 'POST' })`).",
+    "memory": "GET requests put all their data directly in the URL string (e.g., `?search=cats`). POST requests hide their data inside the 'Body' of the HTTP message, which has no size limit."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a new user account vs viewing a user profile.",
+    "code": "// Viewing a profile (GET is the default, no body needed)\nfetch('/api/users/123');\n\n// Creating a new user (POST requires a body payload)\nfetch('/api/users', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ name: 'Alice', age: 25 })\n});\n\n// Deleting a user (DELETE)\nfetch('/api/users/123', { method: 'DELETE' });"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking GET is for 'reading' and POST is for 'writing' because the server forces it. Actually, HTTP Methods are just semantic agreements. A terrible developer could write a server that deletes the entire database when it receives a GET request. We use methods properly so that caching, security, and other systems know how to handle the traffic.",
+    "fix": "Methods are a polite agreement, not an absolute physical restriction."
+  },
+  "5_related_topics": [
+    "js.rest_api_intro",
+    "js.fetch_api"
+  ],
+  "6_edge_case": {
+    "quirk": "GET requests can be cached by the browser and bookmarked by the user. POST requests are never cached and cannot be bookmarked. This is why you should never use GET for submitting passwords.",
+    "code": "/* If you use GET for a login form, the URL becomes:\n   https://site.com/login?username=bob&password=mysecret\n   This is saved in browser history forever! Very bad! */"
+  }
+}

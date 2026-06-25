@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.event_listeners",
+  "topic": "Event Listeners (addEventListener)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.events_intro",
+      "js.selecting_elements"
+    ],
+    "related_to": [
+      "js.event_object",
+      "js.async_callbacks_intro"
+    ],
+    "often_confused_with": [
+      "js.events_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is addEventListener",
+      "what is an event handler"
+    ],
+    "why": [
+      "why use addEventListener instead of onclick"
+    ],
+    "how": [
+      "how to listen for clicks",
+      "how to run code on click",
+      "how to remove an event listener"
+    ],
+    "compare": [
+      "addEventListener vs onclick",
+      "removeEventListener vs setting to null"
+    ],
+    "output": [
+      "event listener function fires immediately"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "`addEventListener()` is a method you attach to a DOM element to make it 'listen' for a specific event (like a 'click'). It takes two arguments: 1) The name of the event to listen for, and 2) The function (callback) to run when that event happens.",
+    "analogy": "It's like giving an employee a walkie-talkie and specific instructions. You tell the button: 'Listen for the word CLICK. When you hear it, run this specific set of instructions.'"
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you call `addEventListener`, the browser registers a C++ listener on the native DOM node. When the event fires, the browser schedules the callback function in the JS Task Queue. Because the browser manages the listener, it creates a strong reference to the callback function in memory.",
+    "memory": "Event listeners are the #1 cause of Memory Leaks in JavaScript. If you delete an element from the DOM with `.remove()`, but don't call `.removeEventListener()` first, the callback function (and its closures) may stay trapped in memory forever."
+  },
+  "3_real_world_example": {
+    "use_case": "Making a button increment a counter when clicked.",
+    "code": "const btn = document.querySelector('#counter-btn');\nlet count = 0;\n\n// 1. Select the element\n// 2. Call addEventListener\n// 3. Provide the event name ('click')\n// 4. Provide the callback function\nbtn.addEventListener('click', function() {\n  count++;\n  console.log(`Button clicked ${count} times!`);\n});\n\n// Legacy way (Avoid doing this!)\n// btn.onclick = function() { ... };"
+  },
+  "4_common_confusion": {
+    "trap": "Accidentally executing the function immediately instead of passing it as a callback. If you write `btn.addEventListener('click', myFunc())`, the `()` causes the function to run instantly when the page loads, and then assigns its *return value* (usually `undefined`) to the click event.",
+    "fix": "Pass the function reference without parentheses: `addEventListener('click', myFunc)`."
+  },
+  "5_related_topics": [
+    "js.events_intro",
+    "js.async_callbacks_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "If you want an event listener to run exactly ONE time and then delete itself automatically, you can pass a third options object: `{ once: true }`.",
+    "code": "btn.addEventListener('click', () => {\n  console.log('I will only ever run once!');\n}, { once: true });"
+  }
+}

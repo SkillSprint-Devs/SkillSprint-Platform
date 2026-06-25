@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.classes_intro",
+  "topic": "Classes Intro (Syntactic Sugar)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.prototype_chain", "js.constructor_functions"],
+    "related_to": ["js.constructors_in_classes", "js.methods"],
+    "often_confused_with": ["js.constructor_functions"]
+  },
+  "question_map": {
+    "what": ["what are classes in javascript", "what is syntactic sugar"],
+    "why": ["why were classes introduced", "why use classes instead of prototypes"],
+    "how": ["how to write a class", "how to instantiate a class"],
+    "compare": ["class vs constructor function", "class vs object"],
+    "output": ["class cannot be invoked without new"]
+  },
+  "1_beginner_explanation": {
+    "summary": "In ES6 (2015), JavaScript introduced the `class` keyword. However, JavaScript does NOT have real classes like Java or C#. Under the hood, a JavaScript class is just a cleaner, easier-to-read syntax for writing **Constructor Functions and Prototypes**. Developers call this 'Syntactic Sugar'—it looks sweeter to read, but the underlying nutritional facts (Prototypes) remain exactly the same.",
+    "analogy": "Imagine you love making coffee by manually grinding beans and boiling water (Prototypes). One day, someone gives you a fancy Espresso Machine with a single 'Brew' button (Classes). You press the button and get coffee. The machine is still just grinding beans and boiling water internally, it just hides the ugly manual steps from you."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine parses a `class` declaration, it translates it down to a standard function constructor. Any methods you define inside the class block are automatically attached to the `Constructor.prototype` object without you having to type `.prototype` manually.",
+    "memory": "Classes do not change memory architecture. Instances still point to a single shared prototype object."
+  },
+  "3_real_world_example": {
+    "use_case": "Writing cleaner, more organized object-oriented code without manually touching `.prototype`.",
+    "code": "//  OLD WAY: Constructor + Manual Prototype\nfunction OldUser(name) { this.name = name; }\nOldUser.prototype.login = function() { console.log('Logged in'); };\n\n//  NEW WAY: ES6 Classes (Much cleaner!)\nclass NewUser {\n  constructor(name) {\n    this.name = name;\n  }\n  \n  login() {\n    console.log('Logged in');\n  }\n}\n\nconst user = new NewUser('Alice');\nuser.login();"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking classes in JS behave exactly like classes in Java. In Java, classes are static blueprints that are copied. In JS, classes are live objects (functions) that establish delegation links.",
+    "fix": "Always remember: JS Classes are just masks wearing 'Class' makeup over a 'Prototype' face."
+  },
+  "5_related_topics": ["js.constructors_in_classes", "js.prototype_chain"],
+  "6_edge_case": {
+    "quirk": "Unlike constructor functions, Class declarations are NOT hoisted. You cannot instantiate a class before the line of code where it is defined.",
+    "code": "// new Car(); //  ReferenceError: Cannot access 'Car' before initialization\nclass Car {}"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promise_error_handling",
+  "topic": "Promise Error Handling",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.promise_chaining", "js.resolve_reject"],
+    "related_to": ["js.error_handling", "js.async_error_handling"],
+    "often_confused_with": ["js.error_handling"]
+  },
+  "question_map": {
+    "what": ["what is .catch in promises", "how do promises handle errors"],
+    "why": ["why did unhandled promise rejection happen", "why use catch instead of the second argument to then"],
+    "how": ["how to catch promise errors", "how to handle fetch errors", "how to recover from a promise error"],
+    "compare": ["try catch vs .catch", "catch vs onRejected in then"],
+    "output": ["unhandled promise rejection error", "catch block didn't stop execution"]
+  },
+  "1_beginner_explanation": {
+    "summary": "In a Promise chain, if any step fails (either by calling `reject()` or throwing an error), the chain stops executing the remaining `.then()` blocks and 'falls down' to the nearest `.catch()` block. You only need one `.catch()` at the end of your chain to handle errors from any of the steps above it. This centralized error handling is a major advantage over callbacks, where you had to check for errors at every single step.",
+    "analogy": "A Promise chain is like a staircase with a safety net at the bottom. If you trip on step 1, step 3, or step 5, you immediately fall straight down into the safety net (the `.catch()` block). You don't hit the intermediate steps on the way down."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a Promise rejects, the engine looks at the next link in the chain. If it is a `.then(onFulfilled)`, the engine skips `onFulfilled`, creates a new rejected Promise, and passes the error to the next link. It repeats this skip-and-forward process until it finds a `.catch()` (or a `.then` with an `onRejected` second argument). The `.catch()` executes, and critically, it returns a new *resolved* Promise (unless it throws again), allowing the chain to continue.",
+    "memory": "Unhandled rejections (a rejected Promise with no `.catch()`) trigger a global `unhandledrejection` event on the window/process. Modern Node.js environments will crash the application if this occurs."
+  },
+  "3_real_world_example": {
+    "use_case": "Catching an error, logging it, and 'recovering' by returning a fallback value so the chain can continue successfully.",
+    "code": "fetch('/api/unreliable-endpoint')\n  .then(res => {\n    if (!res.ok) throw new Error('Server returned 500');\n    return res.json();\n  })\n  .then(data => console.log('Data:', data))\n  .catch(err => {\n    console.warn('Network failed, using fallback data.', err.message);\n    // Recovery: returning a normal value turns the chain back to 'fulfilled'\n    return { id: 0, name: 'Offline User' }; \n  })\n  .then(fallbackData => {\n    console.log('UI updated with:', fallbackData);\n  });"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking a `try...catch` block around a Promise will catch its errors. It won't. `try...catch` only catches synchronous errors. The Promise executes asynchronously, long after the `try...catch` block has finished.",
+    "fix": "For raw Promises, you must use `.catch()`. If you want to use `try...catch`, you must switch to `async/await` syntax."
+  },
+  "5_related_topics": ["js.promise_chaining", "js.async_error_handling", "js.error_handling"],
+  "6_edge_case": {
+    "quirk": "`.finally()` runs whether the Promise fulfilled OR rejected. It is perfect for cleanup logic (like hiding a loading spinner). Unlike `.then()`, whatever you return from `.finally()` is ignored — it simply passes the previous value or error further down the chain.",
+    "code": "showSpinner();\nfetchData()\n  .then(data => console.log(data))\n  .catch(err => console.error(err))\n  .finally(() => {\n    hideSpinner(); // Runs 100% of the time\n  });"
+  }
+}

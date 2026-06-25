@@ -153,6 +153,30 @@ class TfidfVectorizer:
     def n_features(self):
         return len(self.vocabulary_)
 
+    def to_dict(self):
+        return {
+            "max_features": self.max_features,
+            "ngram_range": list(self.ngram_range),
+            "min_df": self.min_df,
+            "sublinear_tf": self.sublinear_tf,
+            "vocabulary_": self.vocabulary_,
+            "idf_": self.idf_,
+            "_fitted": self._fitted
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        inst = cls(
+            max_features=d["max_features"],
+            ngram_range=tuple(d["ngram_range"]),
+            min_df=d["min_df"],
+            sublinear_tf=d["sublinear_tf"]
+        )
+        inst.vocabulary_ = d["vocabulary_"]
+        inst.idf_ = d["idf_"]
+        inst._fitted = d["_fitted"]
+        return inst
+
 
 class LogisticRegressionOVR:
     """
@@ -277,6 +301,36 @@ class LogisticRegressionOVR:
         sorted_proba = sorted(proba.items(), key=lambda p: p[1], reverse=True)
         return sorted_proba[:k]
 
+    def to_dict(self):
+        serialized_weights = {}
+        for cls_label, w_dict in self.weights_.items():
+            serialized_weights[cls_label] = {str(k): v for k, v in w_dict.items()}
+        return {
+            "n_features": self.n_features,
+            "lr": self.lr,
+            "epochs": self.epochs,
+            "C": self.C,
+            "classes_": self.classes_,
+            "weights_": serialized_weights,
+            "biases_": self.biases_
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        inst = cls(
+            n_features=d["n_features"],
+            lr=d["lr"],
+            epochs=d["epochs"],
+            C=d["C"]
+        )
+        inst.classes_ = d["classes_"]
+        inst.biases_ = d["biases_"]
+        deserialized_weights = {}
+        for cls_label, w_dict in d["weights_"].items():
+            deserialized_weights[cls_label] = {int(k): v for k, v in w_dict.items()}
+        inst.weights_ = deserialized_weights
+        return inst
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # DATA LOADING
@@ -397,7 +451,7 @@ def train():
     vectorizer = TfidfVectorizer(
         max_features=5000,
         ngram_range=(1, 2),
-        min_df=2,
+        min_df=1,
         sublinear_tf=True,
     )
     X_train = vectorizer.fit_transform(train_clean)
@@ -441,21 +495,21 @@ def train():
     print("\n[6/6] Saving model artifacts...")
 
     # Vectorizer
-    vec_path = os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl")
-    with open(vec_path, "wb") as f:
-        pickle.dump(vectorizer, f)
+    vec_path = os.path.join(MODELS_DIR, "tfidf_vectorizer.json")
+    with open(vec_path, "w", encoding="utf-8") as f:
+        json.dump(vectorizer.to_dict(), f, indent=2)
     print(f"  Saved: {vec_path}")
 
     # Classifier
-    clf_path = os.path.join(MODELS_DIR, "intent_classifier.pkl")
-    with open(clf_path, "wb") as f:
-        pickle.dump(classifier, f)
+    clf_path = os.path.join(MODELS_DIR, "intent_classifier.json")
+    with open(clf_path, "w", encoding="utf-8") as f:
+        json.dump(classifier.to_dict(), f, indent=2)
     print(f"  Saved: {clf_path}")
 
     # Label encoder (class list for reference)
-    le_path = os.path.join(MODELS_DIR, "label_encoder.pkl")
-    with open(le_path, "wb") as f:
-        pickle.dump(classifier.classes_, f)
+    le_path = os.path.join(MODELS_DIR, "label_encoder.json")
+    with open(le_path, "w", encoding="utf-8") as f:
+        json.dump(classifier.classes_, f, indent=2)
     print(f"  Saved: {le_path}")
 
     # Training report
@@ -474,7 +528,7 @@ def train():
         "hyperparameters": {
             "max_features":  5000,
             "ngram_range":   [1, 2],
-            "min_df":        2,
+            "min_df":        1,
             "sublinear_tf":  True,
             "learning_rate": 0.15,
             "epochs":        60,

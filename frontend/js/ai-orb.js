@@ -115,7 +115,7 @@
   const ctx = getPageContext();
 
   const orbWrapperHTML = `
-    <link rel="stylesheet" href="/assets/css/ai-orb.css" id="ssAiOrbCss">
+    <link rel="stylesheet" href="./assets/css/ai-orb.css" id="ssAiOrbCss">
     <div id="ssAiOrbWrapper" style="position:fixed;z-index:9500;bottom:0;right:0;pointer-events:none;">
 
       <!-- Compact Panel -->
@@ -201,7 +201,7 @@
     if (!document.querySelector('link[href*="bot-animations.css"]')) {
       const botCss = document.createElement('link');
       botCss.rel = 'stylesheet';
-      botCss.href = '/assets/css/bot-animations.css';
+      botCss.href = './assets/css/bot-animations.css';
       document.head.appendChild(botCss);
     }
 

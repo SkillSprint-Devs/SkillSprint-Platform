@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.task_queue",
+  "topic": "Task Queue (Macrotasks)",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.call_stack_and_queue"],
+    "related_to": ["js.macrotasks", "js.microtask_queue", "js.event_loop_intro"],
+    "often_confused_with": ["js.microtask_queue"]
+  },
+  "question_map": {
+    "what": ["what is the task queue", "what enters the task queue", "what is a macrotask queue"],
+    "why": ["why is there a task queue"],
+    "how": ["when is task queue processed", "how does task queue handle setTimeout"],
+    "compare": ["task queue vs call stack", "task queue vs microtask queue"],
+    "output": ["setTimeout output order"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **Task Queue** (often called the Macrotask Queue or Callback Queue) is a waiting area for standard asynchronous callbacks. When you use `setTimeout`, `setInterval`, or when the user clicks a button (DOM events), the browser puts the callback into this queue once the action occurs. The Event Loop processes the Task Queue one task at a time, and only when the Call Stack is empty.",
+    "analogy": "The Task Queue is like the standard line at a theme park ride. People (callbacks) line up. When the ride (Call Stack) is empty, the operator lets the first person in line get on. After that person finishes their ride, the operator checks the line again."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The Event Loop executes exactly ONE macrotask from the Task Queue per loop iteration. After that single macrotask finishes, the Event Loop pauses Task Queue execution to check the Microtask Queue and run any pending UI rendering. It does not drain the entire Task Queue at once. This is why having many long-running tasks in the Task Queue keeps the UI responsive (it renders between tasks), while a single long task freezes it.",
+    "memory": "Tasks in the queue are references to function closures and event objects."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding that `setTimeout` and DOM event handlers are standard tasks (macrotasks).",
+    "code": "console.log('Script Start');\n\n// 1. Goes to Web API, then Task Queue\nsetTimeout(() => {\n  console.log('Timeout 1 executed');\n}, 0);\n\n// 2. Goes to Web API, then Task Queue\nsetTimeout(() => {\n  console.log('Timeout 2 executed');\n}, 0);\n\nconsole.log('Script End');\n\n// Output:\n// Script Start\n// Script End\n// Timeout 1 executed\n// Timeout 2 executed\n\n// Note: Between Timeout 1 and Timeout 2, the Event Loop checks \n// for microtasks and rendering updates."
+  },
+  "4_common_confusion": {
+    "trap": "Calling it 'the callback queue' and assuming ALL callbacks go there. Promise `.then()` callbacks and `queueMicrotask` do NOT go to the Task Queue; they go to the higher-priority Microtask Queue.",
+    "fix": "Remember the split: Timers and UI events = Task (Macrotask) Queue. Promises and MutationObservers = Microtask Queue."
+  },
+  "5_related_topics": ["js.microtask_queue", "js.macrotasks", "js.event_loop_intro"],
+  "6_edge_case": {
+    "quirk": "User interaction events (clicks) create macrotasks. If a user clicks a button twice rapidly, two click handler tasks are queued. They run sequentially, with a potential render step between them.",
+    "code": "document.body.addEventListener('click', () => {\n  console.log('Click registered');\n});\n// If clicked twice rapidly during a heavy sync operation,\n// BOTH clicks are queued in the Task Queue and will fire\n// once the stack clears."
+  }
+}

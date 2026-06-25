@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.pure_functions",
+  "topic": "Pure Functions",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.return_values"],
+    "related_to": ["js.side_effects", "js.higher_order_functions"],
+    "often_confused_with": ["js.side_effects"]
+  },
+  "question_map": {
+    "what": [
+      "what is a pure function",
+      "what makes a function pure",
+      "what is a deterministic function"
+    ],
+    "why": [
+      "why are pure functions useful",
+      "why do pure functions make testing easier",
+      "what makes a function predictable"
+    ],
+    "how": [
+      "how to write a pure function",
+      "how to check if a function is pure",
+      "how do functional programmers use pure functions"
+    ],
+    "compare": [
+      "pure function vs impure function",
+      "pure function vs function with side effects"
+    ],
+    "output": [
+      "pure function always returns same output for same input",
+      "why console.log makes a function impure"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A Pure Function is a function that follows two strict rules: 1) **Same input, same output** — given the same arguments, it always returns the exact same result. 2) **No side effects** — it does not modify anything outside its own scope (no mutations to external variables, no network requests, no DOM changes, no logging). Pure functions are completely predictable, trivially testable, and safe to run multiple times.",
+    "analogy": "A pure function is like a vending machine with no moving parts outside the slot. You put in a coin and press a button (same inputs). You always get the same snack (same output). The machine never makes a phone call, updates a spreadsheet, or changes your wallet — it only gives you what it's supposed to give you."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "A pure function reads only its parameters and local variables. It never reads from external state (`Date.now()`, `Math.random()`, global variables, DOM) and never writes to external state. This isolation means the function's behaviour is fully determined by its inputs — the engine could safely cache (memoize) the result for a given input set.",
+    "memory": "Because pure functions do not mutate external state, they can be safely parallelised (in environments that support it), memoized for performance, or reordered without changing the program's observable behaviour."
+  },
+  "3_real_world_example": {
+    "use_case": "Writing a tax calculator as a pure function so it can be unit tested in isolation and reused across billing, reporting, and API response formatting.",
+    "code": "//  Pure — same inputs always produce same output, no side effects\nfunction calculateTax(price, taxRate) {\n  return Math.round(price * taxRate * 100) / 100;\n}\n\nconsole.log(calculateTax(100, 0.15)); // 15  — always\nconsole.log(calculateTax(100, 0.15)); // 15  — always\n\n//  Impure — reads external state (taxRate could change)\nlet taxRate = 0.15;\nfunction impureTax(price) {\n  return price * taxRate; // depends on external variable\n}\n\n//  Impure — has a side effect (mutates external array)\nconst log = [];\nfunction logAndCalc(price, rate) {\n  log.push({ price, rate }); // side effect!\n  return price * rate;\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking a function is pure if it doesn't modify its arguments. A function that reads from external state (global variables, `Date.now()`, `Math.random()`) is still impure, even if it never mutates anything.",
+    "fix": "Both conditions must hold: no external reads AND no external writes. If either is violated, the function is impure."
+  },
+  "5_related_topics": [
+    "js.side_effects",
+    "js.higher_order_functions",
+    "js.closures"
+  ],
+  "6_edge_case": {
+    "quirk": "`Math.random()` and `Date.now()` are the most common accidental impurity sources. A function that uses either of them violates the 'same input → same output' rule — making it untestable by default without mocking.",
+    "code": "//  Impure — different result every call even with same arguments\nfunction generateId(prefix) {\n  return `${prefix}-${Math.random().toString(36).slice(2)}`;\n}\n\n//  Pure alternative — inject randomness as a parameter\nfunction generateIdPure(prefix, random) {\n  return `${prefix}-${random.toString(36).slice(2)}`;\n}\n// Now fully testable: generateIdPure('user', 0.12345) always returns the same ID"
+  }
+}

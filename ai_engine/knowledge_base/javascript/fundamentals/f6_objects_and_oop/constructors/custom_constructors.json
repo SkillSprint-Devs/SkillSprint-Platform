@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.custom_constructors",
+  "topic": "Custom Constructors vs Built-ins",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.constructor_functions", "js.instance_creation"],
+    "related_to": ["js.classes_intro"],
+    "often_confused_with": ["js.classes_intro"]
+  },
+  "question_map": {
+    "what": ["what are built in constructors", "what is wrapper object"],
+    "why": ["why not use new String()", "why avoid built in constructors"],
+    "how": ["how to extend built in objects"],
+    "compare": ["literal vs constructor"],
+    "output": ["new String is not equal to string"]
+  },
+  "1_beginner_explanation": {
+    "summary": "You can write your own **Custom Constructors** (like `new User()`). But JavaScript also comes with **Built-in Constructors** for almost everything: `new Array()`, `new Object()`, `new String()`, `new Number()`. However, for things like strings, numbers, and arrays, you should almost ALWAYS use literal syntax (`[]`, `{}`, `''`) instead of the `new` keyword.",
+    "analogy": "Using literal syntax `[]` is like going to the store and buying a pre-made sandwich. Using `new Array()` is like buying bread, meat, and cheese and assembling it yourself. They result in the same thing, but the first way is much faster, cleaner, and less prone to errors."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you declare a primitive string `const s = 'hello'`, it goes on the Stack. If you use `const s = new String('hello')`, the engine creates a full Object wrapper on the Heap. The engine auto-wraps primitives momentarily when you call methods (like `'a'.toUpperCase()`), but permanently wrapping them yourself causes massive type comparison bugs.",
+    "memory": "Built-in constructors allocate heavy heap objects. Literals allocate lightweight stack primitives."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why we use literals instead of built-in constructors.",
+    "code": "//  GOOD: Literals\nconst arr = [1, 2, 3];\nconst obj = { id: 1 };\nconst str = 'hello';\n\n//  BAD: Built-in Constructors (unnecessary, slow, confusing)\nconst arr2 = new Array(1, 2, 3);\nconst obj2 = new Object();\nobj2.id = 1;\n\n//  DANGER ZONE: Wrapper Objects\nconst str2 = new String('hello');\nconsole.log(typeof str);  // 'string'\nconsole.log(typeof str2); // 'object'\nconsole.log(str === str2); // false! Type mismatch bug!"
+  },
+  "4_common_confusion": {
+    "trap": "Using `new Array(5)`. You might think this makes an array with a single number `5`. It actually creates an array with 5 empty slots! But `new Array(5, 6)` creates `[5, 6]`. This inconsistency is why `[]` is always preferred.",
+    "fix": "Always use `[5]` instead of `new Array(5)`."
+  },
+  "5_related_topics": ["js.data_types", "js.arrays", "js.objects_intro"],
+  "6_edge_case": {
+    "quirk": "The only built-in constructors you SHOULD use with `new` are `new Date()`, `new Error()`, `new Map()`, `new Set()`, and `new Promise()`, because they don't have a literal syntax equivalent.",
+    "code": "const now = new Date(); // Good! No literal equivalent.\nconst err = new Error('Fail'); // Good!"
+  }
+}

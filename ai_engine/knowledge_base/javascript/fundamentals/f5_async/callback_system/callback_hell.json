@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.callback_hell",
+  "topic": "Callback Hell",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.async_callbacks_intro"],
+    "related_to": ["js.inversion_of_control", "js.promises"],
+    "often_confused_with": ["js.inversion_of_control"]
+  },
+  "question_map": {
+    "what": ["what is callback hell", "what is the pyramid of doom"],
+    "why": ["why is callback hell bad", "why does callback hell happen"],
+    "how": ["how to avoid callback hell", "how to fix pyramid of doom"],
+    "compare": ["callback hell vs promises", "callback hell vs async await"],
+    "output": ["nested callbacks are hard to read", "error handling is repeated in callback hell"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Callback Hell** (also known as the Pyramid of Doom) occurs when multiple asynchronous operations depend on the results of previous ones. Because you must wait for the first callback to run before starting the second operation, you end up writing callbacks inside callbacks inside callbacks. The code grows horizontally to the right, forming a pyramid shape. It makes code extremely difficult to read, maintain, and correctly handle errors in.",
+    "analogy": "Callback Hell is like having to fill out a form, but question 2 is locked inside an envelope that you can only open after answering question 1. Question 3 is inside another envelope inside envelope 2. You end up with a messy, deeply nested pile of envelopes just to complete one form."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Each nested callback forms a new Lexical Environment (closure) that has access to all variables from the outer callbacks. While this is convenient for sharing data between steps, it means the entire chain of scopes must be kept alive in memory. If an error occurs deep in the chain, it must be handled locally or manually passed all the way back up.",
+    "memory": "Deeply nested closures capture multiple levels of outer variables, which can lead to increased memory usage or unintentional memory leaks if large objects are captured and not released."
+  },
+  "3_real_world_example": {
+    "use_case": "A classic example of callback hell: getting a user, then their posts, then the comments on the first post.",
+    "code": "//  The Pyramid of Doom\ngetUser(1, (err, user) => {\n  if (err) return handleError(err);\n\n  getPosts(user.id, (err, posts) => {\n    if (err) return handleError(err);\n\n    const latestPost = posts[0];\n    getComments(latestPost.id, (err, comments) => {\n      if (err) return handleError(err);\n\n      console.log(`User ${user.name} has comments:`, comments);\n      // Imagine adding 3 more steps here...\n    });\n  });\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that just formatting the code differently or breaking it into named functions completely solves Callback Hell. While named functions stop the code from moving to the right, it doesn't solve the underlying problem: complex, fragmented flow control and redundant error handling.",
+    "fix": "The true fix for Callback Hell is using Promises or Async/Await, which flatten the execution flow and centralize error handling."
+  },
+  "5_related_topics": ["js.inversion_of_control", "js.promises", "js.async_await"],
+  "6_edge_case": {
+    "quirk": "Handling multiple parallel operations using plain callbacks is notoriously difficult. You must manually track a counter to know when all parallel callbacks have fired before proceeding to the final step.",
+    "code": "// Parallel execution with plain callbacks is messy\nlet results = [];\nlet completed = 0;\n\nfunction parallelComplete(data) {\n  results.push(data);\n  completed++;\n  if (completed === 3) {\n    console.log('All done!', results);\n  }\n}\n\nfetchA(parallelComplete);\nfetchB(parallelComplete);\nfetchC(parallelComplete);\n// This is exactly why Promise.all() was invented."
+  }
+}

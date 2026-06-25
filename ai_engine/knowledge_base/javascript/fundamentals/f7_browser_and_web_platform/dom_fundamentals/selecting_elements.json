@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.selecting_elements",
+  "topic": "Selecting Elements",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.document_object"],
+    "related_to": ["js.modifying_elements"],
+    "often_confused_with": ["js.traversing_dom"]
+  },
+  "question_map": {
+    "what": ["how to select elements", "what is querySelector"],
+    "why": ["why use querySelector instead of getElementById", "why does querySelectorAll return NodeList"],
+    "how": ["how to get an element by id", "how to get multiple elements"],
+    "compare": ["querySelector vs getElementById", "HTMLCollection vs NodeList"],
+    "output": ["querySelector returns null"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Before you can change an element on the screen, you must select it. JavaScript provides tools to reach into the DOM and grab elements. The modern, preferred way is using `document.querySelector('css-selector')` to grab a single element, or `document.querySelectorAll()` to grab a list of elements. They use the exact same selectors you use in CSS (like `.class` or `#id`).",
+    "analogy": "Selecting elements is like using a search engine for your webpage. You type a query (like 'Find me the button with the class .submit-btn'), and the browser scours the DOM tree and returns the matching object so you can hold it in a variable."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "`querySelector` performs a depth-first pre-order traversal of the DOM tree. The moment it finds the *first* element that matches the CSS selector, it stops searching and returns it. If it finds nothing, it returns `null`.",
+    "memory": "`querySelectorAll` returns a static `NodeList`. It is a snapshot in time. Legacy methods like `getElementsByClassName` return a live `HTMLCollection`, which updates automatically if the DOM changes, causing massive memory overhead and weird infinite loops."
+  },
+  "3_real_world_example": {
+    "use_case": "Grabbing buttons and inputs from the page to make them interactive.",
+    "code": "// 1. Select by ID (Fastest, legacy method)\nconst header = document.getElementById('main-header');\n\n// 2. Select the FIRST element that matches a CSS selector (Modern, flexible)\nconst submitBtn = document.querySelector('.btn-primary');\nconst firstInput = document.querySelector('form input[type=\"text\"]');\n\n// 3. Select ALL elements that match (Returns a NodeList)\nconst allLinks = document.querySelectorAll('a.nav-link');\n\n// A NodeList is like an array, we can loop over it:\nallLinks.forEach(link => link.style.color = 'blue');"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting the dot `.` or hash `#` inside `querySelector`. If you write `querySelector('btn')`, JavaScript looks for an HTML tag called `<btn>`, finds nothing, and returns `null`. You must write `querySelector('.btn')`.",
+    "fix": "If `querySelector` returns `null`, 99% of the time your CSS selector string is wrong."
+  },
+  "5_related_topics": ["js.document_object", "js.modifying_elements"],
+  "6_edge_case": {
+    "quirk": "A `NodeList` is not a real Array. You can use `.forEach()` on it, but you CANNOT use `.map()`, `.filter()`, or `.reduce()`.",
+    "code": "const nodes = document.querySelectorAll('div');\n// nodes.map(...) //  TypeError: nodes.map is not a function\nconst realArray = Array.from(nodes); //  Convert to array first"
+  }
+}

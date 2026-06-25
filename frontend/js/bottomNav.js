@@ -289,6 +289,11 @@
         box-shadow: 0 0 20px rgba(220, 239, 98, 0.15);
       }
 
+      .pm-select option {
+        background-color: #2a2a2a;
+        color: #fff;
+      }
+
       /* White calendar icon for date inputs */
       input[type="datetime-local"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
@@ -468,8 +473,6 @@
                 <select id="pairLanguageInput" class="pm-select">
                     <option value="js">JavaScript (Node.js)</option>
                     <option value="python">Python</option>
-                    <option value="html">HTML</option>
-                    <option value="css">CSS</option>
                     <option value="php">PHP</option>
                 </select>
             </div>

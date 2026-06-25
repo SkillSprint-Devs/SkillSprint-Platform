@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.custom_events",
+  "topic": "Custom Events",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.events_intro",
+      "js.event_object"
+    ],
+    "related_to": [
+      "js.event_listeners"
+    ],
+    "often_confused_with": [
+      "js.event_object"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what are custom events",
+      "what is dispatchEvent"
+    ],
+    "why": [
+      "why create custom events",
+      "why use custom events instead of function calls"
+    ],
+    "how": [
+      "how to trigger custom event",
+      "how to pass data in custom event"
+    ],
+    "compare": [
+      "CustomEvent vs Event",
+      "custom event vs callback"
+    ],
+    "output": [
+      "dispatchEvent triggers custom handler"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Browsers have built-in events like `click` and `keyup`. But what if you want to let the rest of your application know that a user 'logged_in' or 'added_to_cart'? You can create and fire your very own **Custom Events**. You define the event name, attach any custom data you want, and 'dispatch' (fire) it from any DOM element.",
+    "analogy": "Built-in events are like standard road signs (Stop, Yield). A Custom Event is like painting your own sign ('Ice Cream Truck Arriving!') and holding it up. Anyone in the neighborhood who cares about ice cream can listen for your specific sign."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "You instantiate a new `CustomEvent` object using the `new` keyword, passing in an options object with a `detail` property for your custom data. You then call `element.dispatchEvent(myEvent)`. This synchronously executes all listeners attached to that element for that custom event name.",
+    "memory": "Custom Events are garbage collected identically to native events once they finish propagating."
+  },
+  "3_real_world_example": {
+    "use_case": "Decoupling components so a shopping cart updates without knowing who clicked 'Add'.",
+    "code": "// 1. Create a custom event with some data payload\nconst cartEvent = new CustomEvent('itemAdded', {\n  detail: { productId: 101, quantity: 2 },\n  bubbles: true // By default, custom events do NOT bubble. We turn it on.\n});\n\n// 2. Somewhere else in the app, the Cart listens for this event\ndocument.addEventListener('itemAdded', (e) => {\n  console.log(`Updating cart with product ID: ${e.detail.productId}`);\n});\n\n// 3. When a user clicks a button, we fire the custom event\nconst btn = document.querySelector('.add-to-cart');\nbtn.addEventListener('click', () => {\n  btn.dispatchEvent(cartEvent); \n});"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting that Custom Events do NOT bubble by default. If you dispatch an event on a child button, but listen for it on the `document`, the `document` will never hear it unless you explicitly pass `{ bubbles: true }` when creating it.",
+    "fix": "Always pass `{ bubbles: true }` if you want the event to be catchable by parent elements."
+  },
+  "5_related_topics": [
+    "js.events_intro",
+    "js.event_listeners"
+  ],
+  "6_edge_case": {
+    "quirk": "Calling `.dispatchEvent()` runs synchronously. The JS engine immediately jumps to execute the listeners and waits for them to finish before continuing to the next line of code.",
+    "code": "btn.dispatchEvent(myEvent);\n// This line won't run until all 'myEvent' listeners finish executing!\nconsole.log('Done dispatching');"
+  }
+}

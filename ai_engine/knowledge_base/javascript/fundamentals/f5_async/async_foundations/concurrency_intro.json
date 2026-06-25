@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.concurrency_intro",
+  "topic": "Concurrency in JavaScript",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.synchronous_vs_asynchronous", "js.blocking_vs_non_blocking"],
+    "related_to": ["js.event_loop_intro", "js.browser_web_apis", "js.javascript_engine_intro"],
+    "often_confused_with": ["js.event_loop_intro"]
+  },
+  "question_map": {
+    "what": ["is javascript multithreaded", "what is concurrency in javascript", "what is the javascript concurrency model"],
+    "why": ["how can js do multiple things at once if single threaded", "how does js handle many tasks simultaneously"],
+    "how": ["how does javascript achieve concurrency", "how does single threaded js handle concurrent tasks", "can js do multiple things at once"],
+    "compare": ["concurrency vs parallelism javascript", "single threaded vs multi threaded"],
+    "output": ["multiple async operations complete independently", "js handles thousands of requests in node"]
+  },
+  "1_beginner_explanation": {
+    "summary": "JavaScript is **single-threaded** — it has one Call Stack and executes one operation at a time. But it achieves **concurrency** (the appearance of doing multiple things) through the Event Loop model: slow operations (network, timers, I/O) are offloaded to the host environment (browser Web APIs or Node.js libuv). The JS thread is free while those run. When they complete, their callbacks are queued and the Event Loop delivers them to the single thread. **Concurrency ≠ Parallelism**: concurrency means interleaving tasks over time; parallelism means truly simultaneous execution on multiple CPU cores.",
+    "analogy": "Imagine a chef (JS thread) in a kitchen. They cannot chop vegetables and stir the soup simultaneously. But they can put the soup on the stove (Web API handles the heat), chop vegetables, then check on the soup when a timer rings (Event Loop delivers the callback). The chef is single-threaded but efficient because they delegate waiting tasks."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "JavaScript's concurrency model has four components working together: 1) The JS Engine (V8/SpiderMonkey) — single-threaded, runs the Call Stack. 2) Web APIs / libuv — multi-threaded environment layer that handles async operations. 3) Task and Microtask Queues — hold completed callbacks waiting to be processed. 4) The Event Loop — continuously checks if the Call Stack is empty and moves queued callbacks onto it.",
+    "memory": "The JS heap is single-threaded (no shared memory between main thread and workers by default). Web Workers have their own heap and communicate via structured cloning through `postMessage`."
+  },
+  "3_real_world_example": {
+    "use_case": "Node.js handling thousands of concurrent HTTP requests with a single thread — showing that single-threaded doesn't mean slow.",
+    "code": "// Node.js HTTP server — single thread, thousands of concurrent connections\n// const http = require('http');\n// http.createServer(async (req, res) => {\n//   const data = await fetchFromDB(req.url); // non-blocking DB call\n//   res.end(JSON.stringify(data));\n// }).listen(3000);\n\n// Browser: three 'concurrent' fetch calls, all fire simultaneously\nconst t0 = Date.now();\nconst [users, posts, comments] = await Promise.all([\n  fetch('/api/users').then(r => r.json()),   // ~200ms in Web API\n  fetch('/api/posts').then(r => r.json()),   // ~200ms in Web API\n  fetch('/api/comments').then(r => r.json()) // ~200ms in Web API\n]);\n// All three run concurrently in Web APIs — total ~200ms, not 600ms\nconsole.log(`Done in ${Date.now() - t0}ms`);"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that Node.js is multi-threaded because it handles many concurrent requests. The JS code runs on one thread. The I/O operations are handled by libuv's thread pool (C++ level). Node.js is single-threaded for JavaScript, but concurrent for I/O.",
+    "fix": "JavaScript = single-threaded. I/O operations = offloaded to host environment's threads. The result comes back to the single JS thread via the Event Loop."
+  },
+  "5_related_topics": ["js.event_loop_intro", "js.browser_web_apis", "js.blocking_vs_non_blocking"],
+  "6_edge_case": {
+    "quirk": "Web Workers bring true parallelism to the browser — they run JavaScript on a separate thread. However, they cannot access the DOM and communicate only via `postMessage`. Use them for CPU-intensive tasks like image processing, not for I/O.",
+    "code": "// Web Worker — true parallel JS thread\nconst worker = new Worker('heavy-task.js');\nworker.postMessage({ data: largeArray }); // send data\nworker.onmessage = (e) => {\n  console.log('Worker result:', e.data); // receive result\n  // Worker ran in parallel — main thread was never blocked\n};"
+  }
+}

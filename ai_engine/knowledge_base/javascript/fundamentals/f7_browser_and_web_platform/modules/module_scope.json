@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.module_scope",
+  "topic": "Module Scope",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.modules_intro",
+      "js.lexical_scope"
+    ],
+    "related_to": [
+      "js.closures_deep",
+      "js.closure_private_state"
+    ],
+    "often_confused_with": [
+      "js.lexical_scope"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is module scope"
+    ],
+    "why": [
+      "why are module variables not global",
+      "why use modules to prevent collisions"
+    ],
+    "how": [
+      "how to share data between modules"
+    ],
+    "compare": [
+      "global scope vs module scope",
+      "module scope vs function scope"
+    ],
+    "output": [
+      "referenceerror is not defined"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Before Modules existed, if you wrote `let username = 'Bob'` in one file, every other file on your website could accidentally read or overwrite `username` because it was dumped into the 'Global Scope'. Modules fix this. Every Module has its own invisible protective bubble (Module Scope). Variables created inside a module cannot be seen by other files unless you explicitly `export` them.",
+    "analogy": "The Global Scope is like shouting a secret in a crowded room; everyone hears it and anyone can repeat it. Module Scope is like whispering a secret in a soundproof room. Unless you open the door and shout it out (`export`), nobody else knows it exists."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the V8 engine parses a Module, it creates a new Environment Record specifically for that module. This environment record sits below the Global Scope but above any Function Scopes defined within the file. Variables declared at the top-level of a module reside here, not on the `window` object.",
+    "memory": "This isolation prevents memory leaks and namespace collisions, drastically reducing bugs in large applications."
+  },
+  "3_real_world_example": {
+    "use_case": "Keeping configuration data private and safe from other scripts.",
+    "code": "// --- dbConnection.js ---\n// This variable is trapped in the Module Scope.\n// The rest of the app cannot see or modify it.\nconst dbPassword = 'super_secret_123';\n\nexport function connectToDatabase() {\n  // The function can see it because of Lexical Scope!\n  console.log('Connecting with password: ' + dbPassword);\n}\n\n\n// --- main.js ---\nimport { connectToDatabase } from './dbConnection.js';\n\nconnectToDatabase(); // Works perfectly\n\n//  ReferenceError: dbPassword is not defined\nconsole.log(dbPassword); "
+  },
+  "4_common_confusion": {
+    "trap": "Opening the Chrome Developer Console and trying to access a variable you just wrote in your module. The Console runs in the Global Scope. Because your variable is trapped in the Module Scope, the Console cannot see it, leading to frustrating `undefined` errors during debugging.",
+    "fix": "To debug a module variable from the console, you temporarily attach it to the window: `window.debugVar = myVar`."
+  },
+  "5_related_topics": [
+    "js.lexical_scope",
+    "js.closures_private_state"
+  ],
+  "6_edge_case": {
+    "quirk": "Because `this` in the Global Scope points to the `window` object, you might expect `this` at the top level of a Module to do the same. It does not. In a Module, top-level `this` is strictly `undefined`.",
+    "code": "// In a normal script:\nconsole.log(this); // Window\n\n// In an ES Module:\nconsole.log(this); // undefined"
+  }
+}

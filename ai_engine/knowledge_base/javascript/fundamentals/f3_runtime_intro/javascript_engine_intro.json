@@ -1,0 +1,69 @@
+{
+  "version": "1.1",
+  "intent": "js.javascript_engine_intro",
+  "topic": "JavaScript Engine (Intro)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": false,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.execution_context_intro"],
+    "related_to": ["js.call_stack", "js.event_loop", "js.memory_model_basic"],
+    "often_confused_with": ["js.event_loop"]
+  },
+  "question_map": {
+    "what": [
+      "what is a javascript engine",
+      "what is v8",
+      "what is spidermonkey",
+      "what is a js engine"
+    ],
+    "why": [
+      "why does javascript compile",
+      "why is javascript fast despite being interpreted",
+      "does javascript compile or interpret"
+    ],
+    "how": [
+      "how does javascript run",
+      "how does v8 work",
+      "what happens after pressing run in javascript",
+      "how does the javascript engine execute code"
+    ],
+    "compare": [
+      "interpreter vs compiler in javascript",
+      "v8 vs spidermonkey",
+      "JIT compilation vs interpretation"
+    ],
+    "output": [
+      "explain the pipeline from js source code to execution",
+      "trace source code through parser compiler and runtime"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A JavaScript Engine is the program that reads your JavaScript source code and executes it on a computer. Modern engines like V8 (Chrome/Node.js), SpiderMonkey (Firefox), and JavaScriptCore (Safari) work in a pipeline: they first parse the source into an Abstract Syntax Tree, then compile it to bytecode, and then execute it — often with JIT (Just-In-Time) compilation to native machine code for hot code paths.",
+    "analogy": "The JavaScript Engine is like a chef reading a recipe card. First the chef reads the recipe (parsing). Then the chef plans the cooking steps (compilation to bytecode). Then the chef actually cooks (execution/interpretation). For dishes cooked every day, the chef memorizes the steps and works even faster (JIT compilation — converting frequently run code to native machine speed)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine pipeline has four stages: 1. Parsing — the source text is tokenized and then parsed into an Abstract Syntax Tree (AST) that represents the code's structure. 2. Compilation — the AST is converted into bytecode by an interpreter (Ignition in V8). 3. Optimization — a profiling JIT compiler (Turbofan in V8) watches for 'hot' code paths and recompiles them to optimized machine code. 4. Execution — the bytecode or machine code runs inside the engine's runtime, which includes the Call Stack, Heap, and bindings to the platform (browser or Node.js).",
+    "memory": "The JavaScript runtime sits inside a host environment (browser or Node.js). The engine itself manages the Call Stack and Heap. The host environment provides the Event Loop, Web APIs (timers, fetch, DOM), and the Callback Queue, which together enable asynchronous behaviour."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why certain JavaScript patterns (like accessing the same property repeatedly in a loop) can be optimized by the engine while others (like changing an object's shape mid-loop) force de-optimization.",
+    "code": "// V8 optimizes this: consistent object shape\nconst points = [];\nfor (let i = 0; i < 1_000_000; i++) {\n  points.push({ x: i, y: i * 2 }); // Same shape every time → V8 can inline\n}\n\n// V8 struggles with this: shape changes (de-optimises)\nconst mixed = { name: 'Alice' };\nmixed.age = 30;    // New property added after creation\nmixed.score = 95;  // Another new property → hidden class changes force re-analysis"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking JavaScript is purely interpreted (slow) or purely compiled (like C/Java). Modern engines use a hybrid approach: they interpret fast, then JIT-compile hot paths to native machine code.",
+    "fix": "JavaScript source code is never directly run by the CPU. It always goes through the engine pipeline — parse → compile to bytecode → execute, with optional JIT optimization."
+  },
+  "5_related_topics": [
+    "js.execution_context_intro",
+    "js.call_stack",
+    "js.event_loop",
+    "js.memory_model_basic"
+  ],
+  "6_edge_case": {
+    "quirk": "V8's JIT compiler can de-optimize code at runtime if assumptions it made during optimization turn out to be wrong (e.g., a function that always received numbers suddenly receives a string). This triggers a bailout back to interpreted bytecode, which can cause unexpected performance cliffs in hot functions.",
+    "code": "function addNumbers(a, b) {\n  return a + b; // V8 optimizes for numbers after a few calls\n}\n\n// Warm up with numbers (V8 inlines and JIT-compiles)\nfor (let i = 0; i < 10000; i++) addNumbers(i, i + 1);\n\n// Now pass a string — forces V8 to de-optimize this function!\nconsole.log(addNumbers('hello', ' world')); // 'hello world'\n// addNumbers will be re-analysed at slower bytecode speed"
+  }
+}

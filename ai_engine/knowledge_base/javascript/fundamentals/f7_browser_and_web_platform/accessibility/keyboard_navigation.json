@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.keyboard_navigation",
+  "topic": "Keyboard Navigation & Focus",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.events_intro",
+      "js.semantic_html"
+    ],
+    "related_to": [
+      "js.aria_basics"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is keyboard navigation",
+      "what is tabindex"
+    ],
+    "why": [
+      "why is tab key not working",
+      "why use outline none"
+    ],
+    "how": [
+      "how to trap focus in modal",
+      "how to make div focusable"
+    ],
+    "compare": [
+      "tabindex 0 vs tabindex -1"
+    ],
+    "output": [
+      "focus ring moves to next button on tab press"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Many users cannot use a mouse (due to motor disabilities, broken hardware, or just preference). They navigate the web using only the `Tab` key to jump between interactive elements, and `Enter/Space` to click them. The element they are currently on is 'Focused'. A massive part of web development is managing this Focus State using JavaScript.",
+    "analogy": "Keyboard navigation is like riding a train. The `Tab` key is the engine moving you forward. The stops (train stations) are ONLY the interactive elements (links, buttons, inputs). You skip right past the empty fields (paragraphs, images)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you press `Tab`, the browser natively moves `document.activeElement` to the next focusable node in the DOM. Native semantic tags (`<a>`, `<button>`, `<input>`) are focusable by default. Non-interactive tags (`<div>`, `<span>`) are completely ignored.",
+    "memory": "You can force a non-interactive element to become a 'Train Station' by adding the `tabindex=\"0\"` attribute. You can forcefully remove a native element from the track by adding `tabindex=\"-1\"`."
+  },
+  "3_real_world_example": {
+    "use_case": "Building a Modal (Popup). When a modal opens, you MUST 'trap' the focus inside it. If you don't, the user can press Tab, their focus will jump to the hidden background page, and they will be clicking buttons they can't even see.",
+    "code": "const modal = document.querySelector('.my-modal');\n\nfunction openModal() {\n  modal.style.display = 'block';\n  \n  // Move the user's cursor physically into the modal\n  const firstInput = modal.querySelector('input');\n  firstInput.focus();\n}\n\n// Trap focus: If they hit Tab on the last button, loop back to the first input.\nmodal.addEventListener('keydown', (e) => {\n  if (e.key === 'Tab') {\n    // Complex JS logic here to prevent focus from leaving the modal...\n  }\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Using `tabindex=\"1\"` or `tabindex=\"2\"` to manually order the train track. This is an anti-pattern. It destroys the logical flow of the page and confuses screen readers. The DOM order should match the visual order.",
+    "fix": "Only ever use `tabindex=\"0\"` (add to track based on DOM order) or `tabindex=\"-1\"` (remove from track, but allow JS to `.focus()` it)."
+  },
+  "5_related_topics": [
+    "js.semantic_html",
+    "js.events_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Designers hate the default blue 'Focus Ring' the browser draws around buttons when clicked, so developers often write `outline: none;` in CSS. This is the biggest accessibility sin on the web! It makes the train invisible. Keyboard users have no idea where they are.",
+    "code": "/*  Instead of removing it, style it nicely! */\nbutton:focus-visible {\n  outline: 2px solid purple;\n  outline-offset: 2px;\n}"
+  }
+}

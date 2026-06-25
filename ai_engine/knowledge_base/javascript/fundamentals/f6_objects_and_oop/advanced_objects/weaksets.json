@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.weaksets",
+  "topic": "WeakSets",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.sets", "js.memory_model_basic"],
+    "related_to": ["js.weakmaps"],
+    "often_confused_with": ["js.sets"]
+  },
+  "question_map": {
+    "what": ["what is a weakset", "weakset vs set"],
+    "why": ["why use weakset"],
+    "how": ["how to store objects without memory leaks"],
+    "compare": ["set vs weakset"],
+    "output": ["invalid value used in weak set"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **WeakSet** is exactly like a `Set`, but with the same rules as a WeakMap: it can ONLY store objects (no strings/numbers), and it holds them 'weakly'. If the rest of the application forgets about an object, the WeakSet automatically drops it. It is mostly used as a lightweight way to 'tag' objects with a Yes/No flag without keeping them in memory forever.",
+    "analogy": "A WeakSet is like giving guests a VIP wristband. As long as they are at the party, you can check their wristband. But if they leave the party and go home, their wristband magically disintegrates so you don't have to keep track of it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Like WeakMaps, WeakSets cannot be looped over and do not have a `.size` property because their contents are constantly shifting based on the Garbage Collector.",
+    "memory": "Objects stored in a WeakSet do not increment the object's reference count. When the reference count hits zero everywhere else, the GC sweeps it, and the WeakSet entry evaporates."
+  },
+  "3_real_world_example": {
+    "use_case": "Tracking which messages have already been read by the user without causing a memory leak if the messages are deleted from the chat.",
+    "code": "const readMessages = new WeakSet();\n\nfunction markAsRead(messageObj) {\n  readMessages.add(messageObj);\n}\n\nlet msg1 = { text: 'Hello' };\nmarkAsRead(msg1);\n\nconsole.log(readMessages.has(msg1)); // true (It's been read)\n\n// User deletes the message from the chat app\nmsg1 = null;\n\n// Because we used a WeakSet, the memory is instantly freed.\n// The WeakSet no longer holds the ghost of msg1."
+  },
+  "4_common_confusion": {
+    "trap": "Using a WeakSet to filter an array of strings to get unique values. `new WeakSet(['a', 'a', 'b'])` will immediately throw an error because primitives are not allowed.",
+    "fix": "Use a normal `Set` for strings, numbers, and general data filtering."
+  },
+  "5_related_topics": ["js.sets", "js.weakmaps", "js.memory_model_basic"],
+  "6_edge_case": {
+    "quirk": "Because you cannot loop over a WeakSet, you can't actually see what's inside it. You can only ask it a direct question: `weakset.has(obj)`.",
+    "code": "// You must have the original object reference to ask the question.\n// There is no way to just say 'Give me everything in the WeakSet'."
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.abstraction",
+  "topic": "Abstraction",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.classes_intro"],
+    "related_to": ["js.encapsulation", "js.methods"],
+    "often_confused_with": ["js.encapsulation"]
+  },
+  "question_map": {
+    "what": ["what is abstraction", "what does abstraction mean in oop"],
+    "why": ["why simplify complexity", "why use abstraction"],
+    "how": ["how to use abstraction in javascript"],
+    "compare": ["abstraction vs encapsulation"],
+    "output": ["cannot instantiate abstract class"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Abstraction** is an OOP principle that means hiding the complex reality of how something works internally, and only showing the essential, simple features to the outside world. While Encapsulation is about *protecting* data, Abstraction is about *simplifying* the interface so other developers don't need to understand the complex internal math or logic to use your object.",
+    "analogy": "When you drive a car, you use the steering wheel and the gas pedal (the Abstraction). You don't need to understand how the fuel injector mixes air and gas, or how the transmission gears shift (the hidden complexity). The car 'abstracts away' the complex engine mechanics and gives you a simple interface."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Unlike TypeScript or Java which have `abstract class` or `interface` keywords, standard JavaScript does not have strict syntactical abstraction. It is purely a conceptual design pattern implemented by exposing a small set of public methods while keeping complex helper methods private.",
+    "memory": "Purely a design concept; does not affect memory architecture."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a simple `fetchData()` method that hides the complexity of headers, tokens, and retries.",
+    "code": "class ApiService {\n  // Complex internal logic hidden from the user\n  #getAuthToken() { return 'Bearer abc123XYZ'; }\n  #formatHeaders() { return { Authorization: this.#getAuthToken() }; }\n  #parseJSON(response) { return response.json(); }\n\n  // The simple, Abstracted interface exposed to the user\n  async fetchUserData() {\n    const headers = this.#formatHeaders();\n    const res = await fetch('/api/user', { headers });\n    return this.#parseJSON(res);\n  }\n}\n\nconst api = new ApiService();\n// The user just calls one simple method. They don't care about tokens or headers!\napi.fetchUserData().then(console.log);"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing Abstraction with Encapsulation. They often go hand-in-hand, but they have different goals.",
+    "fix": "Encapsulation = Hiding data to PROTECT it from being corrupted. Abstraction = Hiding complexity to SIMPLIFY how the object is used."
+  },
+  "5_related_topics": ["js.encapsulation", "js.methods"],
+  "6_edge_case": {
+    "quirk": "Because JS lacks an `abstract` keyword, developers simulate 'Abstract Classes' (classes that shouldn't be instantiated directly, only inherited from) by throwing an error in the constructor.",
+    "code": "class Shape {\n  constructor() {\n    if (new.target === Shape) throw new Error('Cannot instantiate Abstract Class!');\n  }\n}\n// new Shape(); //  Fails\nclass Circle extends Shape {} //  Allowed"
+  }
+}

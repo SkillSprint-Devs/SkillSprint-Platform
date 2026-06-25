@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promise_states",
+  "topic": "Promise States",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.promises_intro"],
+    "related_to": ["js.resolve_reject", "js.promise_error_handling"],
+    "often_confused_with": ["js.resolve_reject"]
+  },
+  "question_map": {
+    "what": ["what are promise states", "what is pending", "what is fulfilled", "what is rejected", "what does settled mean"],
+    "why": ["why is my promise stuck in pending"],
+    "how": ["how to check promise state", "how does a promise change state"],
+    "compare": ["fulfilled vs resolved", "pending vs settled"],
+    "output": ["console.log shows Promise { <pending> }"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A Promise is always in exactly one of three states: **Pending** (the operation has not finished yet), **Fulfilled** (the operation completed successfully), or **Rejected** (the operation failed). Once a Promise leaves the 'pending' state and becomes either fulfilled or rejected, it is considered **Settled**. A settled Promise is locked forever — it can never change its state or its value again.",
+    "analogy": "A Promise state is like a coin flip in the air. While spinning, it is 'Pending'. When it lands, it becomes 'Settled'. It can settle as Heads ('Fulfilled') or Tails ('Rejected'). Once it lands, the result is permanent."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you create `new Promise()`, its internal `[[PromiseState]]` is `'pending'`. Calling `resolve(value)` transitions it to `'fulfilled'` and saves the value in `[[PromiseResult]]`. Calling `reject(error)` transitions it to `'rejected'` and saves the error. If you call `resolve` or `reject` multiple times, all calls after the first one are completely ignored by the engine.",
+    "memory": "The `[[PromiseState]]` and `[[PromiseResult]]` are hidden internal slots. You cannot read them directly with JavaScript code (e.g., `promise.state` does not exist). You can only react to the state change via `.then()` or `.catch()`."
+  },
+  "3_real_world_example": {
+    "use_case": "Observing the state transitions and demonstrating that Promises lock their state permanently upon settling.",
+    "code": "const myPromise = new Promise((resolve, reject) => {\n  // State: Pending\n  setTimeout(() => {\n    resolve('Success!'); // Transitions to Fulfilled\n    resolve('Ignored!'); // Ignored (already settled)\n    reject('Error!');    // Ignored (already settled)\n  }, 1000);\n});\n\n// Synchronous log: prints Promise { <pending> }\nconsole.log(myPromise);\n\nmyPromise.then(result => {\n  // Runs after 1 sec\n  console.log('Result:', result); // 'Success!'\n  // State is now Fulfilled. It will never change.\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Logging a Promise object immediately after creating it and being confused why it prints `<pending>` instead of the data.",
+    "fix": "Logging the Promise object itself just shows its current state. To see the actual data, you must log it from *inside* a `.then(data => console.log(data))`."
+  },
+  "5_related_topics": ["js.promises_intro", "js.resolve_reject"],
+  "6_edge_case": {
+    "quirk": "If you attach a `.then()` to a Promise that is ALREADY settled, the callback still doesn't run synchronously. It is immediately pushed to the Microtask Queue and will run exactly after the current synchronous code finishes.",
+    "code": "const alreadyFulfilled = Promise.resolve('Instant');\n\nalreadyFulfilled.then(val => console.log(val)); // Microtask\nconsole.log('Sync code');\n\n// Output:\n// Sync code\n// Instant"
+  }
+}

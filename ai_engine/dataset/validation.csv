@@ -563,3 +563,11 @@ how to handle errors in fetch,js.fundamentals.query
 destructuring in function parameters,js.fundamentals.query
 explain class inheritance in javascript,js.fundamentals.query
 what is type coercion,js.fundamentals.query
+hello there,general.greeting
+hi friend,general.greeting
+good morning mentor,general.greeting
+hey,general.greeting
+thanks a lot,general.polite
+thank you very much,general.polite
+ok bye,general.polite
+goodbye mentor,general.polite

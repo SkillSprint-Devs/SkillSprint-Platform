@@ -78,7 +78,7 @@ export function initSocket(token, boardIdParam) {
 
   const backendUrl = window.API_SOCKET_URL;
   socket = io(`${backendUrl}/pair-programming`, {
-    transports: ["websocket"],
+    transports: ["websocket", "polling"],
     auth: { token }
   });
 

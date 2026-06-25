@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.mutation_observer",
+  "topic": "Mutation Observer",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.dom_tree",
+      "js.browser_web_apis"
+    ],
+    "related_to": [
+      "js.intersection_observer"
+    ],
+    "often_confused_with": [
+      "js.intersection_observer"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is mutation observer"
+    ],
+    "why": [
+      "why use mutation observer"
+    ],
+    "how": [
+      "how to detect dom changes in javascript",
+      "how to know when an element is added to the dom"
+    ],
+    "compare": [
+      "mutation observer vs intersection observer"
+    ],
+    "output": [
+      "callback fires when child node is added"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "While Intersection Observer watches for elements *moving*, **Mutation Observer** watches for elements *changing*. If a third-party script injects a new `<div>` into your page, or a CSS class is suddenly added to a button, Mutation Observer can detect that change and run code in response.",
+    "analogy": "Mutation Observer is a security guard watching a building (the DOM). If someone adds a new brick, paints a wall, or demolishes a room, the guard immediately radios the front desk to report the exact change."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you observe a node, the browser engine queues up all DOM changes (mutations) that happen during the current execution context. Once the Call Stack is empty, it fires the callback ONCE, passing an array of all the changes as 'Microtasks'. This batching makes it highly performant.",
+    "memory": "Observing the entire `document.body` for every single attribute and text change can severely degrade performance. Always observe the smallest possible container, and be specific about what you are watching."
+  },
+  "3_real_world_example": {
+    "use_case": "Writing a browser extension that needs to know when a website dynamically adds a specific popup so it can automatically hide it.",
+    "code": "// 1. Define what we want to do when a change happens\nconst observer = new MutationObserver((mutationsList) => {\n  for (const mutation of mutationsList) {\n    if (mutation.type === 'childList') {\n      console.log('A child node has been added or removed.');\n    }\n  }\n});\n\n// 2. Select the target node to watch\nconst targetNode = document.getElementById('chat-box');\n\n// 3. Configure what types of changes to watch for\nconst config = { childList: true, subtree: true };\n\n// 4. Start watching\nobserver.observe(targetNode, config);"
+  },
+  "4_common_confusion": {
+    "trap": "Accidentally creating an infinite loop. If your Mutation Observer watches a `<div>` for text changes, and the callback function *changes* the text inside that `<div>`, it will trigger the observer again, which changes the text again, forever until the browser crashes.",
+    "fix": "Always use `observer.disconnect()` before making changes, or ensure your logic has a strict stopping condition."
+  },
+  "5_related_topics": [
+    "js.dom_tree",
+    "js.microtask_queue"
+  ],
+  "6_edge_case": {
+    "quirk": "Mutation Observer completely replaced the old `MutationEvents` (like `DOMNodeInserted`), which were deprecated because they fired synchronously and ruined browser performance.",
+    "code": ""
+  }
+}

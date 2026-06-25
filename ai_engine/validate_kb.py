@@ -127,6 +127,16 @@ def validate_kb():
         # Validate Graph Relationship Integrities
         if "relationships" in data and isinstance(data["relationships"], dict):
             rels = data["relationships"]
+            
+            # Orphan node check
+            total_rels = 0
+            for field in ["depends_on", "related_to", "often_confused_with"]:
+                if field in rels and isinstance(rels[field], list):
+                    total_rels += len(rels[field])
+            
+            if total_rels == 0:
+                errors.append(f"{rel_file_path}: Orphan node detected. Must have at least 1 relationship.")
+
             for field in ["depends_on", "related_to", "often_confused_with"]:
                 if field in rels and isinstance(rels[field], list):
                     for idx, target_intent in enumerate(rels[field]):

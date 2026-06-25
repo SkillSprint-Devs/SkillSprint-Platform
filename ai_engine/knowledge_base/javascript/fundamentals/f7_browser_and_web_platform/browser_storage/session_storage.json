@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.session_storage",
+  "topic": "sessionStorage",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.local_storage"
+    ],
+    "related_to": [
+      "js.storage_patterns"
+    ],
+    "often_confused_with": [
+      "js.local_storage"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is sessionstorage"
+    ],
+    "why": [
+      "why use sessionstorage instead of localstorage"
+    ],
+    "how": [
+      "how to use sessionstorage"
+    ],
+    "compare": [
+      "localstorage vs sessionstorage"
+    ],
+    "output": [
+      "sessionstorage returns null after tab close"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "`sessionStorage` is identical to `localStorage` in almost every way, except for its lifespan. While `localStorage` lasts forever, `sessionStorage` only lasts as long as the specific browser tab is open. If the user closes the tab, the data is instantly deleted. It is useful for temporary state, like a multi-step checkout form.",
+    "analogy": "`localStorage` is a tattoo. `sessionStorage` is a temporary stamp you get at a club. When you leave the club (close the tab), the stamp washes off."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The API is exactly the same (`setItem`, `getItem`, `removeItem`). The key difference is the browser's internal garbage collection trigger. `sessionStorage` is bound to the 'Top-Level Browsing Context' (the tab).",
+    "memory": "Storage is isolated not just by Origin, but by the Tab itself. If you open `yoursite.com` in Tab A and `yoursite.com` in Tab B, they have completely separate, isolated `sessionStorage` buckets."
+  },
+  "3_real_world_example": {
+    "use_case": "Storing temporary data as a user navigates a 3-page sign-up form.",
+    "code": "// Page 1: User enters email\nsessionStorage.setItem('tempEmail', 'user@example.com');\n\n// Page 2: User enters password, we grab the email from the previous page\nconst email = sessionStorage.getItem('tempEmail');\nconsole.log(`Creating account for ${email}...`);\n\n// Once the account is created, we don't need this temp data anymore.\n// But even if we forget to delete it, closing the tab will delete it automatically."
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that refreshing the page clears `sessionStorage`. It does NOT. Refreshing the page keeps the tab alive, so the data survives. Only physically closing the tab (or window) clears it.",
+    "fix": "Refresh = Data survives. Close tab = Data dies."
+  },
+  "5_related_topics": [
+    "js.local_storage",
+    "js.storage_patterns"
+  ],
+  "6_edge_case": {
+    "quirk": "If a user right-clicks a link on your site and selects 'Open in New Tab', the new tab usually INHERITS a copy of the current `sessionStorage`. But from that moment on, they are independent. Changing one won't change the other.",
+    "code": ""
+  }
+}

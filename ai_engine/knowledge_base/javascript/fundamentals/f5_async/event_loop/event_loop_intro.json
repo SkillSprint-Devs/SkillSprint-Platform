@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.event_loop_intro",
+  "topic": "Event Loop (Intro)",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.concurrency_intro", "js.call_stack"],
+    "related_to": ["js.task_queue", "js.microtask_queue", "js.call_stack_and_queue"],
+    "often_confused_with": ["js.javascript_engine_intro"]
+  },
+  "question_map": {
+    "what": ["what is the event loop", "what does the event loop do"],
+    "why": ["why is event loop needed", "why doesnt javascript block forever"],
+    "how": ["how does event loop work", "how does javascript handle async code"],
+    "compare": ["event loop vs call stack", "event loop vs web apis"],
+    "output": ["console.log prints out of order", "setTimeout callback runs later"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **Event Loop** is the mechanism that allows single-threaded JavaScript to perform non-blocking asynchronous operations. Its entire job can be summarized in one continuous loop: it constantly checks if the Call Stack is empty. If the Call Stack is empty, it looks at the queues (Microtask Queue, then Task Queue) to see if there are any callbacks waiting to run. If there are, it pushes the first one onto the Call Stack so it can execute. It is the bridge between JavaScript and the browser's Web APIs.",
+    "analogy": "Imagine a revolving door (the Event Loop) leading into a small room with only one desk (the Call Stack). People (callbacks) are waiting in lines outside (the queues). The revolving door's only rule is: 'I will only let the next person in if the person at the desk has finished and left the room.' As long as the desk is occupied, the door is locked, and the people outside just have to wait."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The Event Loop algorithm is essentially an infinite `while (true)` loop running in the browser/Node environment. Algorithm steps: 1) Execute the oldest task from the Task Queue (often a script). 2) Execute all tasks in the Microtask Queue until it is completely empty. 3) Render the UI (in browsers). 4) Wait for a new task. The loop guarantees that synchronous code finishes entirely before any queued async callback begins.",
+    "memory": "The Event Loop itself doesn't manage JavaScript memory objects. It manages the execution order of function pointers (callbacks) that have been placed into the task queues by Web APIs or Promise resolutions."
+  },
+  "3_real_world_example": {
+    "use_case": "Proving that the Event Loop waits for the Call Stack to be completely empty before running any asynchronous callback.",
+    "code": "console.log('1. Start');\n\nsetTimeout(() => {\n  console.log('3. Event Loop let me in!');\n}, 0);\n\nconsole.log('2. Doing heavy sync work...');\n// Simulating a 2-second blocking operation\nconst start = Date.now();\nwhile (Date.now() - start < 2000) {}\n\nconsole.log('Finished sync work');\n\n// Output:\n// 1. Start\n// 2. Doing heavy sync work...\n// Finished sync work\n// 3. Event Loop let me in! \n\n// Even though setTimeout was 0ms, it waited 2+ seconds \n// because the Event Loop could not push it until the while-loop finished."
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that `setTimeout(fn, 500)` means the function will execute in exactly 500ms. It means the Web API will place the callback in the queue after 500ms. If the Call Stack is busy with a heavy operation, the callback might wait in the queue for another 3 seconds. 500ms is the *minimum* delay, not a guaranteed execution time.",
+    "fix": "Always remember: Web APIs handle the timer; the Event Loop handles the execution. The Event Loop only acts when the Call Stack is empty."
+  },
+  "5_related_topics": ["js.task_queue", "js.microtask_queue", "js.call_stack"],
+  "6_edge_case": {
+    "quirk": "If the Event Loop gets stuck processing an infinite loop of microtasks (e.g., a Promise that resolves another Promise indefinitely), the browser cannot reach the render step or process any clicks. It freezes.",
+    "code": "//  Infinite microtask loop blocks the Event Loop from rendering\nfunction loopMicrotasks() {\n  Promise.resolve().then(loopMicrotasks);\n}\n// loopMicrotasks(); // Un-commenting this freezes the tab instantly"
+  }
+}

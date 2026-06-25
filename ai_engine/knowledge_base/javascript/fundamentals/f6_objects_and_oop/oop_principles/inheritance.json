@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.inheritance",
+  "topic": "Inheritance (OOP Principle)",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.class_inheritance"],
+    "related_to": ["js.polymorphism", "js.composition_vs_inheritance"],
+    "often_confused_with": ["js.composition_vs_inheritance"]
+  },
+  "question_map": {
+    "what": ["what is inheritance in oop", "what is a subclass"],
+    "why": ["why use inheritance"],
+    "how": ["how to share code between classes"],
+    "compare": ["inheritance vs composition", "parent vs child class"],
+    "output": ["class extends value undefined is not a constructor or null"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Inheritance** is an OOP principle where one class (the Child or Subclass) derives its properties and methods from another class (the Parent or Superclass). It is used to establish an 'IS-A' relationship and to reuse code. If multiple classes share the exact same logic, you can move that logic up into a parent class so you don't have to write it twice.",
+    "analogy": "A `Dog` IS-A `Mammal`. A `Cat` IS-A `Mammal`. Instead of defining how to 'breathe' inside both the Dog and Cat classes, you define `breathe()` once in the Mammal class. Both Dog and Cat inherit it automatically."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Inheritance in JS is implemented using the `extends` keyword, which wires up the `[[Prototype]]` chains. Resolving an inherited method requires the JS engine to walk up the prototype chain at runtime.",
+    "memory": "By moving shared methods to a parent class's prototype, memory is optimized because the functions are only allocated once, rather than duplicated across every child class."
+  },
+  "3_real_world_example": {
+    "use_case": "Sharing core UI component logic (like rendering or hiding) across specific UI elements (like Buttons or Modals).",
+    "code": "// Parent Class (Base Logic)\nclass UIComponent {\n  constructor(id) {\n    this.element = document.getElementById(id);\n  }\n  hide() {\n    this.element.style.display = 'none';\n  }\n}\n\n// Child Class inherits hide(), but adds its own specific logic\nclass Button extends UIComponent {\n  constructor(id, text) {\n    super(id);\n    this.element.innerText = text;\n  }\n  onClick(callback) {\n    this.element.addEventListener('click', callback);\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Overusing Inheritance. Beginners often create massive, deep inheritance trees (A inherits from B, which inherits from C, which inherits from D). This leads to the 'Gorilla Banana' problem: you wanted a banana, but you got a gorilla holding the banana and the entire jungle attached to it.",
+    "fix": "Favor 'Composition' over deep 'Inheritance'. If your inheritance tree goes more than 2 or 3 levels deep, you should probably rethink your design."
+  },
+  "5_related_topics": ["js.class_inheritance", "js.composition_vs_inheritance", "js.polymorphism"],
+  "6_edge_case": {
+    "quirk": "JavaScript does NOT support Multiple Inheritance. A class can only `extend` ONE parent class. It cannot inherit from two different classes simultaneously.",
+    "code": "//  Syntax Error: Cannot extend multiple classes\n// class Liger extends Lion, Tiger {}"
+  }
+}

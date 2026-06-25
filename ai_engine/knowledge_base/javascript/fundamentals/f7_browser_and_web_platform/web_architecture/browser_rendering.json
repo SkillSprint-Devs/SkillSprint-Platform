@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.browser_rendering",
+  "topic": "Browser Rendering & Parsing",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.client_server_model",
+      "js.dom_intro"
+    ],
+    "related_to": [
+      "js.rendering_pipeline",
+      "js.csr_vs_ssr"
+    ],
+    "often_confused_with": [
+      "js.rendering_pipeline"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "how browser renders webpage",
+      "what happens after opening website"
+    ],
+    "why": [
+      "why is my javascript blocking the page",
+      "why put script tags at the bottom"
+    ],
+    "how": [
+      "how html is parsed"
+    ],
+    "compare": [
+      "async vs defer scripts",
+      "dom vs cssom"
+    ],
+    "output": [
+      "blank white screen while script downloads"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When you visit a website, the browser downloads an HTML file. It reads this file line-by-line from top to bottom. As it reads, it builds the DOM Tree. However, if it encounters a `<script>` tag, the browser PANICS. It completely stops reading the HTML, downloads the JS file, and runs it before it continues reading the HTML. This is called 'Render Blocking'.",
+    "analogy": "Imagine you are building a Lego set using an instruction manual (HTML). Suddenly, step 4 says 'Read this 500-page Novel (JavaScript)'. You literally stop building the Legos, sit down, read the entire novel, and only *then* return to step 5. If the novel takes 10 seconds to read, the Lego building stops for 10 seconds."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The browser uses a single Main Thread for both HTML parsing and JavaScript execution. When a `<script>` is encountered, the HTML Parser is suspended. The JS Engine takes control of the Main Thread to compile and execute the script. Only when the JS Engine finishes does control return to the HTML Parser.",
+    "memory": "This is why scripts used to be placed at the very bottom of the `<body>` tag—to ensure the HTML was fully parsed and rendered to the screen before the JS froze the thread."
+  },
+  "3_real_world_example": {
+    "use_case": "Using modern attributes to prevent JavaScript from freezing the page load.",
+    "code": "<!--  BAD: Freezes the page immediately. User sees a blank white screen -->\n<head>\n  <script src=\"heavy-app.js\"></script>\n</head>\n\n<!--  BETTER (Old way): Put it at the bottom so HTML loads first -->\n<body>\n  <h1>Welcome</h1>\n  <script src=\"heavy-app.js\"></script>\n</body>\n\n<!--  BEST (Modern way): Use 'defer' in the head! -->\n<!-- 'defer' tells the browser: \"Download this in the background, but wait to run it until the HTML is 100% finished.\" -->\n<head>\n  <script src=\"app.js\" defer></script>\n</head>"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing `defer` with `async`. Both download the JS file in the background without blocking the HTML parser. BUT, `async` will execute the JS the *exact second* it finishes downloading, pausing the HTML parser mid-way. `defer` promises to politely wait until the HTML parser is completely finished.",
+    "fix": "Almost always use `defer`. Only use `async` for completely independent scripts like Google Analytics."
+  },
+  "5_related_topics": [
+    "js.dom_tree",
+    "js.rendering_pipeline"
+  ],
+  "6_edge_case": {
+    "quirk": "If you use `<script type=\"module\">`, it automatically acts like it has `defer` applied to it. You don't need to explicitly type `defer`.",
+    "code": ""
+  }
+}

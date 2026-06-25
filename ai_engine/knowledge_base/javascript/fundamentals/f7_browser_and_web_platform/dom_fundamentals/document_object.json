@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.document_object",
+  "topic": "The Document Object",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.dom_intro"
+    ],
+    "related_to": [
+      "js.selecting_elements",
+      "js.dom_tree"
+    ],
+    "often_confused_with": [
+      "js.browser_web_apis"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the document object",
+      "what is document in javascript"
+    ],
+    "why": [
+      "why use document.something"
+    ],
+    "how": [
+      "how to access the webpage from js"
+    ],
+    "compare": [
+      "document vs window"
+    ],
+    "output": [
+      "document is not defined"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The `document` is a massive global object provided by the browser. It represents the entire HTML webpage that is currently loaded in the tab. It serves as the main entry point to the DOM. If you want to find an element, create an element, or listen for events across the whole page, you almost always start by typing `document.`",
+    "analogy": "If the webpage is a giant library full of books, the `document` is the Head Librarian. You can't just wander in and grab a book. You must walk up to the Head Librarian (`document`) and ask them to find the book for you (`document.getElementById()`)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The `document` object is actually a property of the global `window` object (`window.document`). The browser automatically injects it into the global scope before your JavaScript even begins to execute.",
+    "memory": "The `document` object remains in memory for the exact lifecycle of the HTML page. Navigating to a new URL destroys the current `document` and builds a new one."
+  },
+  "3_real_world_example": {
+    "use_case": "Accessing core information about the loaded page.",
+    "code": "// Read the title of the current tab\nconsole.log(document.title);\n\n// Change the title of the tab dynamically\ndocument.title = 'New Message (1)';\n\n// Check the exact URL of the loaded page\nconsole.log(document.URL);\n\n// Find the <body> tag\nconst body = document.body;"
+  },
+  "4_common_confusion": {
+    "trap": "Running browser JavaScript in Node.js and getting a `ReferenceError: document is not defined`. The `document` object ONLY exists inside web browsers (Chrome, Firefox, Safari). It does not exist in Node.js because a backend server does not have a screen or an HTML webpage to render.",
+    "fix": "Never use `document` in Node.js scripts."
+  },
+  "5_related_topics": [
+    "js.dom_intro",
+    "js.selecting_elements"
+  ],
+  "6_edge_case": {
+    "quirk": "You can actually overwrite the entire HTML page instantly by using `document.write()`, but doing so after the page has finished loading will completely delete the existing DOM.",
+    "code": "setTimeout(() => {\n  //  DANGER: This destroys the entire website and replaces it with 'Oops'\n  document.write('Oops');\n}, 5000);"
+  }
+}

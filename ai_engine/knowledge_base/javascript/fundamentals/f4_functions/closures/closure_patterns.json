@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.closure_patterns",
+  "topic": "Closure Patterns",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.closures", "js.closure_private_state", "js.higher_order_functions"],
+    "related_to": ["js.closures_deep", "js.currying", "js.callbacks"],
+    "often_confused_with": ["js.higher_order_functions"]
+  },
+  "question_map": {
+    "what": [
+      "real world closure examples",
+      "where are closures used in javascript",
+      "what are common closure patterns"
+    ],
+    "why": [
+      "how do react hooks use closures",
+      "why does memoization use closures",
+      "why does the module pattern use closures"
+    ],
+    "how": [
+      "how to implement memoization with closures",
+      "how to implement partial application with closures",
+      "how does once pattern work with closures"
+    ],
+    "compare": [
+      "partial application vs currying using closures",
+      "module pattern vs revealing module pattern"
+    ],
+    "output": [
+      "memoized function returns cached result on second call",
+      "once function runs only on first invocation"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Closure patterns are idiomatic ways developers use closures to solve recurring problems elegantly. The five most important patterns are: **Memoization** (caching expensive computation results), **Once** (ensuring a function runs only once), **Partial Application** (pre-filling some arguments), **Module Pattern** (private state with a public API), and **Event Handler Factories** (creating handlers that remember context). These patterns appear throughout React hooks, popular utility libraries (Lodash), and production codebases.",
+    "analogy": "Closure patterns are like recipes in a cookbook. The underlying ingredient is always closures (captured variable access). But different recipes combine that ingredient to solve different kitchen problems: some recipes preserve food (memoization caches), some are one-time-use (once pattern), some pre-season dishes (partial application). The ingredient is the same — the use case changes."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "All closure patterns exploit the same mechanism: a factory function creates a Lexical Environment holding state (cache, flag, pre-filled args), then returns one or more functions that close over that environment. The returned functions read and write the captured state across multiple calls. The outer factory runs once; the inner closures run many times, accumulating or using the shared state.",
+    "memory": "Each pattern's closed-over state persists for the lifetime of the returned function(s). Memoization caches can grow indefinitely — always consider adding a maximum size or eviction strategy to prevent unbounded memory growth."
+  },
+  "3_real_world_example": {
+    "use_case": "Four production-quality closure patterns in one file — memoize, once, partial, and event factory.",
+    "code": "// 1. MEMOIZE — cache expensive computation\nfunction memoize(fn) {\n  const cache = new Map();\n  return function(...args) {\n    const key = JSON.stringify(args);\n    if (cache.has(key)) return cache.get(key);\n    const result = fn.apply(this, args);\n    cache.set(key, result);\n    return result;\n  };\n}\n\nconst expensiveCalc = memoize((n) => {\n  console.log(`computing ${n}...`);\n  return n * n;\n});\nconsole.log(expensiveCalc(5)); // computing 5...  → 25\nconsole.log(expensiveCalc(5)); //                → 25 (cached, no log)\n\n// 2. ONCE — runs only on the first call\nfunction once(fn) {\n  let called = false;\n  let result;\n  return function(...args) {\n    if (!called) { called = true; result = fn.apply(this, args); }\n    return result;\n  };\n}\n\nconst initDB = once(() => { console.log('DB connected'); return 'connection'; });\ninitDB(); // 'DB connected'\ninitDB(); // silence — runs nothing again\n\n// 3. PARTIAL APPLICATION — pre-fill arguments\nfunction partial(fn, ...presetArgs) {\n  return function(...laterArgs) {\n    return fn(...presetArgs, ...laterArgs);\n  };\n}\n\nconst add = (a, b, c) => a + b + c;\nconst add10 = partial(add, 10);\nconsole.log(add10(5, 3)); // 18\n\n// 4. REACT HOOK ANALOGY — useState uses closures internally\nfunction useState(initial) {\n  let state = initial;\n  const getState = () => state;\n  const setState = (newVal) => { state = newVal; };\n  return [getState, setState];\n}\n\nconst [count, setCount] = useState(0);\nsetCount(5);\nconsole.log(count()); // 5"
+  },
+  "4_common_confusion": {
+    "trap": "Memoizing functions that have side effects or non-serializable arguments (DOM elements, circular objects). `JSON.stringify` will throw or produce incorrect cache keys.",
+    "fix": "Only memoize pure functions. For complex arguments, use a `WeakMap` as the cache key storage, or write a custom key serializer."
+  },
+  "5_related_topics": [
+    "js.closures",
+    "js.closures_deep",
+    "js.closure_private_state",
+    "js.currying"
+  ],
+  "6_edge_case": {
+    "quirk": "React's `useState` and `useEffect` hooks rely on closures to capture component state and props at render time. This is why the 'stale closure' problem exists in React — a `useEffect` that captures a state variable will see the value from when it was last rendered, not the current value, unless the effect dependency array is correct.",
+    "code": "// Conceptual: React stale closure\n// function Component() {\n//   const [count, setCount] = useState(0);\n//\n//   useEffect(() => {\n//     const id = setInterval(() => {\n//       console.log(count); //  Stale: always prints 0 (initial capture)\n//       setCount(count + 1);\n//     }, 1000);\n//     return () => clearInterval(id);\n//   }, []); // empty deps = closure captured count=0 forever\n//\n//   // Fix: pass a callback to setCount so it reads current state\n//   // setCount(prev => prev + 1); \n// }"
+  }
+}

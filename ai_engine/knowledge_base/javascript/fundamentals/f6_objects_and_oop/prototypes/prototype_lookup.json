@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.prototype_lookup",
+  "topic": "Prototype Lookup & Performance",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.prototype_chain"],
+    "related_to": ["js.property_access"],
+    "often_confused_with": ["js.prototype_chain"]
+  },
+  "question_map": {
+    "what": ["how property lookup works internally", "what is hasOwnProperty"],
+    "why": ["why is prototype lookup slow", "why check hasOwnProperty"],
+    "how": ["how to check if property belongs to object"],
+    "compare": ["in operator vs hasOwnProperty"],
+    "output": ["hasOwnProperty returns true"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Because JavaScript objects can have deep Prototype Chains, looking up a property can take time as the engine searches from object to object. Sometimes you want to know: 'Does this object actually own this property itself, or is it inheriting it from someone else?' You answer this using the `hasOwnProperty()` method or the newer `Object.hasOwn()`.",
+    "analogy": "If I ask you if you have a lawnmower, you might say 'Yes' (because you can borrow your neighbor's via the prototype link). But if I specifically ask 'Do you OWN a lawnmower?', you would say 'No'. `hasOwnProperty` asks if you personally own it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The `in` operator (e.g., `'toString' in obj`) will traverse the entire prototype chain until it hits `null`, returning `true` if found anywhere. `Object.hasOwn(obj, 'prop')` checks ONLY the immediate object's dictionary, skipping the prototype chain entirely, making it O(1) and safe.",
+    "memory": "Long prototype chains can degrade property read performance. Modern engines (V8) use 'Hidden Classes' to cache the locations of properties, but traversing chains for non-existent properties forces the engine to do a slow, full lookup."
+  },
+  "3_real_world_example": {
+    "use_case": "Filtering out inherited properties when looping over an object.",
+    "code": "const parent = { familyName: 'Smith' };\nconst child = Object.create(parent);\nchild.firstName = 'John';\n\n// The 'in' operator checks the whole chain\nconsole.log('familyName' in child); // true\n\n// Object.hasOwn only checks the object itself\nconsole.log(Object.hasOwn(child, 'firstName'));  // true\nconsole.log(Object.hasOwn(child, 'familyName')); // false"
+  },
+  "4_common_confusion": {
+    "trap": "Using the older `obj.hasOwnProperty('key')`. If an object was created with `Object.create(null)`, it doesn't inherit `hasOwnProperty`, so the code crashes. Or, a malicious user could pass an object like `{ hasOwnProperty: () => false }` and break your logic.",
+    "fix": "Always use the modern, static `Object.hasOwn(obj, 'key')` introduced in ES2022. It is perfectly safe against all edge cases."
+  },
+  "5_related_topics": ["js.prototype_chain", "js.object_keys_values_entries"],
+  "6_edge_case": {
+    "quirk": "If you query a property that does not exist anywhere in a very deep prototype chain, the engine is forced to do maximum work (walking the entire chain to `null`) just to return `undefined`. This can be a silent performance bottleneck.",
+    "code": "// If obj has a chain depth of 50, \n// obj.missingProp does 50 lookups before failing."
+  }
+}

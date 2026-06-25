@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.return_values",
+  "topic": "Return Values",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.invoking_functions"],
+    "related_to": ["js.parameters_and_arguments", "js.function_expression"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is the return keyword",
+      "what is a return value",
+      "what does a function return by default"
+    ],
+    "why": [
+      "why use return in a function",
+      "why does my function return undefined",
+      "difference between console.log and return"
+    ],
+    "how": [
+      "how to return a value from a function",
+      "how to return multiple values from a function",
+      "can a function return another function"
+    ],
+    "compare": [
+      "console.log vs return",
+      "returning value vs side effect"
+    ],
+    "output": [
+      "why does my function return undefined",
+      "function always returns undefined even with return statement"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The `return` statement does two things: it specifies the **output value** of the function, and it **immediately stops** execution of the function body. Without `return`, a function finishes and implicitly returns `undefined`. You can only return a single value — but that value can be an object or array containing multiple pieces of data.",
+    "analogy": "A function is like a vending machine. You put in coins and press a button (calling with arguments). The machine processes internally, then `return` is the tray that ejects the product. Without a `return` statement, you press the button and the machine just whirrs and ejects nothing — you get `undefined` (empty tray). `console.log` is like a screen on the side that displays what is happening — visible to you watching, but nothing is physically ejected."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine encounters a `return` statement, it evaluates the expression after `return`, records it as the completion value of the function's Execution Context, then pops that context off the Call Stack. Control returns to the calling expression, which receives the completion value. If the function body ends without `return`, or uses `return;` with no value, the completion value is `undefined`.",
+    "memory": "If the returned value is a primitive, a copy is passed to the caller. If it is an object or array, the heap reference is passed — the caller and the function have shared access to the same heap object after the return."
+  },
+  "3_real_world_example": {
+    "use_case": "Composing two functions — one that computes a value and one that formats it — showing the difference between return (data pipeline) and console.log (side effect).",
+    "code": "//  Return — produces a value that can be used further\nfunction calcTotal(price, qty) {\n  return price * qty; // exits here with the result\n  console.log('This never runs'); // unreachable code!\n}\n\nfunction formatPrice(amount) {\n  return `$${amount.toFixed(2)}`;\n}\n\n// Compose the two functions\nconst display = formatPrice(calcTotal(9.99, 3));\nconsole.log(display); // '$29.97'\n\n//  Anti-pattern — using console.log instead of return\nfunction badCalc(price, qty) {\n  console.log(price * qty); // prints but returns nothing useful\n}\nconst bad = badCalc(9.99, 3); // bad === undefined"
+  },
+  "4_common_confusion": {
+    "trap": "Placing code after a `return` statement and expecting it to run. `return` immediately exits the function — any lines after it in the same block are dead code.",
+    "fix": "Move any logic that needs to run before the `return`. Use an `if/else` structure if you need conditional returns."
+  },
+  "5_related_topics": [
+    "js.parameters_and_arguments",
+    "js.function_expression",
+    "js.first_class_functions"
+  ],
+  "6_edge_case": {
+    "quirk": "Automatic Semicolon Insertion (ASI) can silently break a `return` statement if you put the returned expression on the next line. The engine inserts a semicolon after `return`, making the function return `undefined` instead of your value.",
+    "code": "function getData() {\n  return   // ️ ASI inserts ';' here — returns undefined!\n  {\n    name: 'SkillSprint'\n  };\n}\n\nconsole.log(getData()); // undefined — not the object!\n\n//  Fix: keep the opening brace on the same line as return\nfunction getDataFixed() {\n  return {   // no line break before the value\n    name: 'SkillSprint'\n  };\n}\nconsole.log(getDataFixed()); // { name: 'SkillSprint' }"
+  }
+}

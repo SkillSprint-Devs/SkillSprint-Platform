@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.private_fields",
+  "topic": "Private Fields (#)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.classes_intro", "js.getters_setters"],
+    "related_to": ["js.encapsulation", "js.closure_private_state"],
+    "often_confused_with": ["js.closure_private_state"]
+  },
+  "question_map": {
+    "what": ["what are private fields", "what does # mean in javascript"],
+    "why": ["why use private properties", "why cant i access property from outside"],
+    "how": ["how to make a property private", "how to hide data in class"],
+    "compare": ["underscore vs hashtag private", "closures vs private fields"],
+    "output": ["private field must be declared in an enclosing class"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Historically, all properties inside a JavaScript class were public. If you had a password property, anyone could read or change it from outside the object. To fix this, ES2022 introduced **Private Fields**. By placing a hashtag (`#`) in front of a property name (e.g., `#password`), you tell JavaScript: 'This property can ONLY be read or changed from inside the class itself.'",
+    "analogy": "A public property is like putting your wallet on the kitchen table; anyone in the house can grab it. A private field `#` is like putting your wallet in a locked safe. Only you (the class methods) know the combination to open it. If someone outside tries to open it, they get an error."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Private fields are enforced strictly by the JavaScript engine at runtime. When an external script attempts to access `obj.#secret`, the engine immediately throws a SyntaxError. They are completely invisible to `Object.keys()` or normal property iteration.",
+    "memory": "Unlike normal properties which are added to the object dynamically, private fields must be statically declared upfront at the top of the class body."
+  },
+  "3_real_world_example": {
+    "use_case": "Storing sensitive information or internal state that should not be messed with directly.",
+    "code": "class BankAccount {\n  // 1. You MUST declare the private field upfront\n  #balance = 0;\n\n  constructor(initialDeposit) {\n    this.#balance = initialDeposit;\n  }\n\n  // 2. Methods inside the class can access it safely\n  deposit(amount) {\n    this.#balance += amount;\n  }\n  \n  getBalance() {\n    return this.#balance;\n  }\n}\n\nconst myAccount = new BankAccount(100);\nmyAccount.deposit(50);\nconsole.log(myAccount.getBalance()); // 150\n\n//  3. The outside world cannot touch it!\n// console.log(myAccount.#balance); // SyntaxError!"
+  },
+  "4_common_confusion": {
+    "trap": "Using the underscore convention (`this._balance`) and thinking it's actually private. The underscore is just a gentleman's agreement among developers saying 'please don't touch this'. It does NOT actually stop anyone from modifying it. The `#` actually locks it at the engine level.",
+    "fix": "If you want true privacy, use `#`. If you just want to hint at privacy, use `_`."
+  },
+  "5_related_topics": ["js.encapsulation", "js.getters_setters"],
+  "6_edge_case": {
+    "quirk": "You cannot dynamically create private fields on the fly like you can with public properties. They MUST be hardcoded into the class definition block.",
+    "code": "class Failed {\n  constructor() {\n    //  Error: Private field '#dynamic' must be declared in an enclosing class\n    this.#dynamic = 123; \n  }\n}"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.async_functions",
+  "topic": "Async Functions",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.promises_intro"],
+    "related_to": ["js.await_keyword", "js.async_error_handling"],
+    "often_confused_with": ["js.promises_intro"]
+  },
+  "question_map": {
+    "what": ["what does async keyword do", "what is an async function"],
+    "why": ["why mark function async", "why use async functions"],
+    "how": ["how to create an async function", "how do async functions return values"],
+    "compare": ["async function vs normal function", "async function vs promise"],
+    "output": ["async function returns a promise instead of a string"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Placing the `async` keyword in front of a function does two very specific things: 1) It allows you to use the `await` keyword inside that function. 2) It guarantees that the function will **always return a Promise**. If you return a normal value (like a string or number) from an async function, JavaScript automatically wraps it in a resolved Promise. If you throw an error, it wraps it in a rejected Promise.",
+    "analogy": "Marking a function as `async` is like putting a 'Delivery Only' sign on a restaurant. Even if you order a simple bottle of water (a normal string), the restaurant won't hand it to you over the counter — they will put it in a delivery box (a Promise) and ship it to you. You always get a box, no matter what you ordered."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an `async` function is called, it executes synchronously until it hits its first `await` (or until it returns). If it returns a non-promise value `V`, the engine behaves as if you wrote `return Promise.resolve(V)`. If it throws an exception `E`, the engine behaves as if you wrote `return Promise.reject(E)`.",
+    "memory": "Because it always returns a Promise, every call to an async function allocates a new Promise object on the heap."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding that calling an async function always requires `.then()` or `await` to extract the value, even if the function doesn't do anything asynchronous.",
+    "code": "// Normal function\nfunction getSyncName() { \n  return 'Alice'; \n}\nconsole.log(getSyncName()); // 'Alice'\n\n// Async function\nasync function getAsyncName() { \n  return 'Alice'; // Automatically wrapped in a Promise!\n}\nconsole.log(getAsyncName()); // Promise { <fulfilled>: 'Alice' }\n\n// Extracting the value\ngetAsyncName().then(name => console.log(name)); // 'Alice'"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that marking a heavy, CPU-intensive function as `async` will make it run in the background and prevent it from blocking the UI. It will not. An `async` function still runs on the main thread. If you don't use `await` inside it, it runs entirely synchronously.",
+    "fix": "`async` does not mean 'run in background thread'. It means 'returns a Promise and can use await'. For heavy CPU work, use Web Workers."
+  },
+  "5_related_topics": ["js.await_keyword", "js.promises_intro"],
+  "6_edge_case": {
+    "quirk": "If you return a Promise from an async function, JavaScript does not wrap it in a *second* Promise. It just returns the Promise you provided.",
+    "code": "async function doublePromise() {\n  return Promise.resolve(42); // Not double-wrapped\n}\ndoublePromise().then(val => console.log(val)); // 42"
+  }
+}

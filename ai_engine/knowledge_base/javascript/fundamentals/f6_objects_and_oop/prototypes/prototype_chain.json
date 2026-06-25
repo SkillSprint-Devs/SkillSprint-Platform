@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.prototype_chain",
+  "topic": "The Prototype Chain",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.prototype_intro"],
+    "related_to": ["js.prototype_lookup", "js.inheritance_via_prototypes"],
+    "often_confused_with": ["js.scope_chain"]
+  },
+  "question_map": {
+    "what": ["what is prototype chain", "how does property lookup work"],
+    "why": ["why does array have object methods"],
+    "how": ["how deep does prototype chain go"],
+    "compare": ["prototype chain vs scope chain"],
+    "output": ["null at end of prototype chain"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **Prototype Chain** is simply a series of linked objects. Because a prototype is itself an object, *it* can also have its own prototype. If you ask an object for a property, it checks itself. If missing, it checks its prototype. If missing there, it checks the prototype's prototype... and so on, until it reaches the end of the chain (which is `null`). If it hits `null` and still hasn't found the property, it returns `undefined`.",
+    "analogy": "Imagine looking up a word in a pocket dictionary. If it's not there, the pocket dictionary tells you to look in the standard dictionary. If it's not there, the standard dictionary tells you to look in the massive unabridged encyclopedia. If it's not there, it tells you the word doesn't exist."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a `Get` operation is performed (e.g., `obj.key`), the engine traverses the `[[Prototype]]` internal links sequentially. This is an O(N) operation where N is the depth of the chain. Modifying the prototype chain dynamically at runtime completely destroys JavaScript engine optimizations (hidden classes/inline caching), causing massive performance drops.",
+    "memory": "The chain eventually terminates at `Object.prototype`, whose prototype is `null`. All standard objects, arrays, and functions eventually link back to `Object.prototype`."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding how arrays inherit methods from Array.prototype, but also inherit from Object.prototype.",
+    "code": "const arr = [1, 2, 3];\n\n// 1. Ask arr for 'push'. It doesn't own it. \n// 2. Checks Prototype (Array.prototype). Found it!\narr.push(4);\n\n// 1. Ask arr for 'hasOwnProperty'. It doesn't own it.\n// 2. Checks Prototype (Array.prototype). Not there either.\n// 3. Checks Prototype's Prototype (Object.prototype). Found it!\nconsole.log(arr.hasOwnProperty('length')); // true"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing the Scope Chain with the Prototype Chain. They sound similar but are completely different.",
+    "fix": "The Scope Chain resolves **Variable** names (`let`, `const`) looking upward through nested functions. The Prototype Chain resolves **Object Properties** (`obj.key`) looking upward through linked objects."
+  },
+  "5_related_topics": ["js.prototype_lookup", "js.inheritance_via_prototypes", "js.scope_chain"],
+  "6_edge_case": {
+    "quirk": "If a property exists on the object AND on its prototype, the engine stops looking as soon as it finds the first one. This is called 'Shadowing'—the closer property hides the one further up the chain.",
+    "code": "const parent = { greet: () => 'Hi from parent' };\nconst child = Object.create(parent);\nchild.greet = () => 'Hi from child'; // Shadows parent's greet\n\nconsole.log(child.greet()); // 'Hi from child'"
+  }
+}

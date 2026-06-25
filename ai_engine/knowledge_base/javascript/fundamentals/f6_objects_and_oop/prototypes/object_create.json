@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_create",
+  "topic": "Object.create()",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.prototype_intro"],
+    "related_to": ["js.inheritance_via_prototypes"],
+    "often_confused_with": ["js.new_keyword"]
+  },
+  "question_map": {
+    "what": ["what is object.create", "how does object.create work"],
+    "why": ["why use object.create", "when to use object.create"],
+    "how": ["how to create an object with a specific prototype"],
+    "compare": ["object.create vs new", "object.create vs object.assign"],
+    "output": ["object.create creates empty object"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`Object.create(proto)` is a built-in method that creates a brand new, empty object, and explicitly sets its hidden Prototype link to whatever object you passed in as the argument. It is the cleanest, most direct way to establish Prototypal Inheritance without dealing with constructor functions or classes.",
+    "analogy": "If `Object.assign()` is 'copy all your documents into my folder', `Object.create()` is 'create a new empty folder for me, and write down your phone number on the inside cover so I can call you if I need anything'."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine allocates a new empty object in the Heap. It then writes the provided `proto` reference into the new object's internal `[[Prototype]]` slot. It returns the new object.",
+    "memory": "It allocates a single empty object. If you pass `null` as the argument, it creates an object with no prototype link at all."
+  },
+  "3_real_world_example": {
+    "use_case": "Setting up explicit delegation links between objects.",
+    "code": "const mathUtils = {\n  add: (a, b) => a + b,\n  subtract: (a, b) => a - b\n};\n\n// Create a new calculator object that inherits from mathUtils\nconst myCalc = Object.create(mathUtils);\nmyCalc.name = 'Casio';\n\n// myCalc itself only has 'name'\nconsole.log(Object.keys(myCalc)); // ['name']\n\n// But it can seamlessly use mathUtils methods!\nconsole.log(myCalc.add(5, 3)); // 8"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing `Object.create(obj)` with `Object.assign({}, obj)`. `Object.assign` copies properties directly onto the new object. `Object.create` copies NOTHING, it just creates a hidden link.",
+    "fix": "Use `assign` to copy data. Use `create` to share behavior."
+  },
+  "5_related_topics": ["js.inheritance_via_prototypes", "js.new_keyword"],
+  "6_edge_case": {
+    "quirk": "`Object.create` can take a second argument: an object containing 'property descriptors'. This allows you to create an object and define complex properties (like read-only data) in a single step.",
+    "code": "const obj = Object.create(parentObj, {\n  id: { value: 42, writable: false, enumerable: true }\n});"
+  }
+}

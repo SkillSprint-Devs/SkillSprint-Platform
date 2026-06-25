@@ -51,7 +51,7 @@
   },
   "3_real_world_example": {
     "use_case": "Using 'const' for immutable configurations (like app themes or api configurations) and 'let' for counters or variables that change state.",
-    "code": "// Labeled box for state that changes\nlet userScore = 0;\nuserScore += 10; // ✅ Allowed\n\n// Labeled box for fixed settings\nconst APP_THEME = 'dark';\n// APP_THEME = 'light'; // ❌ TypeError: Assignment to constant variable."
+    "code": "// Labeled box for state that changes\nlet userScore = 0;\nuserScore += 10; //  Allowed\n\n// Labeled box for fixed settings\nconst APP_THEME = 'dark';\n// APP_THEME = 'light'; //  TypeError: Assignment to constant variable."
   },
   "4_common_confusion": {
     "trap": "Thinking that 'const' makes an object's properties immutable. It only prevents re-assignment of the variable's reference address.",
@@ -63,6 +63,6 @@
   ],
   "6_edge_case": {
     "quirk": "Mutating properties inside a const array or object does not throw an error because the memory address reference remains unchanged.",
-    "code": "const skills = ['JS', 'HTML'];\nskills.push('CSS'); // ✅ Works perfectly because the array reference hasn't changed!\n// skills = ['Python']; // ❌ Throws TypeError (reassignment)"
+    "code": "const skills = ['JS', 'HTML'];\nskills.push('CSS'); //  Works perfectly because the array reference hasn't changed!\n// skills = ['Python']; //  Throws TypeError (reassignment)"
   }
 }

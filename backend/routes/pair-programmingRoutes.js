@@ -659,7 +659,7 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
 
     const comment = {
       text,
-      line: line || null,
+      line: line !== undefined ? line : null,
       authorId: req.user.id,
       authorName: user?.name || "Unknown",
     };

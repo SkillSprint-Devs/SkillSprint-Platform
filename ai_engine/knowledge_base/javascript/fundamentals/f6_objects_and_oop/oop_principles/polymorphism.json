@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.polymorphism",
+  "topic": "Polymorphism",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.inheritance"],
+    "related_to": ["js.class_inheritance"],
+    "often_confused_with": ["js.inheritance"]
+  },
+  "question_map": {
+    "what": ["what is polymorphism", "what does polymorphism mean"],
+    "why": ["why override methods", "why use polymorphism"],
+    "how": ["how can one method behave differently"],
+    "compare": ["overriding vs overloading"],
+    "output": ["object does not support property or method"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Polymorphism** means 'many forms'. In OOP, it allows different child classes to define their own unique behavior for the exact same method name. This means you can loop through a list of different objects and call `.speak()` on all of them, and each object will respond in its own unique way, without the loop needing to know what specific type of object it is.",
+    "analogy": "Imagine a TV remote with a 'Play' button. If you point it at a DVD player, 'Play' spins a disc. If you point it at an MP3 player, 'Play' plays audio. If you point it at a video game console, 'Play' starts the game. One button ('Play' method), many different behaviors (Polymorphism) depending on the object receiving the command."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "In JS, polymorphism is achieved through Method Overriding via the Prototype Chain. If a `Dog` class defines a `speak()` method, it 'shadows' the `speak()` method defined on the `Animal` parent class. When `dog.speak()` is called, the engine finds the Dog's version first and executes it, ignoring the Parent's version.",
+    "memory": "Method overriding creates a new function object on the Child's prototype, distinct from the Parent's prototype."
+  },
+  "3_real_world_example": {
+    "use_case": "Processing a list of different shapes where each shape knows how to draw itself.",
+    "code": "class Shape {\n  draw() { console.log('Drawing a generic shape'); }\n}\n\nclass Circle extends Shape {\n  draw() { console.log('Drawing a round circle 🟢'); } // Overriding!\n}\n\nclass Square extends Shape {\n  draw() { console.log('Drawing a square 🟦'); } // Overriding!\n}\n\nconst shapes = [new Circle(), new Square(), new Shape()];\n\n// Polymorphism in action: We don't check 'if (shape is Circle)'. \n// We just tell them all to draw(), and they figure it out themselves.\nshapes.forEach(shape => shape.draw());\n// 'Drawing a round circle 🟢'\n// 'Drawing a square 🟦'\n// 'Drawing a generic shape'"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing Overriding (which JS supports) with Overloading (which JS does NOT support). In Java, you can have two methods with the exact same name but different arguments `draw(int x)` and `draw(String x)`. In JS, if you write the same method twice in a class, the second one just overwrites the first completely.",
+    "fix": "To achieve 'Overloading' in JS, you must write a single method and manually check the arguments inside using `if (typeof arg === 'string')`."
+  },
+  "5_related_topics": ["js.inheritance", "js.prototype_chain"],
+  "6_edge_case": {
+    "quirk": "If a child class overrides a method but STILL wants to run the parent's version of that method as part of its logic, it can use the `super` keyword.",
+    "code": "class Child extends Parent {\n  draw() {\n    super.draw(); // Do the parent stuff first\n    console.log('Then do the child stuff');\n  }\n}"
+  }
+}

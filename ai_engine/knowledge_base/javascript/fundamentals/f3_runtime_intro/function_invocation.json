@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.function_invocation",
+  "topic": "Function Invocation",
+  "dimensions": {
+    "syntax": true,
+    "semantics": false,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.functions", "js.execution_context_intro", "js.call_stack"],
+    "related_to": ["js.lexical_environment", "js.this_keyword", "js.scope_chain"],
+    "often_confused_with": ["js.arrow_functions"]
+  },
+  "question_map": {
+    "what": [
+      "what happens when a function is called",
+      "what is a stack frame",
+      "what gets created during a function call",
+      "what is function invocation"
+    ],
+    "why": [
+      "why does each function call get its own scope",
+      "why do function arguments not persist between calls",
+      "why does this change depending on how a function is called"
+    ],
+    "how": [
+      "how is a function executed in javascript",
+      "how does a function call create a new context",
+      "how does js handle function arguments internally"
+    ],
+    "compare": [
+      "function declaration invocation vs arrow function invocation",
+      "method call vs regular function call",
+      "call vs apply vs bind"
+    ],
+    "output": [
+      "predict what this refers to in a function call",
+      "trace stack frame creation during nested calls"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When you invoke (call) a function in JavaScript, the engine does several things instantly: it creates a new Function Execution Context, allocates a new stack frame on the Call Stack, sets up a new Lexical Environment for local variables, binds the `this` keyword, and copies the provided arguments. When the function returns, the frame is removed and the engine returns to the caller.",
+    "analogy": "Calling a function is like opening a new office for a specific project. The moment you call the function, a fully equipped office (execution context) is set up: a whiteboard for local variables (Lexical Environment), an inbox for incoming parameters (arguments object), and an assigned manager identity (`this`). Once the project is done and the function returns, the office is dissolved."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Function invocation triggers five internal steps: 1. A new Function Execution Context is created. 2. A Lexical Environment is created with bindings for parameters and local declarations. 3. The outer reference on the Lexical Environment is set to the scope where the function was *defined* (lexical scoping). 4. `this` is bound (depends on invocation pattern: regular call, method call, `new`, `.call()/.apply()`). 5. The new context is pushed onto the Call Stack. Execution begins at the function's first statement.",
+    "memory": "All local variables exist on the stack frame for the duration of the function call. Once the function returns, the frame is popped and those bindings are eligible for garbage collection — unless a closure holds a reference to the environment."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why two calls to the same function are completely isolated and cannot share local data without an external variable.",
+    "code": "function buildMessage(user, score) {\n  // Each call gets its own stack frame with its own 'user' and 'score'\n  const prefix = '[SkillSprint]';\n  return `${prefix} ${user} scored ${score}`;\n}\n\nconsole.log(buildMessage('Alice', 95)); // [SkillSprint] Alice scored 95\nconsole.log(buildMessage('Bob', 82));   // [SkillSprint] Bob scored 82\n// The two calls are completely isolated stack frames"
+  },
+  "4_common_confusion": {
+    "trap": "Assuming that calling a method like `obj.greet()` and extracting it as `const fn = obj.greet; fn()` behave identically. The `this` binding changes: `obj.greet()` binds `this` to `obj`, but `fn()` as a plain call binds `this` to `undefined` (strict mode) or the global object.",
+    "fix": "Use `.bind(obj)` or an arrow function to preserve the intended `this` binding when detaching a method from its object."
+  },
+  "5_related_topics": [
+    "js.execution_context_intro",
+    "js.call_stack",
+    "js.lexical_environment",
+    "js.this_keyword"
+  ],
+  "6_edge_case": {
+    "quirk": "Immediately Invoked Function Expressions (IIFEs) create and call a function in a single expression. Before ES6 block scoping, IIFEs were the primary pattern for isolating variables from the global scope.",
+    "code": "(function () {\n  const secret = 'hidden from global scope';\n  console.log(secret); // works inside\n})();\n\n// console.log(secret); //  ReferenceError — not accessible outside"
+  }
+}

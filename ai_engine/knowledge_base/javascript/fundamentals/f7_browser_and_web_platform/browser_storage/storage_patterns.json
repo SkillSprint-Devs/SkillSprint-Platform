@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.storage_patterns",
+  "topic": "Storage Patterns & JSON",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.local_storage",
+      "js.json_handling"
+    ],
+    "related_to": [
+      "js.storage_security"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is the best way to use localstorage"
+    ],
+    "why": [
+      "why stringify data before saving"
+    ],
+    "how": [
+      "how to save objects in localstorage",
+      "how to build a wrapper for storage"
+    ],
+    "compare": [
+      "direct storage access vs storage wrappers"
+    ],
+    "output": [
+      "json parse returns object from localstorage"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Because `localStorage` and `sessionStorage` only accept strings, developers constantly have to write `JSON.stringify()` when saving arrays/objects, and `JSON.parse()` when reading them. A common 'Storage Pattern' is to create a small helper function (a Wrapper) that does this string conversion automatically, making your code cleaner and less prone to errors.",
+    "analogy": "Instead of manually translating your thoughts into Spanish every time you want to talk to your Spanish-speaking friend (the storage), you hire a translator (a Wrapper Function). You just speak normally, and the translator handles the conversion back and forth."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "A wrapper intercepts the raw data, uses the V8 engine's highly optimized `JSON.stringify` to serialize the memory object into a UTF-16 string, and passes it to the native C++ `setItem` API. On retrieval, `JSON.parse` reconstructs the object in the Heap.",
+    "memory": "Wrapping storage calls in `try/catch` blocks is critical. If the user's hard drive is full, or they are in strict Incognito mode, `setItem` will throw an error and crash your app if uncaught."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a clean helper object to manage user settings safely.",
+    "code": "const StorageHelper = {\n  save: function(key, data) {\n    try {\n      const stringData = JSON.stringify(data);\n      localStorage.setItem(key, stringData);\n    } catch (e) {\n      console.error('Storage failed', e);\n    }\n  },\n  \n  load: function(key) {\n    try {\n      const stringData = localStorage.getItem(key);\n      return stringData ? JSON.parse(stringData) : null;\n    } catch (e) {\n      return null; // Fallback if parsing fails\n    }\n  }\n};\n\n// Usage is now super clean:\nStorageHelper.save('userPrefs', { volume: 80, theme: 'dark' });\nconst prefs = StorageHelper.load('userPrefs');"
+  },
+  "4_common_confusion": {
+    "trap": "Saving a Date object into localStorage. `JSON.stringify` converts a Date into a string (e.g., `'2023-10-01T12:00:00Z'`). When you `JSON.parse` it later, it does NOT turn back into a Date object! It remains a string.",
+    "fix": "You must manually revive Dates after parsing: `const myDate = new Date(parsedData.dateString)`."
+  },
+  "5_related_topics": [
+    "js.local_storage",
+    "js.json_handling"
+  ],
+  "6_edge_case": {
+    "quirk": "If you try to save `undefined` into localStorage using `JSON.stringify(undefined)`, it won't save the string 'undefined', it will literally fail to return a string. This can cause unexpected null values.",
+    "code": "localStorage.setItem('test', JSON.stringify(undefined)); // Actually saves the string \"undefined\" in some browsers, or fails in others!"
+  }
+}

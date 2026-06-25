@@ -267,9 +267,9 @@ class IntentResolver:
         dims = kb_data.get("dimensions", {})
         dim_tags = []
         for name, active in dims.items():
-            status = "🟢" if active else "🔴"
+            status = "🟢" if active else ""
             dim_tags.append(f"{name.capitalize()}: {status}")
-        dim_header = f"🏷️ **Curriculum Focus:** [{' | '.join(dim_tags)}]"
+        dim_header = f"️ **Curriculum Focus:** [{' | '.join(dim_tags)}]"
         
         sections = []
         
@@ -280,14 +280,14 @@ class IntentResolver:
         if is_default or "why" in focuses or "compare" in focuses:
             beg = kb_data.get("1_beginner_explanation", {})
             if beg:
-                section_str = f"#### 💡 Quick Intuition (Analogy)\n> {beg.get('analogy', '')}\n\n**Concept Summary:**\n{beg.get('summary', '')}"
+                section_str = f"####  Quick Intuition (Analogy)\n> {beg.get('analogy', '')}\n\n**Concept Summary:**\n{beg.get('summary', '')}"
                 sections.append(section_str)
                 
         # 2. Internal Mechanism (if default or 'how' or 'why' is requested)
         if is_default or "how" in focuses or "why" in focuses:
             mech = kb_data.get("2_internal_mechanism", {})
             if mech:
-                section_str = f"#### ⚙️ How it Works (Internal Mechanism)\n• **Execution Flow:** {mech.get('execution_flow', '')}\n• **Memory Allocation:** {mech.get('memory', '')}"
+                section_str = f"#### ️ How it Works (Internal Mechanism)\n• **Execution Flow:** {mech.get('execution_flow', '')}\n• **Memory Allocation:** {mech.get('memory', '')}"
                 sections.append(section_str)
                 
         # 3. Real World Example (if default or 'example' is requested)
@@ -295,14 +295,14 @@ class IntentResolver:
             ex = kb_data.get("3_real_world_example", {})
             if ex:
                 code_block = ex.get('code', '')
-                section_str = f"#### 💻 Real-World Example\n*Use Case: {ex.get('use_case', '')}*\n```javascript\n{code_block}\n```"
+                section_str = f"####  Real-World Example\n*Use Case: {ex.get('use_case', '')}*\n```javascript\n{code_block}\n```"
                 sections.append(section_str)
                 
         # 4. Common Confusion (if 'why' or 'compare' or 'output' requested)
         if "why" in focuses or "compare" in focuses or "output" in focuses:
             conf = kb_data.get("4_common_confusion", {})
             if conf:
-                section_str = f"#### ⚠️ Common Trap\n> [!WARNING]\n> **Confusion:** {conf.get('trap', '')}\n>\n> **How to Avoid:** {conf.get('fix', '')}"
+                section_str = f"#### ️ Common Trap\n> [!WARNING]\n> **Confusion:** {conf.get('trap', '')}\n>\n> **How to Avoid:** {conf.get('fix', '')}"
                 sections.append(section_str)
                 
         # 5. Edge Case (if 'output' or 'compare' requested, or if present and we are in default mode)
@@ -310,7 +310,7 @@ class IntentResolver:
             edge = kb_data.get("6_edge_case", {})
             if edge and edge.get("quirk"):
                 code_block = edge.get('code', '')
-                section_str = f"#### 🔍 Edge Case & Quirks\n• **Quirk:** {edge.get('quirk', '')}\n```javascript\n{code_block}\n```"
+                section_str = f"####  Edge Case & Quirks\n• **Quirk:** {edge.get('quirk', '')}\n```javascript\n{code_block}\n```"
                 sections.append(section_str)
 
         # Build Graph Relationship links
@@ -329,9 +329,7 @@ class IntentResolver:
                             target_title = t_data.get("topic", target_intent)
                     except:
                         pass
-                abs_path_clean = abs_path.replace('\\', '/')
-                file_url = f"file:///{abs_path_clean}"
-                return f"[{target_title}]({file_url})"
+                return f'<button class="curriculum-link-btn" data-intent="{target_intent}">{target_title}</button>'
             return f"`{target_intent}`"
 
         depends = relationships.get("depends_on", [])
@@ -340,16 +338,16 @@ class IntentResolver:
         
         if depends:
             links = ", ".join(make_link(t) for t in depends)
-            rel_links.append(f"• 📌 **Prerequisite:** {links}")
+            rel_links.append(f"•  **Prerequisite:** {links}")
         if related:
             links = ", ".join(make_link(t) for t in related)
-            rel_links.append(f"• 💡 **Related Concept:** {links}")
+            rel_links.append(f"•  **Related Concept:** {links}")
         if confused:
             links = ", ".join(make_link(t) for t in confused)
-            rel_links.append(f"• ⚠️ **Watch Out:** Often confused with {links}")
+            rel_links.append(f"• ️ **Watch Out:** Often confused with {links}")
             
         if rel_links:
-            relations_str = "#### 🔗 Related Tracks\n" + "\n".join(rel_links)
+            relations_str = "####  Related Tracks\n" + "\n".join(rel_links)
             sections.append(relations_str)
 
         greeting = "Here is the conceptual breakdown for you, {address}:"

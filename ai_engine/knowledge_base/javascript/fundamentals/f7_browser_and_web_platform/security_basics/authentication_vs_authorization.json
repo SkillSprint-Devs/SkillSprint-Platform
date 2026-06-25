@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.authentication_vs_authorization",
+  "topic": "Authentication vs Authorization",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.client_server_model"
+    ],
+    "related_to": [
+      "js.storage_security",
+      "js.headers"
+    ],
+    "often_confused_with": [
+      "js.authentication_vs_authorization"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the difference between authentication and authorization",
+      "what is auth"
+    ],
+    "why": [
+      "why do i get a 401 error",
+      "why do i get a 403 error"
+    ],
+    "how": [
+      "how to secure an api"
+    ],
+    "compare": [
+      "authentication vs authorization",
+      "401 vs 403 status code"
+    ],
+    "output": [
+      "401 unauthorized vs 403 forbidden response"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Authentication** (AuthN) is answering the question: 'Who are you?' (e.g., Logging in with a username and password). **Authorization** (AuthZ) is answering the question: 'Are you allowed to do this?' (e.g., Checking if a logged-in user is an Admin who can delete files).",
+    "analogy": "Authentication is showing your passport at the airport. You prove you are John Doe. Authorization is showing your boarding pass at the VIP Lounge. Just because they know you are John Doe (Authenticated), doesn't mean John Doe is allowed into the First Class Lounge (Authorized)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Authentication happens first. The server validates credentials and issues a Token or Session Cookie. Authorization happens on every subsequent request. The server inspects the Token, looks up the user's 'Roles' or 'Permissions', and decides if the requested action is permitted.",
+    "memory": "In REST APIs, Authentication failures return an HTTP `401 Unauthorized` status (which is poorly named, it should be Unauthenticated). Authorization failures return an HTTP `403 Forbidden` status."
+  },
+  "3_real_world_example": {
+    "use_case": "A blogging platform with Readers and Writers.",
+    "code": "/* \n  SCENARIO 1: Anonymous visitor tries to create a post.\n  Result: 401 Unauthorized (We don't know who you are! Go log in first.)\n\n  SCENARIO 2: A logged-in 'Reader' tries to create a post.\n  Result: 403 Forbidden (We know who you are, but Readers aren't allowed to do this.)\n\n  SCENARIO 3: A logged-in 'Writer' tries to create a post.\n  Result: 201 Created (You are authenticated AND authorized.)\n*/"
+  },
+  "4_common_confusion": {
+    "trap": "Hiding a button on the Frontend (React/Vue) and thinking the app is secure. If you use an `if(isAdmin)` check in JavaScript to hide the 'Delete Database' button, a hacker can simply open the Network tab, copy the HTTP request, and send it manually. Frontend authorization is only for UI convenience.",
+    "fix": "REAL Authorization must ALWAYS happen on the Backend Server."
+  },
+  "5_related_topics": [
+    "js.status_codes",
+    "js.storage_security"
+  ],
+  "6_edge_case": {
+    "quirk": "OAuth (like 'Sign in with Google') is technically an Authorization framework, but it is heavily abused as an Authentication system (OIDC was built on top of it to fix this).",
+    "code": ""
+  }
+}

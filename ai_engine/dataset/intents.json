@@ -1487,5 +1487,52 @@
       "can i reject a recommended connection",
       "how do i reject a suggested match"
     ]
+  },
+  "general.greeting": {
+    "category": "General",
+    "response": "Hello! I'm your AI Mentor. How can I help you with JavaScript or the SkillSprint platform today?",
+    "route": "NONE",
+    "keywords": [
+      "hi",
+      "hello",
+      "hey",
+      "greetings",
+      "good morning",
+      "good afternoon"
+    ],
+    "admin_notes": "Small talk intent for welcoming the user.",
+    "examples": [
+      "hi",
+      "hello",
+      "hey there",
+      "good morning",
+      "greetings",
+      "hi mentor"
+    ]
+  },
+  "general.polite": {
+    "category": "General",
+    "response": "You're very welcome! Let me know if there's anything else I can help you with.",
+    "route": "NONE",
+    "keywords": [
+      "thanks",
+      "thank you",
+      "awesome",
+      "great",
+      "cool",
+      "bye",
+      "goodbye"
+    ],
+    "admin_notes": "Small talk intent for polite closure/acknowledgment.",
+    "examples": [
+      "thanks",
+      "thank you",
+      "thank you so much",
+      "great thanks",
+      "awesome",
+      "bye",
+      "goodbye",
+      "thanks mentor"
+    ]
   }
 }

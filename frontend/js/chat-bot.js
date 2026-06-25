@@ -224,6 +224,9 @@ async function submitQuery() {
   setIndicatorState('thinking');
   const thinkEl = appendThinkingIndicator();
 
+  // Get last 3 intents from session history
+  const history = State.currentSession.slice(-3).map(s => s.response ? s.response.intent : null).filter(Boolean);
+
   try {
     const token = localStorage.getItem('token');
     const res = await fetch(`${window.API_BASE_URL}/ai/predict`, {
@@ -232,10 +235,21 @@ async function submitQuery() {
         'Content-Type': 'application/json',
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       },
-      body: JSON.stringify({ message: query })
+      body: JSON.stringify({ 
+        message: query,
+        context: {
+          session_history: history
+        }
+      })
     });
 
-    if (!res.ok) throw new Error('API error');
+    if (!res.ok) {
+      if (res.status === 403) {
+        const errData = await res.json().catch(() => ({}));
+        throw { status: 403, message: errData.response || errData.error || 'Access Denied' };
+      }
+      throw new Error('API error');
+    }
     const data = await res.json();
 
     let answer = data.response || "I'm not sure how to answer that.";
@@ -294,7 +308,9 @@ async function submitQuery() {
     const fallbackResponse = {
       intent: 'error',
       confidence: 0,
-      answer: 'Sorry, the AI Mentor is currently offline or unreachable. Please try again later.',
+      answer: err.status === 403 
+        ? err.message 
+        : 'Sorry, the AI Mentor is currently offline or unreachable. Please try again later.',
       code: null,
       related: [],
       isFallback: true
@@ -377,14 +393,13 @@ function appendResponse(resp, originalQuery) {
         <span class="rac-badge"><i class="fa-solid fa-square-check"></i> Answer</span>
         <span class="rac-intent-tag">${escHtml(resp.intent)}</span>
       </div>
-      <div class="rac-body">${formatAnswer(resp.answer)}</div>
+      <div class="rac-body">${sanitizeHtml(formatAnswer(resp.answer))}</div>
       <div class="rac-footer">
         <div class="rac-confidence-row">
           <span class="rac-conf-label">Confidence</span>
           <span class="rac-conf-pill ${confClass}">${confPct}%</span>
         </div>
         <div style="display:flex; gap:8px;">
-          ${resp.route ? `<a href="${resp.route}" class="rac-route-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Go to Page</a>` : ''}
           <button class="rac-save-btn" data-query="${escHtml(originalQuery || resp.intent)}">
             <i class="fa-regular fa-bookmark"></i> Save
           </button>
@@ -465,12 +480,78 @@ function appendResponse(resp, originalQuery) {
     chip.addEventListener('click', () => fillInput(chip.dataset.query));
   });
 
+  // Curriculum link buttons
+  block.querySelectorAll('.curriculum-link-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      fillInput(`Explain ${btn.textContent}`);
+      submitQuery();
+    });
+  });
+
   scrollToBottom();
 }
 
 /* ================================================================
    UTILITY HELPERS
 ================================================================ */
+function sanitizeHtml(htmlString) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  const allowedTags = new Set([
+    'p', 'br', 'em', 'strong', 'ul', 'li', 'button', 'div', 'span', 
+    'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'i'
+  ]);
+  const allowedAttributes = {
+    'button': new Set(['class', 'data-intent']),
+    'a': new Set(['href', 'class', 'target']),
+    'div': new Set(['class']),
+    'span': new Set(['class']),
+    'ul': new Set(['class']),
+    'li': new Set(['class']),
+    'blockquote': new Set(['class']),
+    'i': new Set(['class'])
+  };
+
+  function sanitizeNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.cloneNode(true);
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName = node.tagName.toLowerCase();
+      if (!allowedTags.has(tagName)) {
+        return document.createTextNode(node.textContent);
+      }
+      
+      const cleanElement = document.createElement(tagName);
+      const allowedAttrs = allowedAttributes[tagName] || new Set();
+      for (let i = 0; i < node.attributes.length; i++) {
+        const attr = node.attributes[i];
+        if (allowedAttrs.has(attr.name)) {
+          if (attr.name === 'href' && attr.value.toLowerCase().startsWith('javascript:')) {
+            continue;
+          }
+          cleanElement.setAttribute(attr.name, attr.value);
+        }
+      }
+      
+      node.childNodes.forEach(child => {
+        cleanElement.appendChild(sanitizeNode(child));
+      });
+      return cleanElement;
+    }
+    return document.createTextNode('');
+  }
+
+  const fragment = document.createDocumentFragment();
+  doc.body.childNodes.forEach(child => {
+    fragment.appendChild(sanitizeNode(child));
+  });
+
+  const tempDiv = document.createElement('div');
+  tempDiv.appendChild(fragment);
+  return tempDiv.innerHTML;
+}
+
 function escHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')

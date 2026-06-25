@@ -56,6 +56,6 @@
   ],
   "6_edge_case": {
     "quirk": "Trying to implicitly return an object literal without wrapping it in parentheses will break because the JS engine thinks the `{}` are the function's block scope.",
-    "code": "// ❌ Breaks: engine thinks {} is a code block, so 'id: 1' is a syntax error or a label.\n// const makeUser = id => { id: id }; \n\n// ✅ Fix: wrap the object in parentheses\nconst makeUser = id => ({ id: id });"
+    "code": "//  Breaks: engine thinks {} is a code block, so 'id: 1' is a syntax error or a label.\n// const makeUser = id => { id: id }; \n\n//  Fix: wrap the object in parentheses\nconst makeUser = id => ({ id: id });"
   }
 }

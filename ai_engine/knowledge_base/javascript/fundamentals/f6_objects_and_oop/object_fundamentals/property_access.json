@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.property_access",
+  "topic": "Property Access (Dot vs Bracket)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.object_properties"],
+    "related_to": ["js.destructuring_objects", "js.optional_chaining"],
+    "often_confused_with": ["js.arrays"]
+  },
+  "question_map": {
+    "what": ["how to get value from object", "what is bracket notation"],
+    "why": ["why is dot notation not working", "when to use brackets instead of dot"],
+    "how": ["how to use dynamic keys", "how to read property with variable"],
+    "compare": ["dot notation vs bracket notation"],
+    "output": ["undefined when using variable for key"]
+  },
+  "1_beginner_explanation": {
+    "summary": "There are two ways to read or write a property in an object: **Dot Notation** (`user.name`) and **Bracket Notation** (`user['name']`). Dot notation is the default, but it only works if you know the exact name of the property. If the property name has spaces, or if you are using a variable to figure out which property to access dynamically, you *must* use Bracket Notation.",
+    "analogy": "Dot notation is like having a direct speed-dial button on your phone for 'Mom'. Bracket notation is like having a keypad: you can type in any number, or even look up a number from your contacts dynamically and pass it in."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the engine evaluates `obj.key`, it looks for the literal string 'key' in the object's hash map. When it evaluates `obj[variable]`, it first evaluates the variable to find its string value, and *then* looks up that string in the hash map.",
+    "memory": "There is no performance difference between the two notations in modern JavaScript engines; they compile to the same underlying property lookup instructions."
+  },
+  "3_real_world_example": {
+    "use_case": "Using bracket notation to access properties dynamically based on user input or a loop.",
+    "code": "const stats = {\n  strength: 10,\n  agility: 15,\n  magic: 5\n};\n\n// Dot notation (Hardcoded)\nconsole.log(stats.strength); // 10\n\nfunction printStat(statName) {\n  //  BAD: This looks for a literal property called 'statName'\n  console.log(stats.statName); // undefined\n  \n  //  GOOD: Evaluates the variable first, then looks up the string\n  console.log(stats[statName]);\n}\n\nprintStat('agility'); // 15"
+  },
+  "4_common_confusion": {
+    "trap": "Using quotes inside bracket notation when using a variable. `obj['myVar']` looks for the literal string 'myVar'. `obj[myVar]` looks at the value *inside* the variable.",
+    "fix": "Literal string key = use quotes `['name']` or dot notation `.name`. Dynamic variable key = no quotes `[myVar]`."
+  },
+  "5_related_topics": ["js.object_properties", "js.optional_chaining"],
+  "6_edge_case": {
+    "quirk": "You can actually execute logic inside the brackets to compute the key name on the fly.",
+    "code": "const target = { user_1: 'Alice', user_2: 'Bob' };\nlet id = 2;\nconsole.log(target['user_' + id]); // 'Bob'"
+  }
+}

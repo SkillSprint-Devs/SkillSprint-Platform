@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.input_events",
+  "topic": "Input Events (change vs input)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.event_listeners"
+    ],
+    "related_to": [
+      "js.forms_intro",
+      "js.debouncing"
+    ],
+    "often_confused_with": [
+      "js.form_submission"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the input event",
+      "what is the change event"
+    ],
+    "why": [
+      "why use input instead of change",
+      "why is my keyup event missing the last character"
+    ],
+    "how": [
+      "how to detect when a user types in a text box"
+    ],
+    "compare": [
+      "input vs change",
+      "keyup vs input"
+    ],
+    "output": [
+      "input event fires on every keystroke"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When a user types into a text box, selects a checkbox, or chooses an option from a dropdown, the browser fires specific events. The two most common are `input` and `change`. The `input` event fires *instantly* every single time the value changes (every keystroke). The `change` event waits and only fires after the user finishes interacting and clicks away (loses focus).",
+    "analogy": "The `input` event is a sports commentator doing play-by-play: 'He types A! Now B! Now C!'. The `change` event is the post-game summary: 'The user finished typing ABC.'"
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The `input` event fires synchronously right after the DOM node's internal `value` property is updated by the C++ engine, but before layout recalculations. The `change` event waits for the `blur` event (loss of focus) to evaluate if the value differs from when it gained focus.",
+    "memory": "Rapidly firing events like `input` can overwhelm the Call Stack if your callback function does heavy work (like fetching data from a server). This is why techniques like 'Debouncing' are used."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a live character counter for a tweet.",
+    "code": "const textArea = document.querySelector('#tweetBox');\nconst counter = document.querySelector('#charCount');\n\n// Fires instantly on every single keystroke, paste, or delete\ntextArea.addEventListener('input', (e) => {\n  const currentLength = e.target.value.length;\n  counter.innerText = `${currentLength}/280`;\n});\n\nconst select = document.querySelector('#countryDropdown');\n// Fires only when the user selects a new option and the dropdown closes\nselect.addEventListener('change', (e) => {\n  console.log('You finalized your choice:', e.target.value);\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Using `keydown` or `keyup` to track input values. If the user pastes text using the mouse (Right Click -> Paste), no keyboard keys were pressed, so your `keyup` listener will fail to run!",
+    "fix": "Always use the `input` event to track the value of a text box. It catches typing, pasting, voice dictation, and autofill."
+  },
+  "5_related_topics": [
+    "js.debouncing",
+    "js.form_validation"
+  ],
+  "6_edge_case": {
+    "quirk": "For checkboxes and radio buttons, the `change` event fires immediately upon clicking, not when losing focus. The browser considers the state 'committed' immediately.",
+    "code": "const checkbox = document.querySelector('#terms');\ncheckbox.addEventListener('change', (e) => {\n  console.log('Checked state:', e.target.checked); // Instant\n});"
+  }
+}

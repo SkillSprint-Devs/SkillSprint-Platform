@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.scope_chain",
+  "topic": "Scope Chain",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.scope", "js.lexical_environment"],
+    "related_to": ["js.closures", "js.hoisting", "js.execution_context_intro"],
+    "often_confused_with": ["js.prototypes"]
+  },
+  "question_map": {
+    "what": [
+      "what is scope chain",
+      "what is scope chain in javascript",
+      "what is variable lookup",
+      "how does javascript search for variables"
+    ],
+    "why": [
+      "why can child functions access parent variables",
+      "why does inner function see outer variables",
+      "why variable not found error occurs"
+    ],
+    "how": [
+      "how does variable lookup work in javascript",
+      "how does js search for variables",
+      "how does scope chain resolve a variable name"
+    ],
+    "compare": [
+      "scope chain vs prototype chain",
+      "lexical scope vs dynamic scope"
+    ],
+    "output": [
+      "trace scope chain variable resolution step by step",
+      "predict which variable binding wins in nested scopes"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The Scope Chain is the series of Lexical Environments that JavaScript searches through when looking up a variable. It starts at the current scope, then moves to the parent scope, then the grandparent scope, continuing outward until it either finds the variable or reaches the global scope and throws a ReferenceError.",
+    "analogy": "The Scope Chain is like looking for your keys. You first check your jacket pocket (current scope). Not there? You check the table near the door (parent scope). Not there? You check the bowl by the entrance (grandparent scope). You keep searching outward until you find the keys or conclude they don't exist. The search only goes outward — it never checks a neighbour's house (a sibling scope)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Variable resolution follows a strict outward path through the chain of Lexical Environment outer references. Step 1: Check the current Environment Record. Step 2: If not found, follow the outer reference to the parent Lexical Environment and check its Record. Repeat until the global environment is reached. If not found in global, a ReferenceError is thrown. The chain is fixed at *definition* time (lexical), not call time (dynamic).",
+    "memory": "The outer reference on each Lexical Environment is set once during function creation and never changes. This is why the scope chain is static: moving a function to a different location in the code at runtime does not change where it looks for variables."
+  },
+  "3_real_world_example": {
+    "use_case": "Building a configuration helper where inner utility functions automatically inherit context from an outer setup function without needing parameters.",
+    "code": "const appName = 'SkillSprint'; // Global scope\n\nfunction dashboard() {\n  const section = 'Analytics'; // dashboard scope\n\n  function renderTitle() {\n    // Scope chain lookup:\n    // 1. renderTitle scope  — no 'section', no 'appName'\n    // 2. dashboard scope    — found 'section'!\n    // 3. global scope       — found 'appName'!\n    console.log(`${appName} > ${section}`);\n  }\n\n  renderTitle();\n}\n\ndashboard(); // 'SkillSprint > Analytics'"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking the scope chain searches sibling or cousin scopes. If two functions are declared side-by-side, neither can access the other's local variables — the chain only travels upward to shared parent scopes.",
+    "fix": "Draw the nesting structure of your code. The scope chain follows the nesting, not the call order."
+  },
+  "5_related_topics": [
+    "js.scope",
+    "js.lexical_environment",
+    "js.closures",
+    "js.hoisting"
+  ],
+  "6_edge_case": {
+    "quirk": "Variable shadowing occurs when an inner scope declares a variable with the same name as an outer scope. The inner declaration wins for that scope — the outer variable is not accessible by that name inside the shadow, even though it still exists in the outer Lexical Environment.",
+    "code": "let color = 'blue'; // global\n\nfunction paintRoom() {\n  let color = 'red'; // shadows global 'color'\n  console.log(color); // 'red'  — inner binding found first, chain stops here\n}\n\npaintRoom();\nconsole.log(color); // 'blue' — global unchanged"
+  }
+}

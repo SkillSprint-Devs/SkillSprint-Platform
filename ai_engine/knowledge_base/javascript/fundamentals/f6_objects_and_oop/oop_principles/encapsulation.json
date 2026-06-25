@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.encapsulation",
+  "topic": "Encapsulation",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.classes_intro"],
+    "related_to": ["js.private_fields", "js.abstraction"],
+    "often_confused_with": ["js.abstraction"]
+  },
+  "question_map": {
+    "what": ["what is encapsulation", "what does encapsulation mean"],
+    "why": ["why hide data", "why use encapsulation"],
+    "how": ["how to achieve encapsulation in javascript"],
+    "compare": ["encapsulation vs abstraction"],
+    "output": ["cannot assign to private field"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Encapsulation** is an Object-Oriented Programming (OOP) principle that means bundling data (properties) and the methods that operate on that data into a single unit (like a Class), and restricting direct access to some of that object's components. In short: Hide the internal state, and force outside code to interact with the object only through specific, approved methods.",
+    "analogy": "A capsule (like a Tylenol pill) bundles the medicine together and hides the bitter powder inside. You just swallow the capsule. In coding, you bundle the data together and hide the raw variables, forcing people to use 'getter' and 'setter' methods instead of messing with the raw data directly."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "In JavaScript, encapsulation used to be achieved purely through function Closures. Now, it is achieved syntactically using Private Fields (`#`) which prevent external property lookup at runtime.",
+    "memory": "No specific memory mechanism; it is an architectural design pattern."
+  },
+  "3_real_world_example": {
+    "use_case": "Preventing invalid data from corrupting an object's state.",
+    "code": "class Player {\n  #health = 100; // Encapsulated (hidden) data\n\n  // Approved method to interact with the data\n  takeDamage(amount) {\n    if (amount < 0) return; // Prevent healing via damage!\n    this.#health -= amount;\n    if (this.#health < 0) this.#health = 0;\n  }\n\n  getHealth() {\n    return this.#health;\n  }\n}\n\nconst p = new Player();\n//  We cannot do p.#health = -50000; (State is protected)\np.takeDamage(30); //  We use the approved method\nconsole.log(p.getHealth()); // 70"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking encapsulation just means 'putting things in a class'. If all your properties are public and anyone can modify them at any time, you have not achieved encapsulation. You've just organized your code.",
+    "fix": "True encapsulation requires data hiding."
+  },
+  "5_related_topics": ["js.private_fields", "js.closure_private_state"],
+  "6_edge_case": {
+    "quirk": "Before `#` was introduced, developers used closures to achieve perfect encapsulation, returning an object with methods that closed over local variables.",
+    "code": "function createPlayer() {\n  let health = 100; // Truly private due to closure\n  return {\n    getHealth: () => health,\n    takeDamage: (amt) => health -= amt\n  };\n}"
+  }
+}

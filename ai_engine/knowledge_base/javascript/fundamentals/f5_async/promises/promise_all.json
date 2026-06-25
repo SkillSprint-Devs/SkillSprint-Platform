@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promise_all",
+  "topic": "Promise.all",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.promises_intro"],
+    "related_to": ["js.promise_all_settled", "js.promise_race", "js.sequential_vs_parallel"],
+    "often_confused_with": ["js.promise_all_settled"]
+  },
+  "question_map": {
+    "what": ["what is promise.all", "what does promise all do"],
+    "why": ["why use promise.all", "why did promise all fail"],
+    "how": ["how to run promises in parallel", "how to wait for multiple promises"],
+    "compare": ["promise.all vs promise.allsettled", "sequential vs parallel promises"],
+    "output": ["promise all rejected immediately when one failed"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`Promise.all()` is a method that takes an array of Promises and executes them concurrently. It returns a single master Promise. If ALL the promises in the array succeed, the master Promise succeeds and returns an array of all their results. But be careful: it has 'fail-fast' behavior. If even ONE promise in the array fails, the entire master Promise immediately fails, throwing away the successful results of the others.",
+    "analogy": "Promise.all is like ordering food for a group of friends, and refusing to eat until everyone's food arrives. If everyone's food arrives, you all eat together (returns an array of results). But if the kitchen runs out of ingredients for even ONE person's order, the entire group cancels their order and leaves the restaurant hungry (fails fast)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When `Promise.all([p1, p2, p3])` runs, `p1`, `p2`, and `p3` are all fired off concurrently in the Web API layer. The JS engine maintains a counter of resolved promises. When the counter reaches the length of the input array, the master Promise resolves. If any inner promise rejects, the master Promise immediately calls `reject()`, ignoring any further state changes from the remaining inner promises.",
+    "memory": "The results are gathered into a new array. The order of results in this array perfectly matches the order of the input array, regardless of which promise finished first or last."
+  },
+  "3_real_world_example": {
+    "use_case": "Fetching data from three independent API endpoints concurrently to drastically reduce loading time.",
+    "code": "const p1 = fetch('/api/users').then(r => r.json());\nconst p2 = fetch('/api/posts').then(r => r.json());\nconst p3 = fetch('/api/comments').then(r => r.json());\n\n// All three requests are 'in flight' at the same time.\nPromise.all([p1, p2, p3])\n  .then(([users, posts, comments]) => {\n    // This array matches the order of the inputs exactly.\n    console.log('All data loaded!');\n    renderPage(users, posts, comments);\n  })\n  .catch(error => {\n    // If ANY of the three endpoints 404s or fails, we end up here instantly.\n    console.error('Failed to load page data:', error);\n  });"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that `Promise.all` cancels the other network requests if one fails. It does not. The master Promise rejects immediately, but the other network requests continue running in the background until they finish (their results are just ignored).",
+    "fix": "If you actually need to cancel the other requests, you must use an `AbortController`."
+  },
+  "5_related_topics": ["js.promise_all_settled", "js.sequential_vs_parallel"],
+  "6_edge_case": {
+    "quirk": "If you pass an empty array to `Promise.all([])`, it resolves immediately with an empty array. If you pass non-promises in the array (e.g. `Promise.all([1, 2, 3])`), it wraps them in resolved Promises and returns them immediately.",
+    "code": "Promise.all([]).then(val => console.log(val)); // []\nPromise.all([fetch('/api'), 42, 'hello'])\n  .then(results => console.log(results[1])); // 42"
+  }
+}

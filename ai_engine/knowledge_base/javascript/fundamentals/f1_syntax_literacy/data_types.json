@@ -59,6 +59,6 @@
   ],
   "6_edge_case": {
     "quirk": "'typeof null' returns 'object'. This is a historical bug in the first version of JavaScript, where values were represented by a type tag and value in binary. The object type tag was 000, and since null was represented by the NULL pointer (all zeroes), it was misidentified as an object.",
-    "code": "console.log(typeof null); // 'object' ⚠️ (legacy JS bug)\nconsole.log(typeof []);   // 'object' ⚠️ (arrays are sub-types of object)\nconsole.log(Array.isArray([])); // true ✅ (use this to check arrays correctly)"
+    "code": "console.log(typeof null); // 'object' ️ (legacy JS bug)\nconsole.log(typeof []);   // 'object' ️ (arrays are sub-types of object)\nconsole.log(Array.isArray([])); // true  (use this to check arrays correctly)"
   }
 }

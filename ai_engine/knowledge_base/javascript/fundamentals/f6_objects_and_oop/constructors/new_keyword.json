@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.new_keyword",
+  "topic": "The 'new' Keyword Mechanism",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.constructor_functions", "js.this_binding_rules"],
+    "related_to": ["js.prototype_chain", "js.instance_creation"],
+    "often_confused_with": ["js.object_create"]
+  },
+  "question_map": {
+    "what": ["what does new do", "what happens internally when using new"],
+    "why": ["why is this undefined without new", "why do we need the new keyword"],
+    "how": ["how to create instances"],
+    "compare": ["new vs object.create"],
+    "output": ["forgot new keyword global variable leak"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The `new` keyword does absolute magic. When you put `new` in front of a function call (e.g., `new User()`), JavaScript secretly performs 4 steps behind the scenes: 1) It creates a brand new empty object `{}`. 2) It links that object's hidden Prototype to the function's `.prototype` property. 3) It forces the `this` keyword inside the function to point to that new object. 4) It automatically returns the object at the end.",
+    "analogy": "Imagine ordering a custom car at a factory. The `new` keyword is the manager who: 1) Places an empty chassis on the conveyor belt. 2) Attaches the standard factory manual to the dashboard (Prototype). 3) Tells the robotic arms to build *this* specific car. 4) Drives the finished car off the line and hands you the keys."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The exact algorithm for `new F()`: \n1. Let `obj` = a new Heap object.\n2. Set `obj.[[Prototype]]` to `F.prototype`.\n3. Let `result` = Execute `F` with `ThisBinding` set to `obj`.\n4. If `result` is an object, return `result`. Else, return `obj`.",
+    "memory": "Step 2 is crucial: it guarantees that every instance created by this function shares the exact same prototype object in memory, allowing them to share methods."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding how 'new' hooks up the prototype chain automatically.",
+    "code": "function Player(name) {\n  this.name = name;\n}\n\n// We attach a shared method to the constructor's prototype\nPlayer.prototype.jump = function() {\n  console.log(`${this.name} jumped!`);\n};\n\n// The 'new' keyword automatically links p1 to Player.prototype\nconst p1 = new Player('Mario');\np1.jump(); // 'Mario jumped!'"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that Arrow Functions can be used as constructors. Because arrow functions do not have a `this` binding and do not have a `.prototype` property, using `new ArrowFunc()` will instantly throw a TypeError.",
+    "fix": "Always use `class` or standard `function` definitions for constructors. Never use `() => {}`."
+  },
+  "5_related_topics": ["js.constructor_functions", "js.prototype_chain", "js.this_binding_rules"],
+  "6_edge_case": {
+    "quirk": "You can detect if a function was called with `new` or without it using the special meta-property `new.target`.",
+    "code": "function SafeUser(name) {\n  if (!new.target) {\n    throw new Error('You forgot to use new!');\n  }\n  this.name = name;\n}\n// SafeUser('Alice') -> Throws Error\n// new SafeUser('Alice') -> Works"
+  }
+}

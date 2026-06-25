@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.modifying_elements",
+  "topic": "Modifying Elements (Text, Classes, Attributes)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.selecting_elements"],
+    "related_to": ["js.creating_elements", "js.xss_intro"],
+    "often_confused_with": ["js.creating_elements"]
+  },
+  "question_map": {
+    "what": ["how to change text in javascript", "what is classList"],
+    "why": ["why is innerhtml dangerous"],
+    "how": ["how to add a class to an element", "how to change an image src", "how to change css with js"],
+    "compare": ["innerText vs textContent vs innerHTML", "setAttribute vs property"],
+    "output": ["cannot set property of null"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Once you have selected an element, you can change almost anything about it. You can change its text using `.innerText`. You can turn CSS classes on and off using `.classList.add()` and `.classList.remove()`. You can change attributes (like an image's source) using `.setAttribute()`. And you can even change inline CSS styles directly using `.style`.",
+    "analogy": "If the DOM element is an actor on a stage, modifying elements is like the director yelling commands: 'Change your script!' (`innerText`), 'Put on a red hat!' (`classList`), 'Hold this prop!' (`setAttribute`)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you modify `.style.backgroundColor`, JS updates the element's inline styles, which triggers a 'Repaint' (updating colors). If you modify `.innerText`, it might change the size of the element, which triggers a 'Reflow' (recalculating the geometry of the entire page). Reflows are computationally expensive.",
+    "memory": "DOM properties (like `img.src`) reflect the current memory state, while HTML attributes (`img.getAttribute('src')`) reflect the original text written in the HTML file."
+  },
+  "3_real_world_example": {
+    "use_case": "Toggling a 'Dark Mode' theme and updating a profile image.",
+    "code": "const title = document.querySelector('h1');\nconst body = document.body;\nconst profileImg = document.querySelector('#profile');\n\n// 1. Changing Text\ntitle.innerText = 'Welcome Back!';\n\n// 2. Toggling Classes (Best way to handle CSS changes)\n// If the class is there, it removes it. If it's missing, it adds it.\nbody.classList.toggle('dark-theme'); \n\n// 3. Changing Attributes\nprofileImg.setAttribute('src', 'new-photo.jpg');\nprofileImg.alt = 'User profile picture'; // Direct property access also works\n\n// 4. Changing Inline Styles (Use sparingly)\ntitle.style.color = 'blue';\ntitle.style.fontSize = '3rem';"
+  },
+  "4_common_confusion": {
+    "trap": "Using `.innerHTML = userInput` to display text. If the user types `<script>hackMyAccount()</script>`, the browser will execute it! This is called an XSS (Cross-Site Scripting) attack.",
+    "fix": "ALWAYS use `.innerText` or `.textContent` when displaying text from a user. Only use `.innerHTML` when you completely trust the source (like your own hardcoded strings)."
+  },
+  "5_related_topics": ["js.selecting_elements", "js.xss_intro", "js.browser_rendering"],
+  "6_edge_case": {
+    "quirk": "`innerText` only reads text that is currently visible on the screen. `textContent` reads the raw text from the DOM node, even if the element is hidden with `display: none`.",
+    "code": "const p = document.querySelector('.hidden-text'); // display: none\nconsole.log(p.innerText);   // \"\" (Empty, because it's hidden)\nconsole.log(p.textContent); // \"Secret message!\" (Reads the raw DOM)"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.capturing",
+  "topic": "Event Capturing (Trickling)",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.event_propagation"
+    ],
+    "related_to": [
+      "js.bubbling"
+    ],
+    "often_confused_with": [
+      "js.bubbling"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is event capturing",
+      "what is trickling"
+    ],
+    "why": [
+      "why is the third argument of addEventListener true",
+      "why use capturing instead of bubbling"
+    ],
+    "how": [
+      "how to listen during capture phase"
+    ],
+    "compare": [
+      "bubbling vs capturing"
+    ],
+    "output": [
+      "click event fires on parent before child in capture"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Event Capturing** (sometimes called Trickling) is the very first phase of Event Propagation. Before an event ever reaches its target, it starts at the very top of the DOM (`window` -> `document` -> `<html>` -> `<body>`) and travels downwards to find the target. By default, JavaScript ignores this phase. You have to explicitly tell your event listeners to activate during the Capturing phase.",
+    "analogy": "If Bubbling is a balloon floating up from the bottom of the ocean, Capturing is a submarine diving down from the surface to find the balloon. The submarine has to pass through the top layers of water before it reaches the bottom."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you call `addEventListener('click', fn, { capture: true })` (or pass `true` as the third argument), you register the listener for the Capturing phase. When a click happens anywhere inside that element, this listener will fire *before* the event reaches the child target.",
+    "memory": "Like bubbling, capturing relies on the C++ DOM pointers."
+  },
+  "3_real_world_example": {
+    "use_case": "Intercepting an event at the top level before any child elements can process it.",
+    "code": "const parent = document.getElementById('parent');\nconst child = document.getElementById('child');\n\n// This will run FIRST, because it listens during Capture phase\nparent.addEventListener('click', () => {\n  console.log('Parent Capture Phase!');\n}, { capture: true });\n\n// This runs SECOND, when it hits the target\nchild.addEventListener('click', () => {\n  console.log('Child clicked!');\n});\n\n// This runs THIRD, during the Bubbling phase\nparent.addEventListener('click', () => {\n  console.log('Parent Bubbling Phase!');\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Why do both Capturing and Bubbling exist? In the ancient internet days, Netscape only supported Capturing, and Internet Explorer only supported Bubbling. The W3C standardized it by combining both. Today, 99% of developers use Bubbling and almost never use Capturing.",
+    "fix": "Unless you have a very specific architectural reason to intercept events early, ignore Capturing and stick to Bubbling."
+  },
+  "5_related_topics": [
+    "js.event_propagation",
+    "js.bubbling"
+  ],
+  "6_edge_case": {
+    "quirk": "If you call `e.stopPropagation()` inside a Capturing listener, the event is killed instantly. It never reaches the target, and it never bubbles back up.",
+    "code": "window.addEventListener('click', (e) => {\n  e.stopPropagation(); // Instantly disables all click events on the entire page!\n}, true);"
+  }
+}

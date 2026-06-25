@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "intent": "js.clipboard_api",
+  "topic": "Clipboard API",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_web_apis",
+      "js.promises_intro"
+    ],
+    "related_to": [
+      "js.async_await"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is the clipboard api"
+    ],
+    "why": [
+      "why use navigator.clipboard"
+    ],
+    "how": [
+      "how to copy text to clipboard in javascript",
+      "how to read from clipboard"
+    ],
+    "compare": [
+      "navigator.clipboard vs document.execCommand('copy')"
+    ],
+    "output": [
+      "text copied to clipboard"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The Clipboard API allows JavaScript to securely read and write text to the user's system clipboard. It is what powers the 'Click to Copy' buttons you see on websites. Because reading a user's clipboard is highly sensitive (it might contain passwords), the modern API uses Promises and requires explicit user permission or interaction.",
+    "analogy": "The API is like a secure messenger. When you hit 'Click to Copy', JS hands the messenger a note and says, 'Put this in the user's pocket (clipboard).' The user can then paste it anywhere on their computer."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The modern `navigator.clipboard` API is entirely asynchronous. `writeText` and `readText` both return Promises. This prevents the browser UI from freezing if the system clipboard is locked or slow.",
+    "memory": "For security, the Clipboard API only works on HTTPS pages, and usually requires a transient user activation (meaning it must be triggered directly by a user clicking a button, not just running randomly in the background)."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a 'Copy Link' button for sharing an article.",
+    "code": "const copyBtn = document.querySelector('#copy-link-btn');\n\ncopyBtn.addEventListener('click', async () => {\n  const urlToCopy = 'https://example.com/article';\n\n  try {\n    // Await the Promise to finish writing to the system clipboard\n    await navigator.clipboard.writeText(urlToCopy);\n    console.log('Successfully copied to clipboard!');\n    copyBtn.innerText = 'Copied!';\n  } catch (err) {\n    console.error('Failed to copy: ', err);\n  }\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Using the old, deprecated method `document.execCommand('copy')`. It is confusing, requires you to physically highlight text on the screen using JS before copying, and is being removed from modern browsers.",
+    "fix": "Always use the modern, Promise-based `navigator.clipboard.writeText()`."
+  },
+  "5_related_topics": [
+    "js.browser_web_apis",
+    "js.promises_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Reading from the clipboard (`navigator.clipboard.readText()`) is so dangerous that the browser will almost always pop up a massive warning asking the user 'Allow this website to see your clipboard?'. Most websites avoid reading the clipboard for this reason.",
+    "code": ""
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.instance_creation",
+  "topic": "Instance Creation & Validation",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.new_keyword", "js.prototype_chain"],
+    "related_to": ["js.custom_constructors", "js.classes_intro"],
+    "often_confused_with": ["js.prototype_lookup"]
+  },
+  "question_map": {
+    "what": ["what is an instance", "what is instanceof"],
+    "why": ["why does instanceof return false"],
+    "how": ["how to check object type", "how to check if object is instance of class"],
+    "compare": ["typeof vs instanceof"],
+    "output": ["instanceof object"]
+  },
+  "1_beginner_explanation": {
+    "summary": "When a constructor function or class builds an object, that resulting object is called an **Instance**. Just like a specific Toyota Camry is an 'instance' of a Car. To verify if a specific object was built by a specific constructor, we use the `instanceof` operator. It returns `true` or `false`.",
+    "analogy": "A constructor is the factory. An instance is the product that comes out. The `instanceof` operator is like checking the manufacturing label on the bottom of the product to see if it came from that specific factory."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you write `obj instanceof Constructor`, the engine evaluates the right side to get the `Constructor.prototype` reference. It then crawls up the left side (`obj`)'s `[[Prototype]]` chain. If it finds a match anywhere in the chain, it returns true. If it hits `null` without finding it, it returns false.",
+    "memory": "Because it checks the prototype chain dynamically at runtime, `instanceof` can be 'tricked' if you manually reassign an object's prototype after it is created."
+  },
+  "3_real_world_example": {
+    "use_case": "Validating that data passed into a function is of the correct custom type.",
+    "code": "function Email(address) {\n  this.address = address;\n}\n\nconst myEmail = new Email('test@test.com');\nconst fakeEmail = { address: 'fake@test.com' }; // Just a plain object\n\nconsole.log(myEmail instanceof Email); // true\nconsole.log(fakeEmail instanceof Email); // false\n\nfunction sendEmail(emailObj) {\n  if (!(emailObj instanceof Email)) {\n    throw new Error('Must provide a valid Email instance!');\n  }\n  console.log('Sending to ' + emailObj.address);\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Using `typeof` instead of `instanceof` for custom objects. `typeof myEmail` will just return `'object'`. `typeof` is only useful for primitive types (strings, numbers, booleans). For anything built with `new`, you must use `instanceof`.",
+    "fix": "Primitives -> `typeof`. Custom Objects / Arrays / Dates -> `instanceof`."
+  },
+  "5_related_topics": ["js.new_keyword", "js.data_types"],
+  "6_edge_case": {
+    "quirk": "Because everything eventually inherits from `Object.prototype`, doing `something instanceof Object` will almost always return `true`, even for arrays and functions.",
+    "code": "const arr = [];\nconsole.log(arr instanceof Array); // true\nconsole.log(arr instanceof Object); // true! (Arrays inherit from Object)"
+  }
+}

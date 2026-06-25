@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.concurrency_patterns",
+  "topic": "Concurrency Patterns",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.promise_all", "js.async_functions"],
+    "related_to": ["js.race_conditions", "js.throttling"],
+    "often_confused_with": ["js.promise_all"]
+  },
+  "question_map": {
+    "what": ["what is a concurrency limit", "how to limit concurrent promises"],
+    "why": ["why not use promise.all for 1000 requests"],
+    "how": ["how to batch promises", "how to run promises in chunks"],
+    "compare": ["promise.all vs chunking promises"],
+    "output": ["api rate limit exceeded 429"]
+  },
+  "1_beginner_explanation": {
+    "summary": "While `Promise.all` is great for running tasks in parallel, if you pass it an array of 1,000 fetch requests, it will fire all 1,000 simultaneously. This will crash the browser, trigger API rate limits (HTTP 429), or overwhelm the server. **Concurrency Patterns** are techniques to limit how many async tasks run at the exact same time. The most common patterns are **Chunking** (running them in batches of 10) and **Pools** (keeping exactly 10 running continuously until all are done).",
+    "analogy": "If you need to move 1,000 bricks to your backyard, `Promise.all` is trying to carry all 1,000 bricks at once — you will collapse. Chunking is taking 10 bricks in a wheelbarrow, dumping them, and coming back for 10 more. You still move all the bricks, but at a manageable concurrency limit."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Chunking relies on a sequential `for...of` loop combined with `Promise.all`. The loop `await`s a `Promise.all` of a small slice of tasks. Only when that slice finishes does the loop move to the next slice, ensuring no more than N promises are ever pending simultaneously.",
+    "memory": "Running 1,000 parallel fetches consumes massive memory for network streams. Limiting concurrency keeps the memory footprint small and stable."
+  },
+  "3_real_world_example": {
+    "use_case": "Processing a large list of user IDs without triggering rate limits by chunking them into batches of 5.",
+    "code": "async function processInBatches(items, batchSize) {\n  const results = [];\n  \n  for (let i = 0; i < items.length; i += batchSize) {\n    // Slice out a chunk of items\n    const chunk = items.slice(i, i + batchSize);\n    \n    // Map chunk to Promises\n    const promises = chunk.map(item => fetch(`/api/process/${item}`));\n    \n    // Wait for this chunk to finish BEFORE starting the next one\n    console.log(`Processing batch ${i / batchSize + 1}...`);\n    const chunkResults = await Promise.all(promises);\n    \n    results.push(...chunkResults);\n  }\n  \n  return results;\n}\n\n// Usage: process 100 items, but only 5 at a time.\n// processInBatches(arrayOf100Items, 5);"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to use `Array.forEach` with `await` to process items. `forEach` does NOT pause for `await`. It fires off all the callbacks instantly, completely defeating the purpose of pacing the requests.",
+    "fix": "Never use `forEach` with `async/await`. Use a standard `for...of` loop or a traditional `for` loop if you need execution to actually pause and wait."
+  },
+  "5_related_topics": ["js.promise_all", "js.sequential_vs_parallel"],
+  "6_edge_case": {
+    "quirk": "Chunking has a slight inefficiency: if 4 requests in a chunk finish in 100ms, but 1 request takes 2000ms, the whole chunk waits 2000ms before starting the next batch. Advanced libraries (like `p-limit`) use a 'pool' pattern that instantly starts a new request the millisecond any existing one finishes, maintaining a strict limit of exactly N active requests at all times.",
+    "code": "// P-limit pool pattern is often imported from npm\n// const limit = pLimit(5);\n// const promises = items.map(item => limit(() => fetch(item)));\n// await Promise.all(promises);"
+  }
+}

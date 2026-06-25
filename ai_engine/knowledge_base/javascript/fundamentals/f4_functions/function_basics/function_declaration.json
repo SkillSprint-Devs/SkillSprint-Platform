@@ -1,0 +1,73 @@
+{
+  "version": "1.1",
+  "intent": "js.function_declaration",
+  "topic": "Function Declaration",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.functions"
+    ],
+    "related_to": [
+      "js.function_expression",
+      "js.hoisting",
+      "js.invoking_functions"
+    ],
+    "often_confused_with": [
+      "js.function_expression"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is a function declaration",
+      "what is a named function",
+      "how do i create a function in javascript"
+    ],
+    "why": [
+      "why can i call a function before defining it",
+      "are function declarations hoisted",
+      "why use function declaration instead of expression"
+    ],
+    "how": [
+      "how to write a function declaration",
+      "how to declare a function in js",
+      "how does function declaration work"
+    ],
+    "compare": [
+      "function declaration vs function expression",
+      "named function vs anonymous function"
+    ],
+    "output": [
+      "can i call a function before declaration",
+      "what happens when function is declared twice"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A Function Declaration is the classic way to create a named, reusable function using the `function` keyword at the statement level. The key behaviour that sets it apart: function declarations are **fully hoisted** — the engine registers both the name and the entire body during the creation phase, so you can call the function anywhere in its scope, even before the line where it appears.",
+    "analogy": "A Function Declaration is like putting your phone number on a public directory before the phone book is even printed. When someone searches the directory (the engine scans the scope), your number is already there and callable — even if they look before the page where your listing physically appears."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "During the Creation Phase of an Execution Context, the JavaScript engine scans for all function declarations in the current scope. For each one, it creates a binding in the Environment Record and immediately initialises it with the full function object. This is why function declarations are fully callable before their physical line in the code.",
+    "memory": "The function object (containing the code, a reference to its outer Lexical Environment, and a `prototype` property) is allocated on the heap. The name binding in the Environment Record holds a reference to this heap object. The object persists as long as any variable references it."
+  },
+  "3_real_world_example": {
+    "use_case": "Structuring a module so the main logic reads at the top and all helper definitions live at the bottom — hoisting makes this possible with zero runtime cost.",
+    "code": "// Main flow at the top — easy to read\nconst score = calculateScore([90, 85, 78]);\nconst grade = assignGrade(score);\nconsole.log(`Score: ${score}, Grade: ${grade}`);\n\n// Helper definitions below — fully hoisted, no problem\nfunction calculateScore(marks) {\n  const total = marks.reduce((sum, m) => sum + m, 0);\n  return Math.round(total / marks.length);\n}\n\nfunction assignGrade(score) {\n  if (score >= 90) return 'A';\n  if (score >= 75) return 'B';\n  return 'C';\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Declaring the same function name twice in the same scope. Because declarations are hoisted, the second declaration silently overwrites the first — no error, just surprising behaviour.",
+    "fix": "Avoid duplicate function names in the same scope. If you need multiple versions of logic, use different names or use function expressions assigned to `const` (which will throw if re-declared)."
+  },
+  "5_related_topics": [
+    "js.function_expression",
+    "js.hoisting",
+    "js.invoking_functions"
+  ],
+  "6_edge_case": {
+    "quirk": "Function declarations inside `if` blocks behave inconsistently across browsers in non-strict mode. In strict mode, a function declaration inside a block is scoped to that block only. Always use `strict mode` and prefer function expressions inside conditional blocks.",
+    "code": "'use strict';\nif (true) {\n  function blockScoped() {\n    return 'only visible inside this block in strict mode';\n  }\n  console.log(blockScoped()); //  works here\n}\n// console.log(blockScoped()); //  ReferenceError in strict mode"
+  }
+}

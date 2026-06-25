@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.forms_intro",
+  "topic": "Introduction to Forms",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.dom_intro",
+      "js.events_intro"
+    ],
+    "related_to": [
+      "js.form_submission",
+      "js.input_events"
+    ],
+    "often_confused_with": [
+      "js.form_submission"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is a form in javascript"
+    ],
+    "why": [
+      "why use forms instead of just buttons"
+    ],
+    "how": [
+      "how to access a form in javascript"
+    ],
+    "compare": [
+      "form elements vs standard dom elements"
+    ],
+    "output": [
+      "form elements collection returns inputs"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "HTML Forms (`<form>`) are the standard way to collect data from a user. Forms group inputs (like text boxes, checkboxes, and radio buttons) together. JavaScript provides special, easy-to-use properties to interact with forms and their inputs, rather than forcing you to use `querySelector` for every single field.",
+    "analogy": "A form is like a shipping box. The inputs are the items you pack inside the box. When you hit 'Submit', you are taping the box shut and handing it to the mail carrier (the browser) to deliver to a server."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the browser parses a `<form>`, it creates a special `HTMLFormElement` object. It automatically populates a `elements` collection inside this object containing all the inputs nested within it, indexed by their `name` attributes.",
+    "memory": "Forms are deeply integrated into the DOM. The `document.forms` collection holds a live reference to every form on the page, avoiding the need for manual DOM queries."
+  },
+  "3_real_world_example": {
+    "use_case": "Easily grabbing all inputs from a login form.",
+    "code": "/* HTML:\n  <form id=\"loginForm\">\n    <input name=\"username\" type=\"text\">\n    <input name=\"password\" type=\"password\">\n    <button type=\"submit\">Log In</button>\n  </form>\n*/\n\nconst form = document.forms.loginForm; // Access form directly by ID/name\n\n// Access inputs inside the form by their 'name' attribute\nconsole.log(form.elements.username.value);\nconsole.log(form.elements.password.value);"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking you MUST use `querySelector` to find every input field. While it works, it is slow and verbose.",
+    "fix": "Use the built-in `form.elements` API. If your input is `<input name=\"email\">`, you can simply access it via `form.elements.email`."
+  },
+  "5_related_topics": [
+    "js.form_submission",
+    "js.accessible_forms"
+  ],
+  "6_edge_case": {
+    "quirk": "If you have an input named 'submit' (`<input name=\"submit\">`), it will overwrite the form's built-in `.submit()` method, causing `form.submit()` to throw an error!",
+    "code": "<!-- Never do this: -->\n<input name=\"submit\" value=\"Send\">\n<!-- JS: form.submit is now not a function, it's the input element! -->"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.http_intro",
+  "topic": "Introduction to HTTP",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.client_server_model"
+    ],
+    "related_to": [
+      "js.https_intro",
+      "js.request_response"
+    ],
+    "often_confused_with": [
+      "js.https_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is http"
+    ],
+    "why": [
+      "why is http stateless"
+    ],
+    "how": [
+      "how does the internet work"
+    ],
+    "compare": [
+      "http vs https"
+    ],
+    "output": [
+      "raw http response with status line and headers"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "HTTP (Hypertext Transfer Protocol) is the fundamental language of the World Wide Web. It is the agreed-upon set of rules that allows web browsers (clients) and web servers to talk to each other. When you type a URL or click a link, your browser sends an 'HTTP Request' message to a server, and the server replies with an 'HTTP Response' message containing the HTML.",
+    "analogy": "HTTP is like the postal system. If you want to send a letter, you must put a stamp on it, write the return address, write the destination address, and format it correctly so the mail carrier understands it. HTTP is just a set of formatting rules for sending text messages across the internet."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "HTTP runs on top of the TCP/IP network protocol. The browser opens a TCP connection to the server's IP address (usually on port 80), sends a plain-text HTTP formatted string, waits for the plain-text HTTP response, and then parses it.",
+    "memory": "HTTP is inherently 'stateless'. This means the server forgets who you are the exact second it finishes sending the response. To remember users between requests, we have to invent workarounds like Cookies or Tokens."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding what happens under the hood when `fetch()` is called.",
+    "code": "/* What a raw HTTP Request looks like before the browser sends it:\n\nGET /index.html HTTP/1.1\nHost: www.example.com\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\nAccept-Language: en-US\n\n*/\n\n/* What a raw HTTP Response looks like when the server replies:\n\nHTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 138\n\n<html>\n  <body>Hello World!</body>\n</html>\n*/"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking HTTP is a programming language. It is just a text-formatting standard. You don't 'write' HTTP code; you use JavaScript (`fetch()`) to ask the browser to construct and send an HTTP message for you.",
+    "fix": "HTML is for structure. JS is for logic. HTTP is the delivery truck that moves them around."
+  },
+  "5_related_topics": [
+    "js.request_response",
+    "js.client_server_model"
+  ],
+  "6_edge_case": {
+    "quirk": "Because HTTP is just plain text, anyone sitting on the same WiFi network at a coffee shop can intercept your traffic and read everything you are sending (including passwords!). This is why HTTPS was invented.",
+    "code": ""
+  }
+}

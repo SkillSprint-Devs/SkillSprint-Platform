@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_keys_values_entries",
+  "topic": "Object.keys, values, entries",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.object_properties", "js.arrays"],
+    "related_to": ["js.loops", "js.maps"],
+    "often_confused_with": ["js.arrays"]
+  },
+  "question_map": {
+    "what": ["what is object.keys", "what is object.entries"],
+    "why": ["why cant i map over an object", "why use object.entries"],
+    "how": ["how to loop over an object", "how to get all keys from object", "how to convert object to array"],
+    "compare": ["for in loop vs object.keys"],
+    "output": ["object.keys returns array of strings"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Because Objects are not standard lists, you cannot use Array methods like `.map()` or `.forEach()` on them directly. JavaScript provides three helper methods to convert an object's contents into standard Arrays: `Object.keys(obj)` (returns an array of just the property names), `Object.values(obj)` (returns an array of just the data), and `Object.entries(obj)` (returns an array of arrays, where each inner array is `[key, value]`).",
+    "analogy": "If an object is a filing cabinet, `Object.keys()` prints out a list of all the folder labels. `Object.values()` dumps out all the documents inside the folders without the labels. `Object.entries()` gives you a list where each item pairs the folder label exactly with the document inside it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "These methods extract the *enumerable* string-keyed properties directly owned by the object. They do not traverse the prototype chain. The resulting array allows you to leverage high-performance Array iterators.",
+    "memory": "These methods generate brand new Array objects in memory. For very large objects, this allocates memory proportional to the size of the object."
+  },
+  "3_real_world_example": {
+    "use_case": "Converting an object into an array so you can iterate over it and sum up values.",
+    "code": "const shoppingCart = {\n  apples: 3,\n  bananas: 2,\n  oranges: 5\n};\n\n// We want the total amount of fruit. We can't map() the object.\n// But we can get an array of just the values!\nconst quantities = Object.values(shoppingCart); // [3, 2, 5]\n\nconst total = quantities.reduce((sum, amount) => sum + amount, 0);\nconsole.log(total); // 10\n\n// Using entries to get both key and value in a loop\nfor (const [item, amount] of Object.entries(shoppingCart)) {\n  console.log(`I bought ${amount} ${item}`);\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Using the older `for...in` loop. While `for...in` iterates over object keys, it also accidentally iterates over inherited properties from the prototype chain, causing unexpected bugs.",
+    "fix": "It is modern best practice to use `Object.keys()` or `Object.entries()` instead of `for...in`, as they strictly return the object's own properties."
+  },
+  "5_related_topics": ["js.arrays", "js.loops", "js.maps"],
+  "6_edge_case": {
+    "quirk": "The order of keys returned by these methods is largely insertion order, BUT integer-like keys (e.g., '1', '2') are always sorted numerically and returned first, completely ignoring insertion order.",
+    "code": "const obj = {\n  b: 1,\n  2: 2,\n  a: 3,\n  1: 4\n};\nconsole.log(Object.keys(obj)); \n// ['1', '2', 'b', 'a'] -> Numbers sorted first!"
+  }
+}

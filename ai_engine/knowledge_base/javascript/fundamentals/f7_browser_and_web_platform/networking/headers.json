@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.headers",
+  "topic": "HTTP Headers",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.http_intro",
+      "js.request_response"
+    ],
+    "related_to": [
+      "js.cookies_intro",
+      "js.cors_intro"
+    ],
+    "often_confused_with": [
+      "js.http_methods"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what are http headers",
+      "what is content-type"
+    ],
+    "why": [
+      "why do i need to send headers",
+      "why use authorization header"
+    ],
+    "how": [
+      "how to set headers in fetch"
+    ],
+    "compare": [
+      "request headers vs response headers",
+      "headers vs body"
+    ],
+    "output": [
+      "400 bad request when content-type header missing"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "HTTP Headers are meta-data attached to both Requests and Responses. They are hidden key-value pairs that provide extra context about the message. For example, a `Content-Type` header tells the receiver if the attached data is a JSON file, an image, or an HTML document. An `Authorization` header proves to the server that you are logged in.",
+    "analogy": "If the HTTP Body is the contents of a shipping box, the Headers are the stickers on the outside of the box: 'Fragile', 'From: John', 'To: Alice', 'Weight: 5lbs'."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Headers are parsed by the browser and the server before the Body is even looked at. If a server receives a massive video file upload but the `Content-Length` header exceeds the allowed limit, the server can instantly reject the request without wasting time downloading the actual file.",
+    "memory": "Headers are plain text. When using `fetch()`, you instantiate a `Headers` object, which provides methods to safely append and read values."
+  },
+  "3_real_world_example": {
+    "use_case": "Telling the server we are sending JSON data, and providing our secret API key.",
+    "code": "fetch('https://api.example.com/data', {\n  method: 'POST',\n  headers: {\n    // Tell the server to parse our body as JSON\n    'Content-Type': 'application/json',\n    \n    // Prove we are allowed to make this request\n    'Authorization': 'Bearer mySecretToken123'\n  },\n  body: JSON.stringify({ name: 'Alice' })\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting the `Content-Type: application/json` header when making a POST request with JSON data. If you forget it, the server usually defaults to `text/plain` or `application/x-www-form-urlencoded`, completely fails to understand your JSON string, and returns a 400 Bad Request error.",
+    "fix": "Always explicitly state your Content-Type when sending a Body."
+  },
+  "5_related_topics": [
+    "js.request_response",
+    "js.fetch_api",
+    "js.cors_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Header names are strictly case-insensitive according to the HTTP specification. `content-type`, `Content-Type`, and `CoNtEnT-tYpE` are all treated exactly the same by the browser and server.",
+    "code": ""
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promise_all_settled",
+  "topic": "Promise.allSettled",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.promises_intro"],
+    "related_to": ["js.promise_all", "js.promise_states"],
+    "often_confused_with": ["js.promise_all"]
+  },
+  "question_map": {
+    "what": ["what is promise allsettled", "what does all settled do"],
+    "why": ["why use allsettled instead of all", "how to ignore failed promises in array"],
+    "how": ["how to get results of both resolved and rejected promises", "how to use promise.allsettled"],
+    "compare": ["promise.all vs promise.allsettled"],
+    "output": ["allsettled returns array of objects with status"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`Promise.allSettled()` takes an array of Promises and waits for ALL of them to finish — whether they succeed or fail. Unlike `Promise.all` (which fails instantly if one promise fails), `allSettled` NEVER rejects. It always succeeds and returns an array of objects detailing the outcome of each promise: `{ status: 'fulfilled', value: data }` or `{ status: 'rejected', reason: error }`.",
+    "analogy": "Promise.allSettled is like a teacher grading exams. The teacher waits for everyone to finish the test. Some students pass (fulfilled), some fail (rejected). But the teacher's task of grading the class always completes successfully, resulting in a final report card containing everyone's pass/fail status."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine runs all passed promises concurrently. It maintains an internal counter. When a promise resolves, it stores its value. When a promise rejects, it catches the rejection and stores the reason. It never short-circuits. When the counter reaches the array length, the master Promise resolves.",
+    "memory": "It allocates an array of objects. Each object maps 1:1 with the input array."
+  },
+  "3_real_world_example": {
+    "use_case": "Fetching data from multiple independent sources where some might fail, but you still want to display the data from the ones that succeeded.",
+    "code": "const p1 = Promise.resolve('Weather Data');\nconst p2 = Promise.reject('News API Offline');\nconst p3 = Promise.resolve('Stock Data');\n\nPromise.allSettled([p1, p2, p3])\n  .then(results => {\n    // results is ALWAYS an array, this .then ALWAYS runs\n    results.forEach((result, index) => {\n      if (result.status === 'fulfilled') {\n        console.log(`Task ${index} succeeded with:`, result.value);\n      } else {\n        console.error(`Task ${index} failed because:`, result.reason);\n      }\n    });\n    \n    // Output:\n    // Task 0 succeeded with: Weather Data\n    // Task 1 failed because: News API Offline\n    // Task 2 succeeded with: Stock Data\n  });"
+  },
+  "4_common_confusion": {
+    "trap": "Using `allSettled` but forgetting to check `result.status === 'fulfilled'` before accessing the data. If a promise rejected, accessing `result.value` will return `undefined`.",
+    "fix": "Always filter or switch on `result.status` when processing the returned array."
+  },
+  "5_related_topics": ["js.promise_all", "js.promise_states"],
+  "6_edge_case": {
+    "quirk": "Because it never rejects based on the input promises, you rarely need a `.catch()` block for `Promise.allSettled()`. A `.catch()` would only trigger if your own code inside the `.then()` threw a synchronous error.",
+    "code": "// Extracting only the successful values is a common pattern:\nPromise.allSettled(requests)\n  .then(results => \n    results\n      .filter(r => r.status === 'fulfilled')\n      .map(r => r.value)\n  );\n// Returns an array of only the successful data"
+  }
+}

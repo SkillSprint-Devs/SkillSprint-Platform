@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_mutation",
+  "topic": "Object Mutation & References",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.objects_intro", "js.memory_model_basic"],
+    "related_to": ["js.object_copying", "js.object_freeze"],
+    "often_confused_with": ["js.object_copying"]
+  },
+  "question_map": {
+    "what": ["why did my object change", "what is object mutation", "what does pass by reference mean"],
+    "why": ["why can i change a const object", "why did changing one object change another"],
+    "how": ["how object mutation works", "how to stop object from changing"],
+    "compare": ["mutation vs reassignment", "pass by value vs pass by reference"],
+    "output": ["both objects changed when i updated one"]
+  },
+  "1_beginner_explanation": {
+    "summary": "In JavaScript, variables do not actually *hold* objects. They hold a memory address (a pointer) to where the object lives in the computer's memory. This causes massive confusion: if you assign `obj2 = obj1`, you are NOT making a copy of the object. You are just giving two variables a pointer to the EXACT SAME object. If you change (mutate) `obj2`, `obj1` instantly changes too, because they are sharing the same filing cabinet.",
+    "analogy": "Imagine a house (the Object). A variable is a piece of paper with the house's address written on it. If you copy the piece of paper (`obj2 = obj1`), you don't magically build a second house. You just have two pieces of paper pointing to the same house. If someone uses the second piece of paper to go paint the house blue, the person with the first piece of paper will also see a blue house."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you pass an object into a function `doSomething(myObj)`, you are passing the pointer by value. If the function mutates the object (`myObj.name = 'Hacked'`), it alters the original Heap memory object. This is a massive source of bugs known as 'unintended side effects'.",
+    "memory": "Primitives (strings, numbers) are stored directly on the Stack (pass by value). Objects are stored on the Heap, and the Stack only holds a reference (pointer)."
+  },
+  "3_real_world_example": {
+    "use_case": "Demonstrating the trap of reference sharing.",
+    "code": "const player1 = { name: 'Mario', score: 0 };\n\n//  MISTAKE: This does not copy the object!\nconst player2 = player1;\n\n// We try to change player2...\nplayer2.name = 'Luigi';\nplayer2.score = 100;\n\n// But player1 was mutated too!\nconsole.log(player1.name); // 'Luigi'\nconsole.log(player1.score); // 100"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `const` prevents an object from changing. `const` only prevents REASSIGNMENT of the variable. It stops you from pointing the variable to a *different* house. It does not stop you from painting the house.",
+    "fix": "Use `const` for the variable. But if you want to lock the *data* inside the object, you must use `Object.freeze(obj)`."
+  },
+  "5_related_topics": ["js.object_copying", "js.memory_model_basic", "js.object_freeze"],
+  "6_edge_case": {
+    "quirk": "Because two objects `{}` and `{}` are created in different spots in memory, they are NEVER equal to each other, even if their contents are identical.",
+    "code": "const a = { val: 1 };\nconst b = { val: 1 };\nconsole.log(a === b); // FALSE! They are different houses.\n\nconst c = a;\nconsole.log(a === c); // TRUE! They point to the same house."
+  }
+}

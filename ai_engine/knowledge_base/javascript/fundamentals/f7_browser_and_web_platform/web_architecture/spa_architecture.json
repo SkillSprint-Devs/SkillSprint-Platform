@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.spa_architecture",
+  "topic": "Single Page Applications (SPA)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.csr_vs_ssr",
+      "js.preventing_default"
+    ],
+    "related_to": [
+      "js.fetch_api",
+      "js.browser_rendering"
+    ],
+    "often_confused_with": [
+      "js.csr_vs_ssr"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is a single page application",
+      "what is an spa"
+    ],
+    "why": [
+      "why use an spa",
+      "why do react apps not reload the page"
+    ],
+    "how": [
+      "how routing works in react",
+      "how spa works"
+    ],
+    "compare": [
+      "spa vs mpa",
+      "single page app vs multi page app"
+    ],
+    "output": [
+      "url changes without page refresh"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Historically, clicking a link to an 'About' page would destroy the current webpage, send a request to the server, and download a completely new `about.html` file (Multi-Page App). A **Single Page Application (SPA)** downloads exactly ONE HTML file ever (`index.html`). When you click a link, JavaScript steps in, says 'Stop! Don't refresh the page!', magically erases the old content, and draws the new 'About' content instantly using JS.",
+    "analogy": "An MPA is like reading a book; you turn the physical page to see the next chapter. An SPA is like reading an Etch A Sketch; instead of turning the page, you wipe it clean and draw the next chapter on the exact same piece of glass."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "1. User clicks `<a href=\"/about\">`. 2. JS intercepts the click event and calls `e.preventDefault()`. 3. JS uses the History API (`history.pushState()`) to fake the URL change in the browser bar so the user thinks they went to a new page. 4. JS destroys DOM nodes and builds new ones.",
+    "memory": "Because the page never actually refreshes, Memory Leaks are a massive problem in SPAs. If you attach an Event Listener on the Home page, and navigate to the About page without deleting that listener, it stays in memory forever."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a seamless, app-like experience where music keeps playing while you navigate (like Spotify).",
+    "code": "// A tiny, basic SPA Router\ndocument.body.addEventListener('click', e => {\n  if (e.target.matches('a')) {\n    e.preventDefault(); // Stop the page reload!\n    \n    // 1. Update the URL bar visually\n    history.pushState(null, '', e.target.href);\n    \n    // 2. Erase the old page and draw the new one\n    const contentDiv = document.querySelector('#app');\n    if (e.target.href.includes('about')) {\n      contentDiv.innerHTML = '<h1>About Us</h1><p>We are a cool company.</p>';\n    }\n  }\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking the URL in the browser bar always represents a real file on the server. In an SPA, if the URL says `website.com/dashboard/settings`, the file `settings.html` does not exist on the server! JS is just faking the URL.",
+    "fix": "This means your Server MUST be configured to always return `index.html` no matter what URL the user requests, otherwise they will get a 404 error if they hit 'Refresh'."
+  },
+  "5_related_topics": [
+    "js.csr_vs_ssr",
+    "js.preventing_default"
+  ],
+  "6_edge_case": {
+    "quirk": "Because JS fakes the URL change, the browser's native 'Back' and 'Forward' buttons break by default. SPAs must carefully listen to the `popstate` window event to manually redraw the page when the user hits the Back button.",
+    "code": ""
+  }
+}

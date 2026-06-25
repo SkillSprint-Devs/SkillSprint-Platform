@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.optional_chaining",
+  "topic": "Optional Chaining (?.)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.property_access"],
+    "related_to": ["js.nullish_coalescing"],
+    "often_confused_with": ["js.nullish_coalescing"]
+  },
+  "question_map": {
+    "what": ["what is optional chaining", "what does question mark dot mean"],
+    "why": ["why use optional chaining", "how to prevent cannot read property of undefined"],
+    "how": ["how to safely access nested object properties"],
+    "compare": ["optional chaining vs logical AND"],
+    "output": ["cannot read property of undefined fix", "optional chaining returns undefined"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Optional Chaining** (`?.`) is a safe way to access deeply nested properties in an object. Normally, if you try to read `user.profile.avatar`, and the user has no `profile` (it is undefined), your entire application will instantly crash. By using `user.profile?.avatar`, you tell JavaScript: 'If profile exists, get the avatar. If profile is undefined or null, just stop and return undefined, but please don't crash.'",
+    "analogy": "Imagine walking through a set of connected rooms to find a safe. Normally, if room 2 is locked, you run face-first into the door and get knocked out (the app crashes). Optional chaining is like checking if the door is open first. If it is locked, you just calmly turn around and say 'I couldn't find the safe' (return undefined) instead of getting knocked out."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When evaluating `a?.b`, the engine checks if `a` is `null` or `undefined`. If it is, the engine short-circuits the rest of the expression immediately and evaluates to `undefined`. If `a` is valid, it proceeds to access `b` just like standard dot notation.",
+    "memory": "No special memory mechanisms. It is syntactic sugar for a repetitive `if (a !== null && a !== undefined)` check."
+  },
+  "3_real_world_example": {
+    "use_case": "Safely accessing properties on an API response that might be missing data.",
+    "code": "const response = {\n  user: {\n    name: 'Alice'\n    // 'address' is completely missing from the database!\n  }\n};\n\n//  OLD WAY: Crashes the app\n// console.log(response.user.address.street); \n// TypeError: Cannot read properties of undefined (reading 'street')\n\n//  OLD WAY: Safe but extremely ugly\n// const street = response.user && response.user.address && response.user.address.street;\n\n//  NEW WAY: Optional Chaining\nconst street = response.user?.address?.street;\nconsole.log(street); // undefined (Safe! No crash!)"
+  },
+  "4_common_confusion": {
+    "trap": "Using optional chaining on the very first variable if the variable itself isn't declared. `undeclaredVar?.prop` will still throw a ReferenceError.",
+    "fix": "Optional chaining checks if a *property* is null/undefined. It does not save you from trying to access variables that were never declared with `let`/`const`."
+  },
+  "5_related_topics": ["js.property_access", "js.nullish_coalescing"],
+  "6_edge_case": {
+    "quirk": "Optional chaining works for array indices and function calls too! `arr?.[0]` safely accesses the first item if the array exists. `callback?.()` safely calls a function only if it was actually passed in.",
+    "code": "function doWork(onSuccess) {\n  // Safe call. If onSuccess was not provided, this does nothing.\n  onSuccess?.(); \n}"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.aria_basics",
+  "topic": "ARIA Basics",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.semantic_html"
+    ],
+    "related_to": [
+      "js.keyboard_navigation"
+    ],
+    "often_confused_with": [
+      "js.semantic_html"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is aria in html",
+      "what are aria attributes"
+    ],
+    "why": [
+      "why use aria-label",
+      "why use aria-hidden"
+    ],
+    "how": [
+      "how to make custom components accessible"
+    ],
+    "compare": [
+      "semantic html vs aria",
+      "aria-label vs alt text"
+    ],
+    "output": [
+      "screen reader reads aria-label on button"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Sometimes, native Semantic HTML isn't enough. If you build a complex custom component (like an interactive drag-and-drop calendar), there is no `<calendar>` tag in HTML. **ARIA** (Accessible Rich Internet Applications) is a set of special HTML attributes (`aria-*`) that let you explicitly tell Screen Readers exactly what a complex element is and what state it is in.",
+    "analogy": "Semantic HTML is like buying a pre-labeled jar that says 'Peanut Butter' molded into the glass. ARIA is like taking a blank jar, slapping a sticky note on it, and writing 'Peanut Butter' with a sharpie. Both get the job done, but the pre-labeled jar is always preferred if available."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "ARIA attributes DO NOT change the visual appearance of an element, and they DO NOT magically add keyboard functionality (you still have to write JS for that). They ONLY modify how the element is represented in the browser's Accessibility Tree.",
+    "memory": "The First Rule of ARIA is: 'No ARIA is better than bad ARIA'. If you use the wrong ARIA role, you will completely break the experience for disabled users."
+  },
+  "3_real_world_example": {
+    "use_case": "An icon-only button (like a magnifying glass for search).",
+    "code": "<!--  BAD: Sighted users see a magnifying glass. Blind users hear 'Button, blank'. -->\n<button>\n  <svg class=\"icon-search\">...</svg>\n</button>\n\n<!--  GOOD: We use aria-label to provide an invisible name for the button. -->\n<!-- Sighted users still see the icon, blind users hear 'Search, Button'. -->\n<button aria-label=\"Search\">\n  <svg class=\"icon-search\">...</svg>\n</button>\n\n<!--  ARIA STATES: Telling the screen reader if a custom dropdown is currently open -->\n<div role=\"combobox\" aria-expanded=\"true\">\n  Options...\n</div>"
+  },
+  "4_common_confusion": {
+    "trap": "Adding `role=\"button\"` to a `<div>` and thinking you are done. The Screen Reader will *say* it's a button, but it still won't be focusable with the `Tab` key, and it won't respond to `Enter`. You've lied to the user.",
+    "fix": "If you use ARIA roles, you MUST manually implement the expected keyboard JavaScript."
+  },
+  "5_related_topics": [
+    "js.semantic_html",
+    "js.keyboard_navigation"
+  ],
+  "6_edge_case": {
+    "quirk": "If you want a Screen Reader to completely ignore an element (like a purely decorative icon), you use `aria-hidden=\"true\"`. It visually remains on screen, but is wiped from the Accessibility Tree.",
+    "code": ""
+  }
+}

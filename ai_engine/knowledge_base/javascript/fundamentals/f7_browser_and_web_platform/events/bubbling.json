@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.bubbling",
+  "topic": "Event Bubbling",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.event_propagation"
+    ],
+    "related_to": [
+      "js.capturing",
+      "js.event_delegation"
+    ],
+    "often_confused_with": [
+      "js.capturing"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is event bubbling"
+    ],
+    "why": [
+      "why parent click fires when child is clicked",
+      "why does my click event trigger twice"
+    ],
+    "how": [
+      "how to stop bubbling"
+    ],
+    "compare": [
+      "bubbling vs capturing"
+    ],
+    "output": [
+      "click event fires on parent after child"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Event Bubbling** is the third and most famous phase of Event Propagation. After an event hits its target element, it 'bubbles' up through all of its parent elements, all the way to the `document`. If any of those parent elements have an event listener for that same event, they will trigger too. This is the default behavior in all modern browsers.",
+    "analogy": "Imagine you are holding an underwater balloon (the Event) at the bottom of a pool (the target element) and you let it go. It floats straight up to the surface (the `document`), passing every layer of water (parent elements) on its way up."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "During bubbling, the engine checks the target element's parent, then its grandparent, all the way to `window`. For each node, if there is a listener attached for that event type (and it wasn't registered with `capture: true`), the engine pushes its callback onto the Call Stack.",
+    "memory": "No new memory is allocated during bubbling; the engine just traverses the existing C++ DOM parent pointers."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why clicking a child triggers the parent.",
+    "code": "/* HTML:\n  <div id=\"parent\" style=\"padding: 50px; background: blue;\">\n    <button id=\"child\">Click Me</button>\n  </div>\n*/\n\ndocument.getElementById('parent').addEventListener('click', () => {\n  console.log('Parent click listener fired!');\n});\n\ndocument.getElementById('child').addEventListener('click', () => {\n  console.log('Child click listener fired!');\n});\n\n// If you click the button, you will see:\n// 1. 'Child click listener fired!'\n// 2. 'Parent click listener fired!' (Because of Bubbling)"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that `e.target` changes as the event bubbles up. It does NOT. `e.target` is forever locked to the deepest element that originated the event. If you want to know which parent the event is currently bubbling through, you must use `e.currentTarget`.",
+    "fix": "target = who started it. currentTarget = who is handling it right now."
+  },
+  "5_related_topics": [
+    "js.event_propagation",
+    "js.event_delegation"
+  ],
+  "6_edge_case": {
+    "quirk": "If you absolutely must stop bubbling immediately and prevent even OTHER listeners on the EXACT SAME element from running, you use `e.stopImmediatePropagation()`.",
+    "code": "btn.addEventListener('click', (e) => { e.stopImmediatePropagation(); });\nbtn.addEventListener('click', () => { console.log('I will never run'); });"
+  }
+}

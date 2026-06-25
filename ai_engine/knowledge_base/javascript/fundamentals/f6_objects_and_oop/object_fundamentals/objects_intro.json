@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.objects_intro",
+  "topic": "Objects Intro",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.data_types", "js.variables"],
+    "related_to": ["js.object_properties", "js.arrays"],
+    "often_confused_with": ["js.arrays"]
+  },
+  "question_map": {
+    "what": ["what is an object", "what is a javascript object"],
+    "why": ["why use objects", "when should i use an object"],
+    "how": ["how to create an object", "how to write an object"],
+    "compare": ["object vs array", "object vs primitive"],
+    "output": ["object Object prints to console"]
+  },
+  "1_beginner_explanation": {
+    "summary": "An **Object** is a collection of related data and functionality. Instead of storing a single value (like a string or a number), an object lets you store multiple values under a single variable. Think of it like a dictionary: it holds 'keys' (names) and 'values' (the data). We use objects to group related information together, like all the details of a single User.",
+    "analogy": "A primitive variable is like a sticky note with a single word written on it. An object is like a filing cabinet. The cabinet has a label on the front ('User'), and inside, there are labeled folders ('Name', 'Age', 'Email'). Instead of carrying around 10 different sticky notes, you just carry the single filing cabinet."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you use curly braces `{}` (object literal syntax), the JavaScript engine allocates a new block of memory in the Heap to store the properties. The variable you assign the object to actually only stores a memory address (a reference) pointing to that location in the Heap.",
+    "memory": "Objects are Reference Types. The actual key-value pairs live in the Heap, while the variable on the Call Stack holds a pointer to the Heap."
+  },
+  "3_real_world_example": {
+    "use_case": "Grouping disconnected variables into a single cohesive entity.",
+    "code": "//  Hard to manage\nconst userName = 'Alice';\nconst userAge = 25;\nconst userIsAdmin = true;\n\n//  Easy to manage (Single Object)\nconst user = {\n  name: 'Alice',\n  age: 25,\n  isAdmin: true\n};\n\nconsole.log(user);"
+  },
+  "4_common_confusion": {
+    "trap": "Using an Array when you should use an Object, or vice versa. If order matters (a list of things), use an Array `[]`. If labels matter (a single thing with properties), use an Object `{}`.",
+    "fix": "Ask yourself: Am I making a 'list of users'? Use an Array. Am I describing 'one specific user'? Use an Object."
+  },
+  "5_related_topics": ["js.object_properties", "js.arrays", "js.object_methods"],
+  "6_edge_case": {
+    "quirk": "Keys in standard objects are ALWAYS converted to strings (or Symbols) under the hood. If you try to use a number or an object as a key, JavaScript will silently coerce it into a string first.",
+    "code": "const obj = {};\nobj[1] = 'Hello';\nconsole.log(obj['1']); // 'Hello' (The number 1 was converted to string '1')"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "intent": "js.cookies_intro",
+  "topic": "Cookies",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_web_apis",
+      "js.http_intro"
+    ],
+    "related_to": [
+      "js.local_storage",
+      "js.storage_security"
+    ],
+    "often_confused_with": [
+      "js.local_storage"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what are cookies in web development"
+    ],
+    "why": [
+      "why use cookies",
+      "why do websites ask to accept cookies"
+    ],
+    "how": [
+      "how to set a cookie in javascript",
+      "how cookies are sent to server"
+    ],
+    "compare": [
+      "cookies vs localstorage",
+      "session cookie vs persistent cookie"
+    ],
+    "output": [
+      "document.cookie returns all cookies as string"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Cookies are the oldest form of browser storage. Unlike `localStorage`, which is purely for JavaScript, Cookies are designed to talk to Servers. Every time your browser makes a network request (like loading an image or visiting a page), it automatically attaches all your cookies and sends them to the server. This is how websites 'remember' that you are logged in.",
+    "analogy": "A cookie is like a VIP wristband. The server gives it to you when you log in. Now, every time you walk up to the bartender (make an HTTP request), you don't have to show your ID again; the bartender just sees your wristband automatically."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Cookies are attached to the HTTP `Cookie` header on every request to the matching domain. They can be set by the server using the `Set-Cookie` HTTP response header, or by JavaScript using `document.cookie`. Because they are sent over the network, they are strictly limited to 4KB of data.",
+    "memory": "Cookies are stored by the browser and managed based on their expiration date. If no date is set, they become 'Session Cookies' and die when the browser is completely closed."
+  },
+  "3_real_world_example": {
+    "use_case": "Tracking a user's session ID so the server knows who is making the request.",
+    "code": "// Reading all cookies (Returns a single giant, messy string)\nconsole.log(document.cookie); \n// \"theme=dark; sessionId=123xyz; language=en\"\n\n// Writing a new cookie (Notice it doesn't overwrite the others, it appends!)\ndocument.cookie = \"username=JohnDoe; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/\";"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `document.cookie` behaves like a normal variable or an Object. If you do `document.cookie = 'a=1'` and then `document.cookie = 'b=2'`, the value of `document.cookie` isn't `'b=2'`, it's `'a=1; b=2'`. It is a weird getter/setter magic string.",
+    "fix": "Parsing cookies in JS is painful. Most developers use a library (like `js-cookie`) or rely entirely on the server to handle cookies."
+  },
+  "5_related_topics": [
+    "js.local_storage",
+    "js.storage_security",
+    "js.http_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "If a server sends a cookie with the `HttpOnly` flag, JavaScript cannot see it or touch it at all. `document.cookie` will pretend it doesn't exist. This is a massive security feature to prevent hackers from stealing login tokens.",
+    "code": "// If the server set HttpOnly=true\nconsole.log(document.cookie); // The sensitive token will be invisible here!"
+  }
+}

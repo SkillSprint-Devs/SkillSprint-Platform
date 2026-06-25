@@ -59,6 +59,6 @@
   ],
   "6_edge_case": {
     "quirk": "Accidentally creating an infinite loop by forgetting to update the condition variable in a `while` loop, which will freeze the browser tab.",
-    "code": "let count = 0;\nwhile (count < 3) {\n  console.log('Running');\n  // ❌ If we forget `count++`, count stays 0 forever.\n  // The loop never stops.\n  count++; // ✅ Essential\n}"
+    "code": "let count = 0;\nwhile (count < 3) {\n  console.log('Running');\n  //  If we forget `count++`, count stays 0 forever.\n  // The loop never stops.\n  count++; //  Essential\n}"
   }
 }

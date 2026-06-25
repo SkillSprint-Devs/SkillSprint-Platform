@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.sequential_vs_parallel",
+  "topic": "Sequential vs Parallel Async",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.async_functions", "js.await_keyword"],
+    "related_to": ["js.promise_all", "js.concurrency_intro"],
+    "often_confused_with": ["js.concurrency_intro"]
+  },
+  "question_map": {
+    "what": ["how to run async tasks in parallel", "what is sequential await"],
+    "why": ["why is my async code slow", "why avoid multiple awaits in a row"],
+    "how": ["how to await multiple promises at once"],
+    "compare": ["sequential vs parallel execution in javascript"],
+    "output": ["two awaits take double the time"]
+  },
+  "1_beginner_explanation": {
+    "summary": "When you put multiple `await` statements one after another, they run **Sequentially**: the second task does not even start until the first task completely finishes. If task 1 takes 2 seconds and task 2 takes 2 seconds, the total time is 4 seconds. If the tasks don't depend on each other, you should run them in **Parallel** by starting them both at the same time and using `Promise.all()`. This drops the total time to 2 seconds.",
+    "analogy": "Sequential execution is like going to the grocery store, buying milk, driving home, and then driving BACK to the store to buy eggs. Parallel execution is going to the store, putting both milk and eggs in your cart at the same time, and checking out once."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "In sequential code (`await A; await B;`), the function pauses at `A`. The Web API processes `A`. Once resolved, the function resumes and hits `await B`. The Web API *then* starts processing `B`. In parallel code (`const pA = A(); const pB = B(); await Promise.all([pA, pB])`), both functions are invoked synchronously one after the other, sending both to the Web API simultaneously. The `await` then pauses until the slower of the two finishes.",
+    "memory": "Parallel execution requires the engine to hold multiple pending Promises and their internal Web API states concurrently, rather than just one at a time."
+  },
+  "3_real_world_example": {
+    "use_case": "Fetching a user's profile and their settings. Since settings don't depend on the profile data, fetching them concurrently cuts loading time in half.",
+    "code": "//  Sequential (Slow: Takes 2 seconds total)\nasync function loadDashboardSlow() {\n  // Waits 1s\n  const profile = await fetch('/api/profile').then(r => r.json()); \n  // Waits another 1s\n  const settings = await fetch('/api/settings').then(r => r.json());\n  render(profile, settings);\n}\n\n//  Parallel (Fast: Takes 1 second total)\nasync function loadDashboardFast() {\n  // Both network requests are fired off immediately\n  const profilePromise = fetch('/api/profile').then(r => r.json());\n  const settingsPromise = fetch('/api/settings').then(r => r.json());\n  \n  // Await them both at the same time\n  const [profile, settings] = await Promise.all([profilePromise, settingsPromise]);\n  render(profile, settings);\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Always using `Promise.all` for everything. You can only run tasks in parallel if they are **independent**. If task B needs the ID returned by task A, you *must* run them sequentially.",
+    "fix": "Ask: 'Does the second line of code need the data from the first line?' If yes, use sequential `await`. If no, use `Promise.all`."
+  },
+  "5_related_topics": ["js.promise_all", "js.await_keyword"],
+  "6_edge_case": {
+    "quirk": "Using `await` inside a `for` loop or `for...of` loop forces sequential execution — each iteration waits for the previous one to finish. If you want a loop to run in parallel, map the array to Promises and use `Promise.all`.",
+    "code": "// Sequential loop (Slow)\nfor (const id of [1, 2, 3]) {\n  await fetch(`/api/user/${id}`); // 1 finishes, then 2 starts...\n}\n\n// Parallel loop (Fast)\nconst promises = [1, 2, 3].map(id => fetch(`/api/user/${id}`));\nawait Promise.all(promises); // All 3 start at the same time"
+  }
+}

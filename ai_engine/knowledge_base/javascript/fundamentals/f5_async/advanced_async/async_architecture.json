@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.async_architecture",
+  "topic": "Async Architecture",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.promises_intro", "js.concurrency_intro"],
+    "related_to": ["js.concurrency_patterns", "js.race_conditions", "js.event_loop_intro"],
+    "often_confused_with": ["js.concurrency_intro"]
+  },
+  "question_map": {
+    "what": ["how to architecture async code", "what is asynchronous architecture"],
+    "why": ["why is my app freezing", "why split async logic"],
+    "how": ["how to handle global loading state", "how to organize async calls"],
+    "compare": ["ui thread vs background thread architecture"],
+    "output": ["data loading architecture patterns"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Async Architecture** is how you structure your entire application to handle latency and background tasks gracefully. Good async architecture separates the UI (which must always be responsive) from the data fetching layer. It involves patterns like global Loading States, optimistic UI updates (showing success before the server confirms), and centralized error handling boundaries so a failed fetch doesn't crash the entire page.",
+    "analogy": "Async Architecture is like designing a restaurant. The UI is the dining room; it must always feel welcoming and responsive. The backend requests are the kitchen. Good architecture ensures the waiters (Event Loop) are never stuck waiting in the kitchen. They drop off tickets and immediately return to the dining room to tell customers 'Your food is being prepared' (Loading State)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "At an architectural level, async operations are pushed to the edges of the application. Business logic functions should remain pure and synchronous where possible. Data fetching is isolated into specific 'service' layers that return Promises to the UI components.",
+    "memory": "Managing global async state (like Redux thunks or React Query caches) requires careful memory management to ensure old, unneeded data is garbage collected while keeping active data instantly available."
+  },
+  "3_real_world_example": {
+    "use_case": "Implementing Optimistic UI: updating the screen instantly while the async request happens in the background, rolling back only if it fails.",
+    "code": "let state = { likes: 10 };\n\nasync function toggleLikeOptimistic() {\n  // 1. OPTIMISTIC UPDATE: Update UI instantly, assuming success\n  state.likes++;\n  render(state); // UI feels lightning fast\n  \n  try {\n    // 2. BACKGROUND WORK: Send the request to the server\n    const res = await fetch('/api/like', { method: 'POST' });\n    if (!res.ok) throw new Error('Server failed');\n    // Success! Do nothing, UI is already correct.\n    \n  } catch (error) {\n    // 3. ROLLBACK: Only if it fails do we revert the UI\n    console.warn('Like failed, rolling back UI.');\n    state.likes--;\n    render(state);\n    showToast('Failed to save like. Please check connection.');\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Mixing UI logic, business logic, and `fetch` calls all inside the same function. This makes it impossible to reuse the data fetching logic or test it without rendering the UI.",
+    "fix": "Separate concerns: write an `api.js` file that only does fetching and returns Promises. Write UI components that call those functions and `await` the results."
+  },
+  "5_related_topics": ["js.concurrency_patterns", "js.race_conditions", "js.error_handling"],
+  "6_edge_case": {
+    "quirk": "When architectural complexity grows, developers often switch from raw Promises to specialized libraries like React Query, SWR, or RxJS. These libraries handle caching, retries, deduplication, and race-condition cancellation out-of-the-box.",
+    "code": "// Instead of raw fetch in components, modern architecture uses hooks\n// const { data, isLoading, error } = useQuery(['user', id], fetchUser);\n// The library manages the entire async lifecycle globally."
+  }
+}

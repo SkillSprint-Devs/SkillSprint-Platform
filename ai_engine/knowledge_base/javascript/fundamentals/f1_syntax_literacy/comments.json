@@ -8,8 +8,8 @@
     "runtime": false
   },
   "relationships": {
-    "depends_on": [],
-    "related_to": [],
+    "depends_on": ["js.variables"],
+    "related_to": ["js.console"],
     "often_confused_with": []
   },
   "question_map": {

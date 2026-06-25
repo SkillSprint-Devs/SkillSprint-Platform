@@ -14,7 +14,7 @@
     // SOCKET CONFIGURATION
     // For production, if the socket is on the same domain, usually '' works or the specific path.
     // If using a separate socket server, configure it here.
-    window.API_SOCKET_URL = isLocal ? 'http://localhost:5000' : '';
+    window.API_SOCKET_URL = isLocal ? 'http://localhost:5000' : window.location.origin;
 
     console.log('[Config] Loaded. API:', window.API_BASE_URL, 'Socket:', window.API_SOCKET_URL || 'Using relative path');
 })();

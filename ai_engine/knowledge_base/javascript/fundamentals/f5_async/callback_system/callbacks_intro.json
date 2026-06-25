@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.async_callbacks_intro",
+  "topic": "Async Callbacks Intro",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.synchronous_vs_asynchronous", "js.callbacks"],
+    "related_to": ["js.callback_hell", "js.inversion_of_control", "js.event_loop_intro"],
+    "often_confused_with": ["js.callbacks"]
+  },
+  "question_map": {
+    "what": ["what is an async callback", "how are callbacks used for async operations", "what does the callback do"],
+    "why": ["why use callback functions for async", "why does settimeout need a callback"],
+    "how": ["how do callbacks work in async js", "how to handle async results with callbacks"],
+    "compare": ["sync callback vs async callback", "callback vs promise"],
+    "output": ["callback runs after main code finishes"]
+  },
+  "1_beginner_explanation": {
+    "summary": "In Asynchronous JavaScript, a **callback** is the original way to handle operations that take time (like network requests or timers). Instead of waiting for the operation to finish and returning the result immediately, you pass a function (the callback) to the operation. The environment (like the browser) runs the operation in the background, and when it finishes, it 'calls back' your function with the result or an error.",
+    "analogy": "An async callback is like ordering a custom cake. You give the baker your phone number (the callback). You don't stand in the bakery waiting for hours (blocking). You go home and do other things. When the cake is ready, the baker calls your number so you can come pick it up."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an async function (like `setTimeout` or an older XMLHttpRequest) is called, it takes the callback and registers it with the Web API. The initial function returns immediately, freeing the Call Stack. Once the Web API completes the background work, the callback is moved to the Task Queue. The Event Loop eventually pushes it onto the Call Stack to execute.",
+    "memory": "The callback function and its closure environment must be kept alive in heap memory by the browser while the background operation is running. Once the callback executes and completes, it can be garbage collected (unless another reference exists)."
+  },
+  "3_real_world_example": {
+    "use_case": "Using a callback to handle the result of a delayed operation, which is the foundational pattern for older Node.js APIs and DOM events.",
+    "code": "function downloadFile(url, onComplete) {\n  console.log(`Starting download from ${url}...`);\n  \n  // Simulate a 2-second network request\n  setTimeout(() => {\n    const fileContent = '...file data...';\n    console.log('Download finished.');\n    \n    // Invoke the callback with the result\n    onComplete(fileContent);\n  }, 2000);\n}\n\nconsole.log('1. User clicks download');\ndownloadFile('https://example.com/data.txt', (data) => {\n  console.log('3. Displaying data:', data);\n});\nconsole.log('2. User can keep scrolling');\n\n// Output:\n// 1. User clicks download\n// Starting download from https://example.com/data.txt...\n// 2. User can keep scrolling\n// Download finished. (2 seconds later)\n// 3. Displaying data: ...file data..."
+  },
+  "4_common_confusion": {
+    "trap": "Thinking you can return the result of an async operation directly from the outer function when using callbacks. You cannot return something that hasn't arrived yet.",
+    "fix": "Async functions with callbacks generally return `undefined`. Any code that needs the result MUST be placed inside the callback itself."
+  },
+  "5_related_topics": ["js.callback_hell", "js.inversion_of_control", "js.promises"],
+  "6_edge_case": {
+    "quirk": "The 'Error-First Callback' pattern became the standard in Node.js. The first argument of the callback is always an `error` object (or null if successful), and the second is the `data`.",
+    "code": "// Standard Node.js error-first callback pattern\nconst fs = require('fs');\n\nfs.readFile('data.txt', 'utf8', (err, data) => {\n  if (err) {\n    console.error('Failed to read file:', err);\n    return;\n  }\n  console.log('File contents:', data);\n});"
+  }
+}

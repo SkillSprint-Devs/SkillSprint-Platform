@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.accessible_forms",
+  "topic": "Accessible Forms",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.forms_intro",
+      "js.semantic_html"
+    ],
+    "related_to": [
+      "js.form_validation"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "how to make forms accessible"
+    ],
+    "why": [
+      "why use label tag",
+      "why link label to input"
+    ],
+    "how": [
+      "how to associate label with input",
+      "how to announce form errors to screen reader"
+    ],
+    "compare": [
+      "placeholder vs label",
+      "aria-labelledby vs for attribute"
+    ],
+    "output": [
+      "screen reader announces label for input"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Forms are the most difficult part of the web for disabled users. A sighted user can look at an input box, see the text 'Email' floating near it, and know what to type. A screen reader cannot visually link the two. You must strictly bind the text to the input box using code, so when the blind user focuses on the box, their computer announces 'Email Input'.",
+    "analogy": "Imagine walking into a room full of unmarked boxes (inputs). Someone stands in the corner shouting 'Shoes, Shirts, Hats' (visual text). It doesn't help you know what is in each specific box. A proper Form puts a sticky label (HTML `<label>`) physically attached to every single box."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you use the `for` attribute on a `<label>`, the browser's C++ engine binds it to the `<input>` with the matching `id`. This creates a two-way link in the Accessibility Tree. It also creates a massive UX benefit: clicking the text label automatically focuses the input box.",
+    "memory": "Screen readers only read what is focused or explicitly linked. If an error message pops up visually, the screen reader ignores it unless it is explicitly linked to the input or placed in an ARIA 'Live Region'."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a fully accessible email input field.",
+    "code": "<!--  INACCESSIBLE: Sighted users see it, blind users hear \"Edit Text\" -->\n<span>Email Address:</span>\n<input type=\"text\" name=\"email\">\n\n<!--  ACCESSIBLE: Linked via 'for' and 'id' -->\n<label for=\"userEmail\">Email Address:</label>\n<!-- We add aria-required so the screen reader warns them they MUST fill it -->\n<input type=\"email\" id=\"userEmail\" name=\"email\" aria-required=\"true\">\n\n<!--  ALTERNATIVE: Wrapping the input implicitly creates the link -->\n<label>\n  Password:\n  <input type=\"password\" name=\"pwd\">\n</label>"
+  },
+  "4_common_confusion": {
+    "trap": "Using the HTML `placeholder` attribute as a replacement for a visible label. Placeholders disappear the second the user starts typing. If a user with cognitive memory issues looks away and looks back, the box has text in it, but they have forgotten what the box was actually for.",
+    "fix": "Placeholders are for examples (e.g., 'john@gmail.com'). Labels are for instructions (e.g., 'Email'). Never hide labels."
+  },
+  "5_related_topics": [
+    "js.forms_intro",
+    "js.form_validation"
+  ],
+  "6_edge_case": {
+    "quirk": "If a user submits a form and causes an error (e.g., 'Password too short'), simply drawing red text on the screen does nothing for a blind user. You must use `aria-describedby` to link the error text to the input, OR move the keyboard focus directly to the error message.",
+    "code": ""
+  }
+}

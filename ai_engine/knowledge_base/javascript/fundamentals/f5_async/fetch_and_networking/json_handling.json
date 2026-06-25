@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.json_handling",
+  "topic": "Handling JSON",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.fetch_api", "js.objects", "js.json"],
+    "related_to": ["js.request_response_cycle"],
+    "often_confused_with": ["js.objects"]
+  },
+  "question_map": {
+    "what": ["what is response.json()", "why convert json", "what does JSON.parse do"],
+    "why": ["why do i need two awaits in fetch", "why is the api response a string"],
+    "how": ["how to read json from fetch", "how to send json in post request"],
+    "compare": ["response.json() vs JSON.parse", "json vs javascript object"],
+    "output": ["syntax error unexpected token in json"]
+  },
+  "1_beginner_explanation": {
+    "summary": "When servers send data over the internet, they send it as a giant block of text (a string). Usually, this text is formatted as **JSON** (JavaScript Object Notation). However, your JavaScript code cannot interact with a giant text string easily. You must parse that string back into a real JavaScript Object. When using `fetch()`, calling `await response.json()` does exactly that: it reads the incoming text stream and converts it into a usable JS object.",
+    "analogy": "Imagine a server sending you a disassembled IKEA chair. The network sends it flat-packed in a box (the JSON text string). You can't sit on a box. Calling `response.json()` is the process of opening the box and assembling the pieces into a real chair (a JS object) that your code can actually use."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "`response.json()` is an asynchronous method that returns a Promise. Why? Because the network might still be downloading the body of the response. `response.json()` waits for the stream to finish downloading, then internally calls `JSON.parse()` on the resulting text, and resolves the Promise with the finished object.",
+    "memory": "Strings transferred over the network are read into a memory buffer. `response.json()` reads this buffer, creates actual JS Object structures in the heap, and then discards the original raw string."
+  },
+  "3_real_world_example": {
+    "use_case": "The crucial difference between the Response object, the raw text, and the parsed JSON data.",
+    "code": "async function getData() {\n  const response = await fetch('https://dummyjson.com/products/1');\n  \n  // 1. The Response Object (headers, status, but body is unread)\n  console.log(typeof response); // 'object' (Response instance)\n  \n  // 2. The magic conversion step\n  const data = await response.json(); // Reads stream AND parses JSON\n  \n  // 3. The usable JS Object\n  console.log(typeof data);     // 'object' (Plain JS Object)\n  console.log(data.title);      // 'Essence Mascara Lash Princess'\n}\n\n// Sending JSON requires the reverse process: Object -> String\nasync function sendData() {\n  const newProduct = { title: 'Laptop', price: 999 };\n  await fetch('/api/add', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(newProduct) // Assembling back into a flat box\n  });\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Getting an error like `SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON`. This happens when you call `.json()` but the server sent back an HTML error page (like a 404 Not Found page) instead of JSON data.",
+    "fix": "Always check `if (!response.ok)` before calling `response.json()`. If it's a 404, don't try to parse it as JSON."
+  },
+  "5_related_topics": ["js.fetch_api", "js.network_errors", "js.json"],
+  "6_edge_case": {
+    "quirk": "You can only read the body of a `Response` object ONCE. If you call `response.json()` and then try to call `response.text()`, it will throw a `TypeError: body stream already read`.",
+    "code": "const res = await fetch('/api/data');\nconst data = await res.json(); // stream consumed here\n// const text = await res.text(); //  CRASH! Stream is empty now."
+  }
+}

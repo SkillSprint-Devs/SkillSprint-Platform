@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.static_methods",
+  "topic": "Static Methods",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.classes_intro", "js.methods"],
+    "related_to": ["js.constructors_in_classes"],
+    "often_confused_with": ["js.methods"]
+  },
+  "question_map": {
+    "what": ["what is a static method", "what does static mean"],
+    "why": ["why use static methods", "when should i use static methods"],
+    "how": ["how to call a static method"],
+    "compare": ["static method vs instance method"],
+    "output": ["method is not a function when calling static method on instance"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Static Method** is a method that belongs to the Class itself, NOT to the individual objects created by the class. You define it by putting the word `static` in front of the method name. You cannot call a static method on a specific instance (like `myCar.start()`), you can only call it on the main class blueprint itself (like `Car.compare(car1, car2)`).",
+    "analogy": "An Instance Method (`drive()`) is something a specific car does. A Static Method (`Car.calculateTotalCarsBuilt()`) is something the Factory does. The factory knows the total number, but an individual car does not."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you write `static myMethod() {}`, the engine attaches the method directly to the constructor function object (`MyClass.myMethod = ...`), instead of attaching it to `MyClass.prototype`.",
+    "memory": "Because it doesn't go on the prototype, instances have zero access to it via the prototype chain."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating utility functions or helper methods that don't rely on data from a specific instance.",
+    "code": "class Article {\n  constructor(title, date) {\n    this.title = title;\n    this.date = date;\n  }\n\n  // Static method: Belongs to the class, not the articles\n  static compareDates(articleA, articleB) {\n    return articleA.date - articleB.date;\n  }\n}\n\nconst a1 = new Article('Intro', new Date(2020, 1, 1));\nconst a2 = new Article('Advanced', new Date(2021, 1, 1));\n\n//  Fails! Instances don't have static methods\n// a1.compareDates(a1, a2); \n\n//  Works! Call it on the Class itself\nArticle.compareDates(a1, a2);"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to use `this` inside a static method to access an instance's properties. Inside a static method, `this` refers to the Class itself, not an instance. `this.title` will be undefined.",
+    "fix": "Never use `this` to access instance data inside a static method. If you need instance data, pass the instances in as arguments."
+  },
+  "5_related_topics": ["js.methods", "js.classes_intro"],
+  "6_edge_case": {
+    "quirk": "Static methods are often used to create alternative 'Factory' constructors.",
+    "code": "class User {\n  constructor(name) { this.name = name; }\n  \n  // A static factory method\n  static createAnonymous() {\n    return new User('Anonymous');\n  }\n}\nconst anon = User.createAnonymous();"
+  }
+}

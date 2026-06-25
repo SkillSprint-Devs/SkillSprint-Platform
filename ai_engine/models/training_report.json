@@ -1,24 +1,36 @@
 {
-  "training_time_seconds": 40.16,
-  "train_samples": 2182,
-  "val_samples": 564,
-  "n_classes": 76,
-  "n_features": 1222,
-  "train_accuracy": 0.9725,
-  "train_macro_f1": 0.9707,
-  "val_accuracy": 0.828,
-  "val_macro_f1": 0.8113,
+  "training_time_seconds": 173.31,
+  "train_samples": 2202,
+  "val_samples": 572,
+  "n_classes": 78,
+  "n_features": 4668,
+  "train_accuracy": 0.9809,
+  "train_macro_f1": 0.9844,
+  "val_accuracy": 0.7972,
+  "val_macro_f1": 0.8005,
   "val_per_class": {
+    "general.greeting": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 4
+    },
+    "general.polite": {
+      "precision": 1.0,
+      "recall": 0.75,
+      "f1": 0.8571,
+      "support": 4
+    },
     "js.fundamentals.query": {
-      "precision": 0.7937,
-      "recall": 0.9845,
-      "f1": 0.8789,
+      "precision": 0.6528,
+      "recall": 0.9767,
+      "f1": 0.7826,
       "support": 129
     },
     "platform.ai.ask": {
-      "precision": 0.8333,
-      "recall": 1.0,
-      "f1": 0.9091,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.ai.capabilities": {
@@ -47,20 +59,20 @@
     },
     "platform.cert.list_badges": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.cert.verify": {
-      "precision": 0.8,
-      "recall": 0.8,
-      "f1": 0.8,
+      "precision": 0.8333,
+      "recall": 1.0,
+      "f1": 0.9091,
       "support": 5
     },
     "platform.cert.view": {
-      "precision": 0.7143,
-      "recall": 1.0,
-      "f1": 0.8333,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
       "support": 5
     },
     "platform.help.auth": {
@@ -88,9 +100,9 @@
       "support": 5
     },
     "platform.library.search": {
-      "precision": 1.0,
+      "precision": 0.7143,
       "recall": 1.0,
-      "f1": 1.0,
+      "f1": 0.8333,
       "support": 5
     },
     "platform.library.upload": {
@@ -100,33 +112,33 @@
       "support": 5
     },
     "platform.matchmaking.algorithm": {
-      "precision": 0.6,
-      "recall": 0.6,
-      "f1": 0.6,
+      "precision": 0.6667,
+      "recall": 0.4,
+      "f1": 0.5,
       "support": 5
     },
     "platform.matchmaking.feed": {
-      "precision": 0.6667,
-      "recall": 0.8,
-      "f1": 0.7273,
+      "precision": 0.75,
+      "recall": 0.6,
+      "f1": 0.6667,
       "support": 5
     },
     "platform.matchmaking.find": {
       "precision": 1.0,
-      "recall": 0.8,
-      "f1": 0.8889,
+      "recall": 0.6,
+      "f1": 0.75,
       "support": 5
     },
     "platform.new.can_chat_during_live": {
-      "precision": 0.6667,
+      "precision": 0.8,
       "recall": 0.5714,
-      "f1": 0.6154,
+      "f1": 0.6667,
       "support": 7
     },
     "platform.new.can_duplicate_task": {
-      "precision": 0.8571,
+      "precision": 1.0,
       "recall": 0.8571,
-      "f1": 0.8571,
+      "f1": 0.9231,
       "support": 7
     },
     "platform.new.can_earn_certificates": {
@@ -136,21 +148,21 @@
       "support": 7
     },
     "platform.new.can_edit_comment_after": {
-      "precision": 0.7143,
+      "precision": 0.625,
       "recall": 0.7143,
-      "f1": 0.7143,
+      "f1": 0.6667,
       "support": 7
     },
     "platform.new.can_invite_someone_outside": {
       "precision": 1.0,
-      "recall": 0.4286,
-      "f1": 0.6,
+      "recall": 0.2857,
+      "f1": 0.4444,
       "support": 7
     },
     "platform.new.can_join_session_without": {
-      "precision": 0.5714,
+      "precision": 0.8,
       "recall": 0.5714,
-      "f1": 0.5714,
+      "f1": 0.6667,
       "support": 7
     },
     "platform.new.can_like_own_post": {
@@ -160,15 +172,15 @@
       "support": 7
     },
     "platform.new.can_message_someone_not": {
-      "precision": 1.0,
-      "recall": 0.8571,
-      "f1": 0.9231,
-      "support": 7
-    },
-    "platform.new.can_reject_match": {
       "precision": 0.8333,
       "recall": 0.7143,
       "f1": 0.7692,
+      "support": 7
+    },
+    "platform.new.can_reject_match": {
+      "precision": 1.0,
+      "recall": 0.5714,
+      "f1": 0.7273,
       "support": 7
     },
     "platform.new.can_save_the_code": {
@@ -178,9 +190,9 @@
       "support": 7
     },
     "platform.new.can_save_whiteboard_drawings": {
-      "precision": 0.75,
-      "recall": 0.8571,
-      "f1": 0.8,
+      "precision": 0.5,
+      "recall": 0.5714,
+      "f1": 0.5333,
       "support": 7
     },
     "platform.new.can_sort_tasks_priority": {
@@ -190,15 +202,15 @@
       "support": 7
     },
     "platform.new.how_delete_account": {
-      "precision": 0.8333,
-      "recall": 0.7143,
-      "f1": 0.7692,
+      "precision": 0.8,
+      "recall": 0.5714,
+      "f1": 0.6667,
       "support": 7
     },
     "platform.new.how_delete_chat_message": {
-      "precision": 0.875,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1": 0.9333,
+      "f1": 1.0,
       "support": 7
     },
     "platform.new.how_leave_live_session": {
@@ -208,33 +220,33 @@
       "support": 7
     },
     "platform.new.how_update_profile_information": {
-      "precision": 0.75,
+      "precision": 0.8571,
       "recall": 0.8571,
-      "f1": 0.8,
+      "f1": 0.8571,
       "support": 7
     },
     "platform.new.how_verify_email_after": {
-      "precision": 1.0,
-      "recall": 0.8571,
-      "f1": 0.9231,
-      "support": 7
-    },
-    "platform.new.what_cant_see_new": {
-      "precision": 0.4286,
-      "recall": 0.4286,
-      "f1": 0.4286,
-      "support": 7
-    },
-    "platform.new.what_complete_task_early": {
       "precision": 1.0,
       "recall": 0.7143,
       "f1": 0.8333,
       "support": 7
     },
-    "platform.new.what_drawing_disappears_the": {
-      "precision": 0.75,
+    "platform.new.what_cant_see_new": {
+      "precision": 0.5,
       "recall": 0.4286,
-      "f1": 0.5455,
+      "f1": 0.4615,
+      "support": 7
+    },
+    "platform.new.what_complete_task_early": {
+      "precision": 1.0,
+      "recall": 0.5714,
+      "f1": 0.7273,
+      "support": 7
+    },
+    "platform.new.what_drawing_disappears_the": {
+      "precision": 1.0,
+      "recall": 0.4286,
+      "f1": 0.6,
       "support": 7
     },
     "platform.new.what_join_live_session": {
@@ -244,9 +256,9 @@
       "support": 7
     },
     "platform.new.what_post_doesnt_appear": {
-      "precision": 0.5,
+      "precision": 0.6,
       "recall": 0.4286,
-      "f1": 0.4615,
+      "f1": 0.5,
       "support": 7
     },
     "platform.new.what_screen_sharing_fails": {
@@ -262,9 +274,9 @@
       "support": 7
     },
     "platform.new.what_skillsprint": {
-      "precision": 1.0,
+      "precision": 0.875,
       "recall": 1.0,
-      "f1": 1.0,
+      "f1": 0.9333,
       "support": 7
     },
     "platform.new.what_the_shared_library": {
@@ -274,15 +286,15 @@
       "support": 7
     },
     "platform.new.what_the_wallet_feature": {
-      "precision": 1.0,
+      "precision": 0.875,
       "recall": 1.0,
-      "f1": 1.0,
+      "f1": 0.9333,
       "support": 7
     },
     "platform.new.what_tools_are_available": {
-      "precision": 0.7778,
+      "precision": 0.875,
       "recall": 1.0,
-      "f1": 0.875,
+      "f1": 0.9333,
       "support": 7
     },
     "platform.new.why_cant_see_tasks": {
@@ -334,15 +346,15 @@
       "support": 5
     },
     "platform.quiz.feedback": {
-      "precision": 0.8,
-      "recall": 0.8,
-      "f1": 0.8,
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
       "support": 5
     },
     "platform.quiz.limits": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.quiz.list_courses": {
@@ -370,45 +382,45 @@
       "support": 5
     },
     "platform.session.create": {
-      "precision": 0.625,
-      "recall": 1.0,
-      "f1": 0.7692,
-      "support": 5
-    },
-    "platform.session.history": {
-      "precision": 0.8,
-      "recall": 0.8,
-      "f1": 0.8,
-      "support": 5
-    },
-    "platform.session.join": {
-      "precision": 0.4444,
-      "recall": 0.8,
-      "f1": 0.5714,
-      "support": 5
-    },
-    "platform.session.schedule": {
-      "precision": 0.75,
-      "recall": 0.6,
-      "f1": 0.6667,
-      "support": 5
-    },
-    "platform.session.troubleshoot": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "support": 5
-    },
-    "platform.social.follow": {
       "precision": 0.8333,
       "recall": 1.0,
       "f1": 0.9091,
       "support": 5
     },
+    "platform.session.history": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+    },
+    "platform.session.join": {
+      "precision": 0.3333,
+      "recall": 0.8,
+      "f1": 0.4706,
+      "support": 5
+    },
+    "platform.session.schedule": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.session.troubleshoot": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
+      "support": 5
+    },
+    "platform.social.follow": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+    },
     "platform.social.interact": {
-      "precision": 0.6,
-      "recall": 0.6,
-      "f1": 0.6,
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1": 0.5714,
       "support": 5
     },
     "platform.social.post": {
@@ -419,8 +431,8 @@
     },
     "platform.task.create": {
       "precision": 1.0,
-      "recall": 0.6,
-      "f1": 0.75,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.task.reminder": {
@@ -431,8 +443,8 @@
     },
     "platform.wallet.balance": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889,
       "support": 5
     },
     "platform.wallet.clear": {
@@ -443,20 +455,20 @@
     },
     "platform.wallet.reset": {
       "precision": 1.0,
-      "recall": 0.6,
-      "f1": 0.75,
+      "recall": 0.4,
+      "f1": 0.5714,
       "support": 5
     },
     "platform.whiteboard.join": {
-      "precision": 0.4,
-      "recall": 0.4,
-      "f1": 0.4,
+      "precision": 0.75,
+      "recall": 0.6,
+      "f1": 0.6667,
       "support": 5
     },
     "platform.whiteboard.presence": {
-      "precision": 0.5,
-      "recall": 0.6,
-      "f1": 0.5455,
+      "precision": 0.6667,
+      "recall": 0.4,
+      "f1": 0.5,
       "support": 5
     },
     "platform.whiteboard.tools": {
@@ -472,13 +484,15 @@
       1,
       2
     ],
-    "min_df": 2,
+    "min_df": 1,
     "sublinear_tf": true,
     "learning_rate": 0.15,
     "epochs": 60,
     "C": 1.0
   },
   "classes": [
+    "general.greeting",
+    "general.polite",
     "js.fundamentals.query",
     "platform.ai.ask",
     "platform.ai.capabilities",

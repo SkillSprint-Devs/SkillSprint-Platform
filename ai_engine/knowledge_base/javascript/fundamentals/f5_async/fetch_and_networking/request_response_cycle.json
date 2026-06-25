@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.request_response_cycle",
+  "topic": "Request/Response Cycle",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.fetch_api"],
+    "related_to": ["js.api_calls", "js.cors_intro"],
+    "often_confused_with": ["js.fetch_api"]
+  },
+  "question_map": {
+    "what": ["what happens after fetch", "what is a request and response", "what is an http request"],
+    "why": ["why does a request take time"],
+    "how": ["how request reaches server", "how response comes back", "how does client server communication work"],
+    "compare": ["client vs server javascript", "request vs response"],
+    "output": ["http status 200 OK"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **Request/Response Cycle** is the basic conversation of the internet. Your browser (the **Client**) sends a **Request** (a message asking for data or action) to a computer somewhere else (the **Server**). The server processes the request and sends back a **Response** (the data, or an error message). JavaScript's `fetch()` is just a tool to send that Request and listen for the Response.",
+    "analogy": "It's like ordering at a drive-thru. You (the Client) speak your order into the microphone (the Request). The kitchen (the Server) prepares it. Then the worker hands you the bag of food and a receipt (the Response). You cannot get the food without asking first, and you have to wait while it's being prepared."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "1) JS calls `fetch()`. 2) The browser creates an HTTP Request containing a Method (GET/POST), Headers, and a Body. 3) The request travels over the network (DNS routing, TCP connection, TLS handshake). 4) The server receives it, runs backend code (like Node/Python), and queries a database. 5) The server sends an HTTP Response containing a Status Code (200, 404, 500), Headers, and a Body. 6) The browser receives it and resolves the `fetch()` Promise.",
+    "memory": "This cycle is why network requests are asynchronous. The time taken depends on geographical distance, network congestion, and server processing speed — all factors outside JavaScript's control."
+  },
+  "3_real_world_example": {
+    "use_case": "Inspecting the metadata of a Response to understand what the server sent back before trying to read the body.",
+    "code": "async function checkServerHealth() {\n  const response = await fetch('https://api.example.com/health');\n  \n  // The Response object tells us ABOUT the server's reply\n  console.log('Status Code:', response.status);       // e.g. 200 (OK)\n  console.log('Is OK?', response.ok);                 // true if 200-299\n  console.log('Content Type:', response.headers.get('content-type')); \n  // e.g. 'application/json; charset=utf-8'\n  \n  if (response.ok) {\n    console.log('Server is healthy!');\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking your JavaScript code is running on the server. Code running in the browser only executes on the user's laptop/phone. The only way browser JS can get database information is by sending an HTTP Request to the server.",
+    "fix": "Remember the boundary: Browser = Frontend (Client). Database = Backend (Server). The network connects them."
+  },
+  "5_related_topics": ["js.api_calls", "js.network_errors", "js.cors_intro"],
+  "6_edge_case": {
+    "quirk": "HTTP is stateless. The server forgets who you are the moment the Response is sent. To maintain a 'login session', the browser must automatically include a Cookie or a Token in the Headers of every subsequent Request.",
+    "code": "fetch('/api/secure-data', {\n  headers: {\n    // Proving who we are on every single request\n    'Authorization': 'Bearer my_secret_token'\n  }\n});"
+  }
+}

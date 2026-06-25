@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.call_stack_and_queue",
+  "topic": "Call Stack vs Task Queues",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.event_loop_intro", "js.call_stack"],
+    "related_to": ["js.task_queue", "js.microtask_queue"],
+    "often_confused_with": ["js.event_loop_intro"]
+  },
+  "question_map": {
+    "what": ["what is the callback queue", "what is the relationship between stack and queue"],
+    "why": ["why does javascript use a queue", "why cant callbacks go straight to the stack"],
+    "how": ["how do stack and queue interact", "how does a callback get from queue to stack"],
+    "compare": ["call stack vs callback queue", "stack vs queue data structure in js"],
+    "output": ["callback queue order of execution"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **Call Stack** and the **Task Queues** (Callback Queues) are the two main holding areas for code in JavaScript. The Call Stack is for code that is executing *right now* (synchronous code). The Task Queues are for code that is waiting to execute *later* (async callbacks). The golden rule is that code cannot move from a Queue to the Stack until the Stack is completely empty.",
+    "analogy": "The Call Stack is the operating table — only one surgery (function) can happen at a time. The Task Queue is the waiting room. Patients (callbacks) sit in the waiting room until the doctor finishes the current surgery, washes their hands, and clears the table (empty stack). Only then does the doctor call the next patient from the waiting room."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Data structure difference: The Call Stack operates as Last-In-First-Out (LIFO) — the last function called is the first to finish. Task Queues operate as First-In-First-Out (FIFO) — the first callback to arrive in the queue is the first one processed by the Event Loop. When an async event completes, the Web API pushes its callback to the back of the queue. The Event Loop pulls from the front of the queue to push onto the stack.",
+    "memory": "The Call Stack holds Execution Contexts (with local variables and arguments). The Task Queue holds function pointers (references to closures) and their associated metadata waiting to be executed."
+  },
+  "3_real_world_example": {
+    "use_case": "Showing how multiple timers queue up in order and execute sequentially only after the stack clears.",
+    "code": "console.log('Stack: pushing main script');\n\n// All 3 get sent to Web APIs. They finish almost instantly \n// and enter the Task Queue in order: A, B, C.\nsetTimeout(() => console.log('Queue: Callback A'), 0);\nsetTimeout(() => console.log('Queue: Callback B'), 0);\nsetTimeout(() => console.log('Queue: Callback C'), 0);\n\n// This occupies the Call Stack. The Queue must wait.\nfunction heavyWork() {\n  console.log('Stack: Doing heavy work');\n  for(let i=0; i<1e9; i++) {}\n}\nheavyWork();\n\nconsole.log('Stack: main script done, popping off');\n\n// Output:\n// Stack: pushing main script\n// Stack: Doing heavy work\n// Stack: main script done, popping off\n// [Stack is now empty! Event Loop moves callbacks]\n// Queue: Callback A\n// Queue: Callback B\n// Queue: Callback C"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that a `setTimeout` callback can interrupt running synchronous code if the timer expires. It cannot. JavaScript is never preemptive. A running function will always run to completion before any queued callback can start.",
+    "fix": "Always treat synchronous code blocks as atomic — they cannot be split or interrupted by async events."
+  },
+  "5_related_topics": ["js.task_queue", "js.event_loop_intro"],
+  "6_edge_case": {
+    "quirk": "If two callbacks arrive in the task queue at the exact same millisecond, they execute in the order they were registered by the Web API. The queue strictly enforces FIFO for tasks of the same type.",
+    "code": "setTimeout(() => console.log('First'), 10);\nsetTimeout(() => console.log('Second'), 10);\n// Output is strictly guaranteed to be 'First' then 'Second'"
+  }
+}

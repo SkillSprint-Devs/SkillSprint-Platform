@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.top_level_await",
+  "topic": "Top-Level Await",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.await_keyword", "js.modules"],
+    "related_to": ["js.async_functions"],
+    "often_confused_with": ["js.await_keyword"]
+  },
+  "question_map": {
+    "what": ["what is top level await", "can i use await outside an async function"],
+    "why": ["why do i get await is only valid in async function error"],
+    "how": ["how to use await at the top of a file", "how does top level await block module execution"],
+    "compare": ["top level await vs IIFE"],
+    "output": ["await is only valid in async function"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Historically, you could only use the `await` keyword *inside* a function marked `async`. If you wanted to fetch data as soon as your script loaded, you had to wrap it in a function. Modern JavaScript introduced **Top-Level Await**, which allows you to use `await` directly at the root level of a file — but ONLY if that file is an ES Module (e.g., `<script type=\"module\">`).",
+    "analogy": "Top-level await is like having a VIP pass. In the old days, to use 'await', you had to enter the 'Async Function Club'. Now, if your file is officially an ES Module, you have a VIP pass that lets you use 'await' right out in the street."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a module uses top-level await, the execution of that specific module is paused until the Promise resolves. Crucially, any other module that `import`s this module must also wait. The browser/Node builds the dependency graph and waits for the top-level async operation to finish before evaluating the modules that depend on it.",
+    "memory": "The module's export bindings are not fully instantiated for consumers until the top-level await resolves."
+  },
+  "3_real_world_example": {
+    "use_case": "Loading essential configuration data from a database before exporting it to the rest of the application.",
+    "code": "// --- db.js (ES Module) ---\n//  OLD WAY: Wrapped in Immediately Invoked Async Function\n// let data;\n// (async () => { data = await fetch('/api/config'); })();\n// export { data }; // Bug: exports 'undefined' instantly!\n\n//  NEW WAY: Top-Level Await\n// The export waits for the fetch to finish.\nconst response = await fetch('/api/config');\nexport const config = await response.json();\n\n// --- main.js ---\nimport { config } from './db.js';\n// main.js will wait to execute until db.js's top-level await finishes.\nconsole.log(config); // Always valid data!"
+  },
+  "4_common_confusion": {
+    "trap": "Getting the error `SyntaxError: await is only valid in async functions` and not knowing why. This happens because the file is being parsed as a standard script, not an ES Module.",
+    "fix": "In HTML, add `type=\"module\"` to your script tag. In Node.js, ensure your file ends in `.mjs` or your package.json has `\"type\": \"module\"`."
+  },
+  "5_related_topics": ["js.await_keyword", "js.modules"],
+  "6_edge_case": {
+    "quirk": "Multiple modules with top-level awaits execute in parallel. If `main.js` imports `a.js` (which waits 2s) and `b.js` (which waits 2s), `main.js` will only wait a total of 2 seconds, not 4.",
+    "code": "// a.js\nawait new Promise(r => setTimeout(r, 2000));\nexport const a = 1;\n\n// b.js\nawait new Promise(r => setTimeout(r, 2000));\nexport const b = 2;\n\n// main.js imports both. Engine evaluates a and b concurrently."
+  }
+}

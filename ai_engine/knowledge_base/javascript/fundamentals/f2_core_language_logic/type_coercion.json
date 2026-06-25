@@ -47,7 +47,7 @@
   },
   "3_real_world_example": {
     "use_case": "Using explicit conversion to guarantee a form text input is treated as a clean number before calculating mathematical sums.",
-    "code": "const inputVal = '42';\n\n// Explicit conversion (safe and predictable)\nconst userAge = Number(inputVal);\nconst nextYearAge = userAge + 1; // 43 ✅\n\n// Implicit coercion (unsafe/surprising)\nconst lazyAge = inputVal + 1; // '421' ❌"
+    "code": "const inputVal = '42';\n\n// Explicit conversion (safe and predictable)\nconst userAge = Number(inputVal);\nconst nextYearAge = userAge + 1; // 43 \n\n// Implicit coercion (unsafe/surprising)\nconst lazyAge = inputVal + 1; // '421' "
   },
   "4_common_confusion": {
     "trap": "Implicit coercion rules around mathematical operations. The '+' operator acts as string concatenation if either side is a string. Other math operators (-, *, /) coerce strings to numbers.",
@@ -58,6 +58,6 @@
   ],
   "6_edge_case": {
     "quirk": "Coercing empty arrays and objects leads to strange conversions: `[]` becomes empty string `''` which coerces to `0` or `false` in comparisons, whereas `{}` becomes `'[object Object]'`.",
-    "code": "console.log('5' - 1);  // 4 (subtraction coerces '5' to 5)\nconsole.log('5' + 1);  // '51' (addition concatenates string)\nconsole.log([] == false); // true ⚠️ (coerces to '' which coerces to false)\nconsole.log({} + []);  // '[object Object]'"
+    "code": "console.log('5' - 1);  // 4 (subtraction coerces '5' to 5)\nconsole.log('5' + 1);  // '51' (addition concatenates string)\nconsole.log([] == false); // true ️ (coerces to '' which coerces to false)\nconsole.log({} + []);  // '[object Object]'"
   }
 }

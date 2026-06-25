@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.lexical_scope",
+  "topic": "Lexical Scope",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.scope", "js.lexical_environment", "js.scope_chain"],
+    "related_to": ["js.function_scope", "js.closures", "js.this_intro"],
+    "often_confused_with": ["js.this_intro"]
+  },
+  "question_map": {
+    "what": [
+      "what is lexical scope",
+      "what does lexical mean in javascript",
+      "what determines variable access in javascript"
+    ],
+    "why": [
+      "why can inner functions access outer variables",
+      "why does scope depend on where code is written",
+      "what does scope depend on"
+    ],
+    "how": [
+      "how does js decide variable access",
+      "how does lexical scope determine variable lookup",
+      "how does a function know where to look for a variable"
+    ],
+    "compare": [
+      "lexical scope vs dynamic scope",
+      "lexical scope vs this context",
+      "where function is defined vs where it is called"
+    ],
+    "output": [
+      "inner function can read outer variable",
+      "function remembers variables from definition site not call site"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Lexical Scope (also called Static Scope) means that a function's access to variables is determined by **where the function is written in the source code** — not where it is called from. JavaScript locks in the scope at **definition time**, not at call time. An inner function written inside an outer function will always have access to the outer function's variables, no matter where or how the inner function is eventually called.",
+    "analogy": "Lexical scope is like citizenship by birthplace. Wherever you travel and work in the world (wherever the function is called), you carry the rights and access of the country you were born in (where the function was defined). Your access rights don't change based on which country you're visiting today."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a function object is created, the engine attaches a hidden `[[Environment]]` slot to it containing a reference to the Lexical Environment that was active at the moment of creation. When the function is later called — possibly from a completely different place — the engine restores this captured outer environment as the outer reference for the new Lexical Environment. Variable lookups always walk this predetermined chain.",
+    "memory": "The `[[Environment]]` reference is set once at function creation and never changes. This is what makes JavaScript 'lexically scoped' — the resolution path is baked in at parse/compile time."
+  },
+  "3_real_world_example": {
+    "use_case": "Demonstrating that a function exported from a module always uses the variables from the module it was defined in — not variables from wherever the caller imports it.",
+    "code": "// --- module: counter.js (conceptual) ---\nlet count = 0;\n\nfunction increment() {\n  count++; // 'count' is from THIS file's scope — always\n  return count;\n}\n\n// --- caller (anywhere in the app) ---\n// Even called from a different file/module, 'increment' still\n// accesses 'count' from the module where it was DEFINED.\nconsole.log(increment()); // 1\nconsole.log(increment()); // 2\n\n// Proof: lexical, not dynamic\nlet count = 999; // a 'count' in the caller's scope\nincrement();     // still uses the module's 'count' (now 3), not 999"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that if you call a function from a place where a variable exists, the function can access that variable. It cannot — scope is determined by definition site, never call site.",
+    "fix": "Ask 'Where is this function *written*?' not 'Where is it *called* from?' — that determines what it can see."
+  },
+  "5_related_topics": [
+    "js.scope_chain",
+    "js.lexical_environment",
+    "js.closures",
+    "js.this_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "`this` does NOT follow lexical scope rules in regular functions — it is dynamic and depends on how the function is called. Arrow functions are the exception: they capture `this` lexically (from their definition site), which is why they are so useful as callbacks inside methods.",
+    "code": "const obj = {\n  name: 'SkillSprint',\n  // Regular function: 'this' is dynamic — set by call site\n  greetRegular: function() {\n    setTimeout(function() {\n      console.log(this.name); // undefined — 'this' inside setTimeout is global\n    }, 100);\n  },\n  // Arrow function: 'this' is lexical — captured from obj's method\n  greetArrow: function() {\n    setTimeout(() => {\n      console.log(this.name); // 'SkillSprint'  — lexical 'this'\n    }, 100);\n  }\n};\nobj.greetArrow();"
+  }
+}

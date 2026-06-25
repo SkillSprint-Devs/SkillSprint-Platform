@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.this_in_functions",
+  "topic": "this in Regular Functions",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.this_intro", "js.strict_mode"],
+    "related_to": ["js.this_in_objects", "js.this_in_arrow_functions"],
+    "often_confused_with": ["js.this_in_arrow_functions"]
+  },
+  "question_map": {
+    "what": ["what is this inside a function", "what does this refer to in regular function"],
+    "why": ["why is this undefined in strict mode", "why is this pointing to window inside function"],
+    "how": ["how default binding works"],
+    "compare": ["this in strict mode vs normal mode"],
+    "output": ["cannot read property of undefined this"]
+  },
+  "1_beginner_explanation": {
+    "summary": "When you call a standard function by itself (like `doWork()`), JavaScript applies the **Default Binding Rule**. Because you didn't specify an owner (there is no object to the left of a dot), `this` defaults back to the Global Object (`window` in the browser). However, if you are using 'Strict Mode', JavaScript decides that defaulting to the global object is dangerous, so it sets `this` to `undefined` instead.",
+    "analogy": "If you yell an order across a room ('Clean the floor!'), who is responsible for doing it? Without a specific name attached, the responsibility falls to the general manager (the Global Object). But in Strict Mode, the rule is 'no general orders allowed'. If you don't name someone specifically, nobody does it (`undefined`)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Upon execution, the engine checks the Call Site. If it is an unadorned function reference (e.g., `fn()`), Default Binding applies. The engine checks the strictness flag of the current execution context. If strict, `ThisBinding` = undefined. If loose, `ThisBinding` = Global Object.",
+    "memory": "No specific memory behavior; relies on existing global execution context references."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why standalone utility functions lose context.",
+    "code": "function looseFunction() {\n  console.log(this === window);\n}\nlooseFunction(); // true\n\nfunction strictFunction() {\n  'use strict';\n  console.log(this === undefined);\n}\nstrictFunction(); // true"
+  },
+  "4_common_confusion": {
+    "trap": "Having a method inside an object, and inside that method, you create another regular function. Because the inner function is called as a regular function `inner()`, its `this` reverts to the global window, totally breaking your object logic!",
+    "fix": "This is one of the most famous bugs in JavaScript. The modern fix is to use an Arrow Function for the inner function, which inherits `this` properly."
+  },
+  "5_related_topics": ["js.strict_mode", "js.this_in_objects", "js.this_in_arrow_functions"],
+  "6_edge_case": {
+    "quirk": "If you pass a function as a callback to something like `setTimeout`, it is executed later by the browser as a regular function. Therefore, it undergoes Default Binding and `this` will be window/undefined.",
+    "code": "const obj = {\n  name: 'Alice',\n  speak() {\n    setTimeout(function() {\n      console.log(this.name); // undefined! (this is window)\n    }, 1000);\n  }\n};\nobj.speak();"
+  }
+}

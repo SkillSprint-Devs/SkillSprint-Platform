@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.traversing_dom",
+  "topic": "Traversing the DOM",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.dom_tree", "js.selecting_elements"],
+    "related_to": ["js.event_delegation"],
+    "often_confused_with": ["js.selecting_elements"]
+  },
+  "question_map": {
+    "what": ["what is dom traversal", "what is parentElement"],
+    "why": ["why traverse instead of selecting directly"],
+    "how": ["how to get parent element", "how to get child elements", "how to find next sibling"],
+    "compare": ["parentElement vs parentNode", "children vs childNodes"],
+    "output": ["nextElementSibling is null"]
+  },
+  "1_beginner_explanation": {
+    "summary": "Sometimes you have an element, and you want to find the elements sitting directly next to it, inside it, or wrapped around it. Moving from one element to its relatives is called **Traversing**. You can walk UP the tree (`parentElement`), walk DOWN the tree (`children`), or walk SIDEWAYS (`nextElementSibling`).",
+    "analogy": "If `querySelector` is using a GPS to drive directly to a specific house, Traversing is standing on the porch of that house and saying 'Who lives next door?' or 'Who lives upstairs?'"
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Traversal properties are just getters that read the C++ pointers stored on the Node. Evaluating `element.nextElementSibling` is instantaneous O(1) because the pointer is already established in memory.",
+    "memory": "Be careful: Properties like `childNodes` return a live `NodeList`, not a static one, which can cause performance hits if accessed repeatedly in tight loops."
+  },
+  "3_real_world_example": {
+    "use_case": "Closing a specific modal window when an 'X' button inside that specific modal is clicked.",
+    "code": "const closeBtn = document.querySelector('.close-btn');\n\n// We know the button is INSIDE the modal. \n// We traverse UP to find the parent modal and hide it.\ncloseBtn.addEventListener('click', function() {\n  // Using .closest() is the safest way to traverse upwards!\n  const modalWrapper = this.closest('.modal');\n  modalWrapper.style.display = 'none';\n});\n\n// Other common traversal methods:\nconst list = document.querySelector('ul');\nconsole.log(list.firstElementChild); // the first <li>\nconsole.log(list.children); // HTMLCollection of all <li>s\nconsole.log(list.nextElementSibling); // The element directly after the <ul>"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing `childNodes` with `children`, or `nextSibling` with `nextElementSibling`. Properties without the word 'Element' (like `childNodes`) will return Text Nodes (including empty spaces!). Properties WITH the word 'Element' (like `children`) will ONLY return actual HTML tags.",
+    "fix": "Always use the 'Element' versions: `children`, `parentElement`, `nextElementSibling`, `previousElementSibling`."
+  },
+  "5_related_topics": ["js.dom_tree", "js.selecting_elements"],
+  "6_edge_case": {
+    "quirk": "If you ask for the `nextElementSibling` of the very last element in a container, JavaScript does not wrap around to the top. It simply returns `null`.",
+    "code": "const lastItem = document.querySelector('li:last-child');\nconsole.log(lastItem.nextElementSibling); // null"
+  }
+}

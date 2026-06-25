@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_properties",
+  "topic": "Object Properties",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.objects_intro"],
+    "related_to": ["js.property_access", "js.object_mutation"],
+    "often_confused_with": ["js.variables"]
+  },
+  "question_map": {
+    "what": ["what are object properties", "what is a key value pair"],
+    "why": ["why is property undefined"],
+    "how": ["how to add properties", "can properties be added later"],
+    "compare": ["property vs variable", "key vs value"],
+    "output": ["undefined property in object"]
+  },
+  "1_beginner_explanation": {
+    "summary": "An **Object Property** is simply a variable that belongs to an object. It is made of two parts: a **Key** (the name) and a **Value** (the data). You define them using a colon `:` separating the key and value, and a comma `,` separating different properties. You can easily add, update, or delete properties from an object after it has been created.",
+    "analogy": "If an object is a backpack, the properties are the items inside. 'Color' is a key, and 'Red' is the value. 'Weight' is a key, and '5 lbs' is the value. You can take items out or put new items in at any time."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Under the hood, JavaScript objects are conceptually similar to Hash Maps or Dictionaries. When you add a new property, the engine hashes the key string and stores the value in memory. Searching for a property is generally an O(1) operation.",
+    "memory": "Values of a property can be primitives (stored directly) or references to other objects/arrays (stored as pointers to other places in the Heap)."
+  },
+  "3_real_world_example": {
+    "use_case": "Building an object dynamically by adding properties over time.",
+    "code": "// 1. Create an empty object\nconst gameCharacter = {};\n\n// 2. Add properties later\ngameCharacter.name = 'Link';\ngameCharacter.health = 100;\n\n// 3. Properties can be other objects!\ngameCharacter.inventory = {\n  sword: 'Master Sword',\n  shield: 'Hylian Shield'\n};\n\nconsole.log(gameCharacter);"
+  },
+  "4_common_confusion": {
+    "trap": "Forgetting the difference between standard variables and object properties. You use `=` to assign a variable, but you use `:` to assign a property inside object literal `{}` syntax.",
+    "fix": "Inside `{}` use `key: value,`. Outside `{}` use `object.key = value;`."
+  },
+  "5_related_topics": ["js.property_access", "js.object_mutation"],
+  "6_edge_case": {
+    "quirk": "If a key has spaces or special characters, you CANNOT use standard dot notation to create it. You must wrap the key in quotes.",
+    "code": "// const bad = { first name: 'John' }; //  Syntax Error\nconst good = { 'first name': 'John' };   //  Quotes allow spaces\nconsole.log(good['first name']);"
+  }
+}

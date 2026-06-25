@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.prototype_intro",
+  "topic": "Prototypes Intro",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.objects_intro"],
+    "related_to": ["js.prototype_chain", "js.classes_intro"],
+    "often_confused_with": ["js.classes_intro"]
+  },
+  "question_map": {
+    "what": ["what is a prototype", "what is __proto__"],
+    "why": ["why does javascript use prototypes", "what problem do prototypes solve"],
+    "how": ["how to add prototype to object"],
+    "compare": ["prototype vs class"],
+    "output": ["__proto__ is deprecated"]
+  },
+  "1_beginner_explanation": {
+    "summary": "In JavaScript, every object has a hidden internal link to another object called its **Prototype**. If you ask an object for a property it doesn't have, it doesn't just give up; it secretly looks at its Prototype to see if the Prototype has it. This is JavaScript's fundamental mechanism for sharing features and reducing memory usage across multiple objects.",
+    "analogy": "Imagine you are an object. Someone asks you for a recipe for cake. You don't know it. But you have a secret earpiece connected to your mom (your Prototype). You ask her over the earpiece. She tells you the recipe, and you say it out loud as if you knew it all along. To the person asking, it looks like *you* knew the recipe."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an object is created, the JS engine assigns it an internal slot `[[Prototype]]`. For standard object literals `{}`, this points to the global `Object.prototype` object in memory. When a property lookup fails on the target object, the engine automatically traverses this internal reference to check the prototype object.",
+    "memory": "Prototypes save massive amounts of Heap memory. Instead of copying the same 50 methods onto 1,000 different user objects, you create the 50 methods ONCE on a prototype object, and all 1,000 user objects just point a reference link to that single prototype."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding where built-in methods like `.toString()` come from even though you didn't write them.",
+    "code": "const user = { name: 'Alice' };\n\n// user only has one property: 'name'. \n// But we can call .toString() on it!\nconsole.log(user.toString()); // '[object Object]'\n\n// How? 'toString' lives on user's prototype (Object.prototype).\n// The engine couldn't find 'toString' on user, so it asked the prototype."
+  },
+  "4_common_confusion": {
+    "trap": "Confusing the hidden `[[Prototype]]` linkage (often historically accessed via `__proto__`) with the `.prototype` property that exists on constructor functions. They are related but distinct concepts.",
+    "fix": "Avoid using `__proto__` entirely as it is a deprecated, hacky getter/setter. Use `Object.getPrototypeOf(obj)` to safely view an object's prototype."
+  },
+  "5_related_topics": ["js.prototype_chain", "js.classes_intro"],
+  "6_edge_case": {
+    "quirk": "You can completely sever an object's connection to any prototype, making it a truly 'pure' empty dictionary with no hidden inherited methods (like `toString`).",
+    "code": "const normalObj = {};\nconsole.log(normalObj.toString); // function...\n\n// Create an object with a NULL prototype\nconst pureDict = Object.create(null);\nconsole.log(pureDict.toString); // undefined! Completely empty."
+  }
+}

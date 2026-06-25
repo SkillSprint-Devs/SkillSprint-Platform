@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.inheritance_via_prototypes",
+  "topic": "Prototypal Inheritance",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.prototype_chain"],
+    "related_to": ["js.class_inheritance", "js.object_create"],
+    "often_confused_with": ["js.class_inheritance"]
+  },
+  "question_map": {
+    "what": ["how inheritance works internally", "what is prototypal inheritance"],
+    "why": ["why use prototypal inheritance"],
+    "how": ["how child classes inherit", "how to inherit from another object"],
+    "compare": ["classical vs prototypal inheritance"],
+    "output": ["child inherits parent methods"]
+  },
+  "1_beginner_explanation": {
+    "summary": "In traditional languages like Java or C++, 'Inheritance' means a Class acts as a blueprint, and when you make a child, the blueprint is copied. JavaScript does not copy blueprints. Instead, it uses **Prototypal Inheritance**, which just means linking live objects together. When a child 'inherits' from a parent in JS, it simply means the child object was created with a secret link pointing to the parent object.",
+    "analogy": "Classical Inheritance is like giving you a photocopy of my textbook; you have your own copy to read. Prototypal Inheritance is like giving you my phone number; when you don't know the answer to a test question, you call me and I give you the answer. It's delegation, not copying."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "JS engines implement inheritance via the `[[Prototype]]` delegation chain. If `Child` inherits from `Parent`, reading `Child.method()` traverses the link. However, WRITING `Child.data = 5` does NOT traverse the link. It creates a brand new property directly on the `Child` object, shadowing anything on the parent.",
+    "memory": "Because inheritance is just pointer delegation, it is extremely memory efficient. Millions of objects can inherit from a single parent object without duplicating the parent's methods in memory."
+  },
+  "3_real_world_example": {
+    "use_case": "Sharing common behaviors across multiple instances without duplicating code.",
+    "code": "const animalBehaviors = {\n  eat() { console.log('Eating...'); },\n  sleep() { console.log('Sleeping...'); }\n};\n\n// Create specific animals that link to the shared behaviors\nconst dog = Object.create(animalBehaviors);\ndog.bark = () => console.log('Woof!');\n\nconst cat = Object.create(animalBehaviors);\ncat.meow = () => console.log('Meow!');\n\n// dog delegates 'eat' to animalBehaviors\ndog.eat(); \n// cat delegates 'sleep' to animalBehaviors\ncat.sleep();"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that updating an inherited property on a child updates the parent. If you try to update `child.name = 'New'`, it doesn't change the parent's name. It just creates a local `name` on the child.",
+    "fix": "Prototypes are meant for reading shared methods, not writing shared state. Keep methods on prototypes, and data directly on the child instances."
+  },
+  "5_related_topics": ["js.class_inheritance", "js.object_create", "js.prototype_chain"],
+  "6_edge_case": {
+    "quirk": "If the parent object contains a reference type (like an Array) and the child *mutates* that array (e.g., `.push()`), it WILL mutate the parent and affect all other children, because reading the array traversed the prototype chain, and `.push()` mutates the shared heap reference.",
+    "code": "// Be careful putting arrays or objects directly on prototypes!\n// Mutations to them will bleed across all instances."
+  }
+}

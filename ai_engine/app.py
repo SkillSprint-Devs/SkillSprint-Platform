@@ -39,7 +39,13 @@ import sys
 import json
 import pickle
 import csv
+import threading
+import time
 from datetime import datetime
+
+_retrain_lock = threading.Lock()
+_is_retraining = False
+_last_retrain_time = 0.0
 
 # ---------------------------------------------------------------------------
 # Path setup
@@ -107,26 +113,20 @@ def load_models():
     """Load trained model artifacts and both intent resolvers."""
     global _vectorizer, _classifier, _resolver, _js_resolver
 
-    vec_path = os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl")
-    clf_path = os.path.join(MODELS_DIR, "intent_classifier.pkl")
+    vec_path = os.path.join(MODELS_DIR, "tfidf_vectorizer.json")
+    clf_path = os.path.join(MODELS_DIR, "intent_classifier.json")
 
     if not os.path.exists(vec_path) or not os.path.exists(clf_path):
         print("[WARNING] Model files not found. Run training first:")
         print("  cd ai_engine && python -m training.train_model")
         return False
 
-    with open(vec_path, "rb") as f:
-        # Pickle workaround for classes trained in __main__
-        import sys
-        try:
-            from training.train_model import TfidfVectorizer, LogisticRegressionOVR
-            sys.modules['__main__'].TfidfVectorizer = TfidfVectorizer
-            sys.modules['__main__'].LogisticRegressionOVR = LogisticRegressionOVR
-        except ImportError:
-            pass
-        _vectorizer = pickle.load(f)
-    with open(clf_path, "rb") as f:
-        _classifier = pickle.load(f)
+    from training.train_model import TfidfVectorizer, LogisticRegressionOVR
+
+    with open(vec_path, "r", encoding="utf-8") as f:
+        _vectorizer = TfidfVectorizer.from_dict(json.load(f))
+    with open(clf_path, "r", encoding="utf-8") as f:
+        _classifier = LogisticRegressionOVR.from_dict(json.load(f))
 
     # Platform resolver (intents.json)
     _resolver = IntentResolver()
@@ -238,6 +238,31 @@ def predict_intent(raw_text: str, user_context: dict = None) -> dict:
         resolved["method"] = "fallback"
         resolved["domain"] = "platform"
         return resolved
+
+    # Contextual Memory check for follow-up queries (e.g. "show me another example")
+    is_follow_up = False
+    cleaned_lower = cleaned.lower()
+    follow_up_keywords = ["another example", "more example", "give another", "show another", "different example", "another code"]
+    for keyword in follow_up_keywords:
+        if keyword in cleaned_lower or (("example" in cleaned_lower or "code" in cleaned_lower) and "another" in cleaned_lower):
+            is_follow_up = True
+            break
+            
+    if is_follow_up and user_context and "session_history" in user_context:
+        history = user_context["session_history"]
+        if isinstance(history, list) and len(history) > 0:
+            last_intent = None
+            for intent in reversed(history):
+                if intent and intent not in ("fallback", "error", "platform.unknown.fallback"):
+                    last_intent = intent
+                    break
+            if last_intent:
+                resolved = _resolve_by_tier(last_intent, raw_text, user_context)
+                resolved["confidence"] = 1.0
+                resolved["cleaned_text"] = cleaned
+                resolved["method"] = "follow_up_context"
+                resolved["response"] = f"Here is another code example / detail for **{last_intent}**:\n\n{resolved['response']}"
+                return resolved
 
 
     # 2. Pre-routing heuristic — JS signal detection
@@ -377,6 +402,27 @@ def log_failed_query(raw_text: str, predicted_intent: str, confidence: float, re
 # ---------------------------------------------------------------------------
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import urllib.parse
+
+
+def bg_retrain():
+    global _is_retraining, _last_retrain_time
+    try:
+        import subprocess
+        train_script = os.path.join(_BASE_DIR, "training", "train_model.py")
+        process = subprocess.run(
+            [sys.executable, train_script], 
+            capture_output=True, text=True, cwd=_BASE_DIR
+        )
+        if process.returncode == 0:
+            print("[INFO] Background retraining completed successfully.")
+            load_models()
+            _last_retrain_time = time.time()
+        else:
+            print(f"[ERROR] Background retraining failed: {process.stderr}")
+    except Exception as e:
+        print(f"[ERROR] Exception during background retraining: {e}")
+    finally:
+        _is_retraining = False
 
 
 class AIRequestHandler(BaseHTTPRequestHandler):
@@ -577,25 +623,30 @@ class AIRequestHandler(BaseHTTPRequestHandler):
         if auth_header != "Bearer " + os.environ.get("ADMIN_TOKEN", "skillsprint_admin_secret"):
             self._send_json({"error": "Unauthorized. Invalid Admin Token."}, 401)
             return
-            
-        try:
-            import subprocess
-            train_script = os.path.join(_BASE_DIR, "training", "train_model.py")
-            process = subprocess.run(
-                [sys.executable, train_script], 
-                capture_output=True, text=True, cwd=_BASE_DIR
-            )
-            
-            if process.returncode != 0:
-                self._send_json({"error": "Retraining failed", "details": process.stderr}, 500)
+
+        global _is_retraining, _last_retrain_time
+
+        with _retrain_lock:
+            if _is_retraining:
+                self._send_json({"error": "Retraining is already in progress. Please wait."}, 409)
                 return
-                
-            # Reload models
-            load_models()
-            
-            self._send_json({"status": "success", "message": "Model retrained and reloaded successfully"})
+
+            current_time = time.time()
+            if current_time - _last_retrain_time < 30:
+                self._send_json({"error": "Rate limit exceeded. Please wait 30 seconds between retrains."}, 429)
+                return
+
+            _is_retraining = True
+
+        try:
+            thread = threading.Thread(target=bg_retrain)
+            thread.daemon = True
+            thread.start()
+            self._send_json({"status": "success", "message": "Model retraining initiated in the background."})
         except Exception as e:
-            self._send_json({"error": "Retraining error", "details": str(e)}, 500)
+            with _retrain_lock:
+                _is_retraining = False
+            self._send_json({"error": "Failed to start background retraining thread", "details": str(e)}, 500)
 
     def _handle_feedback(self):
         body = self._read_body()

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.cancellation_patterns",
+  "topic": "Cancellation Patterns (AbortController)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.fetch_api", "js.promises_intro"],
+    "related_to": ["js.race_conditions", "js.network_errors"],
+    "often_confused_with": ["js.race_conditions"]
+  },
+  "question_map": {
+    "what": ["what is abortcontroller", "how to cancel a promise", "can fetch be cancelled"],
+    "why": ["why cancel a fetch request", "why use abort signal"],
+    "how": ["how to abort fetch", "how to stop an api call", "how to cancel an async operation"],
+    "compare": ["abortcontroller vs ignoring results"],
+    "output": ["fetch throws DOMException AbortError"]
+  },
+  "1_beginner_explanation": {
+    "summary": "By default, once you start a `fetch()` request or create a Promise, it cannot be stopped. If the user navigates away from the page while a 5-second download is happening, the browser keeps downloading it anyway, wasting data and battery. Modern JavaScript provides the **AbortController**. It acts like a remote control kill-switch. You pass its `signal` into a `fetch()` request, and if you call `.abort()` on the controller, the browser immediately terminates the network connection and the Promise rejects with an `AbortError`.",
+    "analogy": "Imagine throwing a boomerang (a fetch request). Normally, you just have to wait for it to fly its path and return. An AbortController is like attaching a string to the boomerang. If you decide you don't want it anymore, you yank the string (`.abort()`), and it instantly falls to the ground, cancelling the flight."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "1) Create `const controller = new AbortController()`. 2) Pass `{ signal: controller.signal }` to `fetch`. 3) The browser's Network Web API listens to that signal. 4) If `controller.abort()` is called, the Web API forcibly closes the TCP socket. 5) The `fetch` Promise is immediately rejected with a `DOMException` named `AbortError`.",
+    "memory": "Aborting releases the memory buffers allocated for the incoming network stream immediately, preventing memory leaks on unmounted components."
+  },
+  "3_real_world_example": {
+    "use_case": "Adding a 'Cancel Download' button to a UI.",
+    "code": "let currentController = null;\n\nasync function downloadLargeFile() {\n  // 1. Create a new controller for this request\n  currentController = new AbortController();\n  \n  try {\n    console.log('Download started...');\n    // 2. Attach the signal to the fetch\n    const response = await fetch('/api/massive-file', {\n      signal: currentController.signal\n    });\n    const data = await response.json();\n    console.log('Download complete!');\n    \n  } catch (err) {\n    // 3. Handle the explicit cancellation\n    if (err.name === 'AbortError') {\n      console.log('Download was manually cancelled by the user.');\n    } else {\n      console.error('Download failed due to a network error.', err);\n    }\n  }\n}\n\n// Simulated 'Cancel' button click\nfunction onCancelClick() {\n  if (currentController) {\n    currentController.abort(); // Yanks the string, killing the fetch instantly\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that Promises themselves have a `.cancel()` method. They do not. The Promise specification intentionally omitted cancellation. `AbortController` is a Web API feature specifically integrated with `fetch` and DOM events, not a general Promise feature.",
+    "fix": "To cancel general async logic (not fetch), you must manually pass the `signal` object into your functions and check `signal.aborted` inside your loops to break out early."
+  },
+  "5_related_topics": ["js.fetch_api", "js.race_conditions"],
+  "6_edge_case": {
+    "quirk": "You can use an `AbortController` to cleanly remove Event Listeners without needing to keep a reference to the exact callback function. Just pass the signal to `addEventListener`.",
+    "code": "const controller = new AbortController();\n\nwindow.addEventListener('mousemove', (e) => {\n  console.log(e.x, e.y);\n}, { signal: controller.signal });\n\n// Later, kill the event listener instantly\ncontroller.abort();"
+  }
+}

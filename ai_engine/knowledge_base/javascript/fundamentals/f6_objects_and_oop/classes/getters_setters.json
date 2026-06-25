@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.getters_setters",
+  "topic": "Getters and Setters",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.classes_intro", "js.methods"],
+    "related_to": ["js.private_fields"],
+    "often_confused_with": ["js.methods"]
+  },
+  "question_map": {
+    "what": ["what are getters and setters", "what is get and set"],
+    "why": ["why use getters", "why not just use normal properties"],
+    "how": ["how to write a getter", "how to validate property assignment"],
+    "compare": ["getter vs method", "property vs getter"],
+    "output": ["maximum call stack size exceeded setter"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Getters** and **Setters** are special methods that *look and act* like normal properties when you use them. You define them using the `get` and `set` keywords. They allow you to run custom code (like formatting a string, or checking for invalid data) behind the scenes whenever someone tries to read or write a property.",
+    "analogy": "A normal property is like a tip jar on a counter—anyone can reach in and take or add money directly. A Getter/Setter is like a bank teller. When you ask for money (`user.balance`), the teller checks your ID first. When you deposit money (`user.balance = 10`), the teller counts it to make sure it's real before putting it in the vault."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you write `console.log(user.fullName)`, the engine sees there is a `get fullName()` defined on the prototype. It executes the function silently and returns the result. When you write `user.fullName = 'John'`, it triggers `set fullName(val)`. These are technically called 'Accessor Properties' rather than 'Data Properties'.",
+    "memory": "They do not store data themselves; they intercept requests and usually read/write to a different 'backing' property."
+  },
+  "3_real_world_example": {
+    "use_case": "Validating input to prevent bad data from entering the object.",
+    "code": "class Thermostat {\n  constructor(temp) {\n    this._temperature = temp; // The 'vault' (underscore is just a naming convention)\n  }\n\n  // Runs when someone does: thermo.temp\n  get temp() {\n    return this._temperature;\n  }\n\n  // Runs when someone does: thermo.temp = 500\n  set temp(newTemp) {\n    if (newTemp > 100) {\n      console.log('Error: Too hot!');\n      return;\n    }\n    this._temperature = newTemp;\n  }\n}\n\nconst thermo = new Thermostat(72);\nthermo.temp = 150; // 'Error: Too hot!'\nconsole.log(thermo.temp); // 72 (Protects the data!)"
+  },
+  "4_common_confusion": {
+    "trap": "Creating an infinite loop. If you name your setter `set temperature(val)` and inside it you do `this.temperature = val`, it will trigger the setter again, which triggers the setter again, crashing with 'Maximum call stack size exceeded'.",
+    "fix": "The backing variable MUST have a different name than the getter/setter. That's why developers traditionally put an underscore `_temperature` for the real data, and `temperature` for the get/set door."
+  },
+  "5_related_topics": ["js.private_fields", "js.methods"],
+  "6_edge_case": {
+    "quirk": "You don't have to define both! If you define a `get` without a `set`, the property becomes read-only. Attempts to write to it will be silently ignored (or throw an error in strict mode).",
+    "code": "class ReadOnly { get fixed() { return 42; } }\nconst r = new ReadOnly();\nr.fixed = 100; // Fails!"
+  }
+}

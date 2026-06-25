@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.request_response",
+  "topic": "The Request / Response Cycle",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.http_intro"
+    ],
+    "related_to": [
+      "js.http_methods",
+      "js.status_codes"
+    ],
+    "often_confused_with": [
+      "js.client_server_model"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the request response cycle"
+    ],
+    "why": [
+      "why does a website take time to load"
+    ],
+    "how": [
+      "how does a browser get a webpage"
+    ],
+    "compare": [
+      "request vs response",
+      "client vs server"
+    ],
+    "output": [
+      "fetch returns a promise that resolves to response"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Every single interaction on the web is based on a strict turn-based system: The Client asks, the Server answers. The browser sends an HTTP Request, and then waits. The server processes it, and sends back an HTTP Response. This is the **Request/Response Cycle**. A server can NEVER speak unless it is spoken to first.",
+    "analogy": "It's like a restaurant. The Customer (Client) places an order (Request) with the waiter. The Kitchen (Server) prepares the food, and the waiter brings it back (Response). The kitchen will never randomly cook a meal and throw it at your table without you ordering it first."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "1. Browser constructs Request. 2. DNS resolves domain to IP. 3. TCP connection established. 4. Request sent. 5. Server processes logic/database. 6. Server constructs Response. 7. Response sent back. 8. Browser parses Response (HTML/JSON).",
+    "memory": "If the cycle takes too long (network lag or heavy server processing), the browser's Request will eventually 'Timeout' and fail to free up memory connections."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why `fetch()` returns a Promise that we must await.",
+    "code": "// 1. We initiate the Request\nconsole.log('Sending Request...');\n\nfetch('https://api.example.com/data')\n  .then(response => {\n    // 2. We receive the Response\n    console.log('Received Response!');\n    return response.json();\n  });\n\n// We cannot get the data instantly because the data has to physically \n// travel through fiber-optic cables across the world and back."
+  },
+  "4_common_confusion": {
+    "trap": "Thinking a server can 'push' updates to a browser automatically. By strict HTTP rules, it cannot. If a chat app needs to show new messages instantly, it historically had to 'poll' (send a new Request every 1 second). Modern websockets bypass the strict Request/Response cycle to allow two-way communication.",
+    "fix": "Standard HTTP: Server only speaks when spoken to."
+  },
+  "5_related_topics": [
+    "js.http_methods",
+    "js.status_codes"
+  ],
+  "6_edge_case": {
+    "quirk": "A single webpage load is rarely just one cycle. The HTML file triggers a cycle. When the browser parses the HTML and finds an `<img>` tag, it starts a SECOND cycle to fetch the image. A modern webpage might trigger 100+ separate Request/Response cycles just to load one page.",
+    "code": ""
+  }
+}

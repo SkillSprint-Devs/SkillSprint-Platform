@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.sets",
+  "topic": "Sets",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.arrays"],
+    "related_to": ["js.maps", "js.weaksets"],
+    "often_confused_with": ["js.arrays"]
+  },
+  "question_map": {
+    "what": ["what is a set", "what is set in javascript"],
+    "why": ["why use a set instead of an array", "how to remove duplicates"],
+    "how": ["how to create a set", "how to get unique values from array"],
+    "compare": ["set vs array"],
+    "output": ["set.add ignores duplicates"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Set** is a collection of data similar to an Array, but with one massive rule: **It can never contain duplicates.** If you try to add the number 5 to a Set that already has the number 5, the Set just ignores you. This makes it the absolute easiest and fastest way in JavaScript to filter out duplicate values from an existing list.",
+    "analogy": "An Array is a grocery list: you can write 'Apples' three times if you want. A Set is a club's VIP Guest List: once your name is on the list, writing it down a second time doesn't get you into the club twice. You're either on the list, or you're not."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Sets use a Hash Table internally. When you call `set.add(value)`, it hashes the value. If that hash already exists, the operation is skipped. This makes checking `set.has(value)` an O(1) instantaneous lookup, whereas checking `array.includes(value)` requires an O(N) slow linear scan.",
+    "memory": "Sets take up slightly more memory than Arrays due to the hash table overhead, but provide massively better performance for large datasets where you need to constantly check if an item exists."
+  },
+  "3_real_world_example": {
+    "use_case": "Removing duplicate tags from a user's input.",
+    "code": "const rawInput = ['javascript', 'html', 'css', 'html', 'javascript'];\n\n// 1. Pass the messy array into a new Set to instantly destroy duplicates\nconst uniqueSet = new Set(rawInput);\n\n// 2. Convert the Set back into a standard Array using the Spread operator\nconst cleanArray = [...uniqueSet];\n\nconsole.log(cleanArray); // ['javascript', 'html', 'css']\n\n// Super-fast lookup:\nif (uniqueSet.has('css')) {\n  console.log('CSS is definitely in there.');\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking you can access Set items by index like an array `mySet[0]`. You cannot! Sets do not have indexes because the data is hashed, not ordered linearly by index.",
+    "fix": "To get a specific item out of a Set, you must convert it back to an array first: `[...mySet][0]`."
+  },
+  "5_related_topics": ["js.arrays", "js.maps"],
+  "6_edge_case": {
+    "quirk": "Because Sets check identity by reference, two identical-looking objects are considered DIFFERENT items, and both will be added to the Set.",
+    "code": "const set = new Set();\nset.add({ id: 1 });\nset.add({ id: 1 });\nconsole.log(set.size); // 2! They are different memory addresses."
+  }
+}

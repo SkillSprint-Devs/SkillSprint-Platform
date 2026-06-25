@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.cors_intro",
+  "topic": "CORS (Cross-Origin Resource Sharing)",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.browser_security_model", "js.headers"],
+    "related_to": ["js.fetch_api", "js.status_codes"],
+    "often_confused_with": ["js.browser_security_model"]
+  },
+  "question_map": {
+    "what": ["what is cors", "what does cross origin resource sharing mean"],
+    "why": ["why am i getting a cors error", "why did my fetch request fail with cors"],
+    "how": ["how to fix cors error in javascript", "how to enable cors"],
+    "compare": ["cors vs same origin policy"],
+    "output": ["access to fetch at blocked by cors policy"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The Same-Origin Policy strictly forbids your website (`myapp.com`) from reading data from another server (`weatherapi.com`). But what if `weatherapi.com` *wants* you to read their data? **CORS** is the bypass mechanism. It is a set of HTTP Headers that the Server sends to tell the Browser: 'Hey, I know `myapp.com` is a different origin, but I explicitly grant them permission to read this.'",
+    "analogy": "The Same-Origin Policy is the bouncer at a VIP club, blocking anyone not on the list. You try to get in and he stops you (CORS Error!). CORS is when the club owner (the Server) leans over and says, 'He's with me, let him in.' The bouncer (the Browser) checks the owner's permission (Headers) and lets you pass."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "If you make a complex request (like sending JSON), the browser is scared. Before it sends the real POST request, it secretly sends a tiny, empty `OPTIONS` request called a 'Preflight'. It asks the server, 'Do you allow POST requests from myapp.com?'. If the server replies with the correct CORS headers, the browser then sends the real request.",
+    "memory": "CORS is 100% enforced by the BROWSER, not the server. The server actually received your request, processed it, and sent back the data. But because the server forgot to include the CORS header, your Browser intercepted the data, hid it from your JavaScript, and threw a red error in the console."
+  },
+  "3_real_world_example": {
+    "use_case": "Fetching data from a public API.",
+    "code": "/* \n  You run this code on http://localhost:3000\n*/\nfetch('https://api.github.com/users')\n  .then(res => res.json());\n\n/* \n  Why does it work? Because GitHub's server sends back this specific header:\n  Access-Control-Allow-Origin: * \n\n  The '*' means 'I allow ANY website in the world to read this data'.\n  If GitHub didn't send that header, your browser would block the data.\n*/"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to fix a CORS error by changing your frontend JavaScript code. You cannot 'hack' around CORS from the frontend. It is a security feature designed specifically to stop your frontend code. The ONLY way to fix a CORS error is to configure the backend Server to send the correct headers.",
+    "fix": "Frontend devs: You can't fix CORS. Go yell at the Backend dev to add the headers."
+  },
+  "5_related_topics": ["js.browser_security_model", "js.headers"],
+  "6_edge_case": {
+    "quirk": "If you are using Postman or cURL to test an API, you will NEVER get a CORS error. Why? Because Postman is not a web browser. It does not enforce the Same-Origin Policy. CORS only exists inside web browsers.",
+    "code": ""
+  }
+}

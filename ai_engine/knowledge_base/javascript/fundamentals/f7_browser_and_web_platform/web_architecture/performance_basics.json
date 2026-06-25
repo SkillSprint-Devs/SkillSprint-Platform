@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.performance_basics",
+  "topic": "Web Performance Basics",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.rendering_pipeline",
+      "js.browser_rendering"
+    ],
+    "related_to": [
+      "js.debouncing",
+      "js.event_delegation",
+      "js.dynamic_imports"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is web performance",
+      "what is layout thrashing"
+    ],
+    "why": [
+      "why is my javascript slow",
+      "why does my website lag"
+    ],
+    "how": [
+      "how to optimize javascript",
+      "how to improve website speed"
+    ],
+    "compare": [
+      "reflow vs repaint"
+    ],
+    "output": [
+      "ui freezes during heavy for loop"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Web Performance is the art of making your website load fast and respond instantly. It boils down to two main rules: 1. Send less stuff over the network (smaller JS/image files). 2. Make the browser do less work (avoid heavy math on the Main Thread and minimize DOM changes).",
+    "analogy": "Performance is like planning a road trip. Rule 1: Pack lighter bags (smaller files) so the car accelerates faster. Rule 2: Take the most direct route (efficient code) instead of driving in circles (Layout Thrashing)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "If the JS Engine is busy running a heavy `for` loop for 500 milliseconds, the Main Thread is locked. If the user clicks a button during that 500ms, the browser cannot process the click event or redraw the screen. The page feels frozen.",
+    "memory": "Creating too many DOM nodes or forgetting to remove Event Listeners causes the RAM usage to spike. Eventually, the browser's Garbage Collector steps in to clean up the mess. The Garbage Collector halts the Main Thread, causing noticeable 'stutters' or 'jank' in animations."
+  },
+  "3_real_world_example": {
+    "use_case": "Batching DOM updates to avoid Layout Thrashing.",
+    "code": "//  TERRIBLE PERFORMANCE: \n// We read the width (Layout), then write a new width (Layout), 1000 times in a row.\nfor (let i = 0; i < 1000; i++) {\n  const width = box.offsetWidth; \n  box.style.width = width + 1 + 'px'; \n}\n\n//  GREAT PERFORMANCE:\n// We read the width ONCE. Do the math in pure JS memory. Then write the DOM ONCE.\nlet width = box.offsetWidth;\nfor (let i = 0; i < 1000; i++) {\n  width += 1;\n}\nbox.style.width = width + 'px';"
+  },
+  "4_common_confusion": {
+    "trap": "Relying on 'micro-optimizations'. Beginners will spend hours arguing whether a `for` loop is 0.0001ms faster than a `forEach` loop. That does not matter. Loading a massive 5MB unoptimized JPEG image is what destroys your site's performance.",
+    "fix": "Optimize the big things first: Image sizes, Network Requests, and unnecessary DOM Layouts."
+  },
+  "5_related_topics": [
+    "js.rendering_pipeline",
+    "js.debouncing",
+    "js.dynamic_imports"
+  ],
+  "6_edge_case": {
+    "quirk": "Browser extensions (like AdBlockers or Password Managers) inject their own JavaScript into your page. Sometimes your website lags not because of your code, but because the user has 15 heavy extensions running on your page simultaneously.",
+    "code": ""
+  }
+}

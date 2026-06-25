@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.microtask_queue",
+  "topic": "Microtask Queue",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.call_stack_and_queue", "js.promises"],
+    "related_to": ["js.task_queue", "js.event_loop_intro", "js.macrotasks"],
+    "often_confused_with": ["js.task_queue"]
+  },
+  "question_map": {
+    "what": ["what is the microtask queue", "what are microtasks", "what goes in the microtask queue"],
+    "why": ["why do promises run before settimeout", "why is microtask queue higher priority"],
+    "how": ["how does microtask queue work", "how is microtask queue processed"],
+    "compare": ["microtask queue vs task queue", "microtask vs macrotask"],
+    "output": ["promise resolves before timeout in event loop"]
+  },
+  "1_beginner_explanation": {
+    "summary": "The **Microtask Queue** is a VIP waiting area for callbacks that need to run *as soon as possible*. It has higher priority than the regular Task (Macrotask) Queue. Callbacks for resolved Promises (`.then()`, `.catch()`), `queueMicrotask()`, and `MutationObserver` go here. The Event Loop's rule is: before it looks at the Task Queue, it must completely empty the Microtask Queue.",
+    "analogy": "The Microtask Queue is the VIP Fast Pass line at the theme park, while the Task Queue is the standard line. If the ride (Call Stack) is empty, the operator always lets EVERYONE in the VIP line go first. They will only let someone from the standard line on if the VIP line is completely empty."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the Call Stack empties, the Event Loop checks the Microtask Queue. It executes microtasks one by one. CRITICALLY: if a microtask schedules *another* microtask, it is added to the end of the same queue, and the Event Loop will process it immediately during the same cycle. The Event Loop will NOT move on to rendering or the Task Queue until the Microtask Queue is 100% empty.",
+    "memory": "Microtasks are resolved internally by the JS engine (V8), whereas macrotasks (like timers) are managed by the browser's Web APIs."
+  },
+  "3_real_world_example": {
+    "use_case": "The classic Event Loop interview question: proving Promise microtasks run before setTimeout macrotasks.",
+    "code": "console.log('1. Script start');\n\n// Goes to standard Task Queue (Macrotask)\nsetTimeout(() => {\n  console.log('4. setTimeout');\n}, 0);\n\n// Goes to VIP Microtask Queue\nPromise.resolve().then(() => {\n  console.log('3. Promise');\n});\n\nconsole.log('2. Script end');\n\n// Output:\n// 1. Script start\n// 2. Script end\n// 3. Promise      ← VIP line goes first!\n// 4. setTimeout   ← Standard line goes after VIP is empty"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that all async code has the same priority. It does not. A 0ms timer will always lose to a resolved Promise, because Promises are microtasks and timers are macrotasks.",
+    "fix": "Memorize the order: Synchronous code → All Microtasks (Promises) → ONE Macrotask (Timer/Event) → Render → Repeat."
+  },
+  "5_related_topics": ["js.task_queue", "js.promises", "js.macrotasks"],
+  "6_edge_case": {
+    "quirk": "Because the Event Loop completely drains the Microtask Queue before doing anything else, an infinite loop of microtasks will freeze the browser tab just like a synchronous infinite `while` loop. The Event Loop can never reach the rendering step.",
+    "code": "//  Freezes the browser\nfunction freezeWithMicrotasks() {\n  Promise.resolve().then(freezeWithMicrotasks);\n}\n// freezeWithMicrotasks();"
+  }
+}

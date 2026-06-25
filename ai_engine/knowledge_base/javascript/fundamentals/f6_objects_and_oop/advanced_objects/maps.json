@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.maps",
+  "topic": "Maps",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.objects_intro"],
+    "related_to": ["js.sets", "js.weakmaps"],
+    "often_confused_with": ["js.objects_intro"]
+  },
+  "question_map": {
+    "what": ["what is a map", "how is map different from object"],
+    "why": ["why use map instead of object"],
+    "how": ["how to use object as key", "how to iterate over a map", "how to get map size"],
+    "compare": ["map vs object", "map vs weakmap"],
+    "output": ["map.get returns undefined"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Map** is a specialized data structure similar to an Object: it holds key-value pairs. But it fixes three massive annoyances with normal Objects: 1) Normal Objects ONLY allow strings/symbols as keys; Maps allow *anything* (even other objects) as keys. 2) Normal Objects don't know how big they are; Maps have a built-in `.size` property. 3) Maps are extremely easy to loop over and maintain their exact insertion order.",
+    "analogy": "A normal Object is like a cheap label maker—it can only print text labels. A Map is like a heavy-duty museum display case. You can use literally anything as the 'label' for a display, even putting a smaller statue (an object) next to a bigger statue to act as its identifier label."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Maps use a deterministic Hash Table under the hood. When you do `map.set(key, value)`, it hashes the key's memory address (if it's an object) or value (if primitive) to store it in an O(1) accessible slot, while maintaining a parallel linked list to preserve iteration order.",
+    "memory": "Keys in a standard Map are strongly held in memory. If you use an object as a Map key, that object cannot be Garbage Collected as long as it exists in the Map."
+  },
+  "3_real_world_example": {
+    "use_case": "Attaching extra metadata to DOM elements without modifying the DOM element itself.",
+    "code": "const button1 = document.getElementById('btn1');\nconst button2 = document.getElementById('btn2');\n\n// We want to store how many times each button was clicked.\nconst clickCounts = new Map();\n\n// Using the HTML Element OBJECT ITSELF as the dictionary key!\nclickCounts.set(button1, 0);\nclickCounts.set(button2, 0);\n\nbutton1.addEventListener('click', () => {\n  const current = clickCounts.get(button1);\n  clickCounts.set(button1, current + 1);\n  console.log('Button 1 clicks:', clickCounts.get(button1));\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Using standard object syntax `map[key] = value` on a Map. While it won't throw an error, it completely breaks the Map. It just adds a generic object property instead of adding it to the Map's internal hash table.",
+    "fix": "Always use `map.set(key, val)`, `map.get(key)`, `map.has(key)`, and `map.delete(key)`."
+  },
+  "5_related_topics": ["js.objects_intro", "js.sets", "js.weakmaps"],
+  "6_edge_case": {
+    "quirk": "Because Maps check keys by Reference, two identical-looking objects are considered entirely different keys in a Map.",
+    "code": "const m = new Map();\nm.set({ id: 1 }, 'Data');\n// We try to retrieve it using an identical-looking object:\nconsole.log(m.get({ id: 1 })); // undefined! They are different memory addresses."
+  }
+}

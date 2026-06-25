@@ -56,6 +56,6 @@
   ],
   "6_edge_case": {
     "quirk": "The classic loop bug: Using `var` inside a `for` loop with a `setTimeout` creates a closure over the exact same `var` memory address. By the time the timeout runs, the loop has already finished and the `var` is at its max value.",
-    "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); \n  // Prints: 3, 3, 3 (because 'i' is shared across all closures)\n}\n\n// ✅ Fix: Use 'let' which creates a fresh block-scoped variable per iteration.\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); \n  // Prints: 0, 1, 2\n}"
+    "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100); \n  // Prints: 3, 3, 3 (because 'i' is shared across all closures)\n}\n\n//  Fix: Use 'let' which creates a fresh block-scoped variable per iteration.\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log(j), 100); \n  // Prints: 0, 1, 2\n}"
   }
 }

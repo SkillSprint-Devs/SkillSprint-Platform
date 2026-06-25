@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.status_codes",
+  "topic": "HTTP Status Codes",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.request_response"
+    ],
+    "related_to": [
+      "js.http_methods",
+      "js.fetch_api"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is an http status code",
+      "what does 404 mean",
+      "what does 500 mean"
+    ],
+    "why": [
+      "why did my api request fail"
+    ],
+    "how": [
+      "how to check if fetch was successful"
+    ],
+    "compare": [
+      "400 vs 500 error",
+      "200 vs 201 status"
+    ],
+    "output": [
+      "fetch resolves with ok false for 404 status"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When a server replies to your HTTP Request, it includes a 3-digit number called a Status Code. This number instantly tells the browser if the request succeeded, failed, or requires further action. They are grouped into 5 categories: 100s (Info), 200s (Success!), 300s (Redirects), 400s (Client Error - You messed up), 500s (Server Error - They messed up).",
+    "analogy": "A status code is like a facial expression. You ask a friend a question (Request). Before they even speak, their face tells you if they are happy (200 OK), confused by your question (400 Bad Request), or if they suddenly passed out (500 Server Error)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The status code is parsed immediately from the first line of the HTTP Response string (e.g., `HTTP/1.1 404 Not Found`). In JavaScript, the `fetch()` API exposes this directly via the `response.status` and `response.ok` properties.",
+    "memory": "Handling HTTP errors properly prevents memory leaks and unhandled promise rejections."
+  },
+  "3_real_world_example": {
+    "use_case": "Checking if an API request actually worked before trying to parse the JSON.",
+    "code": "fetch('https://api.example.com/users')\n  .then(response => {\n    // response.ok is a boolean that is true for any 200-299 status\n    if (!response.ok) {\n      if (response.status === 404) {\n        throw new Error('User not found!');\n      } else if (response.status === 500) {\n        throw new Error('Server crashed, try again later.');\n      }\n    }\n    return response.json();\n  })\n  .catch(err => console.error(err));"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `fetch()` will throw an error if it receives a 404 or 500 status code. It does NOT. `fetch()` only throws a network error if the user's internet is disconnected or the DNS fails. If the server actively replies with a `404 Not Found`, the fetch Promise still resolves successfully, because the server successfully delivered the bad news.",
+    "fix": "Always manually check `if (!response.ok) throw new Error()` when using `fetch()`."
+  },
+  "5_related_topics": [
+    "js.request_response",
+    "js.fetch_api"
+  ],
+  "6_edge_case": {
+    "quirk": "Status Code 418 is 'I'm a teapot'. It was added in 1998 as an April Fools' joke by the IETF, but it is actually fully supported by Node.js and modern browsers.",
+    "code": "// If a coffee machine server receives a request to brew tea, it should return 418."
+  }
+}

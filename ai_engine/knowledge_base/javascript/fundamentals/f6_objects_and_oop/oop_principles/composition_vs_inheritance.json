@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.composition_vs_inheritance",
+  "topic": "Composition vs Inheritance",
+  "dimensions": { "syntax": false, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.inheritance", "js.object_assign"],
+    "related_to": ["js.classes_intro"],
+    "often_confused_with": ["js.inheritance"]
+  },
+  "question_map": {
+    "what": ["what is composition in javascript", "composition vs inheritance"],
+    "why": ["why favor composition over inheritance", "why is inheritance bad"],
+    "how": ["how to use composition", "how to avoid deep inheritance trees"],
+    "compare": ["composition vs inheritance", "is-a vs has-a"],
+    "output": ["object is not extensible"]
+  },
+  "1_beginner_explanation": {
+    "summary": "**Inheritance** models what an object *IS* (A Dog *is an* Animal). **Composition** models what an object *HAS* or what an object *DOES* (A Dog *has a* BarkAbility). Modern programming highly favors Composition because Inheritance locks you into a rigid family tree. With Composition, you build objects like Lego blocks by assigning them small, independent abilities.",
+    "analogy": "Inheritance is like genetic DNA: you are stuck with whatever traits your parents gave you. If your parent is an Airplane, you must inherit wings, even if you are a Submarine. Composition is like wearing tools on a utility belt. You can attach a 'Flying' tool or a 'Swimming' tool to any object you want, mixing and matching perfectly without worrying about family trees."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Composition in JavaScript is typically achieved by using Object factories and `Object.assign()` to copy independent behaviors (methods) onto a target object, rather than linking prototype chains.",
+    "memory": "Composition via `Object.assign` copies method references to the instance, which can be slightly less memory-efficient than Prototype Inheritance, but offers massively better architectural flexibility."
+  },
+  "3_real_world_example": {
+    "use_case": "Building entities in a game where inheritance trees become impossible (e.g., a Swimming Flying Monster).",
+    "code": "//  The Lego Blocks (Behaviors)\nconst canFly = { fly() { console.log('Flying in the sky!'); } };\nconst canSwim = { swim() { console.log('Swimming in the water!'); } };\n\n// ️ The Factory\nfunction createDuck(name) {\n  const duck = { name };\n  // Compose the duck by merging the behaviors together!\n  return Object.assign(duck, canFly, canSwim);\n}\n\nconst daffy = createDuck('Daffy');\ndaffy.fly();  // Works!\ndaffy.swim(); // Works! \n// We built a duck without a single 'class' or 'extends' keyword."
+  },
+  "4_common_confusion": {
+    "trap": "Trying to solve every problem with `class Child extends Parent`. If you have a `Car` class, and you make an `ElectricCar extends Car`, what happens when you need an `ElectricFlyingCar`? The tree becomes a nightmare.",
+    "fix": "Use Inheritance only when the 'IS-A' relationship is pure and simple. Use Composition for everything else."
+  },
+  "5_related_topics": ["js.inheritance", "js.object_assign"],
+  "6_edge_case": {
+    "quirk": "React.js, the most popular UI library, famously shifted completely away from Class Inheritance (Class Components) to Functional Composition (Hooks) because composition is vastly superior for sharing logic.",
+    "code": "// React hooks are just composition in action!\n// const { data } = useFetch('/api');\n// const { isHovered } = useHover();"
+  }
+}

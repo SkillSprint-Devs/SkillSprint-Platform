@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.this_binding_rules",
+  "topic": "The 4 Rules of 'this' Binding",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.this_intro", "js.this_in_objects"],
+    "related_to": ["js.constructor_functions", "js.this_in_arrow_functions"],
+    "often_confused_with": ["js.this_in_arrow_functions"]
+  },
+  "question_map": {
+    "what": ["how is this determined", "what are the this rules"],
+    "why": ["why use bind", "what does call and apply do"],
+    "how": ["how to force this context", "how to change this keyword"],
+    "compare": ["call vs apply vs bind", "implicit vs explicit binding"],
+    "output": ["function called with bind returns new function"]
+  },
+  "1_beginner_explanation": {
+    "summary": "To know what `this` is, ask 4 questions in this exact order: 1. Was the function called with `new`? (`this` is the new empty object). 2. Was it called with `.call()`, `.apply()`, or `.bind()`? (Explicit Binding: `this` is whatever you passed in). 3. Was it called with a dot? e.g. `obj.func()` (Implicit Binding: `this` is the object). 4. If none of those, it's Default Binding (`this` is window or undefined).",
+    "analogy": "1. 'new' is the Ultimate Override: The boss hand-picks the owner. 2. Explicit (.bind): You sign a contract stating who the owner is. 3. Implicit (.dot): The owner is whoever happens to be holding the item right now. 4. Default: If no one claims it, it goes to the lost-and-found (window)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Explicit Binding methods are built directly into `Function.prototype`. `.call(context)` executes the function immediately with the provided context. `.bind(context)` returns a newly generated function that permanently locks in the context. The engine hard-codes the `ThisBinding` for the execution context based on these overrides.",
+    "memory": "`.bind()` allocates a new Function object in memory, wrapping the original function. `.call()` and `.apply()` do not allocate new functions, they just alter the execution context momentarily."
+  },
+  "3_real_world_example": {
+    "use_case": "Borrowing a method from one object to use on another object.",
+    "code": "const character1 = { name: 'Gimli', health: 100 };\nconst character2 = { name: 'Legolas', health: 100 };\n\nfunction heal(amount) {\n  this.health += amount;\n  console.log(`${this.name} healed to ${this.health}`);\n}\n\n// We EXPLICITLY bind 'this' to character1, then execute immediately\nheal.call(character1, 50); // 'Gimli healed to 150'\n\n// We EXPLICITLY lock 'this' to character2 for later use\nconst healLegolas = heal.bind(character2);\nhealLegolas(20); // 'Legolas healed to 120'"
+  },
+  "4_common_confusion": {
+    "trap": "Mixing up `.call()` and `.apply()`. They do the exact same thing, but take arguments differently. `.call` takes comma-separated arguments. `.apply` takes an array of arguments.",
+    "fix": "Mnemonic: **A**pply takes an **A**rray. **C**all takes **C**omma separated values."
+  },
+  "5_related_topics": ["js.constructor_functions", "js.this_in_objects"],
+  "6_edge_case": {
+    "quirk": "If you `.bind()` a function, and then try to `.bind()` it again to something else, the second bind is completely ignored. A bound function cannot be re-bound.",
+    "code": "function who() { console.log(this.name); }\nconst boundToA = who.bind({name: 'A'});\nconst boundToB = boundToA.bind({name: 'B'}); \nboundToB(); // Prints 'A'! First bind wins permanently."
+  }
+}

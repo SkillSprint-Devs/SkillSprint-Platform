@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.object_methods",
+  "topic": "Object Methods",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.objects_intro", "js.functions"],
+    "related_to": ["js.this_in_objects", "js.classes_intro"],
+    "often_confused_with": ["js.functions"]
+  },
+  "question_map": {
+    "what": ["what is a method", "what is an object method"],
+    "why": ["why put a function in an object"],
+    "how": ["how to call an object method", "how to write a method"],
+    "compare": ["function vs method", "method vs property"],
+    "output": ["method is not a function error"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Method** is simply a function that is stored as a property inside an object. If objects represent 'things', properties represent what they *are* (data), and methods represent what they *can do* (actions). There is virtually no difference between a standard function and a method, other than the fact that the method 'belongs' to the object.",
+    "analogy": "If the object is a 'Car', then 'color: red' is a property. But 'startEngine()' is a method. Properties describe the car; methods are the actions the car can perform."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you execute `object.method()`, the engine looks up the property on the object, realizes it holds a reference to a function block in memory, and invokes it. The fact that it was called with `object.` automatically sets the `this` keyword inside the function to point to that specific object.",
+    "memory": "The method itself is just a regular function object residing in the Heap. The object property merely holds a reference pointer to it."
+  },
+  "3_real_world_example": {
+    "use_case": "Giving an object behavior alongside its data.",
+    "code": "const user = {\n  name: 'Alice',\n  loginCount: 0,\n  \n  // This is a method!\n  login: function() {\n    console.log('Logging in...');\n    // Using 'this' allows the method to access sibling properties\n    this.loginCount++; \n  },\n  \n  // Modern shorthand syntax for methods (ES6)\n  logout() {\n    console.log('Logging out...');\n  }\n};\n\nuser.login();\nconsole.log(user.loginCount); // 1"
+  },
+  "4_common_confusion": {
+    "trap": "Calling a method without parentheses. If you type `user.login`, it doesn't execute the action. It just returns the raw function code.",
+    "fix": "Always use `()` to actually *execute* the method. E.g., `user.login()`."
+  },
+  "5_related_topics": ["js.this_in_objects", "js.functions"],
+  "6_edge_case": {
+    "quirk": "If you use an Arrow Function for a method, it breaks the `this` keyword. Arrow functions do not bind their own `this`, so `this.loginCount` would return `undefined` or error out.",
+    "code": "const badUser = {\n  count: 0,\n  //  Arrow functions inside objects can't access 'this'\n  increment: () => { this.count++; } \n};\n// Use normal functions or shorthand for object methods!"
+  }
+}

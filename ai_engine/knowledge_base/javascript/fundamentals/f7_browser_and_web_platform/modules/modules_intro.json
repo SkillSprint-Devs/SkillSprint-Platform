@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.modules_intro",
+  "topic": "Introduction to Modules",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.scope",
+      "js.client_server_model"
+    ],
+    "related_to": [
+      "js.import_export",
+      "js.module_scope"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what are javascript modules",
+      "what is es6 modules"
+    ],
+    "why": [
+      "why split code into modules",
+      "why use modules instead of script tags"
+    ],
+    "how": [
+      "how to use modules in browser"
+    ],
+    "compare": [
+      "es modules vs commonjs",
+      "modules vs scripts"
+    ],
+    "output": [
+      "cors error when opening module from file protocol"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "As your JavaScript application grows, putting 10,000 lines of code into a single `app.js` file becomes a nightmare to manage. A **Module** is just a separate JavaScript file that contains a small, specific piece of code (like a single Class or a few math functions). Modules allow you to break your app into tiny, organized files that can share data with each other.",
+    "analogy": "Imagine building a Lego castle. A non-module app is like having all 5,000 pieces dumped into one giant bucket; it takes forever to find what you need. Modules are like sorting the pieces into separate labeled bags (Roof Bag, Wall Bag, Door Bag). It makes building and finding things infinitely easier."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the browser sees `<script type=\"module\" src=\"app.js\">`, it kicks off a Module Graph. It scans `app.js` for `import` statements, downloads those files asynchronously, parses them, maps out all dependencies, and links them in memory BEFORE executing any code.",
+    "memory": "Unlike old `<script>` tags which dumped everything into the global `window` object (causing naming collisions), every Module has its own completely isolated memory scope."
+  },
+  "3_real_world_example": {
+    "use_case": "Splitting a large application into manageable files.",
+    "code": "<!-- index.html -->\n<!-- You MUST add type=\"module\" to enable the module system -->\n<script type=\"module\" src=\"main.js\"></script>\n\n/* \nFile Structure:\n- main.js (Entry point)\n- auth.js (Handles login)\n- ui.js (Handles buttons)\n\nInstead of one file, auth.js and ui.js export their functions,\nand main.js imports them to assemble the final application.\n*/"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to open `index.html` directly from your desktop (`file:///C:/index.html`) and wondering why your modules fail with a CORS error. Browsers strictly block ES Modules from running on the `file://` protocol for security reasons.",
+    "fix": "You MUST run a local development server (like VS Code Live Server or `npx serve`) to use ES Modules."
+  },
+  "5_related_topics": [
+    "js.import_export",
+    "js.module_scope",
+    "js.client_server_model"
+  ],
+  "6_edge_case": {
+    "quirk": "ES Modules automatically and permanently run in Strict Mode (`use strict`). You do not need to declare it at the top of the file, and you cannot turn it off.",
+    "code": ""
+  }
+}

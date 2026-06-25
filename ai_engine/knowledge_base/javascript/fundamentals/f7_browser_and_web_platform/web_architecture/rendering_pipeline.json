@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.rendering_pipeline",
+  "topic": "The Rendering Pipeline (DOM, CSSOM, Layout, Paint)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_rendering"
+    ],
+    "related_to": [
+      "js.performance_basics",
+      "js.modifying_elements"
+    ],
+    "often_confused_with": [
+      "js.browser_rendering"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the critical rendering path"
+    ],
+    "why": [
+      "why is modifying the dom slow"
+    ],
+    "how": [
+      "how browsers paint pixels"
+    ],
+    "compare": [
+      "layout vs paint",
+      "dom vs cssom"
+    ],
+    "output": [
+      "layout thrashing causes visible jank"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "To turn raw HTML/CSS text into pixels on a screen, the browser goes through a strict 5-step factory assembly line called the Rendering Pipeline. 1. Build the DOM (HTML). 2. Build the CSSOM (CSS). 3. Combine them into a Render Tree (only visible things). 4. Layout (calculate exact X/Y coordinates and sizes). 5. Paint (draw the actual colored pixels to the screen).",
+    "analogy": "Building a house: 1. Read blueprints (HTML to DOM). 2. Choose paint colors (CSS to CSSOM). 3. Combine them into a master plan (Render Tree). 4. Measure the physical wood and plot exact dimensions on the land (Layout/Reflow). 5. Physically brush the paint onto the walls (Paint)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "If JavaScript modifies an element's `width` or `margin`, the browser must throw away the current screen and repeat the pipeline starting from step 4 (Layout/Reflow), which is mathematically very expensive. If JS modifies a `color` or `opacity`, it skips step 4 and only repeats step 5 (Paint/Repaint), which is much faster.",
+    "memory": "Reflows (Layout recalculations) block the Main Thread. Doing this in a loop creates massive 'Layout Thrashing', freezing the UI."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding why animating `margin-left` is laggy, but animating `transform: translateX` is smooth.",
+    "code": "//  BAD PERFORMANCE: Changing 'margin' triggers a full Layout/Reflow.\n// The browser has to recalculate the size/position of EVERY element on the page.\nelement.style.marginLeft = '100px'; \n\n//  GREAT PERFORMANCE: Changing 'transform' skips Layout and Paint!\n// It happens entirely on the GPU (Graphics Card) in a separate 'Composite' layer.\nelement.style.transform = 'translateX(100px)';"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that *reading* a value from the DOM is always fast and harmless. It is not. If you modify the DOM and then immediately read from it (e.g., `elem.offsetWidth`), you force the browser to synchronously calculate the Layout *right then and there*, pausing your JS.",
+    "fix": "Batch your DOM Reads and Writes. Read everything first, then write everything."
+  },
+  "5_related_topics": [
+    "js.performance_basics",
+    "js.modifying_elements"
+  ],
+  "6_edge_case": {
+    "quirk": "The `display: none` property removes an element from the Render Tree completely. It will not be calculated in Layout or painted. `visibility: hidden` keeps it in the Render Tree; it still takes up physical space (Layout) but is skipped during Paint.",
+    "code": ""
+  }
+}

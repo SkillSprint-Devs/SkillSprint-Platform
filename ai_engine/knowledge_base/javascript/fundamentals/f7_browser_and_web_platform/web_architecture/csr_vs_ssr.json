@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.csr_vs_ssr",
+  "topic": "Client-Side vs Server-Side Rendering",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.client_server_model"
+    ],
+    "related_to": [
+      "js.spa_architecture",
+      "js.browser_rendering"
+    ],
+    "often_confused_with": [
+      "js.spa_architecture"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is ssr",
+      "what is csr"
+    ],
+    "why": [
+      "why is react bad for seo",
+      "why use nextjs over react"
+    ],
+    "how": [
+      "how server side rendering works"
+    ],
+    "compare": [
+      "csr vs ssr",
+      "client side vs server side rendering"
+    ],
+    "output": [
+      "blank div id root before js loads"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "There are two main ways to build a webpage. **Server-Side Rendering (SSR)** is the traditional way: The Server builds the entire HTML file (with all text and images) and sends a completed page to the browser. **Client-Side Rendering (CSR)** is the modern (React/Vue) way: The Server sends a completely blank HTML file and a massive JavaScript file. The browser then runs the JS to draw all the buttons and text onto the screen dynamically.",
+    "analogy": "SSR is ordering a pizza: The kitchen (Server) builds the whole pizza, bakes it, and delivers a finished, ready-to-eat pizza to your house (Browser). CSR is ordering a meal-kit: The kitchen delivers a box of raw ingredients and instructions (JavaScript), and YOU have to build and cook it yourself in your own kitchen."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "In CSR, the user stares at a blank white screen while the massive JS bundle downloads, parses, and executes. Only then does the `document.createElement` logic fire to build the DOM. In SSR, the browser receives a fully hydrated HTML string and renders it instantly before any JS runs.",
+    "memory": "CSR puts the heavy CPU processing burden on the user's phone/laptop. SSR puts the heavy processing burden on the company's AWS servers."
+  },
+  "3_real_world_example": {
+    "use_case": "Choosing an architecture based on SEO (Search Engine Optimization) needs.",
+    "code": "/* \n  If Google's search bot visits a CSR (React) website, it often sees this:\n  <body>\n    <div id=\"root\"></div> <!-- It's totally blank! No keywords found. -->\n    <script src=\"bundle.js\"></script>\n  </body>\n\n  If Google visits an SSR (Next.js/PHP) website, it sees this:\n  <body>\n    <h1>The Best Chocolate Cake Recipe</h1>\n    <p>Ingredients...</p>\n  </body>\n*/"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking CSR is 'better' just because React is popular. CSR often results in terrible initial load times (especially on slow 3G mobile networks) and poor SEO. This is why hybrid frameworks like Next.js (which do SSR *with* React) exist.",
+    "fix": "CSR = Great for complex dashboards (Gmail, Spotify). SSR = Great for content (Blogs, E-commerce)."
+  },
+  "5_related_topics": [
+    "js.spa_architecture",
+    "js.performance_basics"
+  ],
+  "6_edge_case": {
+    "quirk": "Modern frameworks use 'Hydration'. They SSR the first page load so it appears instantly, but then silently download the React JS in the background. Once the JS loads, it 'hydrates' (attaches event listeners to) the existing HTML, turning it into a CSR app.",
+    "code": ""
+  }
+}

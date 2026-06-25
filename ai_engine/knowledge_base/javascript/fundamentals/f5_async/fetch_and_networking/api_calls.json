@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.api_calls",
+  "topic": "API Calls (REST/CRUD)",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.fetch_api", "js.json_handling"],
+    "related_to": ["js.request_response_cycle"],
+    "often_confused_with": ["js.fetch_api"]
+  },
+  "question_map": {
+    "what": ["what is an api call", "what are get post put delete"],
+    "why": ["why use different http methods", "why use put instead of post"],
+    "how": ["how to make api calls in javascript", "how to update data on a server"],
+    "compare": ["get vs post", "put vs patch"],
+    "output": ["api call returns 201 created"]
+  },
+  "1_beginner_explanation": {
+    "summary": "An **API Call** is when your frontend JavaScript asks a backend server to do something with data. Most APIs use the REST pattern, mapping actions to HTTP Methods: **GET** (read data), **POST** (create new data), **PUT/PATCH** (update existing data), and **DELETE** (remove data). This matches the standard CRUD operations (Create, Read, Update, Delete) of a database.",
+    "analogy": "Making an API call is like interacting with a librarian. GET is asking 'Can I read the book on JavaScript?'. POST is handing them a brand new manuscript saying 'Please add this to the library'. DELETE is saying 'Please permanently remove book #123'. The librarian (API) handles the complex filing rules so you don't have to."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "By default, `fetch('url')` sends a GET request. To use other methods, you must pass an options object as the second parameter. POST/PUT/PATCH requests usually require a `body` (the data you are sending) and a `Content-Type` header (telling the server the data is JSON).",
+    "memory": "No special JS memory structures, but understanding the mapping of HTTP Verbs to backend database operations is crucial for full-stack engineering."
+  },
+  "3_real_world_example": {
+    "use_case": "A complete CRUD cycle: getting, creating, and deleting a task.",
+    "code": "// 1. READ (GET)\nasync function getTasks() {\n  const res = await fetch('/api/tasks');\n  return await res.json();\n}\n\n// 2. CREATE (POST)\nasync function createTask(title) {\n  const res = await fetch('/api/tasks', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ title, completed: false })\n  });\n  return await res.json(); // Often returns the newly created task with its DB ID\n}\n\n// 3. DELETE (DELETE)\nasync function deleteTask(id) {\n  await fetch(`/api/tasks/${id}`, {\n    method: 'DELETE'\n  });\n  console.log(`Task ${id} deleted`);\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to send a `body` with a `GET` request. The HTTP standard strictly forbids GET requests from having bodies. If you need to send data to filter a GET request, you must put it in the URL as a query string (e.g., `/api/search?q=apple`).",
+    "fix": "Data goes in the URL for GET. Data goes in the `body` for POST/PUT."
+  },
+  "5_related_topics": ["js.fetch_api", "js.request_response_cycle", "js.json_handling"],
+  "6_edge_case": {
+    "quirk": "The difference between PUT and PATCH: PUT is meant to completely replace a resource (send the whole object). PATCH is meant to partially update a resource (send only the fields that changed).",
+    "code": "// PUT: Replaces the whole user\nfetch('/api/users/1', { method: 'PUT', body: JSON.stringify({name: 'Bob', age: 30}) });\n\n// PATCH: Only updates the age, leaves name alone\nfetch('/api/users/1', { method: 'PATCH', body: JSON.stringify({age: 31}) });"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.default_parameters",
+  "topic": "Default Parameters",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.parameters_and_arguments"],
+    "related_to": ["js.rest_parameters", "js.functions"],
+    "often_confused_with": ["js.rest_parameters"]
+  },
+  "question_map": {
+    "what": [
+      "what are default parameters",
+      "what is a default parameter value in javascript",
+      "what happens when js uses default parameter"
+    ],
+    "why": [
+      "why use default values in function parameters",
+      "when does javascript use the default parameter",
+      "why did my default value not get used"
+    ],
+    "how": [
+      "how to set default parameter values",
+      "how to write default parameters in es6",
+      "how to use expression as default parameter"
+    ],
+    "compare": [
+      "default parameters vs or operator fallback",
+      "default parameters vs nullish coalescing fallback"
+    ],
+    "output": [
+      "default parameter not working when i pass null",
+      "default value ignored when argument is zero"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Default parameters let you specify a fallback value for a parameter directly in the function signature using `=`. If the caller omits the argument OR explicitly passes `undefined`, the default value is used. Passing `null`, `0`, `false`, or `''` does **not** trigger the default — those are valid values.",
+    "analogy": "Default parameters are like a restaurant menu with pre-set options. If you order a burger without specifying the size, you get the 'regular' size by default. But if you specifically ask for 'no size' (null/zero/false), the kitchen treats that as a real instruction — you do not get the default, you get exactly what you said."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the function is called, the engine checks each parameter. If the corresponding argument is `undefined` (either omitted or explicitly passed as `undefined`), the default expression is evaluated and used as the initial value. Default expressions are evaluated at call time, not at definition time — each call gets a fresh evaluation. This means default values can call functions, reference earlier parameters, or compute dynamic values.",
+    "memory": "The evaluated default value is stored in the parameter's binding within the new stack frame, exactly as if the caller had supplied it. There is no runtime overhead difference between a supplied argument and a triggered default."
+  },
+  "3_real_world_example": {
+    "use_case": "Writing a paginated API fetch helper that works standalone with sensible defaults but remains fully configurable.",
+    "code": "function fetchPage(endpoint, page = 1, limit = 20, sort = 'desc') {\n  console.log(`GET ${endpoint}?page=${page}&limit=${limit}&sort=${sort}`);\n}\n\nfetchPage('/api/posts');                 // GET /api/posts?page=1&limit=20&sort=desc\nfetchPage('/api/posts', 3);              // GET /api/posts?page=3&limit=20&sort=desc\nfetchPage('/api/posts', 2, 50, 'asc');  // GET /api/posts?page=2&limit=50&sort=asc\n\n// Explicitly passing undefined triggers the default\nfetchPage('/api/posts', undefined, 10); // GET /api/posts?page=1&limit=10&sort=desc\n\n// Passing 0 does NOT trigger default (0 is a valid value)\nfetchPage('/api/posts', 0);             // GET /api/posts?page=0&limit=20&sort=desc"
+  },
+  "4_common_confusion": {
+    "trap": "Expecting the default to fire when `null` or `0` or `false` is passed. These are all valid falsy values — only `undefined` triggers a default parameter.",
+    "fix": "If you need the default to cover `null` as well, use the nullish coalescing operator inside the function body: `const val = param ?? defaultValue;`"
+  },
+  "5_related_topics": [
+    "js.parameters_and_arguments",
+    "js.rest_parameters",
+    "js.nullish_coalescing"
+  ],
+  "6_edge_case": {
+    "quirk": "Default parameter expressions can reference earlier parameters in left-to-right order. Later parameters cannot be referenced by earlier defaults because the bindings are created sequentially.",
+    "code": "// Earlier params can be referenced in later defaults\nfunction createRect(width, height = width * 2) {\n  return { width, height };\n}\nconsole.log(createRect(5));    // { width: 5, height: 10 }\nconsole.log(createRect(5, 8)); // { width: 5, height: 8 }\n\n// Default can even be a function call (evaluated fresh each invocation)\nfunction getTimestamp() { return Date.now(); }\nfunction logEvent(msg, ts = getTimestamp()) {\n  console.log(ts, msg);\n}"
+  }
+}

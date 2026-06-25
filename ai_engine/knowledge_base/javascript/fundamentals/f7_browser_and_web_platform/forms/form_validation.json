@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.form_validation",
+  "topic": "Form Validation",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.form_submission"
+    ],
+    "related_to": [
+      "js.input_events",
+      "js.regex"
+    ],
+    "often_confused_with": [
+      "js.xss_intro"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is form validation",
+      "what is html5 validation"
+    ],
+    "why": [
+      "why validate forms on the client side",
+      "why is server side validation still needed"
+    ],
+    "how": [
+      "how to validate forms in javascript",
+      "how to show error messages"
+    ],
+    "compare": [
+      "client-side vs server-side validation",
+      "js validation vs html5 validation"
+    ],
+    "output": [
+      "custom validity message appears on submit"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Form Validation is the process of checking a user's input to make sure it is correct BEFORE sending it to the server. For example, making sure an email actually has an '@' symbol, or ensuring a password is long enough. You can do this using built-in HTML attributes (`required`, `minlength`), or by writing custom JavaScript logic.",
+    "analogy": "Validation is the bouncer at the door of a club. If you don't meet the dress code (like forgetting your email address), the bouncer (JavaScript) stops you from entering (submitting the form) and tells you to go fix it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When a form is submitted, the browser first runs its internal HTML5 validation algorithm. If any input fails (e.g., it is `required` but empty), the browser fires an `invalid` event and stops the submission automatically. If you prevent default, you can run custom JS regex checks.",
+    "memory": "Validation logic does not consume significant memory, but complex Regular Expressions can consume significant CPU cycles (Regex catastrophic backtracking)."
+  },
+  "3_real_world_example": {
+    "use_case": "Checking if passwords match before allowing the user to register.",
+    "code": "const form = document.querySelector('#register-form');\nconst errorMsg = document.querySelector('#error');\n\nform.addEventListener('submit', (e) => {\n  const password = form.elements.pwd.value;\n  const confirm = form.elements.pwdConfirm.value;\n\n  // Custom JS Validation\n  if (password !== confirm) {\n    e.preventDefault(); // Stop submission\n    errorMsg.innerText = 'Passwords do not match!';\n  } else if (password.length < 8) {\n    e.preventDefault();\n    errorMsg.innerText = 'Password too short!';\n  }\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking that Client-Side Validation (JavaScript) makes your app secure. It does NOT. A malicious user can simply disable JavaScript in their browser, bypass all your rules, and send garbage data directly to your server.",
+    "fix": "Client-Side Validation is ONLY for a good User Experience (UX) (fast error messages). Security ALWAYS requires Server-Side Validation."
+  },
+  "5_related_topics": [
+    "js.regex",
+    "js.sanitization"
+  ],
+  "6_edge_case": {
+    "quirk": "You can hook into the browser's native HTML5 validation UI using the Constraint Validation API (`input.setCustomValidity()`) to show standard browser error popups with your own custom messages.",
+    "code": "const input = document.querySelector('#username');\ninput.setCustomValidity('That username is already taken!');\ninput.reportValidity(); // Shows the native browser popup"
+  }
+}

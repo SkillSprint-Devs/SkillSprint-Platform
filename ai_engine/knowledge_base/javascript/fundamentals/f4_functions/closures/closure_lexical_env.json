@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.closure_lexical_env",
+  "topic": "Closures & Lexical Environment",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.closures", "js.lexical_environment", "js.lexical_scope"],
+    "related_to": ["js.closures_deep", "js.scope_chain", "js.execution_context_intro"],
+    "often_confused_with": ["js.lexical_environment"]
+  },
+  "question_map": {
+    "what": [
+      "what is lexical environment in closure context",
+      "how do closures find their variables",
+      "where are captured variables stored in closures"
+    ],
+    "why": [
+      "why do closures keep outer lexical environment alive",
+      "why do multiple closures from same function share state",
+      "why does modifying captured variable affect all closures"
+    ],
+    "how": [
+      "how does the environment slot work in closures",
+      "how does javascript store closure variables",
+      "how does garbage collector decide to keep closure env"
+    ],
+    "compare": [
+      "shared closure env vs independent closure env",
+      "closure env from same function vs different function"
+    ],
+    "output": [
+      "two closures from same factory share state",
+      "trace environment reference chain in a closure"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Every closure carries a hidden `[[Environment]]` reference to the exact Lexical Environment that was alive when the closure was created. This is not a copy — it is a pointer to the same object. If two closures are created inside the same outer function call, they both point to the same Lexical Environment and therefore share the same variables. If they come from separate calls to the outer function, they each have an independent environment with their own variable copies.",
+    "analogy": "Each call to an outer function is like opening a new bank vault. Variables inside are accounts in that vault. Closures created during that same function call are key holders to the same vault. Key holders from a different call to the same outer function have keys to a completely separate, identical-looking vault — different accounts, different balances."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When an outer function is called, a new Lexical Environment is created. Each inner function defined during that call receives a `[[Environment]]` slot pointing to that Lexical Environment. All inner functions from the same call share this one environment object. When the outer function returns, the environment is not destroyed as long as any inner function references it. Variable reads and writes by any closure operate directly on the shared bindings in that environment.",
+    "memory": "Each call to the outer function produces a fresh Lexical Environment heap object. N calls = N independent environments. Within one call, all returned closures share one environment. This is why two counters created from the same factory are isolated from each other — each has its own environment."
+  },
+  "3_real_world_example": {
+    "use_case": "Proving that two closures from the same factory call share state, while closures from separate calls are independent.",
+    "code": "function makeWallet(initial) {\n  let balance = initial; // lives in the Lexical Environment of this call\n\n  const deposit  = (amt) => { balance += amt; };\n  const withdraw = (amt) => { balance -= amt; };\n  const getBalance = ()  => balance;\n\n  return { deposit, withdraw, getBalance };\n  // All three closures share the SAME 'balance' binding\n}\n\nconst walletA = makeWallet(100); // independent env, balance = 100\nconst walletB = makeWallet(500); // independent env, balance = 500\n\nwalletA.deposit(50);\nconsole.log(walletA.getBalance()); // 150 — walletA's env\nconsole.log(walletB.getBalance()); // 500 — walletB's env, untouched \n\n// deposit, withdraw, getBalance all share walletA's 'balance'\nwalletA.withdraw(30);\nconsole.log(walletA.getBalance()); // 120"
+  },
+  "4_common_confusion": {
+    "trap": "Expecting two closures created from the same outer function call to have independent state. They share one Lexical Environment — changes made by one are instantly visible to the other.",
+    "fix": "To get independent state per closure, each closure must come from a separate function call (separate Lexical Environment). Do not share one call's environment if you need isolation."
+  },
+  "5_related_topics": [
+    "js.closures",
+    "js.closures_deep",
+    "js.lexical_environment",
+    "js.scope_chain"
+  ],
+  "6_edge_case": {
+    "quirk": "Closures created inside a class method share that method's Lexical Environment on each call — just like regular function closures. This is how React class component `setState` callbacks can form stale closures over old state values.",
+    "code": "// Simulated stale closure in a class method\nclass Counter {\n  count = 0;\n\n  incrementDelayed() {\n    const snapshot = this.count; // captured at call time\n    setTimeout(() => {\n      // 'snapshot' is fixed; 'this.count' has moved on\n      console.log('snapshot:', snapshot, '| current:', this.count);\n    }, 1000);\n    this.count++;\n  }\n}\n\nconst c = new Counter();\nc.incrementDelayed(); // snapshot: 0 | current: 1 (after 1s)"
+  }
+}

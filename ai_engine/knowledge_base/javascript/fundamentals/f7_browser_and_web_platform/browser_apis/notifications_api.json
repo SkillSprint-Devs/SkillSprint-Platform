@@ -1,0 +1,64 @@
+{
+  "version": "1.1",
+  "intent": "js.notifications_api",
+  "topic": "Notifications API",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_web_apis",
+      "js.promises_intro"
+    ],
+    "related_to": [
+      "js.events_intro"
+    ],
+    "often_confused_with": [
+      "js.browser_web_apis"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is the notifications api"
+    ],
+    "why": [
+      "why do websites ask to send notifications"
+    ],
+    "how": [
+      "how to send a push notification in javascript",
+      "how to ask for notification permission"
+    ],
+    "compare": [
+      "notifications vs alert",
+      "notifications api vs push api"
+    ],
+    "output": [
+      "system notification popup appears"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The Notifications API allows web pages to send system-level notifications that appear outside the browser window (like an email popup on your Mac or a banner on your phone). Because they can be very annoying, you MUST explicitly ask the user for permission before you can send one.",
+    "analogy": "An `alert()` is like trapping the user in a room and screaming at them until they hit 'OK'. A Notification is like sliding a polite sticky note under their door. They can read it, ignore it, or click it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "First, JS must call `Notification.requestPermission()`, which returns a Promise resolving to 'granted', 'denied', or 'default'. If granted, instantiating `new Notification('Hello')` triggers the operating system's native notification center.",
+    "memory": "Notifications are tied to the browser. If the browser is completely closed, standard Notifications won't fire (unless combined with Service Workers and the Push API)."
+  },
+  "3_real_world_example": {
+    "use_case": "Alerting a user that their long file upload has finished, even if they switched to another tab.",
+    "code": "async function notifyUploadComplete() {\n  // 1. Check if we have permission\n  if (Notification.permission === 'granted') {\n    new Notification('Upload Complete!', { body: 'Your video is ready.' });\n  } \n  // 2. If we haven't asked yet, ask now\n  else if (Notification.permission !== 'denied') {\n    const permission = await Notification.requestPermission();\n    if (permission === 'granted') {\n      new Notification('Upload Complete!', { body: 'Your video is ready.' });\n    }\n  }\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing the 'Notifications API' with the 'Push API'. The Notifications API just draws the visual popup box. The Push API is what allows a server to wake up a sleeping browser and trigger that popup even when the website is closed.",
+    "fix": "Notification = The UI box. Push = The delivery mechanism."
+  },
+  "5_related_topics": [
+    "js.browser_web_apis"
+  ],
+  "6_edge_case": {
+    "quirk": "Users hate notification prompts so much that modern browsers (like Chrome) will auto-block the prompt if your website asks for permission immediately on page load. You should only ask for permission after the user interacts with a button.",
+    "code": ""
+  }
+}

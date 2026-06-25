@@ -57,6 +57,6 @@
   ],
   "6_edge_case": {
     "quirk": "If you assign a value to a variable without declaring it (no let, const, or var) in non-strict mode, JS automatically creates a Global variable for you. This is a massive source of bugs.",
-    "code": "function leakyScope() {\n  // ❌ Missing let/const keyword!\n  accidentalGlobal = 'I am now everywhere'; \n}\nleakyScope();\nconsole.log(accidentalGlobal); // 'I am now everywhere' (Polluted global scope)\n\n// ✅ Fix: Use 'use strict'; at the top of your files to crash the app instead."
+    "code": "function leakyScope() {\n  //  Missing let/const keyword!\n  accidentalGlobal = 'I am now everywhere'; \n}\nleakyScope();\nconsole.log(accidentalGlobal); // 'I am now everywhere' (Polluted global scope)\n\n//  Fix: Use 'use strict'; at the top of your files to crash the app instead."
   }
 }

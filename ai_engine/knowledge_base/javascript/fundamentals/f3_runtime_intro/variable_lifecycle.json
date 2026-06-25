@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.variable_lifecycle",
+  "topic": "Variable Lifecycle",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.variables", "js.hoisting", "js.memory_model_basic"],
+    "related_to": ["js.execution_context_intro", "js.lexical_environment", "js.scope"],
+    "often_confused_with": ["js.hoisting"]
+  },
+  "question_map": {
+    "what": [
+      "what is variable lifecycle in javascript",
+      "what happens after declaring a variable",
+      "when is memory allocated for a variable",
+      "how long does a variable exist"
+    ],
+    "why": [
+      "why does let throw an error before initialization",
+      "why does var become undefined before assignment",
+      "when is a variable destroyed"
+    ],
+    "how": [
+      "how does javascript allocate memory for variables",
+      "how does garbage collection destroy variables",
+      "how does a variable go from declaration to use"
+    ],
+    "compare": [
+      "var lifecycle vs let lifecycle vs const lifecycle",
+      "declaration vs initialization vs assignment"
+    ],
+    "output": [
+      "predict variable state during each lifecycle phase",
+      "trace var vs let through creation and execution phases"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Every variable in JavaScript passes through a series of stages before it can be used: Declaration (the name is registered in memory), Memory Allocation (a storage slot is reserved), Initialization (a starting value is written — `undefined` for `var`, uninitialized for `let`/`const`), Assignment (your actual value is set), Usage (the value is read or written), and eventually Garbage Collection (memory is reclaimed when the variable is no longer reachable).",
+    "analogy": "Think of a variable's lifecycle like renting a storage unit. Declaration is signing the rental agreement (your name is registered). Memory Allocation is getting the unit key and an empty box. Initialization is the unit being marked 'ready' — for `var` an empty label is taped on the box (undefined); for `let`/`const` the box is locked until you arrive. Assignment is putting your items in the box. Usage is accessing those items. Garbage Collection is the facility reclaiming the unit after you stop paying rent (no more references)."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "During the Creation Phase of an Execution Context, the JS engine scans for all declarations and sets them up in the Environment Record. `var` bindings are created AND initialized to `undefined` immediately. `let` and `const` bindings are created but left in an uninitialised state — accessing them before the declaration line is reached throws a ReferenceError (the Temporal Dead Zone). During the Execution Phase, assignment statements initialize `let`/`const` and overwrite `var` with the real value.",
+    "memory": "Stack-allocated primitives are reclaimed automatically when their execution context is popped. Heap-allocated objects are reclaimed by the Garbage Collector's Mark-and-Sweep algorithm once no variable in any reachable scope holds a reference to them."
+  },
+  "3_real_world_example": {
+    "use_case": "Debugging a 'variable is not defined' error by understanding whether the issue is a TDZ violation, a scoping problem, or a missing assignment.",
+    "code": "// Phase 1 — Declaration: 'status' slot created in env record\n// Phase 2 — Memory:     'status' slot reserved\n// Phase 3 — Init (var): 'status' set to undefined\nconsole.log(status); // undefined (var is pre-initialised)\n\nvar status = 'active'; // Phase 4 — Assignment: 'active' written\nconsole.log(status);   // 'active'\n\n// --- let example ---\n// console.log(level); //  ReferenceError: Cannot access 'level' before initialization (TDZ)\nlet level = 5;         // Declaration + Initialization + Assignment all happen here\nconsole.log(level);    // 5"
+  },
+  "4_common_confusion": {
+    "trap": "Assuming `let` and `const` are 'not hoisted'. They ARE hoisted (registered during the creation phase), but they are left uninitialised. The TDZ is the gap between hoisting and reaching the declaration line in code.",
+    "fix": "Think of it as: `var` hoists AND initializes to undefined. `let`/`const` hoist but stay uninitialised until the declaration line is passed."
+  },
+  "5_related_topics": [
+    "js.hoisting",
+    "js.memory_model_basic",
+    "js.execution_context_intro",
+    "js.lexical_environment"
+  ],
+  "6_edge_case": {
+    "quirk": "`const` must be initialized at the point of declaration — there is no separate 'assignment later' phase allowed. Attempting to declare `const x;` without a value is a SyntaxError caught at parse time, before any code runs.",
+    "code": "// Attempting to separate declaration and assignment for const:\ntry {\n  eval('const score; score = 100;'); // SyntaxError: Missing initializer in const declaration\n} catch (e) {\n  console.log(e.constructor.name + ': ' + e.message);\n}\n\n// The full lifecycle for const is collapsed into a single statement:\nconst maxScore = 100; // declare + allocate + initialize + assign all at once"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promises_intro",
+  "topic": "Promises Intro",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": true },
+  "relationships": {
+    "depends_on": ["js.async_callbacks_intro", "js.inversion_of_control"],
+    "related_to": ["js.promise_states", "js.promise_chaining", "js.async_await"],
+    "often_confused_with": ["js.async_callbacks_intro"]
+  },
+  "question_map": {
+    "what": ["what is a promise", "what is a promise in javascript"],
+    "why": ["why use promises", "how do promises solve callback hell"],
+    "how": ["how to create a promise", "how to use a promise"],
+    "compare": ["promise vs callback", "promise vs async await"],
+    "output": ["promise returns pending instead of data"]
+  },
+  "1_beginner_explanation": {
+    "summary": "A **Promise** is a JavaScript object that represents the eventual completion (or failure) of an asynchronous operation. Instead of passing a callback *into* a function and losing control, the function returns a Promise object back to *you*. You then attach your callbacks (`.then()` for success, `.catch()` for failure) to that object. Promises solve 'Inversion of Control' and 'Callback Hell' by standardizing how async results are handled.",
+    "analogy": "A Promise is exactly like a restaurant buzzer. You order food (start async task) and the cashier hands you a buzzer (returns a Promise). The buzzer is not the food, but it *represents* the future food. You can go sit down. When the food is ready, the buzzer flashes (Promise resolves). If they drop your food, the buzzer vibrates red (Promise rejects). You keep control of the buzzer the whole time."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When you call a function that returns a Promise (like `fetch`), the background operation starts immediately. The function synchronously returns a Promise object in the 'pending' state. You chain `.then()` onto it. When the background operation finishes, the Promise changes state to 'fulfilled' and pushes your `.then()` callback into the Microtask Queue.",
+    "memory": "The Promise object lives in the JS heap. It internally stores its state, its resolved value (or error), and arrays of `onFulfilled` and `onRejected` callbacks that you attached."
+  },
+  "3_real_world_example": {
+    "use_case": "Comparing the old Callback approach to the modern Promise approach.",
+    "code": "//  Old Callback Approach (Inversion of Control)\nfunction getUserCB(id, callback) {\n  setTimeout(() => callback(null, { id, name: 'Alice' }), 1000);\n}\ngetUserCB(1, (err, user) => {\n  console.log('Callback got:', user);\n});\n\n//  Modern Promise Approach (You keep control)\nfunction getUserPromise(id) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => resolve({ id, name: 'Alice' }), 1000);\n  });\n}\nconst userPromise = getUserPromise(1);\nuserPromise.then(user => {\n  console.log('Promise got:', user);\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Trying to read the value out of a Promise synchronously. You cannot do `const data = fetch(url); console.log(data.json());` because `data` is a Promise, not the actual response data.",
+    "fix": "You can NEVER extract the value out of a Promise synchronously. You MUST use `.then(data => ...)` or `await` to access the value."
+  },
+  "5_related_topics": ["js.promise_states", "js.promise_chaining", "js.async_await"],
+  "6_edge_case": {
+    "quirk": "The executor function passed into `new Promise((resolve) => {...})` runs synchronously, right then and there. Only the `.then()` callbacks are asynchronous.",
+    "code": "console.log('1');\nnew Promise((resolve) => {\n  console.log('2'); // Runs synchronously!\n  resolve();\n}).then(() => console.log('4')); // Runs asynchronously (microtask)\nconsole.log('3');\n// Output: 1, 2, 3, 4"
+  }
+}

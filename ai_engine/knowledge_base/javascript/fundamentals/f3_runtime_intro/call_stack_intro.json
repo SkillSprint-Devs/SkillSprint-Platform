@@ -1,0 +1,67 @@
+{
+  "version": "1.1",
+  "intent": "js.call_stack",
+  "topic": "Call Stack (Intro)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": false,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": ["js.execution_context_intro"],
+    "related_to": ["js.memory_model_basic", "js.function_invocation", "js.recursion"],
+    "often_confused_with": ["js.event_loop"]
+  },
+  "question_map": {
+    "what": [
+      "what is call stack",
+      "what is a call stack in javascript",
+      "what is stack overflow",
+      "what is a stack frame"
+    ],
+    "why": [
+      "why does recursion cause stack overflow",
+      "why does javascript execute one function at a time",
+      "why does js know which function runs next"
+    ],
+    "how": [
+      "how does js know which function runs next",
+      "how are functions executed in order",
+      "how does the call stack track functions"
+    ],
+    "compare": [
+      "call stack vs event loop",
+      "stack frame vs execution context"
+    ],
+    "output": [
+      "predict function execution order using call stack",
+      "what happens when call stack is full"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The Call Stack is JavaScript's mechanism for tracking which function is currently running and which functions are waiting to resume. It works like a stack of plates — when a function is called it is pushed on top; when it returns it is popped off, and control returns to the function below.",
+    "analogy": "Think of the Call Stack like a stack of sticky notes on a desk. When your boss gives you a task (function call), you write it on a note and put it on top. If that task requires you to ask a colleague (nested function call), you put a new note on top of that. You always work on the top note first. When you finish a task, you remove that note and continue the one underneath."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the JavaScript engine starts executing a script, it pushes a Global Execution Context onto the Call Stack. Every function call creates a new Function Execution Context that is pushed on top. The engine always executes the context at the top of the stack. When a function returns (explicitly or implicitly), its context is popped. This continues until the Call Stack is empty and the program finishes.",
+    "memory": "Each stack frame stores local variables, arguments, and a return address. Stack memory is limited by the runtime host (browsers typically allow ~10,000–15,000 frames). Exceeding this limit throws a RangeError: Maximum call stack size exceeded (commonly called a stack overflow)."
+  },
+  "3_real_world_example": {
+    "use_case": "Reading browser DevTools stack traces to pinpoint exactly which chain of function calls led to an error.",
+    "code": "function greet(name) {\n  return `Hello, ${name}!`;\n}\n\nfunction start() {\n  const msg = greet('SkillSprint'); // greet() pushed, then popped\n  console.log(msg);\n}\n\nstart();\n// Call Stack sequence:\n// 1. [Global]\n// 2. [Global] → [start]\n// 3. [Global] → [start] → [greet]\n// 4. [Global] → [start]   (greet returned)\n// 5. [Global]             (start returned)"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing the Call Stack with the Event Loop. The Call Stack runs synchronous code in order. The Event Loop only queues asynchronous callbacks when the Call Stack is completely empty.",
+    "fix": "Remember: the Call Stack executes right now. The Event Loop schedules what runs next after the stack is clear. They are two separate mechanisms."
+  },
+  "5_related_topics": [
+    "js.execution_context_intro",
+    "js.function_invocation",
+    "js.recursion",
+    "js.event_loop"
+  ],
+  "6_edge_case": {
+    "quirk": "Infinite recursion does not freeze the browser immediately. It grows the call stack silently until the limit is hit, then throws a RangeError. Each recursive call consumes a full stack frame even if the function body is tiny.",
+    "code": "function infiniteLoop() {\n  return infiniteLoop(); // pushes itself forever\n}\n\ntry {\n  infiniteLoop();\n} catch (err) {\n  console.log(err.message); // RangeError: Maximum call stack size exceeded\n}"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "version": "1.1",
+  "intent": "js.accessibility_intro",
+  "topic": "Accessibility (a11y) Intro",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.dom_intro"
+    ],
+    "related_to": [
+      "js.semantic_html",
+      "js.keyboard_navigation"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is web accessibility",
+      "what does a11y mean"
+    ],
+    "why": [
+      "why is accessibility important",
+      "why should i care about screen readers"
+    ],
+    "how": [
+      "how to make a website accessible"
+    ],
+    "compare": [
+      "accessibility vs usability"
+    ],
+    "output": [
+      "screen reader output for img without alt"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "Web Accessibility (often abbreviated as 'a11y', because there are 11 letters between 'a' and 'y') is the practice of ensuring your website can be used by everyone, including people with visual, motor, auditory, or cognitive disabilities. This means a blind user relying on a Screen Reader should be able to buy a product on your site just as easily as a sighted user.",
+    "analogy": "Building a website without accessibility is like building a massive public library but 'forgetting' to put in a wheelchair ramp or an elevator. It doesn't matter how great the books are if 20% of the population physically cannot get inside."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "When the browser parses HTML, it builds the DOM Tree for visual rendering. Simultaneously, it builds a secondary tree called the 'Accessibility Tree'. This tree strips away all visual styling (CSS) and focuses purely on semantics and roles. Screen Readers (like VoiceOver or NVDA) hook into this Accessibility Tree to read the page to the user.",
+    "memory": "If you use a `<div>` and style it to look like a Button using CSS, it exists in the visual DOM, but it might be completely invisible in the Accessibility Tree, trapping disabled users."
+  },
+  "3_real_world_example": {
+    "use_case": "Understanding how a blind user 'sees' an image.",
+    "code": "<!--  INACCESSIBLE: A screen reader will just say 'Image'. The user has no idea what it is. -->\n<img src=\"chart.jpg\">\n\n<!--  ACCESSIBLE: A screen reader will read the alt text aloud. -->\n<img src=\"chart.jpg\" alt=\"A bar chart showing 50% revenue growth in Q3\">\n\n<!--  PURELY DECORATIVE: If an image is just for looks (like a background swirl), leave the alt text blank so the screen reader ignores it and doesn't annoy the user. -->\n<img src=\"swirl.png\" alt=\"\">"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking accessibility is 'extra work' to be done at the very end of a project. If you build an entire web app using inaccessible `<div>` tags for everything, refactoring it later will take weeks and break your CSS. Accessibility must be designed from Day 1.",
+    "fix": "Start with Semantic HTML. It gives you 80% of accessibility for free."
+  },
+  "5_related_topics": [
+    "js.semantic_html",
+    "js.keyboard_navigation"
+  ],
+  "6_edge_case": {
+    "quirk": "Accessibility isn't just for permanent disabilities. 'Situational disabilities' exist. If you are using your phone outside in the blinding sun, you temporarily have a visual impairment. High-contrast colors (an accessibility standard) help everyone.",
+    "code": ""
+  }
+}

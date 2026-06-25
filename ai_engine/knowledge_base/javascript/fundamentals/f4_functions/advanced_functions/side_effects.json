@@ -1,0 +1,65 @@
+{
+  "version": "1.1",
+  "intent": "js.side_effects",
+  "topic": "Side Effects",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": ["js.pure_functions", "js.functions"],
+    "related_to": ["js.higher_order_functions", "js.closures", "js.memory_model_basic"],
+    "often_confused_with": ["js.pure_functions"]
+  },
+  "question_map": {
+    "what": [
+      "what are side effects in javascript",
+      "what is a side effect in a function",
+      "is console.log a side effect"
+    ],
+    "why": [
+      "why are side effects dangerous",
+      "why do side effects cause bugs",
+      "why minimize side effects"
+    ],
+    "how": [
+      "how to avoid side effects",
+      "how to identify side effects in code",
+      "how to isolate side effects"
+    ],
+    "compare": [
+      "function with side effects vs pure function",
+      "intended side effects vs unintended side effects"
+    ],
+    "output": [
+      "unexpected object mutation from function call",
+      "why did my global variable change inside a function"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "A side effect is **any observable change a function makes outside its own scope**. Common side effects: modifying a global/outer variable, mutating an object or array that was passed in, making a network request, writing to the DOM, logging to the console, reading/writing files, or calling `Math.random()` / `Date.now()`. Side effects are not inherently evil — programs need them to do useful work. The goal is to make them **intentional, isolated, and predictable**.",
+    "analogy": "A function with side effects is like a chef who, while making your salad (the main task), also reorganises the entire kitchen, turns off the radio, and answers the restaurant phone. The salad gets made, but a lot of unexpected changes happened outside the salad bowl. Side effects can be intentional (turning off the oven) or accidental (moving someone else's ingredients). The key is knowing which is which."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Side effects occur whenever a function's execution reaches beyond its own Lexical Environment to touch external state. Reading external state makes a function non-deterministic (result can vary). Writing external state makes a function non-isolated (other code may observe the change). Debugging side effects is hard because the bug may appear far away from the function that caused it.",
+    "memory": "Object mutation side effects are especially subtle because objects are passed by reference. A function receiving an object parameter can silently modify the shared heap object — the caller sees the change even though the function returned normally."
+  },
+  "3_real_world_example": {
+    "use_case": "Illustrating both accidental mutation (unintended side effect) and intentional isolation using a copy instead.",
+    "code": "//  Side effect: mutates the caller's object\nfunction applyDiscount(order, pct) {\n  order.total = order.total * (1 - pct); // modifies the ORIGINAL object\n  return order;\n}\n\nconst myOrder = { id: 1, total: 100 };\napplyDiscount(myOrder, 0.1);\nconsole.log(myOrder.total); // 90 — caller's object was silently changed!\n\n//  No side effect: return a new object, leave the original intact\nfunction applyDiscountPure(order, pct) {\n  return { ...order, total: order.total * (1 - pct) };\n}\n\nconst original = { id: 1, total: 100 };\nconst discounted = applyDiscountPure(original, 0.1);\nconsole.log(original.total);    // 100 — unchanged \nconsole.log(discounted.total);  // 90  — new object "
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `console.log` is harmless and doesn't count as a side effect. It writes to an output stream — that is an observable external change. A function that only calls `console.log` without returning a value has only a side effect and no useful output.",
+    "fix": "Use `return` to produce data output. Use `console.log` only at the boundary of your app (debugging or presentation layer) — not buried inside business logic."
+  },
+  "5_related_topics": [
+    "js.pure_functions",
+    "js.memory_model_basic",
+    "js.closures"
+  ],
+  "6_edge_case": {
+    "quirk": "Even copying objects has limits: the spread operator `{...obj}` is a **shallow copy** — nested objects inside are still shared references. Mutating a nested object inside the 'copy' still mutates the original's nested structure.",
+    "code": "const user = { name: 'Alice', address: { city: 'Berlin' } };\nconst userCopy = { ...user }; // shallow copy\n\nuserCopy.name = 'Bob';         //  only changes the copy's 'name'\nuserCopy.address.city = 'Paris'; //  mutates the ORIGINAL nested object!\n\nconsole.log(user.name);         // 'Alice' \nconsole.log(user.address.city); // 'Paris'  — unexpected side effect!\n\n// Fix: deep clone\nconst deepCopy = structuredClone(user);\ndeepCopy.address.city = 'Tokyo';\nconsole.log(user.address.city); // 'Paris' — original safe "
+  }
+}

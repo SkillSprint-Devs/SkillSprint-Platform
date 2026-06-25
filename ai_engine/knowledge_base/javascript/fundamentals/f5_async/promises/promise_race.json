@@ -1,0 +1,39 @@
+{
+  "version": "1.1",
+  "intent": "js.promise_race",
+  "topic": "Promise.race",
+  "dimensions": { "syntax": true, "semantics": true, "runtime": false },
+  "relationships": {
+    "depends_on": ["js.promises_intro"],
+    "related_to": ["js.promise_any", "js.promise_all"],
+    "often_confused_with": ["js.promise_any"]
+  },
+  "question_map": {
+    "what": ["what is promise.race", "what does promise race do"],
+    "why": ["why use promise race", "how to implement a timeout for fetch"],
+    "how": ["how to cancel a promise if it takes too long"],
+    "compare": ["promise.race vs promise.any"],
+    "output": ["promise race resolved with fastest promise"]
+  },
+  "1_beginner_explanation": {
+    "summary": "`Promise.race()` takes an array of Promises and returns a master Promise that settles as soon as the **fastest** promise in the array settles. It is a literal footrace. Whoever crosses the finish line first — whether they succeeded (resolved) or tripped and fell (rejected) — instantly decides the fate of the master Promise. The results of all slower promises are completely ignored.",
+    "analogy": "It's like sending 3 different couriers to deliver the same package. You only care about the first one to arrive. If courier A arrives first with the package, you accept it (resolve). If courier B arrives first but says 'I lost the package', you immediately declare the delivery a failure (reject). You don't wait for couriers C and A anymore."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The engine runs all promises concurrently. As soon as the first promise changes its internal state to 'fulfilled' or 'rejected', the `Promise.race` wrapper immediately adopts that exact state and value/reason. Subsequent state changes from the other promises are ignored because a Promise can only settle once.",
+    "memory": "It only retains the value or error of the first promise to settle. The other promises continue executing in the background, but their results are garbage collected once they finish since nothing is listening to them."
+  },
+  "3_real_world_example": {
+    "use_case": "Adding a maximum timeout limit to a `fetch` request so the user doesn't wait forever if the network is stalled.",
+    "code": "// 1. The actual network request\nconst fetchTask = fetch('/api/heavy-data').then(r => r.json());\n\n// 2. A timeout promise that rejects after 3 seconds\nconst timeoutTask = new Promise((_, reject) => {\n  setTimeout(() => reject(new Error('Request timed out')), 3000);\n});\n\n// 3. Race them against each other!\nPromise.race([fetchTask, timeoutTask])\n  .then(data => {\n    // fetchTask won the race! It took less than 3s.\n    console.log('Data loaded:', data);\n  })\n  .catch(error => {\n    // timeoutTask won the race! fetchTask took too long.\n    console.error('Failed:', error.message);\n  });"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking `Promise.race` waits for the first SUCCESSFUL promise. It does not. If the fastest promise rejects, the entire race rejects instantly. If you want the first *successful* promise, you need `Promise.any()`.",
+    "fix": "Race cares about SPEED, not success. Any cares about SUCCESS."
+  },
+  "5_related_topics": ["js.promise_any", "js.promise_all"],
+  "6_edge_case": {
+    "quirk": "If you pass an empty array `Promise.race([])`, it returns a Promise that is stuck in the 'pending' state FOREVER. It never resolves and never rejects, because there is no 'first' promise to cross the finish line.",
+    "code": "Promise.race([])\n  .then(() => console.log('This will never print'))\n  .catch(() => console.log('This will never print either'));"
+  }
+}

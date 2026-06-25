@@ -2,6 +2,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import User from "../models/user.js";
+import QuizAttempt from "../models/quizAttempt.js";
 
 const router = express.Router();
 
@@ -18,6 +19,28 @@ router.post("/predict", verifyToken, aiLimiter, async (req, res) => {
     const { message } = req.body;
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
+    }
+
+    // Hardening Quiz Lockdown check: check if the user is actively taking a quiz
+    if (req.user && req.user.id) {
+      try {
+        const activeQuiz = await QuizAttempt.findOne({
+          user: req.user.id,
+          status: "in-progress",
+          expiresAt: { $gt: new Date() }
+        });
+        if (activeQuiz) {
+          return res.status(403).json({
+            error: "AI Mentor is locked during an active quiz",
+            intent: "locked",
+            response: "AI assistance is strictly disabled while you have an active quiz session. Please complete or exit your quiz to restore access.",
+            confidence: 0,
+            route: "NONE"
+          });
+        }
+      } catch (err) {
+        console.error("[AI Route] Quiz check failed:", err);
+      }
     }
 
     // Query MongoDB for the user's actual name

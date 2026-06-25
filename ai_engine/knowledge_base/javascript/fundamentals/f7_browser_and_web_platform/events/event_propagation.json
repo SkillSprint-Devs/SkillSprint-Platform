@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "intent": "js.event_propagation",
+  "topic": "Event Propagation",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [
+      "js.events_intro",
+      "js.dom_tree"
+    ],
+    "related_to": [
+      "js.bubbling",
+      "js.capturing"
+    ],
+    "often_confused_with": [
+      "js.event_delegation"
+    ]
+  },
+  "question_map": {
+    "what": [
+      "what is event propagation",
+      "how events travel through dom"
+    ],
+    "why": [
+      "why do multiple click events fire"
+    ],
+    "how": [
+      "how to stop event propagation"
+    ],
+    "compare": [
+      "propagation vs bubbling"
+    ],
+    "output": [
+      "event travels through capture target bubble"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "When an event occurs on an element (like clicking a button), the event doesn't just happen on that button. The event actually travels through the entire DOM tree in a process called **Event Propagation**. It travels DOWN from the root to the button (Capturing Phase), hits the button (Target Phase), and then travels BACK UP to the root (Bubbling Phase).",
+    "analogy": "Imagine dropping a pebble into a pond. The pebble hits the exact spot (the Target), but the ripples (the Event) spread outwards, touching all the lily pads (parent elements) around it."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The W3C Event model defines 3 phases: 1) Capturing phase: Event goes down the tree. 2) Target phase: Event reaches the target element. 3) Bubbling phase: Event bubbles up from the target. By default, `addEventListener` only listens during the Bubbling phase.",
+    "memory": "Propagation does not duplicate the Event Object. The exact same Event Object is passed to every listener along the propagation path."
+  },
+  "3_real_world_example": {
+    "use_case": "Stopping an event from triggering parent click listeners.",
+    "code": "const outerDiv = document.querySelector('.outer');\nconst innerBtn = document.querySelector('.inner-btn');\n\nouterDiv.addEventListener('click', () => console.log('Outer div clicked!'));\n\ninnerBtn.addEventListener('click', (e) => {\n  console.log('Button clicked!');\n  // e.stopPropagation() stops the ripples!\n  // The outerDiv will NOT know this click happened.\n  e.stopPropagation(); \n});"
+  },
+  "4_common_confusion": {
+    "trap": "Confusing `stopPropagation` with `preventDefault`. `preventDefault` stops the browser's default behavior (like following a link or submitting a form). `stopPropagation` stops the event from traveling up the DOM tree to trigger parent listeners. They do completely different things.",
+    "fix": "Stop default browser action? `preventDefault`. Stop triggering parent listeners? `stopPropagation`."
+  },
+  "5_related_topics": [
+    "js.bubbling",
+    "js.capturing",
+    "js.preventing_default"
+  ],
+  "6_edge_case": {
+    "quirk": "Not absolutely all events propagate. Events like `focus`, `blur`, `mouseenter`, and `mouseleave` do NOT bubble up the tree.",
+    "code": "// A 'focus' event on an input will not bubble up to the parent <form>."
+  }
+}

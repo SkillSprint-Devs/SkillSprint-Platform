@@ -1,0 +1,61 @@
+{
+  "version": "1.1",
+  "intent": "js.geolocation",
+  "topic": "Geolocation API",
+  "dimensions": {
+    "syntax": true,
+    "semantics": true,
+    "runtime": false
+  },
+  "relationships": {
+    "depends_on": [
+      "js.browser_web_apis"
+    ],
+    "related_to": [
+      "js.async_callbacks_intro"
+    ],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is the geolocation api"
+    ],
+    "why": [
+      "why does geolocation require https"
+    ],
+    "how": [
+      "how to get user location in javascript",
+      "how to track user movement"
+    ],
+    "compare": [
+      "getCurrentPosition vs watchPosition"
+    ],
+    "output": [
+      "latitude and longitude coordinates"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "The Geolocation API allows a web application to ask the user for their physical location (latitude and longitude). Because location is highly sensitive, the browser will ALWAYS popup a permission prompt asking the user if they want to allow or deny access.",
+    "analogy": "It is like asking someone for their home address. You can ask (via the API), but they have to explicitly agree to give it to you (the permission prompt). Once they give it, you can plot it on a map."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "The browser uses the device's hardware (GPS chip, WiFi triangulation, or IP address) to determine the location. This is an asynchronous operation, so the API requires callback functions (one for success, one for error).",
+    "memory": "For security reasons, modern browsers strictly enforce that the Geolocation API can ONLY be used on secure contexts (HTTPS). It will throw an error on plain HTTP."
+  },
+  "3_real_world_example": {
+    "use_case": "Finding nearby restaurants based on the user's current city.",
+    "code": "if ('geolocation' in navigator) {\n  // Request the location (Asynchronous)\n  navigator.geolocation.getCurrentPosition(\n    // Success Callback\n    (position) => {\n      const lat = position.coords.latitude;\n      const lon = position.coords.longitude;\n      console.log(`You are at Latitude: ${lat}, Longitude: ${lon}`);\n    },\n    // Error Callback (e.g., User clicked 'Deny')\n    (error) => {\n      console.error('Error getting location:', error.message);\n    }\n  );\n} else {\n  console.log('Geolocation is not supported by your browser.');\n}"
+  },
+  "4_common_confusion": {
+    "trap": "Assuming you will always get a hyper-accurate GPS coordinate. If the user is on a desktop computer without a GPS chip, the browser guesses their location based on their IP address, which might just resolve to a random server in a neighboring city miles away.",
+    "fix": "Never assume the location is 100% accurate. Use it as a starting point."
+  },
+  "5_related_topics": [
+    "js.browser_web_apis",
+    "js.async_callbacks_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "You can use `navigator.geolocation.watchPosition()` to continuously track the user as they move (like a navigation app). This fires the callback repeatedly whenever their GPS coordinates change.",
+    "code": "// const watchId = navigator.geolocation.watchPosition(successCB, errorCB);\n// navigator.geolocation.clearWatch(watchId); // Stops tracking"
+  }
+}

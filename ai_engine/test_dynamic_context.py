@@ -63,7 +63,7 @@ check(
     "js closures",
     None,
     expected_intent="js.closures",
-    expected_in_response="Developer"
+    expected_in_response="Friend"
 )
 
 # Test 3: platform.session.join
