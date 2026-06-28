@@ -322,6 +322,28 @@ def predict_intent(raw_text: str, user_context: dict = None) -> dict:
         log_failed_query(raw_text, best_intent, float(best_confidence))
 
     if best_confidence < CONFIDENCE_THRESHOLD_FALLBACK:
+        # Check if this query is a follow-up to a previous JavaScript concept in session history
+        if user_context and "session_history" in user_context:
+            history = user_context["session_history"]
+            if isinstance(history, list) and len(history) > 0:
+                last_intent = None
+                for intent in reversed(history):
+                    if intent and intent.startswith("js.") and intent not in ("fallback", "error", "platform.unknown.fallback"):
+                        last_intent = intent
+                        break
+                if last_intent:
+                    raw_lower = raw_text.lower()
+                    follow_up_signals = {"why", "how", "explain", "code", "example", "trap", "quirk", "compare", "vs", "another", "more", "detail", "show", "give", "work"}
+                    import re
+                    cleaned_raw_words = set(re.sub(r'[^\w\s]', ' ', raw_lower).split())
+                    if cleaned_raw_words & follow_up_signals:
+                        resolved = _resolve_by_tier(last_intent, raw_text, user_context)
+                        resolved["confidence"] = 1.0
+                        resolved["cleaned_text"] = cleaned
+                        resolved["method"] = "follow_up_context"
+                        resolved["response"] = f"Here is more context/detail for **{last_intent}**:\n\n{resolved['response']}"
+                        return resolved
+
         resolved = _resolver.resolve("platform.unknown.fallback")
         resolved["confidence"] = round(best_confidence, 4)
         resolved["cleaned_text"] = cleaned
@@ -423,6 +445,29 @@ def bg_retrain():
         print(f"[ERROR] Exception during background retraining: {e}")
     finally:
         _is_retraining = False
+
+
+def trigger_auto_retrain():
+    """Trigger background model retraining automatically if not already running, with a cooldown check."""
+    global _is_retraining, _last_retrain_time
+    with _retrain_lock:
+        if _is_retraining:
+            return False
+        current_time = time.time()
+        # Cooldown of 5 seconds for auto-retrain to allow batching
+        if current_time - _last_retrain_time < 5:
+            return False
+        _is_retraining = True
+    try:
+        thread = threading.Thread(target=bg_retrain)
+        thread.daemon = True
+        thread.start()
+        return True
+    except Exception as e:
+        print(f"[ERROR] Failed to auto-trigger retraining thread: {e}")
+        with _retrain_lock:
+            _is_retraining = False
+        return False
 
 
 class AIRequestHandler(BaseHTTPRequestHandler):
@@ -612,7 +657,13 @@ class AIRequestHandler(BaseHTTPRequestHandler):
                     writer = csv.writer(f)
                     writer.writerow([query_text, intent])
                     
-                self._send_json({"status": "success", "message": f"Added '{query_text}' to dataset as '{intent}'"})
+                retrain_triggered = trigger_auto_retrain()
+                status_msg = f"Added '{query_text}' to dataset as '{intent}'"
+                if retrain_triggered:
+                    status_msg += " and triggered model retraining."
+                else:
+                    status_msg += " (retraining cooling down or already in progress)."
+                self._send_json({"status": "success", "message": status_msg})
             else:
                 self._send_json({"error": "Query ID not found"}, 404)
         else:

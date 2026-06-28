@@ -1,0 +1,74 @@
+{
+  "version": "1.1",
+  "intent": "js.introduction",
+  "topic": "JavaScript (Introduction)",
+  "dimensions": {
+    "syntax": false,
+    "semantics": true,
+    "runtime": true
+  },
+  "relationships": {
+    "depends_on": [],
+    "related_to": ["js.javascript_engine_intro", "js.execution_context_intro"],
+    "often_confused_with": []
+  },
+  "question_map": {
+    "what": [
+      "what is javascript",
+      "what is js",
+      "is javascript a browser language",
+      "is js a browser language"
+    ],
+    "why": [
+      "why is javascript called a browser language",
+      "why run javascript in a browser",
+      "why it is called browser language",
+      "why js is called browser language"
+    ],
+    "how": [
+      "how to run javascript",
+      "where can i run javascript",
+      "where can i run js",
+      "how do i run javascript",
+      "how to run js code",
+      "how to run javascript code",
+      "run js code",
+      "how do i run it",
+      "where can i run it",
+      "how to execute js code",
+      "where is javascript executed"
+    ],
+    "compare": [
+      "javascript in browser vs nodejs",
+      "where does js run"
+    ],
+    "output": [
+      "how to print hello world in js",
+      "how to execute js"
+    ]
+  },
+  "1_beginner_explanation": {
+    "summary": "JavaScript (JS) is a high-level, dynamic, and interpreted programming language. Created to make static web pages interactive, it is the native programming language of the web browser. Over the years, JS has evolved to run on almost any platform, including servers, mobiles, and embedded systems.",
+    "analogy": "If HTML is the structural skeleton of a house (walls, doors) and CSS is the decoration (paint, wallpapers), then JavaScript is the active electrical and plumbing system (light switches, water taps). It adds behavior, interactivity, and life to the structure."
+  },
+  "2_internal_mechanism": {
+    "execution_flow": "Every web browser has a built-in engine (e.g. Google's V8, Mozilla's SpiderMonkey) to run JS. The engine parses the code, translates it into bytecode/machine code, and runs it on the CPU. The browser also provides Web APIs (like DOM, Fetch) to interact with the webpage.",
+    "memory": "In browser environments, the JS runtime is single-threaded and runs along the UI thread. In headless runtimes like Node.js, it uses the V8 engine bound to the libuv C++ library to run outside the browser, enabling server-side execution and file system access."
+  },
+  "3_real_world_example": {
+    "use_case": "Creating a button click handler that dynamically changes web page text in a browser.",
+    "code": "// Simple DOM manipulation in browser\n// Click a button to change background color\ndocument.getElementById('myButton').addEventListener('click', () => {\n  document.body.style.backgroundColor = 'lightblue';\n  console.log('Background changed!');\n});"
+  },
+  "4_common_confusion": {
+    "trap": "Thinking JavaScript is the same as Java, or that it is strictly a browser-only language.",
+    "fix": "JavaScript and Java are entirely distinct languages. Also, JS is no longer limited to browsers; runtimes like Node.js and Deno let you build servers, APIs, and command-line tools with JS."
+  },
+  "5_related_topics": [
+    "js.javascript_engine_intro",
+    "js.execution_context_intro"
+  ],
+  "6_edge_case": {
+    "quirk": "Since JavaScript runs inside the browser environment, it does not have direct access to your computer's local files or system hardware for security reasons. Outside the browser (Node.js), this sandbox is removed, allowing full system access.",
+    "code": "// Browser JS cannot do this (raises security error / doesn't exist):\n// const fs = require('fs');\n// fs.writeFileSync('passwords.txt', '1234');\n\n// But Node.js (outside browser) can easily interact with local files:\n// console.log('Node.js system path:', process.cwd());"
+  }
+}

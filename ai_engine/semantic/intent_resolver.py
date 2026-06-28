@@ -43,6 +43,33 @@ _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _INTENTS_PATH  = os.path.join(_BASE_DIR, "dataset", "intents.json")
 _SYNONYMS_PATH = os.path.join(_BASE_DIR, "dataset", "synonyms.json")
 
+# ---------------------------------------------------------------------------
+# Noise tokens for semantic boosting keyword index
+# These words are too common across many concept packs to be discriminative.
+# Adding a token here prevents it from inflating scores for every intent
+# that mentions it, which would make IDF weights meaningless.
+# ---------------------------------------------------------------------------
+_SEMANTIC_NOISE_TOKENS: frozenset = frozenset({
+    # Generic programming verbs / nouns
+    "code", "run", "use", "make", "write", "work", "get", "set",
+    "call", "need", "know", "learn", "tell", "show", "give", "help",
+    "look", "take", "want", "let", "see", "find", "start", "create",
+    "add", "build", "do", "go", "try", "check", "put", "keep",
+    # Generic question words
+    "what", "why", "how", "when", "where", "who", "which", "can",
+    "is", "are", "was", "were", "did", "does", "do", "has", "have",
+    "will", "would", "could", "should",
+    # Short tokens / language abbreviations
+    "js", "a", "an", "the", "in", "on", "at", "to", "of", "or",
+    "and", "it", "its", "that", "this", "with", "for", "by",
+    "from", "be", "been", "being", "not", "if", "then", "but",
+    "so", "my", "your", "we", "i",
+    # Generic concept terms that appear in nearly every pack
+    "program", "language", "file", "line", "type", "name", "value",
+    "result", "example", "output", "input", "list", "way", "time",
+    "part", "place",
+})
+
 
 class IntentResolver:
     """
@@ -193,6 +220,10 @@ class IntentResolver:
                                             for word in kw.lower().split():
                                                 stemmed = _clean_kw(word)
                                                 if not stemmed:
+                                                    continue
+                                                # Skip high-frequency noise tokens — they
+                                                # match too many intents and dilute IDF scores.
+                                                if stemmed in _SEMANTIC_NOISE_TOKENS:
                                                     continue
                                                 if stemmed not in self._keyword_index:
                                                     self._keyword_index[stemmed] = []
@@ -487,6 +518,10 @@ class IntentResolver:
         total_intents = len(self._intents)
 
         for token in query_tokens:
+            # Skip noise tokens — they would match too many intents and
+            # collapse IDF scores towards zero for unrelated concepts.
+            if token in _SEMANTIC_NOISE_TOKENS:
+                continue
             # Direct lookup — keyword index keys are already stemmed tokens
             intent_list = self._keyword_index.get(token, [])
             if intent_list:

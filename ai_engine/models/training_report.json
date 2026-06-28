@@ -1,13 +1,13 @@
 {
-  "training_time_seconds": 173.31,
-  "train_samples": 2202,
+  "training_time_seconds": 36.41,
+  "train_samples": 2222,
   "val_samples": 572,
-  "n_classes": 78,
-  "n_features": 4668,
-  "train_accuracy": 0.9809,
-  "train_macro_f1": 0.9844,
-  "val_accuracy": 0.7972,
-  "val_macro_f1": 0.8005,
+  "n_classes": 79,
+  "n_features": 4685,
+  "train_accuracy": 0.9811,
+  "train_macro_f1": 0.9842,
+  "val_accuracy": 0.799,
+  "val_macro_f1": 0.8019,
   "val_per_class": {
     "general.greeting": {
       "precision": 1.0,
@@ -22,9 +22,9 @@
       "support": 4
     },
     "js.fundamentals.query": {
-      "precision": 0.6528,
+      "precision": 0.6562,
       "recall": 0.9767,
-      "f1": 0.7826,
+      "f1": 0.785,
       "support": 129
     },
     "platform.ai.ask": {
@@ -100,9 +100,9 @@
       "support": 5
     },
     "platform.library.search": {
-      "precision": 0.7143,
+      "precision": 0.8333,
       "recall": 1.0,
-      "f1": 0.8333,
+      "f1": 0.9091,
       "support": 5
     },
     "platform.library.upload": {
@@ -118,9 +118,9 @@
       "support": 5
     },
     "platform.matchmaking.feed": {
-      "precision": 0.75,
+      "precision": 0.6,
       "recall": 0.6,
-      "f1": 0.6667,
+      "f1": 0.6,
       "support": 5
     },
     "platform.matchmaking.find": {
@@ -281,8 +281,8 @@
     },
     "platform.new.what_the_shared_library": {
       "precision": 1.0,
-      "recall": 0.2857,
-      "f1": 0.4444,
+      "recall": 0.4286,
+      "f1": 0.6,
       "support": 7
     },
     "platform.new.what_the_wallet_feature": {
@@ -353,8 +353,8 @@
     },
     "platform.quiz.limits": {
       "precision": 1.0,
-      "recall": 0.8,
-      "f1": 0.8889,
+      "recall": 1.0,
+      "f1": 1.0,
       "support": 5
     },
     "platform.quiz.list_courses": {
@@ -460,9 +460,9 @@
       "support": 5
     },
     "platform.whiteboard.join": {
-      "precision": 0.75,
-      "recall": 0.6,
-      "f1": 0.6667,
+      "precision": 0.6667,
+      "recall": 0.4,
+      "f1": 0.5,
       "support": 5
     },
     "platform.whiteboard.presence": {
@@ -494,6 +494,7 @@
     "general.greeting",
     "general.polite",
     "js.fundamentals.query",
+    "js.introduction",
     "platform.ai.ask",
     "platform.ai.capabilities",
     "platform.ai.feedback",

@@ -1,4 +1,66 @@
 {
+  "js.introduction": {
+    "category": "JavaScript Concepts",
+    "topic_level": "beginner",
+    "response_type": "mixed",
+    "response": "JavaScript (JS) is a high-level, dynamic, and interpreted programming language. Initially created to make web pages interactive, it has evolved into a versatile general-purpose language.\n\nKey details:\n• **Browser Language:** JS is called a browser language because it is natively built into every modern web browser. Browsers contain a JS engine (like V8 in Chrome, SpiderMonkey in Firefox) to run JS code directly without compiling it to machine code first.\n• **Where it runs:** It can run inside web browsers (client-side) to manipulate the DOM, or outside browsers (server-side) using runtimes like Node.js or Deno.\n• **How to run:** In a browser, you can run JS by embedding it in HTML with `<script>` tags, using the browser's developer console (F12), or running script files locally.",
+    "code_example": "// Hello World in JavaScript\nconsole.log('Hello, SkillSprint!');\n\n// Modifying browser elements (DOM manipulation)\n// document.getElementById('title').textContent = 'New Title';",
+    "route": "QUIZZES",
+    "keywords": [
+      "javascript",
+      "js",
+      "introduction",
+      "what is javascript",
+      "where can i run javascript",
+      "browser language",
+      "how to run javascript",
+      "node",
+      "runtime",
+      "how to run js code",
+      "run javascript code",
+      "execute javascript"
+    ],
+    "admin_notes": "Introductory explanation of JavaScript as a language, runtime environments, and why it is natively associated with browsers.",
+    "examples": [
+      "what is javascript",
+      "what is js",
+      "where can i run it",
+      "is it a browser language",
+      "why it is called browser language",
+      "tell me about javascript",
+      "how do I run javascript code",
+      "where is javascript executed",
+      "what runs javascript",
+      "how to run js code",
+      "run javascript code",
+      "execute javascript"
+    ]
+  },
+  "js.fundamentals.query": {
+    "category": "JavaScript Concepts",
+    "topic_level": "beginner",
+    "response_type": "mixed",
+    "response": "JavaScript fundamentals include basic building blocks such as variables (var, let, const), data types (strings, numbers, objects), conditionals, loops, functions, and debugging toolsets (like console.log).\n\nIf you have a specific question about an operator, variable scope, or a control flow block, feel free to ask!",
+    "code_example": "// A quick look at core fundamentals\nconst score = 100;\nif (score >= 50) {\n  console.log('Passed!');\n}",
+    "route": "QUIZZES",
+    "keywords": [
+      "fundamental",
+      "basics",
+      "concepts",
+      "variable",
+      "operator",
+      "statement",
+      "loop",
+      "function"
+    ],
+    "admin_notes": "Generic fallthrough handler for JavaScript fundamental concepts when a specific intent isn't matched.",
+    "examples": [
+      "explain javascript basics",
+      "what are the core concepts of javascript",
+      "tell me about js fundamentals",
+      "javascript syntax overview"
+    ]
+  },
   "js.variables": {
     "category": "JavaScript Concepts",
     "topic_level": "beginner",
