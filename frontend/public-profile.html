@@ -356,9 +356,159 @@
     </div>
 
     <!-- Unified Modals (Owner Only) -->
-    <div id="ppEditModal" class="pp-modal-overlay" style="display:none;"></div>
-    <!-- ... Rest of modal structure is injected by JS or in source ... -->
+    <div id="ppEditModal" class="pp-modal-overlay" style="display:none;">
+        <div class="pp-modal-form">
+            <div class="pp-modal-header">
+                <h3>Edit Profile & Privacy</h3>
+                <button class="pp-modal-close" onclick="closePpModal('ppEditModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="ppEditForm" class="pp-modal-body">
+                <div class="pp-form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" class="pp-form-input" placeholder="Your Name">
+                </div>
+                <div class="pp-form-group">
+                    <label>Designation</label>
+                    <input type="text" name="designation" class="pp-form-input" placeholder="e.g. Software Engineer">
+                </div>
+                <div class="pp-form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" class="pp-form-input" placeholder="e.g. San Francisco, CA">
+                </div>
+                <div class="pp-form-group">
+                    <label>Bio</label>
+                    <textarea name="bio" class="pp-form-input" rows="3" placeholder="Tell us about yourself..."></textarea>
+                </div>
 
+                <div class="pp-form-div"></div>
+                <h4 class="pp-form-sub">Social Links</h4>
+                <div class="pp-form-group">
+                    <input type="url" name="github" class="pp-form-input" placeholder="GitHub URL">
+                </div>
+                <div class="pp-form-group">
+                    <input type="url" name="linkedin" class="pp-form-input" placeholder="LinkedIn URL">
+                </div>
+                <div class="pp-form-group">
+                    <input type="url" name="portfolio" class="pp-form-input" placeholder="Portfolio URL">
+                </div>
+
+                <div class="pp-form-div"></div>
+                <h4 class="pp-form-sub">Privacy Settings</h4>
+                <div class="pp-form-group-row">
+                    <label>Show Skills Publicly</label>
+                    <input type="checkbox" name="showSkills">
+                </div>
+                <div class="pp-form-group-row">
+                    <label>Show Streaks</label>
+                    <input type="checkbox" name="showStreaks">
+                </div>
+
+                <div class="pp-modal-footer">
+                    <button type="submit" class="pp-btn pp-btn-primary" style="width:100%">Save All Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="ppProjectModal" class="pp-modal-overlay" style="display:none;">
+        <div class="pp-modal-form">
+            <div class="pp-modal-header">
+                <h3 id="ppProjectModalTitle">Add Project</h3>
+                <button class="pp-modal-close" onclick="closePpModal('ppProjectModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="ppProjectForm" class="pp-modal-body">
+                <input type="hidden" name="index" value="-1">
+                <div class="pp-form-group">
+                    <label>Project Title</label>
+                    <input type="text" name="title" class="pp-form-input" required>
+                </div>
+                <div class="pp-form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="pp-form-input" rows="2"></textarea>
+                </div>
+                <div class="pp-form-group">
+                    <label>Tech Stack (comma separated)</label>
+                    <input type="text" name="tech_stack" class="pp-form-input">
+                </div>
+                <div class="pp-form-group">
+                    <label>Project Link</label>
+                    <input type="url" name="link" class="pp-form-input">
+                </div>
+                <div class="pp-modal-footer">
+                    <button type="submit" class="pp-btn pp-btn-primary" style="width:100%">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Education Modal -->
+    <div id="ppEduModal" class="pp-modal-overlay" style="display:none;">
+        <div class="pp-modal-form">
+            <div class="pp-modal-header">
+                <h3 id="ppEduModalTitle">Add Education</h3>
+                <button class="pp-modal-close" onclick="closePpModal('ppEduModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="ppEduForm" class="pp-modal-body">
+                <input type="hidden" name="index" value="-1">
+                <div class="pp-form-group">
+                    <label>Degree / Program</label>
+                    <input type="text" name="degree" class="pp-form-input" required>
+                </div>
+                <div class="pp-form-group">
+                    <label>Institution</label>
+                    <input type="text" name="institution" class="pp-form-input" required>
+                </div>
+                <div class="pp-form-group">
+                    <label>Year (e.g. 2024)</label>
+                    <input type="text" name="year" class="pp-form-input">
+                </div>
+                <div class="pp-form-group">
+                    <label>Grade / Score</label>
+                    <input type="text" name="grade" class="pp-form-input">
+                </div>
+                <div class="pp-modal-footer">
+                    <button type="submit" class="pp-btn pp-btn-primary" style="width:100%">Save Education</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Experience Modal -->
+    <div id="ppExpModal" class="pp-modal-overlay" style="display:none;">
+        <div class="pp-modal-form">
+            <div class="pp-modal-header">
+                <h3 id="ppExpModalTitle">Add Experience</h3>
+                <button class="pp-modal-close" onclick="closePpModal('ppExpModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="ppExpForm" class="pp-modal-body">
+                <input type="hidden" name="index" value="-1">
+                <div class="pp-form-group">
+                    <label>Job Title</label>
+                    <input type="text" name="title" class="pp-form-input" required>
+                </div>
+                <div class="pp-form-group">
+                    <label>Company</label>
+                    <input type="text" name="company" class="pp-form-input" required>
+                </div>
+                <div class="pp-form-group">
+                    <label>Start Year</label>
+                    <input type="text" name="start_year" class="pp-form-input">
+                </div>
+                <div class="pp-form-group">
+                    <label>End Year</label>
+                    <input type="text" name="end_year" class="pp-form-input">
+                </div>
+                <div class="pp-form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="pp-form-input" rows="3"></textarea>
+                </div>
+                <div class="pp-modal-footer">
+                    <button type="submit" class="pp-btn pp-btn-primary" style="width:100%">Save Experience</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <style>
         .pp-report-opt {

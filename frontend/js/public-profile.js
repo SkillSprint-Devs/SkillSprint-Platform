@@ -653,10 +653,26 @@
         if (avatar) avatar.src = user.profile_image || 'assets/images/user-avatar.png';
         const nameEl = document.getElementById('ppName');
         if (nameEl) { nameEl.textContent = user.name || 'Unknown User'; document.getElementById('ppHandle').textContent = `@${(user.name || 'user').toLowerCase().replace(/\s+/g, '')}`; }
+        const locationText = document.getElementById('ppLocationText');
+        if (locationText) { locationText.textContent = user.location || 'Unknown location'; const locationEl = document.getElementById('ppLocation'); if (locationEl) locationEl.style.display = user.location ? '' : 'none'; }
+        const designationText = document.getElementById('ppDesignationText');
+        if (designationText) { designationText.textContent = user.designation || 'No designation'; const designationEl = document.getElementById('ppDesignation'); if (designationEl) designationEl.style.display = user.designation ? '' : 'none'; }
+        const memberSinceText = document.getElementById('ppMemberSinceText');
+        if (memberSinceText) { memberSinceText.textContent = user.created_at ? fmtDate(user.created_at) : 'Joined —'; }
         const roleText = document.getElementById('ppRoleText');
         if (roleText) { roleText.textContent = (user.role || 'student').charAt(0).toUpperCase() + (user.role || 'student').slice(1); document.getElementById('ppRoleBadge').querySelector('i').className = `fa-solid ${roleIcon(user.role)}`; }
         const bio = document.getElementById('ppBio');
         if (bio) { bio.style.display = user.bio ? '' : 'none'; bio.textContent = user.bio; }
+        const followersVal = document.getElementById('ppFollowersVal');
+        if (followersVal) followersVal.textContent = fmtNum(user.followers_count ?? (Array.isArray(user.followers) ? user.followers.length : 0));
+        const followingVal = document.getElementById('ppFollowingVal');
+        if (followingVal) followingVal.textContent = fmtNum(user.following_count ?? (Array.isArray(user.following) ? user.following.length : 0));
+        const postsVal = document.getElementById('ppPostsVal');
+        if (postsVal) postsVal.textContent = fmtNum((user.recentPosts || []).length);
+        const xpStatVal = document.getElementById('ppXpVal');
+        if (xpStatVal) xpStatVal.textContent = `${user.xp || 0} XP`;
+        const streakVal = document.getElementById('ppStreakVal');
+        if (streakVal) streakVal.textContent = fmtNum(user.streakCount || 0);
         setOnlineDot(user.isOnline);
         renderCta(user);
         if (user.isOwnProfile) showOwnerControls();
