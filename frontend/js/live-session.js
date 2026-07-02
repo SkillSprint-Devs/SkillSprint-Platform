@@ -264,38 +264,16 @@ async function createPeerConnection(peerId, isOffer) {
     peerConnections[peerId] = pc;
     signalingStates[peerId] = { makingOffer: false, ignoreOffer: false, isSettingRemoteAnswerPending: false, candidates: [] };
 
-    const audioTrack = localStream ? localStream.getAudioTracks()[0] : null;
-    const videoTrack = localStream ? localStream.getVideoTracks()[0] : null;
-
-    const canSendMic = window.isMentor || grantedPermissions.mic;
-    const canSendCam = window.isMentor || grantedPermissions.cam;
-
-    try {
-        const audioTransceiver = pc.addTransceiver('audio', {
-            direction: 'sendrecv',
-            streams: localStream ? [localStream] : []
+    if (localStream) {
+        localStream.getTracks().forEach(track => {
+            // Mentees only add tracks if permitted
+            if (window.isMentor) {
+                pc.addTrack(track, localStream);
+            } else {
+                if (track.kind === 'audio' && grantedPermissions.mic) pc.addTrack(track, localStream);
+                if (track.kind === 'video' && grantedPermissions.cam) pc.addTrack(track, localStream);
+            }
         });
-        if (audioTrack && canSendMic) {
-            await audioTransceiver.sender.replaceTrack(audioTrack);
-        } else {
-            await audioTransceiver.sender.replaceTrack(null);
-        }
-    } catch (err) {
-        console.error("[WEBRTC] Error setting up audio transceiver for peer " + peerId + ":", err);
-    }
-
-    try {
-        const videoTransceiver = pc.addTransceiver('video', {
-            direction: 'sendrecv',
-            streams: localStream ? [localStream] : []
-        });
-        if (videoTrack && canSendCam) {
-            await videoTransceiver.sender.replaceTrack(videoTrack);
-        } else {
-            await videoTransceiver.sender.replaceTrack(null);
-        }
-    } catch (err) {
-        console.error("[WEBRTC] Error setting up video transceiver for peer " + peerId + ":", err);
     }
 
     pc.onicecandidate = ({ candidate }) => {
@@ -453,7 +431,7 @@ function drawOnCanvas(draw) {
 async function toggleScreenShare() {
     const shareBtn = document.getElementById("toggleShare");
     if (screenStream) {
-        await stopScreenShare();
+        stopScreenShare();
     } else {
         try {
             screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
@@ -466,9 +444,9 @@ async function toggleScreenShare() {
             // using replaceTrack — no renegotiation required
             for (const peerId in peerConnections) {
                 const pc = peerConnections[peerId];
-                const videoTransceiver = pc.getTransceivers().find(t => t.receiver.track.kind === 'video');
-                if (videoTransceiver) {
-                    await videoTransceiver.sender.replaceTrack(screenTrack);
+                const videoSender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (videoSender) {
+                    await videoSender.replaceTrack(screenTrack);
                 }
             }
 
@@ -483,7 +461,7 @@ async function toggleScreenShare() {
     }
 }
 
-async function stopScreenShare() {
+function stopScreenShare() {
     const shareBtn = document.getElementById("toggleShare");
     if (!screenStream) return;
 
@@ -492,11 +470,11 @@ async function stopScreenShare() {
 
     // Restore original camera track to all peer connections
     const cameraTrack = localStream.getVideoTracks()[0];
-    for (const peerId in peerConnections) {
-        const pc = peerConnections[peerId];
-        const videoTransceiver = pc.getTransceivers().find(t => t.receiver.track.kind === 'video');
-        if (videoTransceiver) {
-            await videoTransceiver.sender.replaceTrack(cameraTrack || null);
+    if (cameraTrack) {
+        for (const peerId in peerConnections) {
+            const pc = peerConnections[peerId];
+            const videoSender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+            if (videoSender) videoSender.replaceTrack(cameraTrack);
         }
     }
 
@@ -718,17 +696,6 @@ async function ensureMediaTracks(type) {
         try {
             const fresh = await navigator.mediaDevices.getUserMedia({ audio: type === 'mic', video: type === 'cam' });
             const freshTrack = type === 'mic' ? fresh.getAudioTracks()[0] : fresh.getVideoTracks()[0];
-            
-            // Clean up and stop the old canvas placeholder track if it exists
-            if (track && track.label.toLowerCase().includes("canvas")) {
-                try {
-                    track.stop();
-                    localStream.removeTrack(track);
-                } catch (e) {
-                    console.error("[MEDIA] Error removing old canvas track:", e);
-                }
-            }
-
             localStream.addTrack(freshTrack);
             document.getElementById("localVideo").srcObject = localStream;
             return freshTrack;
@@ -746,55 +713,38 @@ async function updateLocalPermissions(type, granted, silent = false) {
     }
 
     if (type === 'mic' || type === 'cam') {
-        if (!granted) {
-            const track = type === 'mic' ? localStream.getAudioTracks()[0] : localStream.getVideoTracks()[0];
-            if (track) {
+        const track = type === 'mic' ? localStream.getAudioTracks()[0] : localStream.getVideoTracks()[0];
+        if (track) {
+            if (!granted) {
                 track.enabled = false;
-            }
-            document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.add("off");
-            if (type === 'cam') {
-                updateVideoWrapperCameraState(getMyId(), false);
-            }
-            // Revoke on all peer connections by replacing track with null
-            for (const peerId in peerConnections) {
-                const pc = peerConnections[peerId];
-                const transceiver = pc.getTransceivers().find(t => t.receiver.track.kind === (type === 'mic' ? 'audio' : 'video'));
-                if (transceiver) {
-                    try {
-                        await transceiver.sender.replaceTrack(null);
-                    } catch (err) {
-                        console.error("[WEBRTC] Error replacing track with null:", err);
-                    }
-                }
-            }
-        } else {
-            // Newly granted or restored
-            const freshTrack = await ensureMediaTracks(type);
-            if (freshTrack) {
-                freshTrack.enabled = true;
-                document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.remove("off");
+                document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.add("off");
                 if (type === 'cam') {
-                    updateVideoWrapperCameraState(getMyId(), true);
+                    updateVideoWrapperCameraState(getMyId(), false);
                 }
-                for (const peerId in peerConnections) {
-                    const pc = peerConnections[peerId];
-                    const transceiver = pc.getTransceivers().find(t => t.receiver.track.kind === (type === 'mic' ? 'audio' : 'video'));
-                    if (transceiver) {
-                        try {
-                            await transceiver.sender.replaceTrack(freshTrack);
-                        } catch (err) {
-                            console.error("[WEBRTC] Error replacing track with fresh track:", err);
+            } else {
+                // If it was newly granted, we might need to add it to existing peer connections
+                if (!prev && granted) {
+                    const freshTrack = await ensureMediaTracks(type);
+                    if (freshTrack) {
+                        freshTrack.enabled = true;
+                        document.getElementById(type === 'mic' ? "toggleMic" : "toggleCam")?.classList.remove("off");
+                        if (type === 'cam') {
+                            updateVideoWrapperCameraState(getMyId(), true);
                         }
+                        Object.values(peerConnections).forEach(pc => {
+                            const senders = pc.getSenders();
+                            if (!senders.find(s => s.track === freshTrack)) {
+                                pc.addTrack(freshTrack, localStream);
+                            }
+                        });
                     }
                 }
             }
+            // Broadcast new state
+            const isVideoOn = localStream.getVideoTracks()[0] ? localStream.getVideoTracks()[0].enabled : false;
+            const isAudioOn = localStream.getAudioTracks()[0] ? localStream.getAudioTracks()[0].enabled : false;
+            socket.emit("live:mediaStateChanged", { sessionId, video: isVideoOn, audio: isAudioOn });
         }
-
-        // Broadcast new state
-        const isVideoOn = localStream.getVideoTracks()[0] ? localStream.getVideoTracks()[0].enabled : false;
-        const isAudioOn = localStream.getAudioTracks()[0] ? localStream.getAudioTracks()[0].enabled : false;
-        socket.emit("live:mediaStateChanged", { sessionId, video: isVideoOn, audio: isAudioOn });
-
     } else if (type === 'whiteboard' && !window.isMentor) {
         document.getElementById("toggleWhiteboard").style.display = granted ? "block" : "none";
         if (!granted) {
